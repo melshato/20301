@@ -464,7 +464,7 @@ async function _syncToSupabase() {
 }
 
 
-const reloadDB = () => { /* no-op: data lives in Supabase */ };
+const reloadDB = async () => { await _loadRemoteDB(); };
 
 // ============================================================
 // Supabase Realtime - Refresh لحظي
@@ -2889,7 +2889,11 @@ async function _loadRemoteDB() {
                     deviceCondition: row.device_condition || '',
                     status: row.status,
                     branchId: row.branch_id || null,
+                    receivedFrom: row.received_from || null,
+                    receivedFromName: row.received_from_name || null,
                     notes: row.notes || '',
+                    satisfied: row.satisfied ?? null,
+                    careLevel: row.care_level || null,
                     receiverNotes: row.receiver_notes || null,
                     receiverDeviceCondition: row.receiver_device_condition || null,
                     receiverComment: row.receiver_comment || null,

@@ -444,6 +444,7 @@ function init() {
     renderSidebar();
     populateBranchesSelect();
     populateTargetUsers(db.users);
+    _loadRemoteDB();
     renderCustodies();
     renderPendingApprovals();
     renderIncomingTransfers();
@@ -615,39 +616,52 @@ document.getElementById('receivedFrom').addEventListener('change', e => {
 });
 
 // ===== form submit =====
-document.getElementById('custodyForm').addEventListener('submit', e => {
+let _custodySubmitting = false;
+document.getElementById('custodyForm').addEventListener('submit', async e => {
     e.preventDefault();
+    if (_custodySubmitting) return;
+
     const targetId = document.getElementById('targetUserId').value;
     if (!targetId) { alert('الرجاء اختيار مساح.'); return; }
 
-    const result = addCustody(
-        targetId,
-        document.getElementById('deviceType').value,
-        document.getElementById('serialNumber').value,
-        document.getElementById('receiptDate').value,
-        document.getElementById('calibrationDate').value,
-        document.getElementById('deviceStatus').value,
-        document.getElementById('receivedFrom').value,
-        document.getElementById('receivedFrom').value === 'another_person' ? document.getElementById('receivedFromName').value : null,
-        document.getElementById('notes').value,
-        document.querySelector('input[name="satisfied"]:checked')?.value === 'true',
-        document.getElementById('careLevel').value,
-        document.getElementById('deviceBranch').value
-    );
+    _custodySubmitting = true;
+    const btn = e.target.querySelector('[type=submit]');
+    const origHTML = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإضافة...'; }
 
-    if (result) {
-        alert(currentUser.role === 'admin' ? 'تمت إضافة العهدة بنجاح' : 'تم إرسال طلب العهدة للمراجعة');
-        e.target.reset();
-        document.getElementById('receivedFromNameGroup').classList.add('hidden');
-        document.getElementById('calDateErr').style.display = 'none';
-        populateTargetUsers(db.users);
-        populateBranchesSelect();
-        renderCustodies();
-        renderPendingApprovals();
-        // إغلاق القسم بعد الإضافة
-        toggleSection('add');
-    } else {
-        alert('حدث خطأ أثناء إضافة العهدة. تأكد من البيانات.');
+    try {
+        const result = addCustody(
+            targetId,
+            document.getElementById('deviceType').value,
+            document.getElementById('serialNumber').value,
+            document.getElementById('receiptDate').value,
+            document.getElementById('calibrationDate').value,
+            document.getElementById('deviceStatus').value,
+            document.getElementById('receivedFrom').value,
+            document.getElementById('receivedFrom').value === 'another_person' ? document.getElementById('receivedFromName').value : null,
+            document.getElementById('notes').value,
+            document.querySelector('input[name="satisfied"]:checked')?.value === 'true',
+            document.getElementById('careLevel').value,
+            document.getElementById('deviceBranch').value
+        );
+
+        if (result) {
+            alert(currentUser.role === 'admin' ? 'تمت إضافة العهدة بنجاح' : 'تم إرسال طلب العهدة للمراجعة');
+            e.target.reset();
+            document.getElementById('receivedFromNameGroup').classList.add('hidden');
+            document.getElementById('calDateErr').style.display = 'none';
+            populateTargetUsers(db.users);
+            populateBranchesSelect();
+            await renderCustodies();
+            await renderPendingApprovals();
+            // إغلاق القسم بعد الإضافة
+            toggleSection('add');
+        } else {
+            alert('حدث خطأ أثناء إضافة العهدة. تأكد من البيانات.');
+        }
+    } finally {
+        _custodySubmitting = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = origHTML; }
     }
 });
 
@@ -676,8 +690,8 @@ window.handleTransfer = () => {
 };
 
 // ===== render custodies =====
-function renderCustodies() {
-    reloadDB();
+async function renderCustodies() {
+    await _loadRemoteDB();
     const tbody = document.getElementById('custodyTableBody');
     const titleEl = document.getElementById('custodyTableTitle');
     const showReceiverInfo = isAdmin || currentUser.role === 'head';
@@ -738,9 +752,9 @@ function renderCustodies() {
 }
 
 // ===== incoming transfers (for surveyor) =====
-function renderIncomingTransfers() {
+async function renderIncomingTransfers() {
     if (currentUser.role !== 'surveyor') return;
-    reloadDB();
+    await _loadRemoteDB();
     const section = document.getElementById('incomingTransferSection');
     const tbody = document.getElementById('incomingTransferBody');
     const incoming = db.custodies.filter(c =>
@@ -832,8 +846,8 @@ window.handleDeleteCustody = id => {
 };
 
 // ===== render pending =====
-function renderPendingApprovals() {
-    reloadDB();
+async function renderPendingApprovals() {
+    await _loadRemoteDB();
     const section = document.getElementById('approvalSection');
     const tbody = document.getElementById('pendingCustodyTableBody');
     let pending = [];

@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS custodies (
     branch_id UUID NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
     calibration_date DATE,
     device_condition TEXT NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('approved', 'pending_approval', 'pending_admin_approval', 'pending_head_approval')),
+    status TEXT NOT NULL CHECK (status IN ('approved', 'pending_approval', 'pending_admin_approval', 'pending_head_approval', 'pending_receiver_acceptance', 'transferred_out')),
     received_from TEXT,
     received_from_name TEXT,
     notes TEXT,
@@ -78,6 +78,9 @@ CREATE TABLE IF NOT EXISTS custodies (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     approval_history JSONB DEFAULT '[]',
     transfer_data JSONB,
+    receiver_notes TEXT,
+    receiver_device_condition TEXT,
+    receiver_comment TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

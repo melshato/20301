@@ -515,7 +515,7 @@ async function _syncToSupabase() {
 }
 
 
-const reloadDB = () => { /* no-op: data lives in Supabase */ };
+const reloadDB = async () => { await _loadRemoteDB(); };
 
 // ============================================================
 // Supabase Realtime - تحديث لحظي
@@ -1629,6 +1629,7 @@ function rejectLeaveRequest(leaveId) {
 // ============================================================
 function _custodyToRow(c) {
     const row = {
+        id:                       _isUUID(c.id) ? c.id : undefined,
         device_type:              c.deviceType,
         serial_number:            c.serialNumber,
         receipt_date:             c.receiptDate      || null,
@@ -1656,14 +1657,9 @@ function _custodyToRow(c) {
 function _insertCustodyToSupabase(c) {
     if (!supabaseClient || !_isUUID(c.userId) || !_isUUID(c.assignedBy)) return;
     const row = _custodyToRow(c);
-    supabaseClient.from('custodies').insert(row).select('id')
-        .then(({ data, error }) => {
-            if (error) { console.warn('custody insert:', error.message); return; }
-            const newId = data?.[0]?.id;
-            if (newId && newId !== c.id) {
-                c.id = newId;
-            }
-        });
+    // upsert so the local UUID is authoritative — no ID swap, no realtime race
+    supabaseClient.from('custodies').upsert(row, { onConflict: 'id', ignoreDuplicates: false })
+        .then(({ error }) => { if (error) console.warn('custody upsert:', error.message); });
 }
 
 function _updateCustodyInSupabase(c) {
@@ -1902,6 +1898,7 @@ function addCustody(userId, deviceType, serialNumber, receiptDate, calibrationDa
         addNotification(userId, `تم إرسال طلب عهدة الجهاز (${serialNumber}) للمراجعة.`, 'info');
     }
     if (newCustody.status === 'approved') updateDeviceOwner(serialNumber, userId, calibrationDate, resolvedBranch, deviceType, deviceCondition);
+
     db.custodies.push(newCustody);
     saveDB();
     _insertCustodyToSupabase(newCustody);
@@ -2991,8 +2988,8 @@ async function _loadRemoteDB() {
         // ── Custodies ─────────────────────────────────────────────
         if (custodiesRes && custodiesRes.data && custodiesRes.data.length > 0) {
             if (!db.custodies) db.custodies = [];
+            const _terminalStatuses = ['rejected', 'transferred_out', 'returned'];
             custodiesRes.data.forEach(row => {
-                const local = db.custodies.find(c => c.id === row.id);
                 const merged = {
                     id: row.id,
                     userId: row.user_id,
@@ -3004,7 +3001,11 @@ async function _loadRemoteDB() {
                     deviceCondition: row.device_condition || '',
                     status: row.status,
                     branchId: row.branch_id || null,
+                    receivedFrom: row.received_from || null,
+                    receivedFromName: row.received_from_name || null,
                     notes: row.notes || '',
+                    satisfied: row.satisfied ?? null,
+                    careLevel: row.care_level || null,
                     receiverNotes: row.receiver_notes || null,
                     receiverDeviceCondition: row.receiver_device_condition || null,
                     receiverComment: row.receiver_comment || null,
@@ -3012,12 +3013,27 @@ async function _loadRemoteDB() {
                     transferData: row.transfer_data || null,
                     timestamp: row.timestamp || row.created_at || '',
                 };
+                // Match by id first; fall back to serialNumber+active-status to handle the
+                // race window where realtime fires before _insertCustodyToSupabase upsert resolves.
+                const local = db.custodies.find(c => c.id === row.id) ||
+                    (!_terminalStatuses.includes(row.status) &&
+                        db.custodies.find(c => c.serialNumber === row.serial_number && !_terminalStatuses.includes(c.status)));
                 if (local) {
                     Object.assign(local, merged);
                 } else {
                     db.custodies.push(merged);
                 }
                 changed = true;
+            });
+            // Final dedup: if two local records share the same serialNumber and active status,
+            // keep the one whose id matches Supabase (it has the authoritative data).
+            const seen = new Map();
+            db.custodies = db.custodies.filter(c => {
+                if (_terminalStatuses.includes(c.status)) return true;
+                const key = c.serialNumber;
+                if (seen.has(key)) return false;
+                seen.set(key, true);
+                return true;
             });
         }
 

@@ -444,6 +444,7 @@ function init() {
     renderSidebar();
     populateBranchesSelect();
     populateTargetUsers(db.users);
+    _loadRemoteDB();
     renderCustodies();
     renderPendingApprovals();
     renderIncomingTransfers();
@@ -615,7 +616,7 @@ document.getElementById('receivedFrom').addEventListener('change', e => {
 });
 
 // ===== form submit =====
-document.getElementById('custodyForm').addEventListener('submit', e => {
+document.getElementById('custodyForm').addEventListener('submit', async e => {
     e.preventDefault();
     const targetId = document.getElementById('targetUserId').value;
     if (!targetId) { alert('الرجاء اختيار Surveyor.'); return; }
@@ -642,8 +643,8 @@ document.getElementById('custodyForm').addEventListener('submit', e => {
         document.getElementById('calDateErr').style.display = 'none';
         populateTargetUsers(db.users);
         populateBranchesSelect();
-        renderCustodies();
-        renderPendingApprovals();
+        await renderCustodies();
+        await renderPendingApprovals();
         // Close القسم بعد Add
         toggleSection('add');
     } else {
@@ -676,8 +677,8 @@ window.handleTransfer = () => {
 };
 
 // ===== render custodies =====
-function renderCustodies() {
-    reloadDB();
+async function renderCustodies() {
+    await _loadRemoteDB();
     const tbody = document.getElementById('custodyTableBody');
     const titleEl = document.getElementById('custodyTableTitle');
     const showReceiverInfo = isAdmin || currentUser.role === 'head';
@@ -738,9 +739,9 @@ function renderCustodies() {
 }
 
 // ===== incoming transfers (for surveyor) =====
-function renderIncomingTransfers() {
+async function renderIncomingTransfers() {
     if (currentUser.role !== 'surveyor') return;
-    reloadDB();
+    await _loadRemoteDB();
     const section = document.getElementById('incomingTransferSection');
     const tbody = document.getElementById('incomingTransferBody');
     const incoming = db.custodies.filter(c =>
@@ -832,8 +833,8 @@ window.handleDeleteCustody = id => {
 };
 
 // ===== render pending =====
-function renderPendingApprovals() {
-    reloadDB();
+async function renderPendingApprovals() {
+    await _loadRemoteDB();
     const section = document.getElementById('approvalSection');
     const tbody = document.getElementById('pendingCustodyTableBody');
     let pending = [];

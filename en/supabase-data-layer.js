@@ -68,6 +68,9 @@ const FIELD_MAPPINGS = {
         timestamp: 'timestamp',
         approvalHistory: 'approval_history',
         transferData: 'transfer_data',
+        receiverNotes: 'receiver_notes',
+        receiverDeviceCondition: 'receiver_device_condition',
+        receiverComment: 'receiver_comment',
         createdAt: 'created_at',
         updatedAt: 'updated_at'
     },
