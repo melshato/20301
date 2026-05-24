@@ -535,9 +535,10 @@ function populateTargetUsers(userList, searchVal = '') {
         filtered = userList.filter(u => u.branch === currentUser.responsibleBranch);
     } else if (currentUser.role === 'surveyor') {
         filtered = [db.users.find(u => u.id === currentUser.id)].filter(Boolean);
+        search.value = currentUser.empId || '';
         search.readOnly = true;
         search.placeholder = 'Current Surveyor';
-        // NOTE: never overwrite search input (empId field) with name - that caused data in wrong field
+        // NOTE: show empId in the first field, name appears in the next select
     }
     sel.innerHTML = filtered.map(u => `<option value="${u.id}">${u.name} (ID: ${u.empId}) - ${db.branches.find(b=>b.id===u.branch)?.name || ''}</option>`).join('');
     if (currentUser.role === 'surveyor') {
