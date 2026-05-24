@@ -533,8 +533,11 @@ function populateTargetUsers(userList) {
         filtered = userList.filter(u => u.branch === currentUser.responsibleBranch);
     } else if (currentUser.role === 'surveyor') {
         filtered = [db.users.find(u => u.id === currentUser.id)].filter(Boolean);
-        search.value = currentUser.empId;
+        // Show the name in the search input and make it readOnly
+        search.value = currentUser.name;
         search.readOnly = true;
+        // Optionally, set a placeholder to indicate it's the current user
+        search.placeholder = 'المساح الحالي';
     }
     document.getElementById('targetUserId').innerHTML =
         filtered.map(u => `<option value="${u.id}">${u.name} (ID: ${u.empId}) - ${db.branches.find(b=>b.id===u.branch)?.name || ''}</option>`).join('');
