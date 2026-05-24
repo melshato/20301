@@ -534,18 +534,22 @@ function populateTargetUsers(userList, searchVal = '') {
     if (currentUser.role === 'head') {
         filtered = userList.filter(u => u.branch === currentUser.responsibleBranch);
     } else if (currentUser.role === 'surveyor') {
-        filtered = [db.users.find(u => u.id === currentUser.id)].filter(Boolean);
-        search.value = currentUser.empId || '';
+        const me = currentUser;
+        search.value = me.empId || '';
         search.readOnly = true;
         search.placeholder = 'Current Surveyor';
-        // NOTE: show empId in the first field, name appears in the next select
+        // Build option directly from currentUser so name always appears in the select box immediately (even before async db.users load)
+        if (me && me.id) {
+            const branchName = db.branches.find(b => b.id === me.branch)?.name || '';
+            sel.innerHTML = `<option value="${me.id}">${me.name} (ID: ${me.empId}) - ${branchName}</option>`;
+            sel.disabled = true;
+            sel.value = me.id;
+            infoDiv.textContent = `Employee: ${me.name}`;
+            return; // done for surveyor, no further processing
+        }
     }
     sel.innerHTML = filtered.map(u => `<option value="${u.id}">${u.name} (ID: ${u.empId}) - ${db.branches.find(b=>b.id===u.branch)?.name || ''}</option>`).join('');
-    if (currentUser.role === 'surveyor') {
-        sel.disabled = true;
-        if (filtered[0]) sel.value = filtered[0].id;
-        infoDiv.textContent = `Employee: ${currentUser.name}`;
-    } else if (filtered.length === 1) {
+    if (filtered.length === 1) {
         sel.value = filtered[0].id;
         infoDiv.textContent = `Selected Employee: ${filtered[0].name}`;
     } else if (searchVal) {
