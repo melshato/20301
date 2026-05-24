@@ -181,7 +181,7 @@ const defaultDB = {
     calibrationCerts: [], maintenanceRequests: [], directMessages: [],
     projects: [], newsTicker: [],
     profileChangeRequests: [], passwordResetRequests: [],
-    workers: [], workerLeaveRequests: [],
+    workers: [], workerLeaveRequests: [], workerTransferRequests: [],
     salaryRaiseRequests: [],
     ratingWeights: { q1: 20, q2: 20, q3: 15, q4: 15, q5: 15, q6: 15 },
     _version: APP_VERSION
@@ -3208,15 +3208,23 @@ async function _loadRemoteDB() {
 function addWorker(data) {
     if (!data.name || !data.residenceId) return false;
     if (db.workers.some(w => w.residenceId === data.residenceId)) {
-        alert('يandجد Worker مسجل بنفس Residence ID'); return false;
+        alert('A worker with this Residence ID already exists'); return false;
     }
+    const targetSurveyor = data.targetSurveyorId
+        ? db.users.find(u => u.id === data.targetSurveyorId)
+        : null;
+    const assignedSurveyorId   = targetSurveyor ? targetSurveyor.id   : currentUser.id;
+    const assignedSurveyorName = targetSurveyor ? targetSurveyor.name : currentUser.name;
+    const assignedBranchId     = targetSurveyor
+        ? (targetSurveyor.branch || targetSurveyor.responsibleBranch || '')
+        : (currentUser.branch || currentUser.responsibleBranch || '');
     const w = {
         id: 'wrk_' + Date.now() + '_' + Math.random().toString(36).substr(2,4),
         name: data.name, empId: data.empId || '', phone: data.phone || '',
         email: data.email || '', nationality: data.nationality || '',
         dob: data.dob || '', residenceId: data.residenceId,
-        branchId: currentUser.branch || currentUser.responsibleBranch || '',
-        surveyorId: currentUser.id, surveyorName: currentUser.name,
+        branchId: assignedBranchId,
+        surveyorId: assignedSurveyorId, surveyorName: assignedSurveyorName,
         projectId: data.projectId || '',
         status: 'available', addedAt: new Date().toISOString(), addedBy: currentUser.name
     };
@@ -3383,6 +3391,120 @@ function transferWorker(workerId, newSurveyorId) {
     saveDB(true);
     addLog(`${currentUser.name} نقل الWorker ${w.name} from ${oldName} to ${s.name}`);
     return true;
+}
+
+// ── Worker Transfer Requests (3-step approval chain) ────────────────
+function initiateWorkerTransfer(workerId, toSurveyorId, reason) {
+    const w  = db.workers.find(x => x.id === workerId);
+    const to = db.users.find(u => u.id === toSurveyorId);
+    if (!w || !to) return false;
+    if (w.surveyorId === toSurveyorId) { alert('Worker is already assigned to this surveyor'); return false; }
+    const existing = (db.workerTransferRequests || []).find(r =>
+        r.workerId === workerId && ['pending_receiver','pending_head','pending_admin'].includes(r.status));
+    if (existing) { alert('A pending transfer request already exists for this worker'); return false; }
+    const req = {
+        id: crypto.randomUUID(),
+        workerId: w.id, workerName: w.name, workerResidenceId: w.residenceId || '',
+        fromSurveyorId: w.surveyorId, fromSurveyorName: w.surveyorName || '',
+        toSurveyorId, toSurveyorName: to.name,
+        branchId: to.branch || to.responsibleBranch || w.branchId || '',
+        reason: reason || '',
+        status: 'pending_receiver',
+        initiatedBy: currentUser.id, initiatedByName: currentUser.name,
+        receiverApprovedAt: null, receiverApprovedBy: null,
+        headApprovedAt: null, headApprovedBy: null,
+        adminApprovedAt: null, adminApprovedBy: null,
+        rejectedBy: null, rejectionReason: null,
+        timestamp: new Date().toISOString()
+    };
+    if (!db.workerTransferRequests) db.workerTransferRequests = [];
+    db.workerTransferRequests.push(req);
+    _upsertWorkerTransferInSupabase(req);
+    saveDB(true);
+    addNotification(toSurveyorId,
+        `Worker transfer request: "${w.name}" from ${req.fromSurveyorName} — please approve or reject`,
+        'warning', req.id, false, 'workers.html', 'worker_transfer', true);
+    addLog(`${currentUser.name} initiated transfer of worker ${w.name} from ${req.fromSurveyorName} to ${to.name}`);
+    return true;
+}
+
+function approveWorkerTransferRequest(reqId) {
+    const req = (db.workerTransferRequests || []).find(r => r.id === reqId);
+    if (!req) return false;
+    const now = new Date().toISOString();
+    if (currentUser.role === 'surveyor' && req.status === 'pending_receiver' && req.toSurveyorId === currentUser.id) {
+        req.status = 'pending_head';
+        req.receiverApprovedAt = now; req.receiverApprovedBy = currentUser.name;
+        const branchId = req.branchId || db.workers.find(w => w.id === req.workerId)?.branchId;
+        const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId && u.status === 'approved');
+        if (head) {
+            addNotification(head.id, `Surveyor ${currentUser.name} approved transfer of worker "${req.workerName}" — awaiting your approval`, 'warning', req.id, false, 'workers.html', 'worker_transfer', true);
+        } else {
+            req.status = 'pending_admin';
+            req.headApprovedAt = now; req.headApprovedBy = 'Auto (no head surveyor)';
+            db.users.filter(u => u.role === 'admin').forEach(a =>
+                addNotification(a.id, `Worker "${req.workerName}" transfer pending your final approval (no head surveyor)`, 'warning', req.id, false, 'workers.html', 'worker_transfer', true));
+        }
+        _upsertWorkerTransferInSupabase(req); saveDB(true);
+        addLog(`${currentUser.name} approved (as receiver) transfer of worker ${req.workerName}`);
+        return true;
+    }
+    if (currentUser.role === 'head' && req.status === 'pending_head') {
+        const branchId = req.branchId || db.workers.find(w => w.id === req.workerId)?.branchId;
+        if (currentUser.responsibleBranch !== branchId) return false;
+        req.status = 'pending_admin'; req.headApprovedAt = now; req.headApprovedBy = currentUser.name;
+        db.users.filter(u => u.role === 'admin').forEach(a =>
+            addNotification(a.id, `Head surveyor ${currentUser.name} approved transfer of worker "${req.workerName}" — awaiting final approval`, 'warning', req.id, false, 'workers.html', 'worker_transfer', true));
+        _upsertWorkerTransferInSupabase(req); saveDB(true);
+        addLog(`${currentUser.name} approved (as head) transfer of worker ${req.workerName}`);
+        return true;
+    }
+    if (currentUser.role === 'admin' && ['pending_admin','pending_head','pending_receiver'].includes(req.status)) {
+        req.status = 'approved'; req.adminApprovedAt = now; req.adminApprovedBy = currentUser.name;
+        const w = db.workers.find(x => x.id === req.workerId);
+        const to = db.users.find(u => u.id === req.toSurveyorId);
+        if (w && to) {
+            const oldId = w.surveyorId;
+            w.surveyorId = to.id; w.surveyorName = to.name;
+            w.branchId = to.branch || to.responsibleBranch || w.branchId;
+            _upsertWorkerInSupabase(w);
+            addNotification(req.toSurveyorId, `Transfer of worker "${req.workerName}" to you has been approved ✓`, 'success', req.id);
+            if (oldId && oldId !== req.toSurveyorId) addNotification(oldId, `Transfer of worker "${req.workerName}" from you to ${to.name} approved`, 'info', req.id);
+        }
+        _upsertWorkerTransferInSupabase(req); saveDB(true);
+        addLog(`${currentUser.name} approved (final) transfer of worker ${req.workerName} to ${req.toSurveyorName}`);
+        return true;
+    }
+    return false;
+}
+
+function rejectWorkerTransferRequest(reqId, reason) {
+    const req = (db.workerTransferRequests || []).find(r => r.id === reqId);
+    if (!req) return false;
+    if (!['pending_receiver','pending_head','pending_admin'].includes(req.status)) return false;
+    req.status = 'rejected'; req.rejectedBy = currentUser.name; req.rejectionReason = reason || '';
+    addNotification(req.initiatedBy, `Transfer request for worker "${req.workerName}" was rejected by ${currentUser.name}${reason ? ': ' + reason : ''}`, 'error', req.id);
+    _upsertWorkerTransferInSupabase(req); saveDB(true);
+    addLog(`${currentUser.name} rejected transfer of worker ${req.workerName}`);
+    return true;
+}
+
+function _upsertWorkerTransferInSupabase(r) {
+    if (!supabaseClient) return;
+    supabaseClient.from('worker_transfer_requests').upsert({
+        id: r.id, worker_id: r.workerId, worker_name: r.workerName,
+        worker_residence_id: r.workerResidenceId || null,
+        from_surveyor_id: r.fromSurveyorId || null, from_surveyor_name: r.fromSurveyorName || null,
+        to_surveyor_id: r.toSurveyorId, to_surveyor_name: r.toSurveyorName || null,
+        branch_id: r.branchId || null, reason: r.reason || null,
+        status: r.status, initiated_by: r.initiatedBy || null, initiated_by_name: r.initiatedByName || null,
+        receiver_approved_at: r.receiverApprovedAt || null, receiver_approved_by: r.receiverApprovedBy || null,
+        head_approved_at: r.headApprovedAt || null, head_approved_by: r.headApprovedBy || null,
+        admin_approved_at: r.adminApprovedAt || null, admin_approved_by: r.adminApprovedBy || null,
+        rejected_by: r.rejectedBy || null, rejection_reason: r.rejectionReason || null,
+        timestamp: r.timestamp || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    }, { onConflict: 'id' }).then(({ error }) => { if (error) console.warn('workerTransfer upsert:', error.message); });
 }
 
 function getWorkerAge(dob) {

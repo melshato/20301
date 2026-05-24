@@ -122,6 +122,12 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-group" id="wSurveyorGroup" style="display:none;">
+                        <label class="form-label">المساح المسؤول عن العامل <span style="color:var(--text-muted);font-size:.8rem;">(اتركه فارغاً لإسناده لك)</span></label>
+                        <select id="wTargetSurveyor" class="form-select">
+                            <option value="">— اختياري: اختر المساح المسؤول —</option>
+                        </select>
+                    </div>
                     <div style="display:flex;gap:10px;margin-top:8px;">
                         <button onclick="submitAddWorker()" class="btn btn-primary"><i class="fa-solid fa-save"></i> حفظ العامل</button>
                         <button onclick="toggleAddWorker()" class="btn btn-ghost">إلغاء</button>
@@ -162,6 +168,18 @@
                 <i class="fa-solid fa-helmet-safety" style="font-size:2rem;margin-bottom:8px;display:block;opacity:.3;"></i>
                 لا يوجد عمال مسجلون
             </div>
+        </div>
+
+        <!-- طلبات النقل الواردة إليك (للمساح المستلم) -->
+        <div class="card" style="margin-top:20px;display:none;" id="incomingTransferSection">
+            <h3 style="margin-bottom:16px;"><i class="fa-solid fa-inbox" style="color:#7c3aed;"></i> طلبات نقل واردة إليك</h3>
+            <div id="incomingTransferList"></div>
+        </div>
+
+        <!-- طلبات النقل المعلقة (لرئيس المساحين والمدير) -->
+        <div class="card" style="margin-top:20px;display:none;" id="pendingTransferSection">
+            <h3 style="margin-bottom:16px;"><i class="fa-solid fa-clock-rotate-left" style="color:#0369a1;"></i> طلبات نقل العمال المعلقة</h3>
+            <div id="pendingTransferList"></div>
         </div>
 
         <!-- طلبات إجازة العمال -->
@@ -323,23 +341,44 @@
             </div>
         </div>
 
-        <!-- مودال نقل العامل -->
+        <!-- مودال طلب نقل العامل -->
         <div id="transferModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
-            <div style="background:#fff;border-radius:16px;padding:28px;max-width:420px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:440px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                    <h4 style="margin:0;"><i class="fa-solid fa-people-arrows" style="color:#7c3aed;"></i> نقل العامل لمساح آخر</h4>
+                    <h4 style="margin:0;"><i class="fa-solid fa-people-arrows" style="color:#7c3aed;"></i> طلب نقل عامل لمساح آخر</h4>
                     <button onclick="document.getElementById('transferModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;">✕</button>
                 </div>
-                <p id="transferWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;font-weight:600;"></p>
+                <p id="transferWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:4px;font-weight:600;"></p>
+                <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:10px 14px;font-size:.82rem;color:#5b21b6;margin-bottom:14px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    سيمر الطلب بسلسلة موافقات: <strong>المساح المستلم ← رئيس المساحين ← المدير العام</strong>
+                </div>
                 <div class="form-group">
                     <label class="form-label">المساح المستهدف <span style="color:#ef4444;">*</span></label>
                     <select id="transferTargetSurveyor" class="form-select"></select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">سبب النقل</label>
+                    <textarea id="transferReason" class="form-input" rows="2" placeholder="اذكر سبب طلب النقل..."></textarea>
+                </div>
                 <div style="display:flex;gap:8px;margin-top:16px;">
                     <button onclick="submitTransfer()" class="btn btn-primary" style="flex:1;background:#7c3aed;border-color:#7c3aed;">
-                        <i class="fa-solid fa-people-arrows"></i> نقل العامل
+                        <i class="fa-solid fa-paper-plane"></i> إرسال طلب النقل
                     </button>
                     <button onclick="document.getElementById('transferModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال رفض نقل العامل -->
+        <div id="wtrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> رفض طلب النقل</h4>
+                <div class="form-group"><label class="form-label">سبب الرفض (اختياري)</label>
+                    <input type="text" id="wtrRejectNote" class="form-input" placeholder="السبب..."></div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="confirmWtrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> رفض</button>
+                    <button onclick="document.getElementById('wtrRejectModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
                 </div>
             </div>
         </div>
@@ -377,7 +416,12 @@ function init() {
       :              'نظرة شاملة على عمال جميع الفروع';
 
     if (!isSurveyor) document.getElementById('searchSection').style.display = 'block';
-    if (!isAdmin)    document.getElementById('addWorkerAccordion').style.display = 'block';
+    document.getElementById('addWorkerAccordion').style.display = 'block'; // all roles can add
+
+    if (isAdmin || isHead) {
+        document.getElementById('wSurveyorGroup').style.display = 'block';
+        populateWorkerSurveyorSelect();
+    }
 
     if (isAdmin) {
         populateAdminFilters();
@@ -389,7 +433,17 @@ function init() {
     renderStats();
     renderTable();
     renderLeaveRequests();
+    renderTransferRequests();
     renderSurveyorWorkerCount();
+}
+
+function populateWorkerSurveyorSelect() {
+    const isHead = currentUser.role === 'head';
+    const sel = document.getElementById('wTargetSurveyor');
+    let users = db.users.filter(u => (u.role === 'surveyor' || u.role === 'head') && u.status === 'approved');
+    if (isHead) users = users.filter(u => u.branch === currentUser.responsibleBranch || u.responsibleBranch === currentUser.responsibleBranch);
+    sel.innerHTML = '<option value="">— اختياري: اختر المساح المسؤول —</option>' +
+        users.map(u => `<option value="${u.id}">${u.name} (${u.empId || '—'})</option>`).join('');
 }
 
 function populateProjects() {
@@ -545,10 +599,11 @@ function renderTableBody() {
                 <button onclick="openWorkerRaiseModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#15803d;border-color:#15803d;" title="طلب زيادة راتب">
                     <i class="fa-solid fa-hand-holding-dollar"></i>
                 </button>` : ''}
-                ${(isHead || isAdmin) ? `
-                <button onclick="openTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" title="نقل لمساح آخر">
+                ${(isSurveyor || isHead || isAdmin) && w.status === 'available' ? `
+                <button onclick="openTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" title="طلب نقل لمساح آخر">
                     <i class="fa-solid fa-people-arrows"></i>
-                </button>
+                </button>` : ''}
+                ${(isHead || isAdmin) ? `
                 <button onclick="openBranchTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#0369a1;border-color:#0369a1;" title="نقل لفرع آخر">
                     <i class="fa-solid fa-code-branch"></i>
                 </button>` : ''}
@@ -586,14 +641,15 @@ function toggleAddWorker() {
 
 window.submitAddWorker = () => {
     const data = {
-        name:        document.getElementById('wName').value.trim(),
-        nationality: document.getElementById('wNationality').value.trim(),
-        residenceId: document.getElementById('wResidenceId').value.trim(),
-        empId:       document.getElementById('wEmpId').value.trim(),
-        phone:       document.getElementById('wPhone').value.trim(),
-        email:       document.getElementById('wEmail').value.trim(),
-        dob:         document.getElementById('wDob').value,
-        projectId:   document.getElementById('wProject').value,
+        name:             document.getElementById('wName').value.trim(),
+        nationality:      document.getElementById('wNationality').value.trim(),
+        residenceId:      document.getElementById('wResidenceId').value.trim(),
+        empId:            document.getElementById('wEmpId').value.trim(),
+        phone:            document.getElementById('wPhone').value.trim(),
+        email:            document.getElementById('wEmail').value.trim(),
+        dob:              document.getElementById('wDob').value,
+        projectId:        document.getElementById('wProject').value,
+        targetSurveyorId: document.getElementById('wTargetSurveyor')?.value || '',
     };
     if (!data.name)        { alert('يرجى إدخال اسم العامل'); return; }
     if (!data.residenceId) { alert('يرجى إدخال رقم الإقامة'); return; }
@@ -915,7 +971,7 @@ window.submitWorkerRaiseRequest = () => {
     }
 };
 
-// ─── Transfer Worker ─────────────────────────────────────
+// ─── Transfer Worker (approval-based) ────────────────────
 let _transferWorkerId = null;
 
 window.openTransferModal = (workerId) => {
@@ -923,27 +979,144 @@ window.openTransferModal = (workerId) => {
     const w = db.workers.find(x => x.id === workerId);
     if (!w) return;
     const isAdmin = currentUser.role === 'admin';
+    // Show all surveyors (admin: all, head: branch only, surveyor: any in system)
     const branchId = isAdmin ? null : (currentUser.responsibleBranch || currentUser.branch || w.branchId);
-    const surveyors = db.users.filter(u =>
-        u.role === 'surveyor' &&
-        (!branchId || u.branch === branchId) &&
-        u.id !== w.surveyorId
+    const candidates = db.users.filter(u =>
+        (u.role === 'surveyor' || u.role === 'head') &&
+        u.status === 'approved' &&
+        u.id !== w.surveyorId &&
+        (isAdmin || !branchId || u.branch === branchId || u.responsibleBranch === branchId)
     );
-    document.getElementById('transferWorkerName').textContent = `العامل: ${w.name}`;
+    document.getElementById('transferWorkerName').textContent = `العامل: ${w.name} (حالياً: ${w.surveyorName || '—'})`;
     document.getElementById('transferTargetSurveyor').innerHTML =
         '<option value="">— اختر المساح —</option>' +
-        surveyors.map(s => `<option value="${s.id}">${s.name} (${s.empId || '—'})</option>`).join('');
+        candidates.map(s => `<option value="${s.id}">${s.name} (${s.empId || '—'})</option>`).join('');
+    document.getElementById('transferReason').value = '';
     document.getElementById('transferModal').style.display = 'flex';
 };
 
 window.submitTransfer = () => {
     const targetId = document.getElementById('transferTargetSurveyor').value;
+    const reason   = document.getElementById('transferReason').value.trim();
     if (!targetId) { alert('يرجى اختيار مساح'); return; }
-    if (transferWorker(_transferWorkerId, targetId)) {
+    if (initiateWorkerTransfer(_transferWorkerId, targetId, reason)) {
         document.getElementById('transferModal').style.display = 'none';
-        init();
-        renderSurveyorWorkerCount();
-        _showSyncToast('تم نقل العامل بنجاح ✓', 'success');
+        renderTransferRequests();
+        renderTableBody();
+        _showSyncToast('تم إرسال طلب النقل — بانتظار موافقة المساح المستلم ✓', 'success');
+    }
+};
+
+// ─── Render Transfer Requests ─────────────────────────────
+let _wtrRejectId = null;
+
+function renderTransferRequests() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const isAdmin    = currentUser.role === 'admin';
+    const allReqs    = db.workerTransferRequests || [];
+
+    // Incoming (receiver surveyor must approve)
+    const incoming = allReqs.filter(r =>
+        r.status === 'pending_receiver' && r.toSurveyorId === currentUser.id);
+    const incomingSection = document.getElementById('incomingTransferSection');
+    const incomingList    = document.getElementById('incomingTransferList');
+    if (incoming.length > 0) {
+        incomingSection.style.display = 'block';
+        incomingList.innerHTML = incoming.map(r => `
+            <div style="padding:12px 16px;border-radius:10px;border:2px solid #c4b5fd;background:#f5f3ff;margin-bottom:10px;">
+                <div style="font-weight:700;">${r.workerName}
+                    <span style="font-size:.78rem;color:#6b7280;margin-right:8px;">(${r.workerResidenceId || '—'})</span>
+                </div>
+                <div style="font-size:.82rem;color:#5b21b6;margin:4px 0;">من: ${r.fromSurveyorName || '—'} · السبب: ${r.reason || '—'}</div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                    <button onclick="doApproveTransfer('${r.id}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;background:#7c3aed;border-color:#7c3aed;">
+                        <i class="fa-solid fa-check"></i> قبول النقل
+                    </button>
+                    <button onclick="openWtrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.8rem;padding:5px 14px;color:#dc2626;border-color:#dc2626;">
+                        <i class="fa-solid fa-times"></i> رفض
+                    </button>
+                </div>
+            </div>`).join('');
+    } else {
+        incomingSection.style.display = 'none';
+    }
+
+    // Pending approvals (head + admin)
+    if (!isHead && !isAdmin) return;
+    const branchId = currentUser.responsibleBranch || currentUser.branch;
+    let pending = [];
+    if (isAdmin) {
+        pending = allReqs.filter(r => ['pending_receiver','pending_head','pending_admin'].includes(r.status));
+    } else if (isHead) {
+        pending = allReqs.filter(r =>
+            (r.status === 'pending_head') && r.branchId === branchId);
+    }
+
+    const pendingSection = document.getElementById('pendingTransferSection');
+    const pendingList    = document.getElementById('pendingTransferList');
+    if (pending.length > 0) {
+        pendingSection.style.display = 'block';
+        const statusLabel = {
+            pending_receiver: 'بانتظار المساح المستلم',
+            pending_head:     'بانتظار رئيس المساحين',
+            pending_admin:    'بانتظار المدير',
+        };
+        const canApprove = r =>
+            (isAdmin && ['pending_receiver','pending_head','pending_admin'].includes(r.status)) ||
+            (isHead  && r.status === 'pending_head' && r.branchId === branchId);
+
+        pendingList.innerHTML = pending.map(r => `
+            <div style="padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:#f8fafc;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <span style="font-weight:700;">${r.workerName}</span>
+                        <span style="font-size:.78rem;color:#6b7280;margin-right:8px;">(${r.workerResidenceId || '—'})</span>
+                        <div style="font-size:.82rem;color:var(--text-muted);margin-top:3px;">
+                            من: <strong>${r.fromSurveyorName || '—'}</strong> → إلى: <strong>${r.toSurveyorName || '—'}</strong>
+                            ${r.reason ? ` · ${r.reason}` : ''}
+                        </div>
+                    </div>
+                    <span style="background:#eff6ff;color:#1e40af;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;">${statusLabel[r.status] || r.status}</span>
+                </div>
+                ${canApprove(r) ? `
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                    <button onclick="doApproveTransfer('${r.id}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;">
+                        <i class="fa-solid fa-check"></i> ${isAdmin ? 'اعتماد نهائي' : 'موافقة وإرسال للمدير'}
+                    </button>
+                    <button onclick="openWtrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.8rem;padding:5px 14px;color:#dc2626;border-color:#dc2626;">
+                        <i class="fa-solid fa-times"></i> رفض
+                    </button>
+                </div>` : ''}
+            </div>`).join('');
+    } else {
+        pendingSection.style.display = 'none';
+    }
+}
+
+window.doApproveTransfer = (reqId) => {
+    if (approveWorkerTransferRequest(reqId)) {
+        renderTransferRequests();
+        renderTable();
+        renderStats();
+        _showSyncToast('تمت الموافقة ✓', 'success');
+    } else {
+        alert('حدث خطأ — تأكد من صلاحيتك');
+    }
+};
+
+window.openWtrRejectModal = (reqId) => {
+    _wtrRejectId = reqId;
+    document.getElementById('wtrRejectNote').value = '';
+    document.getElementById('wtrRejectModal').style.display = 'flex';
+};
+
+window.confirmWtrReject = () => {
+    const note = document.getElementById('wtrRejectNote').value.trim();
+    if (rejectWorkerTransferRequest(_wtrRejectId, note)) {
+        document.getElementById('wtrRejectModal').style.display = 'none';
+        renderTransferRequests();
+        _showSyncToast('تم رفض طلب النقل', 'info');
     }
 };
 
