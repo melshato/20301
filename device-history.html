@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل تنقل الأجهزة - SAJCO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <div class="card">
+                <h3><i class="fa-solid fa-timeline"></i> سجل تنقل الأجهزة</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">ابحث عن جهاز بالرقم التسلسلي لعرض تاريخ عهدته وتنقله بين المساحين.</p>
+
+                <div class="form-row" style="margin-bottom: 20px; align-items: flex-end;">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="searchGeneral" class="form-label">بحث (الرقم التسلسلي أو اسم المساح)</label>
+                        <input type="text" id="searchGeneral" class="form-input" placeholder="ادخل السيريال أو اسم الموظف...">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="branchSearchFilter" class="form-label">تصفية حسب الفرع</label>
+                        <select id="branchSearchFilter" class="form-select">
+                            <option value="">كل الفروع</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button onclick="searchDeviceHistory()" class="btn btn-primary">
+                            <i class="fa-solid fa-magnifying-glass"></i> بحث
+                        </button>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0; border-color: var(--border);">
+
+                <h4>نتائج البحث</h4>
+                <div class="table-container">
+                    <table id="deviceHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>تاريخ العملية</th>
+                                <th>الجهاز</th>
+                                <th>المساح المستلم</th>
+                                <th>الفرع</th>
+                                <th>بواسطة</th>
+                                <th>تاريخ الاستلام</th>
+                                <th>ملاحظات</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deviceHistoryTableBody">
+                            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">ادخل الرقم التسلسلي واضغط بحث لعرض السجل.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <script>
+        checkAuth();
+
+        const deviceHistoryTableBody = document.getElementById('deviceHistoryTableBody');
+
+        function searchDeviceHistory() {
+            const searchText = document.getElementById('searchGeneral').value.trim().toLowerCase();
+            const branchId = document.getElementById('branchSearchFilter').value;
+
+            if (!searchText && !branchId) {
+                alert('الرجاء إدخال نص للبحث أو اختيار فرع.');
+                return;
+            }
+
+            const historyRecords = db.custodies
+                .filter(c => {
+                    const surveyor = db.users.find(u => u.id === c.userId);
+                    const surveyorName = surveyor ? surveyor.name.toLowerCase() : '';
+                    const serialMatch = c.serialNumber.toLowerCase().includes(searchText);
+                    const nameMatch = surveyorName.includes(searchText);
+                    const branchMatch = !branchId || c.branchId === branchId;
+
+                    return (serialMatch || nameMatch) && branchMatch;
+                })
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // ترتيب من الأحدث للأقدم
+
+            renderDeviceHistory(historyRecords);
+        }
+
+        function renderDeviceHistory(records) {
+            deviceHistoryTableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                deviceHistoryTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">لا توجد سجلات لهذا الجهاز.</td></tr>';
+                return;
+            }
+
+            records.forEach(record => {
+                const assignedToUser = db.users.find(u => u.id === record.userId);
+                const assignedByUser = db.users.find(u => u.id === record.assignedBy);
+                const branch = db.branches.find(b => b.id === record.branchId);
+
+                const row = deviceHistoryTableBody.insertRow();
+                row.insertCell().textContent = new Date(record.timestamp).toLocaleString('ar-EG');
+                row.insertCell().textContent = `${getDeviceTypeName(record.deviceType)} (S/N: ${record.serialNumber})`;
+                row.insertCell().textContent = assignedToUser ? assignedToUser.name : '—';
+                row.insertCell().textContent = branch ? branch.name : '—';
+                row.insertCell().textContent = assignedByUser ? assignedByUser.name : '—';
+                row.insertCell().textContent = formatDate(record.receiptDate);
+                row.insertCell().textContent = record.notes || '—';
+                row.insertCell().innerHTML = getCustodyStatusBadge(record.status);
+            });
+        }
+
+        function populateBranches() {
+            const select = document.getElementById('branchSearchFilter');
+            if (!select) return;
+            const options = db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            select.innerHTML = `<option value="">كل الفروع</option>` + options;
+        }
+
+        // Initial render (sidebar only)
+        window.onload = () => {
+            renderSidebar();
+            populateBranches(); // Assuming populateBranches is in app-core.js or defined globally
+        };
+    </script>
+</body>
+</html>

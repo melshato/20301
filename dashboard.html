@@ -1,0 +1,1509 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | ساجكو</title> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 1400px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 991px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        }
+        @media (max-width: 500px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            min-width: 0;
+        }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .stat-card > div:last-child { min-width: 0; }
+        .branch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .branch-stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        .branch-stat-item:last-child { border-bottom: none; }
+        
+        .alert-banner {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            border-right: 4px solid #f56565;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #c53030;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+        .pending-reg-card {
+            background: #fff;
+            border: 1px solid #fed7aa;
+            border-right: 4px solid #f59e0b;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .pending-reg-avatar {
+            width: 48px; height: 48px; min-width: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: 700;
+        }
+        .pending-reg-info { flex: 1; min-width: 0; }
+        .pending-reg-name { font-weight: 700; font-size: 1rem; color: #1e293b; }
+        .pending-reg-meta { font-size: .8rem; color: #64748b; margin-top: 3px; }
+        .pending-reg-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-approve-reg {
+            background: #16a34a; color: #fff; border: none; border-radius: 10px;
+            padding: 8px 18px; font-size: .85rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            display: flex; align-items: center; gap: 6px;
+            transition: background .15s;
+        }
+        .btn-approve-reg:hover { background: #15803d; }
+        .btn-reject-reg {
+            background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;
+            border-radius: 10px; padding: 8px 18px; font-size: .85rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            display: flex; align-items: center; gap: 6px;
+            transition: background .15s;
+        }
+        .btn-reject-reg:hover { background: #fecaca; }
+    </style>
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <!-- شريط الأخبار -->
+            <div class="news-ticker hidden-ticker" id="newsTicker">
+                <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;"></i> أخبار</span>
+                <div class="ticker-wrapper">
+                    <div class="ticker-text" id="tickerContent"></div>
+                </div>
+            </div>
+
+            <div style="padding-top:28px;">
+            <header style="margin-bottom: 32px;">
+                <h2 id="userGreeting" style="font-size: 1.5rem; font-weight: 700"></h2>
+                <p style="color: var(--text-muted)">إليك ملخص حالة النظام وتوزيع الموارد على الفروع.</p>
+            </header>
+
+            <!-- الإحصائيات العامة (تظهر للمدير ورئيس المساحين فقط) -->
+            <div class="stats-grid" id="adminStatsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e0e7ff; color: #4338ca;"><i class="fa-solid fa-building-flag"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)" data-t="stat_branches">إجمالي الفروع</div>
+                        <div id="countBranches" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef3c7; color: #b45309;"><i class="fa-solid fa-user-group"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)" data-t="stat_users">إجمالي المساحين</div>
+                        <div id="countUsers" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dcfce7; color: #15803d;"><i class="fa-solid fa-warehouse"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)" data-t="stat_devices">إجمالي الأجهزة</div>
+                        <div id="countDevices" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border: 1px solid #fed7d7;">
+                    <div class="stat-icon" style="background: #fee2e2; color: #dc2626;"><i class="fa-solid fa-bell"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)">تنبيهات المعايرة</div>
+                        <div id="countAlerts" style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border: 1px solid #e9d5ff;">
+                    <div class="stat-icon" style="background: #f3e8ff; color: #7e22ce;"><i class="fa-solid fa-file-signature"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)">طلبات عهدة معلقة</div>
+                        <div id="countPendingCustodies" style="font-size: 1.5rem; font-weight: 800; color: #7e22ce;">0</div>
+                        <div style="margin-top: 5px;">
+                            <a href="custody.html#filter-pending" style="font-size: 0.75rem; color: #7e22ce; text-decoration: underline; font-weight: 600;">مراجعة الطلبات المعلقة</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border: 1px solid #fecaca;">
+                    <div class="stat-icon" style="background: #fee2e2; color: #b91c1c;">
+                        <a href="maintenance.html" style="color: inherit;"><i class="fa-solid fa-screwdriver-wrench"></i></a>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)">أجهزة تحت الصيانة</div>
+                        <div id="countMaintenance" style="font-size: 1.5rem; font-weight: 800; color: #b91c1c;">0</div>
+                        <a href="maintenance.html" style="font-size: 0.7rem; color: #b91c1c; text-decoration: underline;">عرض التفاصيل</a>
+                    </div>
+                </div>
+                <div class="stat-card" style="border: 1px solid #fef3c7;">
+                    <div class="stat-icon" style="background: #fff7ed; color: #d97706;">
+                        <a href="maintenance.html" style="color: inherit;"><i class="fa-solid fa-compass-drafting"></i></a>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)">أجهزة تحتاج معايرة</div>
+                        <div id="countNeedsCalibration" style="font-size: 1.5rem; font-weight: 800; color: #d97706;">0</div>
+                        <a href="maintenance.html" style="font-size: 0.7rem; color: #d97706; text-decoration: underline;">عرض التفاصيل</a>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #e0f2fe; color: #075985;"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)">الأجهزة في المستودع</div>
+                        <div id="countWarehouseDevices" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #d1fae5;">
+                    <div class="stat-icon" style="background: #ecfdf5; color: #065f46;"><i class="fa-solid fa-diagram-project"></i></div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted)">المشاريع النشطة</div>
+                        <div id="countActiveProjects" style="font-size: 1.5rem; font-weight: 800; color: #065f46;">0</div>
+                        <a href="projects.html" style="font-size: 0.7rem; color: #065f46; text-decoration: underline;">إدارة المشاريع</a>
+                    </div>
+                </div>
+                <!-- بطاقات حالة المساحين -->
+                <div class="stat-card" style="border:1px solid #bbf7d0;cursor:pointer;" onclick="scrollToLeavePanel()">
+                    <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-user-check"></i></div>
+                    <div>
+                        <div style="font-size:0.85rem;color:var(--text-muted)" data-t="stat_at_work">مساحون على رأس العمل</div>
+                        <div id="countAtWork" style="font-size:1.5rem;font-weight:800;color:#15803d;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #fde68a;cursor:pointer;" onclick="scrollToLeavePanel()">
+                    <div class="stat-icon" style="background:#fef3c7;color:#b45309;"><i class="fa-solid fa-umbrella-beach"></i></div>
+                    <div>
+                        <div style="font-size:0.85rem;color:var(--text-muted)" data-t="stat_on_leave">مساحون في إجازة</div>
+                        <div id="countOnLeave" style="font-size:1.5rem;font-weight:800;color:#b45309;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #bfdbfe;cursor:pointer;" onclick="scrollToLeavePanel()">
+                    <div class="stat-icon" style="background:#dbeafe;color:#1e40af;"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div>
+                        <div style="font-size:0.85rem;color:var(--text-muted)" data-t="stat_planning_leave">ينوون الذهاب لإجازة</div>
+                        <div id="countPlanningLeave" style="font-size:1.5rem;font-weight:800;color:#1e40af;">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إحصائيات المساح (تظهر للمساح فقط) -->
+            <div id="surveyorDashboard" class="hidden">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #dcfce7; color: #15803d;"><i class="fa-solid fa-box-open"></i></div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted)">الأجهزة في عهدتك</div>
+                            <div id="surveyorDeviceCount" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fdf2f2; color: #991b1b;"><i class="fa-solid fa-calendar-check"></i></div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted)">سنوات الخدمة</div>
+                            <div id="surveyorServiceTime" style="font-size: 1.5rem; font-weight: 800;">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #eff6ff; color: #1e40af;"><i class="fa-solid fa-building-user"></i></div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted)">الفرع / رئيس المساحين</div>
+                            <div id="surveyorBranchInfo" style="font-size: 1rem; font-weight: 700; line-height: 1.2;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شارتات المساح -->
+                <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px;">
+                    <div class="card" style="flex:1;min-width:240px;padding:20px;display:flex;flex-direction:column;align-items:center;">
+                        <h3 style="margin-bottom:12px;font-size:.9rem;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+                            <i class="fa-solid fa-microchip" style="color:var(--primary);"></i> توزيع أجهزتي
+                        </h3>
+                        <div style="width:170px;height:170px;">
+                            <canvas id="surveyorDeviceDonut"></canvas>
+                        </div>
+                        <div id="surveyorDeviceLegend" style="font-size:.78rem;margin-top:12px;line-height:2;text-align:center;"></div>
+                    </div>
+                    <div class="card" style="flex:2;min-width:280px;padding:20px;">
+                        <h3 style="margin-bottom:16px;font-size:.9rem;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+                            <i class="fa-solid fa-circle-info" style="color:#0891b2;"></i> بيانات الحساب
+                        </h3>
+                        <div id="surveyorInfoCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+                            <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:16px;text-align:center;border:1px solid #86efac;">
+                                <i class="fa-solid fa-tower-observation" style="font-size:1.4rem;color:#15803d;margin-bottom:8px;display:block;"></i>
+                                <div id="svy_ts" style="font-size:1.6rem;font-weight:800;color:#15803d;">0</div>
+                                <div style="font-size:.72rem;color:#166534;font-weight:600;">Total Station</div>
+                            </div>
+                            <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:12px;padding:16px;text-align:center;border:1px solid #bfdbfe;">
+                                <i class="fa-solid fa-ruler-horizontal" style="font-size:1.4rem;color:#1e40af;margin-bottom:8px;display:block;"></i>
+                                <div id="svy_al" style="font-size:1.6rem;font-weight:800;color:#1e40af;">0</div>
+                                <div style="font-size:.72rem;color:#1e40af;font-weight:600;">Auto Level</div>
+                            </div>
+                            <div style="background:linear-gradient(135deg,#fff7ed,#fed7aa);border-radius:12px;padding:16px;text-align:center;border:1px solid #fdba74;">
+                                <i class="fa-solid fa-satellite-dish" style="font-size:1.4rem;color:#c2410c;margin-bottom:8px;display:block;"></i>
+                                <div id="svy_gps" style="font-size:1.6rem;font-weight:800;color:#c2410c;">0</div>
+                                <div style="font-size:.72rem;color:#c2410c;font-weight:600;">GPS</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ لوحة حالة المعايرة (مدير / رئيس مساحين) ══ -->
+            <div id="calibStatusPanel" style="display:none;margin-bottom:28px;">
+                <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                    <i class="fa-solid fa-certificate" style="color:#dc2626;"></i> حالة المعايرة — نسبة الأجهزة المنتهية
+                </h3>
+                <div class="card" style="padding:20px 24px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center;">
+                        <div style="flex:1;min-width:220px;">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.88rem;">
+                                <span style="font-weight:700;color:#dc2626;">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                    انتهت صلاحية المعايرة: <span id="calibExpiredCount" style="font-size:1.1rem;">0</span>
+                                </span>
+                                <span style="color:var(--text-muted);">
+                                    من أصل <span id="calibTotalWithDate">0</span> جهاز
+                                </span>
+                            </div>
+                            <div style="background:#e2e8f0;border-radius:999px;height:14px;overflow:hidden;">
+                                <div id="calibExpiredBar" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#dc2626,#f87171);width:0%;transition:width .6s ease;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:.78rem;color:var(--text-muted);">
+                                <span id="calibExpiredPct" style="font-weight:700;color:#dc2626;">0%</span>
+                                <a href="calibration-alerts.html" style="color:#dc2626;text-decoration:underline;font-weight:600;">
+                                    <i class="fa-solid fa-arrow-left"></i> عرض التفاصيل
+                                </a>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                            <div style="text-align:center;background:#fef2f2;border-radius:12px;padding:14px 20px;">
+                                <div style="font-size:2rem;font-weight:800;color:#dc2626;" id="calibExpiredBig">0</div>
+                                <div style="font-size:.78rem;color:#991b1b;font-weight:600;">منتهية الصلاحية</div>
+                            </div>
+                            <div style="text-align:center;background:#f0fdf4;border-radius:12px;padding:14px 20px;">
+                                <div style="font-size:2rem;font-weight:800;color:#15803d;" id="calibValidBig">0</div>
+                                <div style="font-size:.78rem;color:#166534;font-weight:600;">صالحة / ضمن المدة</div>
+                            </div>
+                            <div style="text-align:center;background:#eff6ff;border-radius:12px;padding:14px 20px;">
+                                <div style="font-size:2rem;font-weight:800;color:#1e40af;" id="calibAtAgentBig">0</div>
+                                <div style="font-size:.78rem;color:#1e40af;font-weight:600;">عند الوكيل حالياً</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ملخص أنواع الأجهزة (يظهر للجميع) -->
+            <h3 id="deviceSummaryTitle" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-microchip" style="color: var(--primary)"></i> ملخص أنواع الأجهزة وحالة المعايرة
+            </h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 32px;">
+                <div class="stats-grid" style="flex: 1; min-width: 300px; margin-bottom: 0;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f0fdf4; color: #166534;"><i class="fa-solid fa-tower-observation"></i></div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted)">محطة متكاملة (Total Station)</div>
+                            <div id="countTotalStation" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #eff6ff; color: #1e40af;"><i class="fa-solid fa-ruler-horizontal"></i></div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted)">ميزان مساحي (Auto Level)</div>
+                            <div id="countAutoLevel" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fff7ed; color: #9a3412;"><i class="fa-solid fa-satellite-dish"></i></div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted)">جهاز GPS</div>
+                            <div id="countGPS" style="font-size: 1.5rem; font-weight: 800;">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="width: 220px; margin-bottom: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h4 style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-muted);">حالة المعايرة</h4>
+                    <div style="width: 160px; height: 160px;">
+                        <canvas id="calibStatusPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم طلبات التسجيل المعلقة (للمدير فقط) -->
+            <div id="pendingRegistrationsSection" style="display:none;margin-bottom:28px;">
+                <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;color:#b45309;">
+                    <i class="fa-solid fa-user-clock" style="color:#f59e0b;"></i>
+                    طلبات تسجيل حسابات معلقة
+                    <span id="pendingRegBadge" style="background:#ef4444;color:#fff;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:20px;"></span>
+                </h3>
+                <div id="pendingRegistrationsList"></div>
+            </div>
+
+            <!-- قسم التنبيهات العاجلة (يظهر هنا بعد الملخص) -->
+            <div id="headSurveyorNotifications"></div>
+            <div id="pendingApprovalAlert"></div>
+            <div id="urgentAlerts"></div>
+
+            <!-- ══ شارت حالة الأجهزة (مدير / رئيس مساحين) ══ -->
+            <div id="deviceStatusChartPanel" style="display:none;margin-bottom:28px;">
+                <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                    <i class="fa-solid fa-chart-column" style="color:var(--primary);"></i> تحليل حالة الأجهزة
+                </h3>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                    <div class="card" style="flex:2;min-width:280px;padding:20px;">
+                        <h4 style="font-size:.82rem;color:var(--text-muted);margin-bottom:14px;text-align:center;">
+                            <i class="fa-solid fa-warehouse" style="color:var(--primary);"></i> توزيع حالات الأجهزة
+                        </h4>
+                        <canvas id="deviceStatusBarChart" height="160"></canvas>
+                    </div>
+                    <div class="card" style="flex:1;min-width:220px;padding:20px;display:flex;flex-direction:column;align-items:center;">
+                        <h4 style="font-size:.82rem;color:var(--text-muted);margin-bottom:14px;text-align:center;">
+                            <i class="fa-solid fa-circle-half-stroke" style="color:#7c3aed;"></i> نسبة التوزيع
+                        </h4>
+                        <div style="width:160px;height:160px;">
+                            <canvas id="deviceStatusDonut"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 id="branchDistTitle" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-chart-simple" style="color: var(--primary)"></i> تفاصيل توزيع الفروع
+            </h3>
+
+            <!-- شارتات توزيع الفروع (للمدير فقط) -->
+            <div id="adminBranchCharts" style="display:none;margin-bottom:28px;">
+                <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch;">
+                    <div class="card" style="flex:1;min-width:260px;padding:20px;display:flex;flex-direction:column;">
+                        <h4 style="font-size:.85rem;color:var(--text-muted);margin-bottom:14px;text-align:center;">
+                            <i class="fa-solid fa-microchip" style="color:var(--primary);"></i> نسبة الأجهزة لكل فرع
+                        </h4>
+                        <div style="display:flex;gap:16px;align-items:center;flex:1;flex-wrap:wrap;justify-content:center;">
+                            <div style="width:170px;height:170px;flex-shrink:0;"><canvas id="branchDeviceChart"></canvas></div>
+                            <div id="branchDeviceLegend" style="font-size:.78rem;line-height:2;"></div>
+                        </div>
+                    </div>
+                    <div class="card" style="flex:1;min-width:260px;padding:20px;display:flex;flex-direction:column;">
+                        <h4 style="font-size:.85rem;color:var(--text-muted);margin-bottom:14px;text-align:center;">
+                            <i class="fa-solid fa-users" style="color:#6366f1;"></i> نسبة المساحين لكل فرع
+                        </h4>
+                        <div style="display:flex;gap:16px;align-items:center;flex:1;flex-wrap:wrap;justify-content:center;">
+                            <div style="width:170px;height:170px;flex-shrink:0;"><canvas id="branchSurveyorChart"></canvas></div>
+                            <div id="branchSurveyorLegend" style="font-size:.78rem;line-height:2;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="branchDetailsContainer" class="branch-grid"></div>
+
+            <!-- لوحة إدارة الإجازات (المدير العام فقط) -->
+            <div id="leaveManagementPanel" style="display:none;margin-top:32px;">
+                <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                    <i class="fa-solid fa-calendar-days" style="color:var(--primary)"></i> إدارة إجازات المساحين
+                    <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);margin-right:8px;">يمكنك تأكيد المغادرة أو الإرجاع للعمل</span>
+                </h3>
+
+                <!-- مساحون في إجازة (يمكن إرجاعهم) -->
+                <div class="card" style="border-right:4px solid #f59e0b;margin-bottom:20px;">
+                    <h4 style="font-size:.95rem;color:#92400e;margin-bottom:12px;"><i class="fa-solid fa-umbrella-beach"></i> مساحون في إجازة حالياً</h4>
+                    <div id="onLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون في إجازة حالياً.</p></div>
+                </div>
+
+                <!-- مساحون ينوون الذهاب لإجازة (تأكيد المغادرة) -->
+                <div class="card" style="border-right:4px solid #3b82f6;margin-bottom:20px;">
+                    <h4 style="font-size:.95rem;color:#1e40af;margin-bottom:12px;"><i class="fa-solid fa-calendar-check"></i> مساحون بانتظار تأكيد المغادرة</h4>
+                    <div id="planningLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون بانتظار مغادرة.</p></div>
+                </div>
+
+                <!-- إضافة مساح للإجازة يدوياً -->
+                <div class="card" style="border-right:4px solid #16a34a;">
+                    <h4 style="font-size:.95rem;color:#166534;margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> إضافة مساح للإجازة يدوياً</h4>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+                        <div style="flex:1;min-width:200px;">
+                            <label class="form-label">اختر الموظف</label>
+                            <select id="leaveManualEmployee" class="form-select" style="font-size:.9rem;"></select>
+                        </div>
+                        <div style="flex:1;min-width:150px;">
+                            <label class="form-label">تاريخ المغادرة</label>
+                            <input type="date" id="leaveManualDate" class="form-input" style="font-size:.9rem;">
+                        </div>
+                        <button onclick="adminSendToLeave()" class="btn btn-primary" style="font-size:.85rem;">
+                            <i class="fa-solid fa-plane-departure"></i> تسجيل المغادرة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            </div><!-- end inner wrapper -->
+
+            <!-- ====== إحصائيات العمال (للمدير فقط) ====== -->
+            <div id="workersAdminPanel" style="display:none;margin-top:32px;padding:0 0 8px 0;">
+                <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                    <i class="fa-solid fa-helmet-safety" style="color:#065f46;"></i> إحصائيات العمال — توزيع على الفروع
+                </h3>
+                <div class="stats-grid" id="workersAdminStatCards" style="margin-bottom:24px;"></div>
+                <div class="branch-grid" id="workersBranchCards"></div>
+            </div>
+
+            <!-- ====== طلبات تعديل البيانات بانتظار موافقة المدير ====== -->
+            <div id="adminPcrPanel" style="display:none;margin-top:24px;" class="card" style="border-right:4px solid #7c3aed;">
+                <h3 style="margin-bottom:4px;border-right:4px solid #7c3aed;padding-right:12px;"><i class="fa-solid fa-user-pen" style="color:#7c3aed;"></i> طلبات تعديل بيانات الموظفين — بانتظار موافقتك</h3>
+                <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">هذه الطلبات وافق عليها رئيس المساحين وتنتظر اعتمادك النهائي لتطبيق التغيير</p>
+                <div id="adminPcrList"></div>
+            </div>
+
+            <!-- ====== طلبات استعادة كلمة المرور (رؤساء المساحين) ====== -->
+            <div id="adminPwrPanel" style="display:none;margin-top:16px;" class="card">
+                <h3 style="margin-bottom:4px;border-right:4px solid #dc2626;padding-right:12px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> طلبات استعادة كلمة المرور</h3>
+                <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">رؤساء مساحين نسوا كلمة المرور — حدد كلمة مرور مؤقتة</p>
+                <div id="adminPwrList"></div>
+            </div>
+
+            <!-- مودال التحقق قبل المغادرة -->
+            <div id="deptCheckModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+                <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                    <h4 style="margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> تنبيه قبل تسجيل المغادرة</h4>
+                    <div id="deptCheckBody" style="margin:12px 0;font-size:.9rem;"></div>
+                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:.82rem;color:#92400e;margin-bottom:16px;">
+                        <i class="fa-solid fa-circle-info"></i> يُنصح بنقل العهدة والعمال قبل المغادرة لضمان استمرارية العمل
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button onclick="executePendingDept()" class="btn btn-primary" style="flex:1;">
+                            <i class="fa-solid fa-plane-departure"></i> إتمام المغادرة على أي حال
+                        </button>
+                        <a href="workers.html" class="btn btn-ghost" style="flex:1;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">
+                            <i class="fa-solid fa-helmet-safety"></i> نقل العمال أولاً
+                        </a>
+                        <button onclick="document.getElementById('deptCheckModal').style.display='none'" class="btn btn-ghost" style="width:100%;margin-top:4px;">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مودال حجب المغادرة بسبب العهدة -->
+            <div id="custodyBlockModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+                <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                    <h4 style="margin-bottom:6px;color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> تعذّر تسجيل المغادرة</h4>
+                    <div id="custodyBlockBody" style="margin:14px 0;font-size:.9rem;line-height:1.7;"></div>
+                    <button onclick="document.getElementById('custodyBlockModal').style.display='none'" class="btn btn-primary" style="width:100%;background:#dc2626;border-color:#dc2626;">
+                        <i class="fa-solid fa-check"></i> حسناً
+                    </button>
+                </div>
+            </div>
+
+            <!-- مودال رفض الطلب -->
+            <div id="adminPcrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+                <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                    <h4 style="margin-bottom:16px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> سبب الرفض</h4>
+                    <div class="form-group"><label class="form-label">ملاحظة الرفض (اختياري)</label>
+                    <input type="text" id="adminPcrRejectNote" class="form-input" placeholder="أدخل سبب الرفض..."></div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <button onclick="confirmAdminPcrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> رفض</button>
+                        <button onclick="document.getElementById('adminPcrRejectModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مودال تعيين كلمة مرور مؤقتة للمدير -->
+            <div id="adminPwrModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+                <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                    <h4 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> تعيين كلمة مرور مؤقتة</h4>
+                    <p id="adminPwrModalName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;"></p>
+                    <div class="form-group"><label class="form-label">كلمة المرور المؤقتة</label>
+                    <input type="text" id="adminPwrTempPass" class="form-input" placeholder="أدخل كلمة مرور مؤقتة"></div>
+                    <div style="font-size:.8rem;color:#d97706;background:#fffbeb;border-radius:8px;padding:8px 12px;margin:12px 0;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> أبلغ الموظف بهذه الكلمة — سيُطلب منه تغييرها فوراً عند الدخول
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="confirmAdminPwrReset()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> تأكيد</button>
+                        <button onclick="document.getElementById('adminPwrModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                    </div>
+                    <div id="adminPwrModalResult" style="margin-top:10px;"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        checkAuth();
+        if (!currentUser) { window.location.href = 'index.html'; }
+
+        if (currentUser && currentUser.role === 'head') {
+            window.location.href = 'head-surveyor-dashboard.html';
+        }
+        if (currentUser && currentUser.role === 'surveyor') {
+            window.location.href = 'surveyor-dashboard.html';
+        }
+        let calibChart = null, branchDeviceChart = null, branchSurveyorChart = null;
+
+        function calculateService(joinDate) {
+            if (!joinDate) return 'جديد';
+            const start = new Date(joinDate);
+            const end = new Date();
+            let years = end.getFullYear() - start.getFullYear();
+            let months = end.getMonth() - start.getMonth();
+            if (months < 0 || (months === 0 && end.getDate() < start.getDate())) {
+                years--;
+                months += 12;
+            }
+            return years > 0 ? `${years} سنة و ${months} شهر` : `${months} شهر`;
+        }
+        
+        function loadDashboard() {
+            // تخصيص رسالة الترحيب بناءً على الدور والاسم
+            const greetingEl = document.getElementById('userGreeting');
+            if (currentUser.role === 'admin') {
+                greetingEl.innerText = `أهلاً مهندس محمد (رقم وظيفي: ${currentUser.empId})`;
+            } else {
+                const title = currentUser.role === 'head' ? 'رئيس المساحين' : 'المساح';
+                greetingEl.innerText = `مرحباً، ${title} ${currentUser.name} (رقم وظيفي: ${currentUser.empId})`;
+            }
+
+            // حساب الأجهزة التي تنتهي معايرتها خلال 30 يوم
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const alertLimit = new Date();
+            alertLimit.setDate(today.getDate() + (db.settings.alertDays || 30));
+
+            const expiringDevices = db.devices.filter(d => {
+                const targetDate = d.calDate || d.nextCalibrationDate;
+                if (!targetDate) return false;
+                const nextDate = new Date(targetDate);
+                return nextDate <= alertLimit;
+            });
+
+            document.getElementById('countAlerts').innerText = expiringDevices.length;
+
+            const alertsContainer = document.getElementById('urgentAlerts');
+            
+            // طلبات التسجيل المعلقة يتم عرضها في القسم المخصص أعلاه (pendingRegistrationsSection)
+            let registrationAlertHtml = '';
+
+            // تنبيه بوجود طلبات عهدة أو صيانة معلقة للمدير
+            const pendingCustodyRequests = (db.custodies || []).filter(c => 
+                (currentUser.role === 'admin' && (c.status === 'pending_approval' || c.status === 'pending_admin_approval' || c.status === 'pending_head_approval'))
+            );
+            
+            let custodyAlertHtml = '';
+            if (pendingCustodyRequests.length > 0) {
+                custodyAlertHtml = `
+                    <div class="alert-banner" style="background: #f5f3ff; border-color: #c4b5fd; border-right-color: #8b5cf6; color: #5b21b6; animation: none;">
+                        <i class="fa-solid fa-file-signature fa-2xl"></i>
+                        <div>
+                            <strong>طلبات عهدة ونقل معلقة</strong>
+                            <p>هناك ${pendingCustodyRequests.length} طلبات (عهدة/صيانة/نقل) بانتظار موافقتك.</p>
+                            <a href="custody.html#filter-pending" style="font-weight: bold; text-decoration: underline; color: #5b21b6;">مراجعة الطلبات في صفحة العهد</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // تنبيه بالفروع التي لا يوجد لها رئيس مساحين (للمدير فقط)
+            const branchesWithoutHead = db.branches.filter(branch =>
+                !db.users.some(u => u.role === 'head' && u.responsibleBranch === branch.id)
+            );
+            let missingHeadAlertHtml = '';
+            if (currentUser.role === 'admin' && branchesWithoutHead.length > 0) {
+                missingHeadAlertHtml = `
+                    <div class="alert-banner" style="background: #fffaf0; border-color: #fbd38d; border-right-color: #f6ad55; color: #7b341e; animation: none; margin-bottom: 24px;">
+                        <i class="fa-solid fa-building-circle-exclamation fa-2xl"></i>
+                        <div>
+                            <strong>تنبيه إداري: فروع شاغرة</strong>
+                            <p>الفروع التالية لا يوجد لها رئيس مساحين مسؤول حالياً: <strong>${branchesWithoutHead.map(b => b.name).join('، ')}</strong>.</p>
+                            <a href="branches.html" style="font-weight: bold; text-decoration: underline; color: #c05621;">الانتقال لتعيين رؤساء لهذه الفروع</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const combinedAlerts = registrationAlertHtml + custodyAlertHtml + missingHeadAlertHtml;
+
+            if (expiringDevices.length > 0) {
+                const expiringAlertHtml = `
+                    <div class="alert-banner">
+                        <i class="fa-solid fa-triangle-exclamation fa-2xl"></i>
+                        <div>
+                            <strong style="display: block; margin-bottom: 5px;">تنبيهات المعايرة العاجلة</strong>
+                            <span>الأجهزة التالية تتطلب اهتماماً فورياً:</span>
+                            <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">${expiringDevices.map(d => {
+                                const targetDate = d.calDate || d.nextCalibrationDate;
+                                const nextDate = new Date(targetDate);
+                                const isExpired = nextDate <= today;
+                                const diffDays = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));
+                                return `<li style="margin-bottom: 5px;"><strong>${d.type}</strong> (S/N: ${d.serial}) ${isExpired ? `<span style="color: #e53e3e; font-weight: bold;">(منتهية!)</span>` : `<span style="color: #d97706;">(متبقي ${diffDays} يوم)</span>`}</li>`;
+                            }).join('')}</ul>
+                            <div style="margin-top: 10px;">
+                                <a href="calibration-alerts.html" style="color: #c53030; font-weight: bold; text-decoration: underline;">الانتقال لصفحة التنبيهات التفصيلية</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                alertsContainer.innerHTML = combinedAlerts + expiringAlertHtml;
+            } else {
+                alertsContainer.innerHTML = combinedAlerts;
+            }
+
+            document.getElementById('countBranches').innerText = db.branches.length;
+            document.getElementById('countUsers').innerText = db.users.filter(u => u.role !== 'admin').length;
+            document.getElementById('countDevices').innerText = db.devices.length;
+
+            // حساب طلبات العهدة بانتظار الموافقة للمدير (شاملة النقل والعهد الجديدة)
+            document.getElementById('countPendingCustodies').innerText = pendingCustodyRequests.length;
+
+            // حساب عدد الأجهزة في المستودع
+            const warehouseDevicesCount = db.devices.filter(d => d.status === 'warehouse').length;
+            document.getElementById('countWarehouseDevices').innerText = warehouseDevicesCount;
+
+            const activeProjects = (db.projects || []).filter(p => p.status === 'active');
+            document.getElementById('countActiveProjects').innerText = activeProjects.length;
+
+            // حالة المساحين
+            const atWork = getSurveyorsAtWork();
+            const onLeave = getSurveyorsOnLeave();
+            const planningLeave = getSurveyorsPlanningLeave();
+            document.getElementById('countAtWork').innerText = atWork.length;
+            document.getElementById('countOnLeave').innerText = onLeave.length;
+            document.getElementById('countPlanningLeave').innerText = planningLeave.length;
+
+            // لوحة إدارة الإجازات للمدير
+            if (currentUser.role === 'admin') {
+                document.getElementById('leaveManagementPanel').style.display = 'block';
+                renderLeaveManagementPanel(onLeave, planningLeave);
+                renderWorkersAdminPanel();
+                renderBranchCharts();
+            }
+
+            // قسم طلبات التسجيل المعلقة
+            renderPendingRegistrations();
+
+            document.getElementById('countMaintenance').innerText = db.devices.filter(d => d.status === 'maintenance' || d.status === 'at_maintenance').length;
+            document.getElementById('countNeedsCalibration').innerText = db.devices.filter(d => d.status === 'needs_calibration' || d.status === 'at_calibration' || (d.calDate && new Date(d.calDate) <= today)).length;
+
+            // لوحة حالة المعايرة المفصّلة (مدير / رئيس)
+            if (currentUser.role === 'admin' || currentUser.role === 'head') {
+                document.getElementById('calibStatusPanel').style.display = 'block';
+                const devicesWithDate = db.devices.filter(d => d.calDate);
+                const expiredDevices  = devicesWithDate.filter(d => {
+                    if (d.status === 'at_calibration' || d.status === 'at_maintenance') return false;
+                    return new Date(d.calDate) <= today;
+                });
+                const atAgentDevices  = db.devices.filter(d => d.status === 'at_calibration' || d.status === 'at_maintenance');
+                const validDevices    = devicesWithDate.filter(d => !expiredDevices.includes(d) && !atAgentDevices.includes(d));
+                const expPct = devicesWithDate.length > 0
+                    ? Math.round(expiredDevices.length / devicesWithDate.length * 100)
+                    : 0;
+
+                document.getElementById('calibExpiredCount').textContent = expiredDevices.length;
+                document.getElementById('calibTotalWithDate').textContent = devicesWithDate.length;
+                document.getElementById('calibExpiredBar').style.width    = expPct + '%';
+                document.getElementById('calibExpiredPct').textContent    = expPct + '%';
+                document.getElementById('calibExpiredBig').textContent    = expiredDevices.length;
+                document.getElementById('calibValidBig').textContent      = validDevices.length;
+                document.getElementById('calibAtAgentBig').textContent    = atAgentDevices.length;
+            }
+
+            // حساب أعداد الأجهزة حسب النوع (بناءً على الاختيارات في صفحة العهدة)
+            const totalStationCount = db.devices.filter(d => d.type === 'total_station' || d.type === 'محطة متكاملة').length;
+            const autoLevelCount = db.devices.filter(d => d.type === 'auto_level' || d.type === 'ميزان مساحي').length;
+            const gpsCount = db.devices.filter(d => d.type === 'gps' || d.type === 'GPS').length;
+
+            document.getElementById('countTotalStation').innerText = totalStationCount;
+            document.getElementById('countAutoLevel').innerText = autoLevelCount;
+            document.getElementById('countGPS').innerText = gpsCount;
+
+            // تحديث الرسم البياني الدائري لحالة المعايرة
+            const calibratedCount = db.devices.length - expiringDevices.length;
+            const needsCalibCount = expiringDevices.length;
+            const ctxCal = document.getElementById('calibStatusPieChart').getContext('2d');
+            
+            if (calibChart) calibChart.destroy();
+            calibChart = new Chart(ctxCal, {
+                type: 'doughnut',
+                data: {
+                    labels: ['أجهزة معايرة', 'تحتاج معايرة'],
+                    datasets: [{
+                        data: [calibratedCount, needsCalibCount],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    cutout: '68%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 10 }, padding: 8 }
+                        }
+                    }
+                }
+            });
+
+            // ══ شارت حالة الأجهزة (بار + دونات) ══
+            renderDeviceStatusCharts();
+
+            // إشعارات المدير
+            const unreadNotifications = db.notifications.filter(n => n.userId === currentUser.id && !n.read);
+            if (unreadNotifications.length > 0) {
+                const notificationList = unreadNotifications.map(n => `
+                    <li style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                        <span><span style="font-weight: bold;">${new Date(n.timestamp).toLocaleDateString('ar-EG')}</span>: ${n.message}</span>
+                        <button onclick="markNotificationAsReadAndRefresh('${n.id}')" class="btn btn-ghost" style="padding: 3px 8px; font-size: 0.7rem; margin-right: 10px;">قراءة</button>
+                    </li>
+                `).join('');
+
+                document.getElementById('headSurveyorNotifications').innerHTML = `
+                    <div class="alert-banner" style="background: #e0f2fe; border-color: #90cdf4; border-right-color: #3182ce; color: #2b6cb0; animation: none; margin-bottom: 24px;">
+                        <i class="fa-solid fa-bell fa-2xl"></i>
+                        <div>
+                            <strong style="display: block; margin-bottom: 5px;">إشعارات النظام</strong>
+                            <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">
+                                ${notificationList}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('headSurveyorNotifications').innerHTML = '';
+            }
+
+            // عرض ملخص توزيع الفروع
+            const container = document.getElementById('branchDetailsContainer');
+            if (container) {
+                container.innerHTML = db.branches.map(branch => {
+                    const branchSurveyors = db.users.filter(u => u.branch === branch.id || u.responsibleBranch === branch.id).length;
+                    const branchDevices = db.devices.filter(d => d.branch === branch.id).length;
+                    const maintDevices  = db.devices.filter(d => d.branch === branch.id && (d.status === 'maintenance' || d.status === 'at_maintenance'));
+                    const calibDevices  = db.devices.filter(d => d.branch === branch.id && (d.status === 'needs_calibration' || d.status === 'at_calibration'));
+                    const maintCount    = maintDevices.length;
+                    const calibCount    = calibDevices.length;
+                    const atMaintCount  = maintDevices.filter(d => d.status === 'at_maintenance').length;
+                    const atCalibCount  = calibDevices.filter(d => d.status === 'at_calibration').length;
+                    const branchActiveProjects = (db.projects || []).filter(p => p.branchId === branch.id && p.status === 'active');
+                    const projectTags = branchActiveProjects.slice(0,3).map(p => `<span style="display:inline-block;background:#ecfdf5;color:#065f46;font-size:.7rem;padding:2px 7px;border-radius:20px;margin:2px 2px 0 0;">${p.name}</span>`).join('');
+                    const branchWorkers = (db.workers || []).filter(w => w.branchId === branch.id);
+                    const branchWorkersOnLeave = branchWorkers.filter(w => w.status === 'on_leave').length;
+                    const branchWorkersPlanningLeave = (db.workerLeaveRequests || []).filter(r => r.branchId === branch.id && r.status === 'approved').length;
+
+                    return `
+                        <div class="card" style="border-top: 4px solid var(--primary)">
+                            <h4 style="margin-bottom: 15px; color: var(--primary)">${branch.name}</h4>
+                            <div class="branch-stat-item"><span><i class="fa-solid fa-user-tie"></i> إجمالي الموظفين:</span> <strong>${branchSurveyors}</strong></div>
+                            <div class="branch-stat-item"><span><i class="fa-solid fa-warehouse"></i> عدد الأجهزة:</span> <strong>${branchDevices}</strong></div>
+                            <div class="branch-stat-item"><span style="color: #b91c1c;"><i class="fa-solid fa-screwdriver-wrench"></i> أجهزة الصيانة:</span> <strong style="color: #b91c1c;">${maintCount}</strong>${atMaintCount > 0 ? ` <span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:4px;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem;"></i> عند الوكيل: ${atMaintCount}</span>` : ''}</div>
+                            <div class="branch-stat-item"><span style="color: #d97706;"><i class="fa-solid fa-compass-drafting"></i> أجهزة المعايرة:</span> <strong style="color: #d97706;">${calibCount}</strong>${atCalibCount > 0 ? ` <span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:4px;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem;"></i> عند الوكيل: ${atCalibCount}</span>` : ''}</div>
+                            <div class="branch-stat-item">
+                                <span style="color:#065f46;"><i class="fa-solid fa-helmet-safety"></i> العمال:</span>
+                                <strong style="color:#065f46;">${branchWorkers.length}</strong>
+                                ${branchWorkersOnLeave > 0 ? `<span style="font-size:.72rem;color:#d97706;background:#fffbeb;padding:1px 6px;border-radius:10px;margin-right:4px;">${branchWorkersOnLeave} في إجازة</span>` : ''}
+                                ${branchWorkersPlanningLeave > 0 ? `<span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:2px;">${branchWorkersPlanningLeave} مجاز</span>` : ''}
+                            </div>
+                            <div class="branch-stat-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
+                                <span><i class="fa-solid fa-diagram-project" style="color:#065f46;"></i> المشاريع النشطة: <strong style="color:#065f46;">${branchActiveProjects.length}</strong></span>
+                                ${projectTags ? `<div style="margin-top:4px;">${projectTags}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // ── طلبات التسجيل المعلقة ──────────────────────────────────
+        function renderPendingRegistrations() {
+            if (currentUser.role !== 'admin') return;
+            const pending = db.users.filter(u => u.status === 'pending');
+            const section = document.getElementById('pendingRegistrationsSection');
+            const list    = document.getElementById('pendingRegistrationsList');
+            const badge   = document.getElementById('pendingRegBadge');
+
+            if (pending.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            badge.textContent = pending.length;
+
+            list.innerHTML = pending.map(u => {
+                const branch = db.branches.find(b => b.id === u.responsibleBranch)?.name || '—';
+                const initial = (u.name || '?').charAt(0);
+                const joined = u.joinDate ? new Date(u.joinDate).toLocaleDateString('ar-SA') : '—';
+                return `
+                <div class="pending-reg-card" id="preg-${u.id}">
+                    <div class="pending-reg-avatar">${initial}</div>
+                    <div class="pending-reg-info">
+                        <div class="pending-reg-name">${u.name}</div>
+                        <div class="pending-reg-meta">
+                            <i class="fa-solid fa-id-badge"></i> رقم وظيفي: <strong>${u.empId}</strong>
+                            &nbsp;|&nbsp; <i class="fa-solid fa-envelope"></i> ${u.email}
+                            &nbsp;|&nbsp; <i class="fa-solid fa-building-flag"></i> مسؤول عن: ${branch}
+                            &nbsp;|&nbsp; <i class="fa-solid fa-calendar"></i> التحاق: ${joined}
+                        </div>
+                    </div>
+                    <div class="pending-reg-actions">
+                        <button class="btn-approve-reg" onclick="handleApproveReg('${u.id}')">
+                            <i class="fa-solid fa-user-check"></i> قبول الحساب
+                        </button>
+                        <button class="btn-reject-reg" onclick="handleRejectReg('${u.id}', '${u.name}')">
+                            <i class="fa-solid fa-user-xmark"></i> رفض
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.handleApproveReg = (userId) => {
+            if (!confirm('قبول حساب رئيس المساحين وتفعيله؟')) return;
+            if (approveUser(userId)) {
+                _showSyncToast('تمت الموافقة على الحساب بنجاح', 'info');
+                loadDashboard();
+            }
+        };
+
+        window.handleRejectReg = (userId, name) => {
+            if (!confirm(`رفض وحذف حساب "${name}" نهائياً؟`)) return;
+            if (rejectUser(userId)) {
+                _showSyncToast('تم رفض الحساب وحذفه', 'info');
+                loadDashboard();
+            }
+        };
+
+        window.markNotificationAsReadAndRefresh = (id) => {
+            if (markNotificationAsRead(id)) {
+                loadDashboard();
+            }
+        };
+
+        window.scrollToLeavePanel = () => {
+            document.getElementById('leaveManagementPanel')?.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        function renderLeaveManagementPanel(onLeave, planningLeave) {
+            // مساحون في إجازة — قائمة قابلة للبحث
+            const onLeaveEl = document.getElementById('onLeaveList');
+            if (onLeave.length === 0) {
+                onLeaveEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون في إجازة حالياً.</p>';
+            } else {
+                window._onLeaveRows = onLeave.map(u => {
+                    const req = (db.leaveRequests || []).find(r => r.userId === u.id && r.isDeparted && !r.isReturned);
+                    const departDate = req?.actualDepartureDate ? new Date(req.actualDepartureDate).toLocaleDateString('ar-SA') : '—';
+                    const branch = db.branches.find(b => b.id === u.branch)?.name || '—';
+                    return { u, req, departDate, branch };
+                });
+
+                onLeaveEl.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                        <div style="position:relative;flex:1;min-width:200px;">
+                            <i class="fa-solid fa-magnifying-glass" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;"></i>
+                            <input type="text" id="onLeaveSearch" class="form-input"
+                                placeholder="بحث برقم الموظف..."
+                                style="padding-right:34px;font-size:.88rem;"
+                                oninput="filterOnLeaveList(this.value)">
+                        </div>
+                        <span style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;white-space:nowrap;">
+                            <i class="fa-solid fa-umbrella-beach"></i> ${onLeave.length} مساح في إجازة
+                        </span>
+                    </div>
+                    <div id="onLeaveSearchMsg" style="display:none;margin-bottom:10px;"></div>
+                    <div id="onLeaveSearchCard" style="display:none;margin-bottom:12px;"></div>
+                    <div class="table-container" style="max-height:300px;overflow-y:auto;">
+                        <table id="onLeaveTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:36px;">#</th>
+                                    <th>الاسم</th>
+                                    <th>الرقم الوظيفي</th>
+                                    <th>الفرع</th>
+                                    <th>تاريخ المغادرة</th>
+                                    <th>الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="onLeaveTableBody">
+                                ${window._onLeaveRows.map((item, i) => `
+                                    <tr data-empid="${item.u.empId}" data-reqid="${item.req?.id || ''}">
+                                        <td style="color:var(--text-muted);font-size:.82rem;">${i+1}</td>
+                                        <td><strong>${item.u.name}</strong></td>
+                                        <td style="font-family:monospace;font-size:.85rem;">${item.u.empId}</td>
+                                        <td style="font-size:.85rem;">${item.branch}</td>
+                                        <td style="font-size:.82rem;color:#92400e;">${item.departDate}</td>
+                                        <td>${item.req ? `<button onclick="adminReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.76rem;padding:4px 10px;"><i class="fa-solid fa-plane-arrival"></i> إرجاع</button>` : '—'}</td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+            }
+
+            // مساحون ينوون المغادرة
+            const planningEl = document.getElementById('planningLeaveList');
+            if (planningLeave.length === 0) {
+                planningEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون بانتظار مغادرة.</p>';
+            } else {
+                planningEl.innerHTML = planningLeave.map(u => {
+                    const req = (db.leaveRequests || []).find(r => r.userId === u.id && !r.isDeparted && (r.status === 'approved' || r.status === 'pending_admin_approval' || r.status === 'pending_head_approval'));
+                    const startDate = req?.startDate ? new Date(req.startDate).toLocaleDateString('ar-SA') : '—';
+                    const branch = db.branches.find(b => b.id === u.branch)?.name || '—';
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;border:1px solid #bfdbfe;background:#eff6ff;margin-bottom:8px;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <strong>${u.name}</strong>
+                            <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">رقم: ${u.empId} | ${branch}</span>
+                            <span style="font-size:.8rem;color:#1e40af;">موعد الإجازة: ${startDate}</span>
+                            ${getLeaveStatusBadge(req?.status)}
+                        </div>
+                        ${req ? `<button onclick="adminConfirmDeparture('${req.id}')" class="btn" style="font-size:.8rem;padding:6px 14px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">
+                            <i class="fa-solid fa-plane-departure"></i> تأكيد المغادرة
+                        </button>` : ''}
+                    </div>`;
+                }).join('');
+            }
+
+            // قائمة الموظفين للإضافة اليدوية
+            const empSelect = document.getElementById('leaveManualEmployee');
+            const surveyors = db.users.filter(u => u.role === 'surveyor' && u.status === 'approved');
+            empSelect.innerHTML = '<option value="">-- اختر موظف --</option>' + surveyors.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
+            document.getElementById('leaveManualDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        window.adminReturnFromLeave = (leaveId) => {
+            if (!leaveId) return;
+            const returnDate = prompt('أدخل تاريخ الإرجاع (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+            if (!returnDate) return;
+            if (markLeaveReturned(leaveId, returnDate)) {
+                loadDashboard();
+                _showSyncToast('تم تسجيل عودة الموظف بنجاح', 'info');
+            }
+        };
+
+        // ── Departure check helpers ──────────────────────────
+        let _pendingDept = null;
+
+        function _showCustodyBlockModal(userName, deviceList) {
+            document.getElementById('custodyBlockBody').innerHTML =
+                `<div style="font-weight:700;margin-bottom:8px;">${userName}</div>` +
+                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> لا يمكن المغادرة — لدى الموظف عهدة نشطة على الأجهزة التالية:</div>` +
+                `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.85rem;font-weight:600;">${deviceList}</div>` +
+                `<div style="margin-top:10px;font-size:.82rem;color:var(--text-muted);">يجب إعادة الأجهزة أو نقل العهدة قبل تسجيل المغادرة.</div>`;
+            document.getElementById('custodyBlockModal').style.display = 'flex';
+        }
+
+        function _deptCheckItems(userId) {
+            const devices  = db.devices.filter(d => d.ownerId === userId && d.status !== 'warehouse');
+            const workers  = (db.workers || []).filter(w => w.surveyorId === userId && w.status === 'available');
+            return { devices, workers };
+        }
+
+        function _showDeptCheckModal(userId, items, onProceed) {
+            const user = db.users.find(u => u.id === userId);
+            let html = `<div style="font-weight:700;margin-bottom:10px;font-size:.95rem;">${user?.name || ''} (${user?.empId || ''})</div>`;
+            if (items.devices.length)
+                html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#991b1b;"><i class="fa-solid fa-microchip"></i> <strong>${items.devices.length}</strong> جهاز في عهدته</div>`;
+            if (items.workers.length) {
+                html += `<div style="display:flex;align-items:center;gap:8px;color:#92400e;"><i class="fa-solid fa-helmet-safety"></i> <strong>${items.workers.length}</strong> عامل مرتبط به</div>`;
+                if (items.workers.length <= 6)
+                    html += `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;padding-right:22px;">${items.workers.map(w=>w.name).join('، ')}</div>`;
+            }
+            document.getElementById('deptCheckBody').innerHTML = html;
+            _pendingDept = onProceed;
+            document.getElementById('deptCheckModal').style.display = 'flex';
+        }
+
+        window.executePendingDept = () => {
+            document.getElementById('deptCheckModal').style.display = 'none';
+            if (typeof _pendingDept === 'function') _pendingDept();
+            _pendingDept = null;
+        };
+
+        window.adminConfirmDeparture = (leaveId) => {
+            if (!leaveId) return;
+            const departDate = prompt('أكد تاريخ المغادرة (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+            if (!departDate) return;
+            const req = (db.leaveRequests || []).find(r => r.id === leaveId);
+            if (!req) return;
+            const user = db.users.find(u => u.id === req.userId);
+            const activeCustodies = (db.custodies || []).filter(c => c.userId === req.userId && c.status === 'approved');
+            if (activeCustodies.length > 0) {
+                const list = activeCustodies.map(c => `${getDeviceTypeName(c.deviceType)} (${c.serialNumber})`).join('، ');
+                _showCustodyBlockModal(user?.name || '', list);
+                return;
+            }
+            const items = _deptCheckItems(req.userId);
+            const proceed = () => {
+                if (markLeaveDeparted(leaveId, departDate)) {
+                    loadDashboard();
+                    _showSyncToast('تم تسجيل مغادرة الموظف', 'info');
+                }
+            };
+            if (items.devices.length || items.workers.length)
+                _showDeptCheckModal(req.userId, items, proceed);
+            else proceed();
+        };
+
+        window.adminSendToLeave = () => {
+            const userId = document.getElementById('leaveManualEmployee').value;
+            const departDate = document.getElementById('leaveManualDate').value;
+            if (!userId || !departDate) { alert('اختر موظفاً وتاريخاً.'); return; }
+            const user = db.users.find(u => u.id === userId);
+            if (!user) return;
+            const req = {
+                id: 'lr_admin_' + Date.now(),
+                userId, assignedBy: currentUser.id, leaveType: 'annual',
+                startDate: departDate, endDate: departDate, daysRequested: 1,
+                reason: 'إضافة يدوية من المدير العام', status: 'approved',
+                branchId: user.branch || null, timestamp: new Date().toISOString(),
+                approvalHistory: [{ approverName: currentUser.name, approverRole: 'مدير الإدارة', decision: 'approved', timestamp: new Date().toISOString() }]
+            };
+            const activeCustodies = (db.custodies || []).filter(c => c.userId === userId && c.status === 'approved');
+            if (activeCustodies.length > 0) {
+                const list = activeCustodies.map(c => `${getDeviceTypeName(c.deviceType)} (${c.serialNumber})`).join('، ');
+                _showCustodyBlockModal(user.name, list);
+                return;
+            }
+            const items = _deptCheckItems(userId);
+            const proceed = () => {
+                if (!db.leaveRequests) db.leaveRequests = [];
+                db.leaveRequests.push(req);
+                markLeaveDeparted(req.id, departDate);
+                addNotification(userId, `تم تسجيلك في إجازة بواسطة المدير العام.`, 'info');
+                loadDashboard();
+                _showSyncToast(`تم تسجيل ${user.name} في إجازة`, 'info');
+            };
+            if (items.devices.length || items.workers.length)
+                _showDeptCheckModal(userId, items, proceed);
+            else proceed();
+        };
+
+        // Hook: يُعيد رسم اللوحة عند وصول بيانات من Supabase (realtime أو _loadRemoteDB)
+        window.refreshPage = loadDashboard;
+
+        // ── Admin Profile Change Request Approvals ──────────
+        const _adminPcrLabel = { phone:'رقم الهاتف', email:'البريد الإلكتروني', password:'كلمة المرور' };
+
+        function renderAdminPcrPanel() {
+            const reqs = (db.profileChangeRequests || []).filter(r => r.status === 'pending_admin')
+                .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const panel = document.getElementById('adminPcrPanel');
+            panel.style.display = reqs.length ? 'block' : 'none';
+            if (!reqs.length) return;
+            document.getElementById('adminPcrList').innerHTML = reqs.map(r => `
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid #e9d5ff;margin-bottom:10px;background:#faf5ff;">
+                    <div>
+                        <div style="font-weight:700;font-size:.9rem;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.userEmpId})</span></div>
+                        <div style="font-size:.82rem;color:var(--text-muted);margin-top:2px;">
+                            طلب تعديل: <strong style="color:#7c3aed;">${_adminPcrLabel[r.type]}</strong>
+                            ${r.type !== 'password' ? `← <span style="color:#1e40af;">${r.newValueDisplay}</span>` : ''}
+                            ${r.headApprovedBy ? `&nbsp;|&nbsp; وافق: ${r.headApprovedBy}` : ''}
+                            &nbsp;|&nbsp; ${new Date(r.timestamp).toLocaleDateString('ar-EG')}
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="adminApprovePcr('${r.id}')" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;background:#7c3aed;border-color:#7c3aed;">
+                            <i class="fa-solid fa-check"></i> اعتماد وتطبيق
+                        </button>
+                        <button onclick="openAdminPcrReject('${r.id}')" class="btn btn-ghost" style="font-size:.82rem;padding:6px 14px;color:#dc2626;border-color:#dc2626;">
+                            <i class="fa-solid fa-times"></i> رفض
+                        </button>
+                    </div>
+                </div>`).join('');
+        }
+
+        window.adminApprovePcr = (id) => {
+            if (approveProfileChangeRequest(id)) {
+                renderAdminPcrPanel();
+                _showSyncToast('تم اعتماد الطلب وتطبيق التغيير ✓', 'success');
+            }
+        };
+
+        let _adminPcrRejectId = null;
+        window.openAdminPcrReject = (id) => {
+            _adminPcrRejectId = id;
+            document.getElementById('adminPcrRejectNote').value = '';
+            document.getElementById('adminPcrRejectModal').style.display = 'flex';
+        };
+        window.confirmAdminPcrReject = () => {
+            const note = document.getElementById('adminPcrRejectNote').value.trim();
+            if (rejectProfileChangeRequest(_adminPcrRejectId, note)) {
+                document.getElementById('adminPcrRejectModal').style.display = 'none';
+                renderAdminPcrPanel();
+                _showSyncToast('تم رفض الطلب', 'info');
+            }
+        };
+
+        // ── Admin Password Reset (for head surveyors) ────────
+        function renderAdminPwrPanel() {
+            const reqs = (db.passwordResetRequests || []).filter(r => r.status === 'pending' && !r.headId)
+                .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const panel = document.getElementById('adminPwrPanel');
+            panel.style.display = reqs.length ? 'block' : 'none';
+            if (!reqs.length) return;
+            document.getElementById('adminPwrList').innerHTML = reqs.map(r => `
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid #fecaca;margin-bottom:10px;background:#fff5f5;">
+                    <div>
+                        <div style="font-weight:700;font-size:.9rem;color:#991b1b;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.empId})</span></div>
+                        <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">نسي كلمة المرور — ${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
+                    </div>
+                    <button onclick="openAdminPwrModal('${r.id}','${r.userName}')" class="btn" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;cursor:pointer;font-family:inherit;">
+                        <i class="fa-solid fa-key"></i> تعيين كلمة مرور مؤقتة
+                    </button>
+                </div>`).join('');
+        }
+
+        let _adminPwrReqId = null;
+        window.openAdminPwrModal = (id, name) => {
+            _adminPwrReqId = id;
+            document.getElementById('adminPwrModalName').textContent = `الموظف: ${name}`;
+            document.getElementById('adminPwrTempPass').value = '';
+            document.getElementById('adminPwrModalResult').innerHTML = '';
+            document.getElementById('adminPwrModal').style.display = 'flex';
+        };
+        window.confirmAdminPwrReset = async () => {
+            const pass = document.getElementById('adminPwrTempPass').value.trim();
+            const result = await resolvePasswordResetRequest(_adminPwrReqId, pass);
+            if (result && result.success) {
+                document.getElementById('adminPwrModalResult').innerHTML =
+                    `<div style="background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;font-size:.85rem;">
+                        <i class="fa-solid fa-circle-check"></i> كلمة المرور المؤقتة: <strong>${result.tempPassword}</strong><br>
+                        أبلغ الموظف <strong>${result.userName}</strong> بهذه الكلمة
+                    </div>`;
+                setTimeout(() => {
+                    document.getElementById('adminPwrModal').style.display = 'none';
+                    renderAdminPwrPanel();
+                }, 3500);
+            }
+        };
+
+        // ── Branch Distribution Charts ───────────────────────
+        const _branchPalette = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316','#ec4899'];
+
+        function renderBranchCharts() {
+            const panel = document.getElementById('adminBranchCharts');
+            if (!db.branches.length) { panel.style.display = 'none'; return; }
+            panel.style.display = 'block';
+
+            const labels   = db.branches.map(b => b.name);
+            const colors   = db.branches.map((_, i) => _branchPalette[i % _branchPalette.length]);
+            const devData  = db.branches.map(b => db.devices.filter(d => d.branch === b.id).length);
+            const survData = db.branches.map(b =>
+                db.users.filter(u => u.role !== 'admin' && (u.branch === b.id || u.responsibleBranch === b.id) && u.status === 'approved').length
+            );
+
+            const totalDev  = devData.reduce((s, v) => s + v, 0)  || 1;
+            const totalSurv = survData.reduce((s, v) => s + v, 0) || 1;
+
+            function buildLegend(containerId, data, total) {
+                document.getElementById(containerId).innerHTML = labels.map((name, i) => {
+                    const pct = ((data[i] / total) * 100).toFixed(1);
+                    return `<div style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:${colors[i]};display:inline-block;flex-shrink:0;"></span>
+                        <span style="color:#374151;">${name}</span>
+                        <span style="color:${colors[i]};font-weight:700;">${data[i]}</span>
+                        <span style="color:#94a3b8;">(${pct}%)</span>
+                    </div>`;
+                }).join('');
+            }
+
+            function buildChart(canvasId, data, chartRef) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                if (chartRef) chartRef.destroy();
+                return new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels,
+                        datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+                    },
+                    options: {
+                        cutout: '62%',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw/ctx.dataset.data.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            branchDeviceChart   = buildChart('branchDeviceChart',   devData,  branchDeviceChart);
+            branchSurveyorChart = buildChart('branchSurveyorChart', survData, branchSurveyorChart);
+            buildLegend('branchDeviceLegend',   devData,  totalDev);
+            buildLegend('branchSurveyorLegend', survData, totalSurv);
+        }
+
+        // ══ شارت حالة الأجهزة — بار ودونات ══
+        let deviceBarChart = null, deviceDonutChart = null;
+        function renderDeviceStatusCharts() {
+            const panel = document.getElementById('deviceStatusChartPanel');
+            if (!panel) return;
+            if (!db.devices || !db.devices.length) { panel.style.display = 'none'; return; }
+            panel.style.display = 'block';
+
+            const warehouseCount  = db.devices.filter(d => d.status === 'warehouse').length;
+            const assignedCount   = db.devices.filter(d => d.status === 'assigned').length;
+            const maintCount      = db.devices.filter(d => d.status === 'maintenance' || d.status === 'at_maintenance').length;
+            const calibCount      = db.devices.filter(d => d.status === 'needs_calibration' || d.status === 'at_calibration').length;
+            const availableCount  = db.devices.filter(d => d.status === 'available').length;
+
+            const labels = ['المستودع', 'معيّنة', 'صيانة', 'معايرة', 'متاحة'];
+            const data   = [warehouseCount, assignedCount, maintCount, calibCount, availableCount];
+            const colors = ['#6366f1','#10b981','#f43f5e','#f59e0b','#3b82f6'];
+
+            // بار شارت
+            const ctxBar = document.getElementById('deviceStatusBarChart');
+            if (ctxBar) {
+                if (deviceBarChart) deviceBarChart.destroy();
+                deviceBarChart = new Chart(ctxBar.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'عدد الأجهزة',
+                            data,
+                            backgroundColor: colors.map(c => c + 'CC'),
+                            borderColor: colors,
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } },
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            },
+                            x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // دونات
+            const ctxDnt = document.getElementById('deviceStatusDonut');
+            if (ctxDnt) {
+                if (deviceDonutChart) deviceDonutChart.destroy();
+                deviceDonutChart = new Chart(ctxDnt.getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
+                    options: {
+                        cutout: '65%', responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, padding: 8 } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ── On-Leave Search Filter ──────────────────────────
+        window.filterOnLeaveList = (query) => {
+            const q = query.trim();
+            const msgEl  = document.getElementById('onLeaveSearchMsg');
+            const cardEl = document.getElementById('onLeaveSearchCard');
+            const tbody  = document.getElementById('onLeaveTableBody');
+            if (!tbody) return;
+
+            const rows = tbody.querySelectorAll('tr');
+
+            if (!q) {
+                rows.forEach(tr => tr.style.display = '');
+                msgEl.style.display = 'none';
+                cardEl.style.display = 'none';
+                return;
+            }
+
+            let match = null;
+            rows.forEach(tr => {
+                const empId = tr.dataset.empid || '';
+                const show = empId.includes(q);
+                tr.style.display = show ? '' : 'none';
+                if (show && empId === q) match = tr;
+            });
+
+            const visible = [...rows].filter(tr => tr.style.display !== 'none');
+
+            if (visible.length === 0) {
+                msgEl.style.display = 'block';
+                msgEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:.85rem;"><i class="fa-solid fa-circle-exclamation"></i> لا يوجد مساح برقم وظيفي "<strong>${q}</strong>" في قائمة الإجازة.</div>`;
+                cardEl.style.display = 'none';
+            } else {
+                msgEl.style.display = 'none';
+                if (match) {
+                    const item = (window._onLeaveRows || []).find(r => r.u.empId === q);
+                    if (item) {
+                        cardEl.style.display = 'block';
+                        cardEl.innerHTML = `
+                            <div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                                <div>
+                                    <div style="font-weight:700;font-size:.95rem;">${item.u.name}</div>
+                                    <div style="font-size:.82rem;color:var(--text-muted);margin-top:3px;">
+                                        <i class="fa-solid fa-id-badge"></i> ${item.u.empId}
+                                        &nbsp;|&nbsp; <i class="fa-solid fa-building-flag"></i> ${item.branch}
+                                        &nbsp;|&nbsp; <i class="fa-solid fa-plane-departure"></i> غادر: ${item.departDate}
+                                    </div>
+                                </div>
+                                ${item.req ? `<button onclick="adminReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.85rem;padding:8px 18px;">
+                                    <i class="fa-solid fa-plane-arrival"></i> إرجاع للعمل
+                                </button>` : ''}
+                            </div>`;
+                    }
+                } else {
+                    cardEl.style.display = 'none';
+                }
+            }
+        };
+
+        // ── Workers Admin Overview ───────────────────────────
+        function renderWorkersAdminPanel() {
+            const panel = document.getElementById('workersAdminPanel');
+            const workers = db.workers || [];
+            const wlrs = db.workerLeaveRequests || [];
+            if (workers.length === 0 && wlrs.length === 0) { panel.style.display = 'none'; return; }
+            panel.style.display = 'block';
+
+            // إجمالي الإحصائيات
+            const totalWorkers   = workers.length;
+            const onLeaveWorkers = workers.filter(w => w.status === 'on_leave').length;
+            const planningLeaveW = wlrs.filter(r => r.status === 'approved').length;
+            const sevenDaysAgo   = new Date(Date.now() - 7 * 86400000).toISOString();
+            const returnedRecent = wlrs.filter(r => r.status === 'returned' && r.returnDate >= sevenDaysAgo).length;
+
+            document.getElementById('workersAdminStatCards').innerHTML = `
+                <div class="stat-card" style="border:1px solid #bbf7d0;">
+                    <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-helmet-safety"></i></div>
+                    <div>
+                        <div style="font-size:.82rem;color:var(--text-muted);">إجمالي العمال</div>
+                        <div style="font-size:1.5rem;font-weight:800;color:#15803d;">${totalWorkers}</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #fde68a;">
+                    <div class="stat-icon" style="background:#fffbeb;color:#b45309;"><i class="fa-solid fa-umbrella-beach"></i></div>
+                    <div>
+                        <div style="font-size:.82rem;color:var(--text-muted);">في إجازة</div>
+                        <div style="font-size:1.5rem;font-weight:800;color:#b45309;">${onLeaveWorkers}</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #bfdbfe;">
+                    <div class="stat-icon" style="background:#dbeafe;color:#1e40af;"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div>
+                        <div style="font-size:.82rem;color:var(--text-muted);">ينوون الإجازة</div>
+                        <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${planningLeaveW}</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #d1fae5;">
+                    <div class="stat-icon" style="background:#ecfdf5;color:#065f46;"><i class="fa-solid fa-plane-arrival"></i></div>
+                    <div>
+                        <div style="font-size:.82rem;color:var(--text-muted);">عادوا (آخر 7 أيام)</div>
+                        <div style="font-size:1.5rem;font-weight:800;color:#065f46;">${returnedRecent}</div>
+                    </div>
+                </div>`;
+
+            // تفاصيل حسب الفرع
+            document.getElementById('workersBranchCards').innerHTML = db.branches.map(branch => {
+                const bWorkers   = workers.filter(w => w.branchId === branch.id);
+                const bOnLeave   = bWorkers.filter(w => w.status === 'on_leave');
+                const bPlanning  = wlrs.filter(r => r.branchId === branch.id && r.status === 'approved');
+                const bReturned  = wlrs.filter(r => r.branchId === branch.id && r.status === 'returned' && r.returnDate >= sevenDaysAgo);
+                if (bWorkers.length === 0 && bPlanning.length === 0) return '';
+                return `
+                    <div class="card" style="border-top:3px solid #065f46;">
+                        <h4 style="color:#065f46;margin-bottom:14px;"><i class="fa-solid fa-building-flag"></i> ${branch.name}</h4>
+                        <div class="branch-stat-item">
+                            <span><i class="fa-solid fa-helmet-safety" style="color:#065f46;"></i> إجمالي العمال:</span>
+                            <strong style="color:#065f46;">${bWorkers.length}</strong>
+                        </div>
+                        <div class="branch-stat-item">
+                            <span><i class="fa-solid fa-user-check" style="color:#15803d;"></i> متاحون:</span>
+                            <strong style="color:#15803d;">${bWorkers.length - bOnLeave.length}</strong>
+                        </div>
+                        <div class="branch-stat-item">
+                            <span><i class="fa-solid fa-umbrella-beach" style="color:#b45309;"></i> في إجازة:</span>
+                            <strong style="color:#b45309;">${bOnLeave.length}</strong>
+                        </div>
+                        <div class="branch-stat-item">
+                            <span><i class="fa-solid fa-calendar-check" style="color:#1e40af;"></i> ينوون الإجازة:</span>
+                            <strong style="color:#1e40af;">${bPlanning.length}</strong>
+                        </div>
+                        <div class="branch-stat-item">
+                            <span><i class="fa-solid fa-plane-arrival" style="color:#065f46;"></i> عادوا مؤخراً:</span>
+                            <strong style="color:#065f46;">${bReturned.length}</strong>
+                        </div>
+                        ${bOnLeave.length > 0 ? `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+                            <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;">العمال في إجازة:</div>
+                            ${bOnLeave.map(w => `<span style="display:inline-block;background:#fffbeb;color:#92400e;font-size:.72rem;padding:2px 7px;border-radius:20px;border:1px solid #fde68a;margin:2px;">${w.name}</span>`).join('')}
+                        </div>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        window.addEventListener('load', () => {
+            renderSidebar();
+            loadDashboard();
+            if (currentUser.role === 'admin') {
+                renderAdminPcrPanel();
+                renderAdminPwrPanel();
+            }
+            renderNewsTicker();
+            applyTranslations();
+        });
+    </script>
+</body>
+</html>

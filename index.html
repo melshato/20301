@@ -1,0 +1,1206 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>نظام إدارة المساحة ونظم المعلومات الجغرافية | ساجكو</title>
+
+  <script>
+    window.__env = window.__env || {
+      SUPABASE_URL: "",
+      SUPABASE_ANON_KEY: ""
+    };
+  </script>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SAJCO">
+  <meta name="theme-color" content="#1d4ed8">
+  <link rel="apple-touch-icon" href="icon-192.svg">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-data-layer.js"></script>
+  <script src="app-core.js"></script>
+
+  <style>
+    /* ============ Login page background ============ */
+    #authOverlay {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #0f172a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated floating orbs (Win7 Aero inspired) */
+    #authOverlay::before, #authOverlay::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.15;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    #authOverlay::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+      top: -100px; left: -100px;
+      animation-duration: 14s;
+    }
+    #authOverlay::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+      animation-duration: 10s;
+      animation-direction: alternate-reverse;
+    }
+    @keyframes floatOrb {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    /* Particle canvas */
+    #bgCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============ Logo area with pulse ============ */
+    .logo-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 5mm auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .logo-pulse-ring { display: none; }
+    @keyframes pulseRing {
+      0%   { transform: scale(.85); opacity: 1; }
+      70%  { transform: scale(1.15); opacity: .4; }
+      100% { transform: scale(1.35); opacity: 0; }
+    }
+    .logo-core {
+      position: relative;
+      z-index: 2;
+      width: 150px;
+      height: 150px;
+      border-radius: 36px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-core img { width: 150px; height: 150px; object-fit: contain; border-radius: 20px; }
+    .logo-core i { font-size: 3.2rem; color: #1d4ed8; }
+
+    /* ============ Auth card ============ */
+    #authCard {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,.97);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.15);
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 500px;
+      animation: cardIn .6s cubic-bezier(.175,.885,.32,1.275);
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .login-title {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .login-sub {
+      text-align: center;
+      color: #64748b;
+      font-size: .9rem;
+      margin-bottom: 28px;
+    }
+
+    /* ============ Registration verified badge ============ */
+    .verified-badge {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1px solid #86efac;
+      border-radius: 12px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .verified-badge strong { color: #15803d; }
+
+    /* ============ Auto-filled field ============ */
+    .auto-filled {
+      background: #f0fdf4 !important;
+      border-color: #86efac !important;
+      color: #166534 !important;
+      font-weight: 600;
+    }
+    .auto-filled-hint {
+      font-size: .75rem;
+      color: #16a34a;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ============ Language Toggle ============ */
+    .lang-toggle {
+      position: absolute;
+      top: calc(16px + 5mm);
+      left: 16px;
+      display: flex;
+      gap: 4px;
+      z-index: 20;
+    }
+    .lang-btn {
+      padding: 4px 11px;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      background: transparent;
+      font-size: .73rem;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all .2s;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .lang-btn.active {
+      background: #1e3a8a;
+      color: #fff;
+      border-color: #1e3a8a;
+    }
+
+    /* ============ Credit Footer ============ */
+    .credit-wrap {
+      position: relative;
+      z-index: 10;
+      margin-top: 22px;
+      border-radius: 14px;
+      padding: 2px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .credit-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -100%;
+      width: 300%;
+      height: 300%;
+      background: conic-gradient(
+        from 0deg,
+        #15803d 0deg, #22c55e 40deg, #d4af37 80deg,
+        #fbbf24 120deg, #d4af37 160deg, #15803d 200deg,
+        #22c55e 240deg, #fbbf24 280deg, #d4af37 320deg, #15803d 360deg
+      );
+      animation: rotateCreditBorder 5s linear infinite;
+      transform-origin: 33.33% 33.33%;
+    }
+    @keyframes rotateCreditBorder {
+      to { transform: rotate(360deg); }
+    }
+    .credit-inner {
+      position: relative;
+      background: linear-gradient(145deg, #061506, #0c270c);
+      border-radius: 12px;
+      padding: 13px 22px 10px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .credit-star {
+      position: absolute;
+      color: #d4af37;
+      animation: twinkleStar 2.2s ease-in-out infinite;
+      pointer-events: none;
+      line-height: 1;
+    }
+    @keyframes twinkleStar {
+      0%, 100% { opacity: .15; transform: scale(.7) rotate(0deg); }
+      50%       { opacity: 1;   transform: scale(1.4) rotate(20deg); }
+    }
+    .credit-line1 {
+      color: #86efac;
+      font-size: .81rem;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .credit-line1 strong { color: #4ade80; }
+    .credit-line2 { color: #d4af37; font-size: .74rem; line-height: 1.5; }
+    .credit-line2 strong { color: #fbbf24; }
+    .credit-line3 { color: #d4af37; font-size: .74rem; }
+    .credit-line3 strong { color: #fbbf24; }
+    .credit-line4 { color: #a0aec0; font-size: .62rem; margin-top: 5px; padding-top: 4px; border-top: 1px solid rgba(212,175,55,0.25); }
+
+    /* ============ Particles interactive ============ */
+    .particle-hint {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.3);
+      font-size: .7rem;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#0f172a;">
+
+<canvas id="bgCanvas"></canvas>
+
+<div id="offlineBanner" style="display:none;background:#fef3c7;color:#92400e;padding:10px;text-align:center;font-weight:600;position:fixed;top:0;left:0;right:0;z-index:999;">
+  <i class="fa-solid fa-wifi"></i> لا يوجد اتصال بالإنترنت – بعض العمليات قد تفشل
+</div>
+
+<div id="authOverlay" style="display:none;">
+
+  <!-- News Ticker on login page -->
+  <div class="news-ticker hidden-ticker" id="loginNewsTicker" style="position:fixed;top:0;left:0;right:0;z-index:999;">
+    <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;margin-right:6px;"></i> أخبار</span>
+    <div class="ticker-wrapper">
+      <div class="ticker-text" id="loginTickerContent"></div>
+    </div>
+  </div>
+
+  <div id="authCard" class="auth-card">
+
+    <!-- Language Toggle -->
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnAr" onclick="setLang('ar')">العربية</button>
+      <button class="lang-btn" id="btnEn" onclick="setLang('en')">EN</button>
+    </div>
+
+    <!-- Logo with pulse animation -->
+    <div class="logo-wrapper" id="logoWrapper">
+      <div class="logo-pulse-ring"></div>
+      <div class="logo-pulse-ring"></div>
+      <div class="logo-pulse-ring"></div>
+      <div class="logo-pulse-ring"></div>
+      <div class="logo-core" id="logoCore">
+        <div id="appImageContainer"></div>
+        <i class="fa-solid fa-draw-polygon" id="logoIcon"></i>
+      </div>
+    </div>
+
+    <div class="login-title" id="appTitle">نظام إدارة المساحة</div>
+    <div class="login-sub" id="appSub" style="font-size:.85rem;">ونظم المعلومات الجغرافية &nbsp;|&nbsp; <strong style="color:#1e3a8a;">SAJCO</strong></div>
+    <div style="text-align:center;font-size:.78rem;color:#94a3b8;margin-bottom:16px;" id="companyLine">شركة شبه الجزيرة للمقاولات</div>
+
+    <div id="authAlert"></div>
+
+    <!-- ======================== تسجيل الدخول ======================== -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label id="loginEmailLabel" class="form-label">ادخل البريد الالكتروني</label>
+        <input type="email" id="loginEmail" class="form-input" required autocomplete="email" placeholder="example@email.com">
+      </div>
+      <div class="form-group">
+        <label id="loginPassLabel" class="form-label">كلمة المرور</label>
+        <input type="password" id="loginPassword" class="form-input" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px">دخول</button>
+    </form>
+    <p style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+      <a href="#" id="toggleReg" style="color:var(--primary);font-weight:600;text-decoration:none;">تسجيل مستخدم جديد</a>
+      <a href="#" id="toggleForgot" style="color:#dc2626;font-weight:600;text-decoration:none;"><i class="fa-solid fa-key" style="margin-left:4px;"></i>نسيت كلمة المرور؟</a>
+    </p>
+
+    <!-- ====== نموذج نسيان كلمة المرور ====== -->
+    <div id="forgotBox" class="hidden" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+      <h3 style="text-align:center;margin-bottom:8px;color:#dc2626;">
+        <i class="fa-solid fa-key"></i> استعادة كلمة المرور
+      </h3>
+      <p style="text-align:center;color:var(--text-muted);font-size:.88rem;margin-bottom:16px;">أدخل رقمك الوظيفي وسنُرسل طلبك لرئيس المساحين لإعادة تعيينها</p>
+      <div id="forgotAlert" style="margin-bottom:10px;"></div>
+      <div class="form-group">
+        <label class="form-label">الرقم الوظيفي</label>
+        <input type="text" id="forgotEmpId" class="form-input" inputmode="numeric" placeholder="أدخل رقمك الوظيفي..." style="text-align:center;font-size:1.2rem;font-weight:bold;letter-spacing:4px;">
+      </div>
+      <button type="button" onclick="doForgotPassword()" class="btn btn-primary" style="width:100%;margin-top:8px;background:#dc2626;border-color:#dc2626;">
+        <i class="fa-solid fa-paper-plane"></i> إرسال طلب استعادة كلمة المرور
+      </button>
+      <button type="button" onclick="location.reload()" class="btn btn-ghost" style="width:100%;margin-top:8px;">
+        العودة لتسجيل الدخول
+      </button>
+    </div>
+
+    <!-- ============ زر تثبيت التطبيق (موبايل فقط) ============ -->
+    <div id="pwaInstallBanner" style="display:none;margin-top:14px;">
+      <button id="pwaInstallBtn" onclick="triggerPwaInstall()" style="
+          width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+          background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;border:none;
+          border-radius:14px;padding:13px 20px;font-size:.95rem;font-weight:600;
+          cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(37,99,235,.35);
+          transition:transform .15s,box-shadow .15s;">
+        <i class="fa-solid fa-mobile-screen-button" style="font-size:1.1rem;"></i>
+        لتحميل التطبيق على جوالك اضغط هنا
+        <i class="fa-solid fa-download" style="font-size:.85rem;opacity:.8;"></i>
+      </button>
+    </div>
+
+    <!-- ============ تعليمات iOS ============ -->
+    <div id="iosInstallModal" onclick="if(event.target===this)this.style.display='none'"
+         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:flex-end;justify-content:center;">
+      <div style="background:#fff;border-radius:22px 22px 0 0;padding:28px 24px 32px;width:100%;max-width:480px;box-shadow:0 -8px 30px rgba(0,0,0,.2);">
+        <div style="text-align:center;margin-bottom:18px;">
+          <div style="width:48px;height:5px;background:#e2e8f0;border-radius:3px;margin:0 auto 18px;"></div>
+          <div style="font-size:1.15rem;font-weight:700;color:#1d4ed8;margin-bottom:4px;">
+            <i class="fa-brands fa-apple"></i> تثبيت التطبيق على iPhone / iPad
+          </div>
+          <div style="font-size:.82rem;color:#64748b;">اتبع الخطوات التالية من متصفح Safari</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;font-size:.92rem;color:#1e293b;">
+          <div style="display:flex;align-items:center;gap:12px;background:#eff6ff;border-radius:12px;padding:12px 14px;">
+            <span style="background:#1d4ed8;color:#fff;border-radius:50%;min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;">1</span>
+            <span>اضغط زر <strong>مشاركة</strong> <i class="fa-solid fa-arrow-up-from-bracket" style="color:#007aff;"></i> في شريط المتصفح</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:#eff6ff;border-radius:12px;padding:12px 14px;">
+            <span style="background:#1d4ed8;color:#fff;border-radius:50%;min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;">2</span>
+            <span>اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:#eff6ff;border-radius:12px;padding:12px 14px;">
+            <span style="background:#1d4ed8;color:#fff;border-radius:50%;min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;">3</span>
+            <span>اضغط <strong>"إضافة"</strong> في أعلى الشاشة</span>
+          </div>
+        </div>
+        <button onclick="document.getElementById('iosInstallModal').style.display='none'"
+          style="margin-top:22px;width:100%;padding:13px;background:#1d4ed8;color:#fff;border:none;border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit;">
+          فهمت
+        </button>
+      </div>
+    </div>
+
+    <!-- ===================== التحقق من الرقم الوظيفي ===================== -->
+    <div id="empIdVerificationBox" class="hidden" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+      <h3 style="text-align:center;margin-bottom:8px;color:var(--primary)">
+        <i class="fa-solid fa-id-card"></i> التحقق من الرقم الوظيفي
+      </h3>
+      <p style="text-align:center;color:var(--text-muted);margin-bottom:16px;font-size:.9rem;">
+        أدخل رقمك الوظيفي للتحقق من صلاحية التسجيل
+      </p>
+      <div id="empIdVerificationAlert" style="margin-bottom:12px;"></div>
+      <form id="empIdVerificationForm">
+        <div class="form-group">
+          <label class="form-label">الرقم الوظيفي</label>
+          <input type="text" id="verifyEmpId" class="form-input" required inputmode="numeric"
+            placeholder="ادخل رقمك الوظيفي..." style="text-align:center;font-size:1.3rem;font-weight:bold;letter-spacing:4px;">
+          <div id="verifyEmpIdMessage" style="margin-top:8px;font-size:.85rem;text-align:center;min-height:20px;"></div>
+          <!-- Auto-fill employee name preview -->
+          <div id="empNamePreview" style="display:none;margin-top:10px;background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:10px 14px;">
+            <div style="font-size:.8rem;color:#1d4ed8;margin-bottom:2px;"><i class="fa-solid fa-user-check"></i> الاسم المسجل:</div>
+            <div id="empNamePreviewText" style="font-weight:700;color:#0f172a;font-size:1rem;"></div>
+          </div>
+        </div>
+        <button type="submit" id="verifyEmpIdBtn" class="btn btn-primary" style="width:100%;margin-top:8px;">
+          التحقق والمتابعة
+        </button>
+        <button type="button" id="backToLoginFromVerify" class="btn btn-ghost" style="width:100%;margin-top:8px;">
+          العودة لتسجيل الدخول
+        </button>
+      </form>
+    </div>
+
+    <!-- ======================= نموذج التسجيل ======================= -->
+    <div id="regBox" class="hidden" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+      <h3 style="text-align:center;margin-bottom:12px;color:var(--primary)">إنشاء حساب مساح جديد</h3>
+      <div class="verified-badge">
+        <i class="fa-solid fa-circle-check" style="color:#16a34a;font-size:1.2rem;"></i>
+        <div>
+          <div style="font-size:.8rem;color:#64748b;">الرقم الوظيفي المحقق</div>
+          <strong style="color:#15803d;" id="verifiedEmpIdDisplay"></strong>
+        </div>
+      </div>
+
+      <form id="registerForm" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الاسم الكامل</label>
+            <input id="regName" class="form-input" required placeholder="اسمك كاملاً...">
+            <div id="regNameHint" class="auto-filled-hint" style="display:none;">
+              <i class="fa-solid fa-magic-wand-sparkles"></i> تعبئة تلقائية من سجل الأرقام الوظيفية — يمكنك تعديله
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">الجنسية</label><input id="regNationality" class="form-input" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الرقم الوظيفي</label>
+            <input id="regEmployeeId" class="form-input" required inputmode="numeric" readonly
+              style="background:#f1f5f9;cursor:not-allowed;font-weight:bold;color:#0f172a;letter-spacing:3px;">
+          </div>
+          <div class="form-group"><label class="form-label">رقم الجوال</label><input id="regPhone" class="form-input" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الفرع التابع له</label>
+            <select id="regBranch" class="form-select" required>
+              <option value="">اختر الفرع...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">المدير المباشر</label>
+            <input id="regHeadSurveyor" class="form-input" required readonly
+              style="background:#f1f5f9;cursor:not-allowed;color:#475569;" placeholder="سيتم التحديد تلقائياً">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">البريد الإلكتروني</label>
+            <input type="email" id="regEmail" class="form-input" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">الوظيفة المطلوبة</label>
+            <select id="regJobTitle" class="form-select" required>
+              <option value="surveyor">مساح</option>
+              <option value="head">رئيس مساحين</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Graduation date (month+year only) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">شهر وسنة التخرج <span style="color:var(--text-muted);font-size:.8rem;">(لحساب الخبرة)</span></label>
+            <input type="month" id="regGradDate" class="form-input apple-date-input" placeholder="مثال: 2015-06">
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">اختر شهر وسنة التخرج فقط</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">سنوات الخبرة الإجمالية</label>
+            <input type="number" id="regExp" class="form-input" min="0" required placeholder="0">
+            <div id="regExpHint" class="auto-filled-hint" style="display:none;">
+              <i class="fa-solid fa-calculator"></i> محسوبة تلقائياً من تاريخ التخرج
+            </div>
+          </div>
+        </div>
+
+        <!-- Join date and company years -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">تاريخ الالتحاق بالشركة</label>
+            <input type="date" id="regJoinDate" class="form-input apple-date-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">سنوات العمل بالشركة</label>
+            <input type="number" id="regCompanyExp" class="form-input" min="0" required placeholder="0">
+            <div id="regCompanyExpHint" class="auto-filled-hint" style="display:none;">
+              <i class="fa-solid fa-building"></i> محسوبة تلقائياً من تاريخ الالتحاق
+            </div>
+          </div>
+        </div>
+
+        <div id="branchResponsibleGroup" class="form-row hidden">
+          <div class="form-group">
+            <label class="form-label">الفرع الذي ترأسه</label>
+            <select id="regBranchResponsible" class="form-select"></select>
+          </div>
+        </div>
+        <div id="approvalNotice" class="hidden"
+          style="color:var(--danger);font-size:.85rem;margin-bottom:15px;font-weight:bold;border:1px solid var(--danger);padding:10px;border-radius:8px;background:#fff5f5;">
+          <i class="fa-solid fa-circle-exclamation"></i> حسابك يحتاج إلى موافقة من مدير الإدارة لتفعيله
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">كلمة المرور</label>
+            <input type="password" id="regPassword" class="form-input" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">تأكيد كلمة المرور</label>
+            <input type="password" id="regConfirmPassword" class="form-input" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px">
+          <i class="fa-solid fa-user-plus"></i> إنشاء الحساب
+        </button>
+        <button type="button" id="backToLogin" class="btn btn-ghost" style="width:100%;margin-top:8px">
+          <i class="fa-solid fa-arrow-right"></i> العودة لتسجيل الدخول
+        </button>
+      </form>
+    </div>
+
+  </div><!-- /authCard -->
+
+  <!-- Credit footer — orbiting stars wrapper -->
+  <div id="loginCreditOuter" style="position:relative;overflow:visible;margin-top:22px;width:100%;">
+    <!-- Orbiting stars (injected by JS after render) -->
+
+    <div class="credit-wrap" id="loginCreditWrap">
+      <div class="credit-inner">
+        <span class="credit-star" style="top:5px;right:10px;font-size:.6rem;animation-delay:0s;">★</span>
+        <span class="credit-star" style="top:7px;right:28px;font-size:.4rem;animation-delay:.5s;">✦</span>
+        <span class="credit-star" style="top:5px;left:10px;font-size:.55rem;animation-delay:1s;">✧</span>
+        <span class="credit-star" style="top:7px;left:28px;font-size:.4rem;animation-delay:1.5s;">★</span>
+        <span class="credit-star" style="bottom:5px;right:16px;font-size:.45rem;animation-delay:.7s;">✦</span>
+        <span class="credit-star" style="bottom:5px;left:16px;font-size:.45rem;animation-delay:1.2s;">✧</span>
+        <span class="credit-star" style="top:50%;right:5px;font-size:.38rem;animation-delay:1.8s;">★</span>
+        <span class="credit-star" style="top:50%;left:5px;font-size:.38rem;animation-delay:.3s;">✦</span>
+        <div class="credit-line1">
+          <i class="fa-regular fa-copyright" style="margin-left:4px;color:#22c55e;"></i>
+          حقوق التصميم والتنفيذ محفوظة لـ <strong>محمود الشطوري</strong>
+        </div>
+        <div class="credit-line2">بإشراف المهندس <strong>محمد اقطيط</strong></div>
+        <div class="credit-line3">وبرعاية <strong>شركة شبه الجزيرة للمقاولات</strong></div>
+        <div class="credit-line4">
+          <i class="fa-regular fa-copyright" style="margin-left:3px;color:#d4af37;font-size:.65rem;vertical-align:middle;"></i>
+          <span id="creditYear"></span> ساجكو — جميع الحقوق محفوظة
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /authOverlay -->
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+document.getElementById('creditYear').textContent = new Date().getFullYear();
+// ===== Particle canvas =====
+(function() {
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], mouse = { x: -999, y: -999 };
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < 70; i++) {
+    particles.push({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 2 + .5,
+      vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4,
+      opacity: Math.random() * .5 + .1
+    });
+  }
+
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      // Mouse repulsion
+      const dx = p.x - mouse.x, dy = p.y - mouse.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 100) { p.x += dx / dist * 1.5; p.y += dy / dist * 1.5; }
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(147,197,253,${p.opacity})`;
+      ctx.fill();
+    });
+    // Draw connecting lines
+    particles.forEach((a, i) => {
+      particles.slice(i+1).forEach(b => {
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 120) {
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = `rgba(147,197,253,${.15 * (1 - d/120)})`;
+          ctx.lineWidth = .5;
+          ctx.stroke();
+        }
+      });
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== Helpers =====
+const toast = (msg, type = 'success') => {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i> <span>${msg}</span>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(-20px)'; setTimeout(() => el.remove(), 500); }, 3500);
+};
+
+const showAlert = (msg, type = 'error') => {
+  const colors = { error: ['#fee2e2','#991b1b'], success: ['#dcfce7','#166534'], warning: ['#fffbeb','#92400e'] };
+  const [bg, color] = colors[type] || colors.error;
+  document.getElementById('authAlert').innerHTML =
+    `<div style="background:${bg};color:${color};padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:.9rem;font-weight:500;">${msg}</div>`;
+};
+
+// ===== Login =====
+const _getLoginDest = role => role === 'surveyor' ? 'surveyor-dashboard.html' : role === 'head' ? 'head-surveyor-dashboard.html' : 'dashboard.html';
+
+const doLogin = async (email, pass) => {
+  const loginBtn = document.querySelector('#loginForm [type="submit"]');
+  if (loginBtn) loginBtn.disabled = true;
+  try {
+    // ── Primary: Supabase Auth (establishes JWT → RLS applies) ──
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+      const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+      if (!authErr && authData?.session) {
+        const user = db.users.find(u => u.email === email);
+        if (user) {
+          if (user.status === 'pending') { await supabaseClient.auth.signOut(); showAlert('حسابك قيد المراجعة من قبل المدير'); return; }
+          if (!user.authUid) {
+            user.authUid = authData.session.user.id;
+            supabaseClient.from('users').update({ auth_uid: authData.session.user.id }).eq('id', user.id).then(() => {});
+          }
+          localStorage.setItem('sajco_session', JSON.stringify({ ...user, loginTime: Date.now() }));
+          location.href = _getLoginDest(user.role);
+          return;
+        }
+      }
+    }
+    // ── Fallback: password check + auto-migrate to Supabase Auth ──
+    // Note: requires "Disable email confirmations" in Supabase Auth settings for auto-migration to work
+    const user = db.users.find(u => u.email === email && u.password === pass);
+    if (!user) { showAlert('بيانات الدخول خاطئة'); return; }
+    if (user.status === 'pending') { showAlert('حسابك قيد المراجعة من قبل المدير'); return; }
+    if (typeof supabaseClient !== 'undefined' && supabaseClient && !user.authUid) {
+      try {
+        await supabaseClient.auth.signUp({ email, password: pass });
+        const { data: authData2 } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+        if (authData2?.session?.user?.id) {
+          user.authUid = authData2.session.user.id;
+          supabaseClient.from('users').update({ auth_uid: authData2.session.user.id }).eq('id', user.id).then(() => {});
+        }
+      } catch(e) { console.warn('auth migration:', e); }
+    }
+    localStorage.setItem('sajco_session', JSON.stringify({ ...user, loginTime: Date.now() }));
+    location.href = _getLoginDest(user.role);
+  } finally {
+    if (loginBtn) loginBtn.disabled = false;
+  }
+};
+
+document.getElementById('loginForm').onsubmit = e => {
+  e.preventDefault();
+  document.getElementById('authAlert').innerHTML = '';
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  doLogin(email, pass).catch(err => { console.error(err); showAlert('حدث خطأ، يرجى المحاولة مجدداً'); });
+};
+
+// ===== Toggle to verification =====
+document.getElementById('toggleReg').onclick = e => {
+  e.preventDefault();
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('toggleReg').parentElement.classList.add('hidden');
+  document.getElementById('authAlert').innerHTML = '';
+  document.getElementById('empIdVerificationBox').classList.remove('hidden');
+  document.getElementById('authCard').style.maxWidth = '500px';
+  document.getElementById('verifyEmpId').focus();
+};
+
+document.getElementById('backToLoginFromVerify').onclick = () => location.reload();
+document.getElementById('backToLogin').onclick = () => location.reload();
+
+// ── Forgot password toggle ──
+document.getElementById('toggleForgot').onclick = e => {
+  e.preventDefault();
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('toggleReg').parentElement.classList.add('hidden');
+  document.getElementById('authAlert').innerHTML = '';
+  document.getElementById('forgotBox').classList.remove('hidden');
+  document.getElementById('forgotEmpId').focus();
+};
+
+async function doForgotPassword() {
+  const empId = document.getElementById('forgotEmpId').value.trim();
+  const alertEl = document.getElementById('forgotAlert');
+  alertEl.innerHTML = '';
+  if (!empId) { alertEl.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.88rem;">يرجى إدخال الرقم الوظيفي</div>'; return; }
+  alertEl.innerHTML = '<div style="color:#64748b;font-size:.85rem;padding:8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> جارٍ الإرسال...</div>';
+  const result = await submitPasswordResetRequest(empId);
+  if (result.error) {
+    alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.88rem;"><i class="fa-solid fa-circle-xmark"></i> ${result.error}</div>`;
+  } else if (result.alreadySent) {
+    alertEl.innerHTML = `<div style="background:#fffbeb;color:#92400e;padding:10px;border-radius:8px;font-size:.88rem;"><i class="fa-solid fa-clock"></i> طلبك مُرسل بالفعل وقيد المعالجة — تواصل مع رئيس المساحين</div>`;
+  } else {
+    alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:12px;border-radius:8px;font-size:.9rem;line-height:1.6;">
+      <i class="fa-solid fa-circle-check" style="font-size:1.2rem;margin-left:6px;"></i>
+      <strong>تم إرسال طلبك بنجاح</strong><br>
+      تواصل مع <strong>${result.recipientName || 'رئيس المساحين'}</strong> ليعيد تعيين كلمة المرور ويُرسلها لك<br>
+      <span style="font-size:.82rem;color:#166534;opacity:.8;">بعد استلام كلمة المرور المؤقتة سيُطلب منك تغييرها فور الدخول</span>
+    </div>`;
+    document.getElementById('forgotEmpId').disabled = true;
+    document.querySelector('#forgotBox button.btn-primary').disabled = true;
+  }
+}
+
+// ===== Real-time empId validation + name auto-fill =====
+// Cache the last verified empId so the form submit can reuse it
+let _lastVerifiedEmpId = null;
+
+// التحقق من الرقم الوظيفي مباشرة من Supabase
+async function checkEmpIdAllowed(val) {
+  const msgEl   = document.getElementById('verifyEmpIdMessage');
+  const btn     = document.getElementById('verifyEmpIdBtn');
+  const preview = document.getElementById('empNamePreview');
+  const previewText = document.getElementById('empNamePreviewText');
+  preview.style.display = 'none';
+
+  if (!val) { msgEl.innerHTML = ''; btn.disabled = false; btn.style.opacity = '1'; return; }
+
+  // Check if already registered
+  const inUse = db.users.some(u => u.empId === val);
+  if (inUse) {
+    msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">هذا الرقم مستخدم بالفعل</span>';
+    btn.disabled = true; btn.style.opacity = '.5'; return;
+  }
+
+  // Show loading
+  msgEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:#64748b;"></i>';
+  btn.disabled = true; btn.style.opacity = '.6';
+
+  // Query Supabase directly
+  let allowed = isEmployeeIdAllowed(val); // check local first
+  let empName = getAllowedEmployeeName(val);
+
+  if (!allowed && supabaseClient) {
+    try {
+      const { data } = await supabaseClient
+        .from('allowed_employee_ids')
+        .select('emp_id, name')
+        .eq('emp_id', val)
+        .maybeSingle();
+      if (data) {
+        allowed = true;
+        empName = data.name || '';
+        // Sync to local so next checks are instant
+        if (!db.allowedEmployeeIds) db.allowedEmployeeIds = [];
+        if (!db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === val)) {
+          db.allowedEmployeeIds.push({ empId: val, name: empName });
+          localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+      }
+    } catch(e) {}
+  }
+
+  if (!allowed) {
+    msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">الرقم غير مسموح به</span>';
+    btn.disabled = true; btn.style.opacity = '.5'; return;
+  }
+
+  msgEl.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> <span style="color:#16a34a;font-weight:600;">الرقم صالح ومتاح</span>';
+  btn.disabled = false; btn.style.opacity = '1';
+  _lastVerifiedEmpId = val;
+  if (empName) { previewText.textContent = empName; preview.style.display = 'block'; }
+}
+
+document.getElementById('verifyEmpId').addEventListener('input', function() {
+  this.value = this.value.replace(/[^0-9]/g, '');
+  _lastVerifiedEmpId = null;
+  checkEmpIdAllowed(this.value.trim());
+});
+
+// ===== Verification form submit =====
+document.getElementById('empIdVerificationForm').onsubmit = async e => {
+  e.preventDefault();
+  const empId   = document.getElementById('verifyEmpId').value.trim();
+  const alertEl = document.getElementById('empIdVerificationAlert');
+  alertEl.innerHTML = '';
+
+  if (!empId) { alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;">الرجاء إدخال الرقم الوظيفي</div>'; return; }
+  if (db.users.some(u => u.empId === empId)) {
+    alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;"><i class="fa-solid fa-circle-xmark"></i> هذا الرقم مستخدم بالفعل.</div>'; return;
+  }
+
+  // If checkEmpIdAllowed already verified this exact empId, trust that result
+  if (_lastVerifiedEmpId !== empId) {
+    // Re-run the check in case the user bypassed the input event
+    await checkEmpIdAllowed(empId);
+  }
+
+  if (_lastVerifiedEmpId !== empId) {
+    alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;"><i class="fa-solid fa-circle-xmark"></i> الرقم الوظيفي غير مسموح به. يرجى التواصل مع الإدارة.</div>'; return;
+  }
+
+  // Proceed to full registration form
+  document.getElementById('empIdVerificationBox').classList.add('hidden');
+  document.getElementById('regBox').classList.remove('hidden');
+  document.getElementById('authCard').style.maxWidth = '820px';
+  document.getElementById('regEmployeeId').value = empId;
+  document.getElementById('verifiedEmpIdDisplay').textContent = empId;
+
+  // Auto-fill name from allowed list
+  const empName = getAllowedEmployeeName(empId);
+  if (empName) {
+    document.getElementById('regName').value = empName;
+    document.getElementById('regName').classList.add('auto-filled');
+    document.getElementById('regNameHint').style.display = 'flex';
+  }
+
+  // Fill branches
+  const opts = db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+  document.getElementById('regBranch').innerHTML = '<option value="">اختر الفرع التابع له...</option>' + opts;
+  document.getElementById('regBranchResponsible').innerHTML = '<option value="">اختر الفرع الذي ستديره...</option>' + opts;
+
+  document.getElementById('regName').focus();
+};
+
+// ===== Graduation date → auto-calculate experience =====
+document.getElementById('regGradDate').addEventListener('change', function() {
+  const val = this.value; // YYYY-MM
+  if (!val) return;
+  const gradDate = new Date(val + '-01');
+  const now = new Date();
+  const years = (now.getFullYear() - gradDate.getFullYear()) + (now.getMonth() - gradDate.getMonth()) / 12;
+  const rounded = Math.floor(years);
+  if (rounded >= 0) {
+    document.getElementById('regExp').value = rounded;
+    document.getElementById('regExpHint').style.display = 'flex';
+  }
+});
+
+// ===== Join date → auto-calculate company years =====
+document.getElementById('regJoinDate').addEventListener('change', function() {
+  const val = this.value; // YYYY-MM-DD
+  if (!val) return;
+  const joinDate = new Date(val);
+  const now = new Date();
+  const years = (now.getFullYear() - joinDate.getFullYear()) + (now.getMonth() - joinDate.getMonth()) / 12;
+  const rounded = Math.floor(years);
+  if (rounded >= 0) {
+    document.getElementById('regCompanyExp').value = rounded;
+    document.getElementById('regCompanyExpHint').style.display = 'flex';
+  }
+});
+
+// Clear auto-fill hint when user manually edits name
+document.getElementById('regName').addEventListener('input', function() {
+  this.classList.remove('auto-filled');
+  document.getElementById('regNameHint').style.display = 'none';
+});
+
+// ===== updateDirectManager =====
+const updateDirectManager = () => {
+  const role = document.getElementById('regJobTitle').value;
+  const branchId = document.getElementById('regBranch').value;
+  const managerInput = document.getElementById('regHeadSurveyor');
+  if (role === 'head') {
+    const admin = db.users.find(u => u.role === 'admin');
+    managerInput.value = admin ? admin.name : 'المهندس محمد اقطيط';
+  } else if (role === 'surveyor' && branchId) {
+    const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId);
+    managerInput.value = head ? head.name : 'لم يتم تعيين رئيس مساحين لهذا الفرع';
+  } else {
+    managerInput.value = '';
+  }
+};
+
+document.getElementById('regJobTitle').onchange = e => {
+  const isHead = e.target.value === 'head';
+  document.getElementById('branchResponsibleGroup').classList.toggle('hidden', !isHead);
+  document.getElementById('approvalNotice').classList.toggle('hidden', !isHead);
+  document.getElementById('regBranchResponsible').required = isHead;
+  updateDirectManager();
+};
+
+document.getElementById('regBranch').onchange = () => updateDirectManager();
+
+// ===== Register =====
+document.getElementById('registerForm').onsubmit = async e => {
+  e.preventDefault();
+  const pass = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regConfirmPassword').value;
+  if (pass !== confirm) { alert('كلمة المرور غير متطابقة'); return; }
+
+  const role = document.getElementById('regJobTitle').value;
+  const branchId = document.getElementById('regBranch').value;
+  const gradDate = document.getElementById('regGradDate').value;
+  const email = document.getElementById('regEmail').value.trim();
+
+  if (role === 'surveyor') {
+    const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId);
+    if (!head) { toast('لا يمكن التسجيل في هذا الفرع - لا يوجد رئيس مساحين معين له.', 'error'); return; }
+  }
+
+  const result = registerNewUser({
+    name: document.getElementById('regName').value,
+    nationality: document.getElementById('regNationality').value,
+    empId: document.getElementById('regEmployeeId').value,
+    phone: document.getElementById('regPhone').value,
+    branch: branchId,
+    headSurveyor: document.getElementById('regHeadSurveyor').value,
+    totalExp: document.getElementById('regExp').value,
+    companyExp: document.getElementById('regCompanyExp').value,
+    joinDate: document.getElementById('regJoinDate').value,
+    gradDate: gradDate || null,
+    jobTitle: role,
+    responsibleBranch: role === 'head' ? document.getElementById('regBranchResponsible').value : null,
+    email,
+    password: pass
+  });
+
+  if (!result.success) { toast(result.msg, 'error'); return; }
+
+  if (result.user.status === 'approved') {
+    // Create Supabase Auth account for immediate login (requires email confirmations disabled)
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+      try {
+        await supabaseClient.auth.signUp({ email, password: pass });
+        const { data: authData } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+        if (authData?.session?.user?.id) {
+          result.user.authUid = authData.session.user.id;
+          supabaseClient.from('users').update({ auth_uid: authData.session.user.id }).eq('id', result.user.id).then(() => {});
+        }
+      } catch(e) { console.warn('auth signup:', e); }
+    }
+    localStorage.setItem('sajco_session', JSON.stringify({ ...result.user, loginTime: Date.now() }));
+    toast(`أهلاً بك ${result.user.name}! جاري التحويل...`, 'success');
+    setTimeout(() => { location.href = 'surveyor-dashboard.html'; }, 1800);
+  } else {
+    toast('تم إنشاء الحساب! بانتظار موافقة المدير لتفعيله.', 'success');
+    setTimeout(() => location.reload(), 3000);
+  }
+};
+
+// ===== App image in logo =====
+function showAppImage() {
+  if (db.settings.appImage) {
+    const container = document.getElementById('appImageContainer');
+    const icon = document.getElementById('logoIcon');
+    if (container) {
+      container.innerHTML = `<img src="${db.settings.appImage}" style="width:44px;height:44px;object-fit:contain;border-radius:10px;" alt="Logo">`;
+      if (icon) icon.style.display = 'none';
+    }
+  }
+}
+
+// ===== Language Toggle =====
+const TRANSLATIONS = {
+  ar: {
+    appTitle: 'نظام إدارة المساحة',
+    appSub: 'ونظم المعلومات الجغرافية &nbsp;|&nbsp; <strong style="color:#1e3a8a;">SAJCO</strong>',
+    companyLine: 'شركة شبه الجزيرة للمقاولات',
+    emailLabel: 'ادخل البريد الالكتروني',
+    passLabel: 'كلمة المرور',
+    loginBtn: '<i class="fa-solid fa-arrow-left-to-bracket"></i> دخول',
+    newUser: 'تسجيل مستخدم جديد',
+    empIdTitle: '<i class="fa-solid fa-id-card"></i> التحقق من الرقم الوظيفي',
+    empIdSub: 'أدخل رقمك الوظيفي للتحقق من صلاحية التسجيل',
+    empIdLabel: 'الرقم الوظيفي',
+    empIdPlaceholder: 'ادخل رقمك الوظيفي...',
+    verifyBtn: 'التحقق والمتابعة',
+    backToLogin: 'العودة لتسجيل الدخول',
+    regTitle: 'إنشاء حساب مساح جديد',
+    createBtn: '<i class="fa-solid fa-user-plus"></i> إنشاء الحساب',
+    dir: 'rtl'
+  },
+  en: {
+    appTitle: 'Survey Management System',
+    appSub: 'Geographic Information Systems &nbsp;|&nbsp; <strong style="color:#1e3a8a;">SAJCO</strong>',
+    companyLine: 'Shaba Al-Jazeera Contracting Co.',
+    emailLabel: 'Enter Email Address',
+    passLabel: 'Password',
+    loginBtn: '<i class="fa-solid fa-arrow-left-to-bracket"></i> Login',
+    newUser: 'Register New User',
+    empIdTitle: '<i class="fa-solid fa-id-card"></i> Employee ID Verification',
+    empIdSub: 'Enter your employee ID to verify registration eligibility',
+    empIdLabel: 'Employee ID',
+    empIdPlaceholder: 'Enter your employee ID...',
+    verifyBtn: 'Verify & Continue',
+    backToLogin: 'Back to Login',
+    regTitle: 'Create New Account',
+    createBtn: '<i class="fa-solid fa-user-plus"></i> Create Account',
+    dir: 'ltr'
+  }
+};
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('sajco_lang', lang);
+  const t = TRANSLATIONS[lang];
+  document.getElementById('appTitle').textContent = t.appTitle;
+  document.getElementById('appSub').innerHTML = t.appSub;
+  document.getElementById('companyLine').textContent = t.companyLine;
+
+  // Login form labels
+  const qEmail = document.getElementById('loginEmailLabel');
+  const qPass  = document.getElementById('loginPassLabel');
+  if (qEmail) qEmail.textContent = t.emailLabel;
+  if (qPass)  qPass.textContent  = t.passLabel;
+
+  const loginSubmit = document.querySelector('#loginForm button[type="submit"]');
+  if (loginSubmit) loginSubmit.innerHTML = t.loginBtn;
+
+  const toggleReg = document.getElementById('toggleReg');
+  if (toggleReg) toggleReg.textContent = t.newUser;
+
+  const verifyTitle = document.querySelector('#empIdVerificationBox h3');
+  if (verifyTitle) verifyTitle.innerHTML = t.empIdTitle;
+
+  const verifySub = document.querySelector('#empIdVerificationBox p');
+  if (verifySub) verifySub.textContent = t.empIdSub;
+
+  const verifyLabel = document.querySelector('#empIdVerificationBox .form-label');
+  if (verifyLabel) verifyLabel.textContent = t.empIdLabel;
+
+  const verifyInput = document.getElementById('verifyEmpId');
+  if (verifyInput) verifyInput.placeholder = t.empIdPlaceholder;
+
+  const verifyBtn = document.getElementById('verifyEmpIdBtn');
+  if (verifyBtn) verifyBtn.textContent = t.verifyBtn;
+
+  const backBtn = document.getElementById('backToLoginFromVerify');
+  if (backBtn) backBtn.textContent = t.backToLogin;
+
+  const regTitle = document.querySelector('#regBox h3');
+  if (regTitle) regTitle.textContent = t.regTitle;
+
+  const createBtn = document.querySelector('#registerForm button[type="submit"]');
+  if (createBtn) createBtn.innerHTML = t.createBtn;
+
+  // Direction
+  document.getElementById('authCard').style.direction = t.dir;
+
+  // Button states
+  document.getElementById('btnAr').classList.toggle('active', lang === 'ar');
+  document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+}
+
+// ===== Init =====
+function renderLoginTicker() {
+  const tickerEl = document.getElementById('loginTickerContent');
+  const ticker   = document.getElementById('loginNewsTicker');
+  if (!tickerEl || !ticker) return;
+  const items = (db.newsTicker || []).filter(t => t.active !== false);
+  if (!items.length) { ticker.classList.add('hidden-ticker'); return; }
+  ticker.classList.remove('hidden-ticker');
+  if (typeof _buildTickerHTML === 'function') {
+    tickerEl.innerHTML = _buildTickerHTML(items);
+  } else {
+    const s = items.map(t => (t.type==='warning'?'⚠ ':'')+t.text).join('  ✦ 🌟 ✦  ');
+    tickerEl.innerHTML = s + s;
+  }
+  const charCount = items.reduce((s, t) => s + t.text.length, 0);
+  const speed = Math.max(12, Math.min(50, charCount * 0.20));
+  tickerEl.style.animationDuration = speed + 's';
+}
+
+window.addEventListener('load', () => {
+  if (currentUser) {
+    if (currentUser.status === 'pending') {
+      localStorage.removeItem('sajco_session');
+    } else {
+      const dest = typeof getLoginDest === 'function' ? getLoginDest(currentUser.role)
+        : (currentUser.role === 'surveyor' ? 'surveyor-dashboard.html' : currentUser.role === 'head' ? 'head-surveyor-dashboard.html' : 'dashboard.html');
+      location.href = dest;
+      return;
+    }
+  }
+
+  document.getElementById('authOverlay').style.display = 'flex';
+  showAppImage();
+  setLang(currentLang);
+  renderLoginTicker();
+  if (typeof _initLoginRealtime === 'function') _initLoginRealtime();
+
+  // Inject orbiting stars around login credit badge
+  setTimeout(() => {
+    const outer = document.getElementById('loginCreditOuter');
+    const wrap  = document.getElementById('loginCreditWrap');
+    if (!outer || !wrap) return;
+    const fw = wrap.offsetWidth, fh = wrap.offsetHeight;
+    const M = 14, R = 12;
+    const cw = `path('M ${-M+R} ${-M} L ${fw+M-R} ${-M} Q ${fw+M} ${-M} ${fw+M} ${-M+R} L ${fw+M} ${fh+M-R} Q ${fw+M} ${fh+M} ${fw+M-R} ${fh+M} L ${-M+R} ${fh+M} Q ${-M} ${fh+M} ${-M} ${fh+M-R} L ${-M} ${-M+R} Q ${-M} ${-M} ${-M+R} ${-M} Z')`;
+    const ccw = `path('M ${-M+R} ${-M} Q ${-M} ${-M} ${-M} ${-M+R} L ${-M} ${fh+M-R} Q ${-M} ${fh+M} ${-M+R} ${fh+M} L ${fw+M-R} ${fh+M} Q ${fw+M} ${fh+M} ${fw+M} ${fh+M-R} L ${fw+M} ${-M+R} Q ${fw+M} ${-M} ${fw+M-R} ${-M} Z')`;
+    const stars = [
+      {orbit:'cw', color:'#fbbf24', size:'.9rem',  delay:'0s',    dur:'6s',  char:'✦'},
+      {orbit:'cw', color:'#4ade80', size:'.72rem', delay:'-1s',   dur:'6s',  char:'★'},
+      {orbit:'cw', color:'#fde68a', size:'.62rem', delay:'-2s',   dur:'6s',  char:'✧'},
+      {orbit:'cw', color:'#d4af37', size:'.94rem', delay:'-3s',   dur:'6s',  char:'✦'},
+      {orbit:'cw', color:'#86efac', size:'.68rem', delay:'-4s',   dur:'6s',  char:'★'},
+      {orbit:'cw', color:'#fbbf24', size:'.54rem', delay:'-5s',   dur:'6s',  char:'✧'},
+      {orbit:'ccw',color:'#a3e635', size:'.58rem', delay:'-0.5s', dur:'9s',  char:'•'},
+      {orbit:'ccw',color:'#fcd34d', size:'.48rem', delay:'-3s',   dur:'9s',  char:'•'},
+    ];
+    stars.forEach(d => {
+      const s = document.createElement('span');
+      s.textContent = d.char;
+      s.style.cssText = `position:absolute;top:0;left:0;pointer-events:none;z-index:10;font-size:${d.size};color:${d.color};animation-delay:${d.delay};animation-duration:${d.dur};animation-name:${d.orbit==='ccw'?'sajcoOrbitCCW':'sajcoOrbitCW'};animation-timing-function:linear;animation-iteration-count:infinite;animation-fill-mode:none;filter:drop-shadow(0 0 5px ${d.color});line-height:1;`;
+      s.style.offsetPath = d.orbit === 'cw' ? cw : ccw;
+      s.style.offsetDistance = '0%';
+      // @keyframes aren't defined in index.html scope, use inline animation
+      outer.appendChild(s);
+    });
+    // Inject required @keyframes into page if not present
+    if (!document.getElementById('orbitKeyframes')) {
+      const st = document.createElement('style');
+      st.id = 'orbitKeyframes';
+      st.textContent = `
+        @keyframes sajcoOrbitCW  { to { offset-distance: 100%; } }
+        @keyframes sajcoOrbitCCW { to { offset-distance: -100%; } }
+      `;
+      document.head.appendChild(st);
+    }
+  }, 400);
+
+  window.addEventListener('offline', () => { document.getElementById('offlineBanner').style.display = 'block'; });
+  window.addEventListener('online', () => { document.getElementById('offlineBanner').style.display = 'none'; });
+
+  // ===== PWA Install =====
+  const _isIOS        = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const _isMobile     = _isIOS || /android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+  if (_isMobile && !_isStandalone) {
+    document.getElementById('pwaInstallBanner').style.display = 'block';
+  }
+
+  let _deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+  });
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('pwaInstallBanner').style.display = 'none';
+  });
+
+  window.triggerPwaInstall = async () => {
+    if (_isIOS) {
+      document.getElementById('iosInstallModal').style.display = 'flex';
+      return;
+    }
+    if (_deferredPrompt) {
+      _deferredPrompt.prompt();
+      const { outcome } = await _deferredPrompt.userChoice;
+      _deferredPrompt = null;
+      if (outcome === 'accepted') document.getElementById('pwaInstallBanner').style.display = 'none';
+    } else {
+      document.getElementById('iosInstallModal').style.display = 'flex';
+    }
+  };
+});
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

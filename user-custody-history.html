@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل عهدة الموظف - SAJCO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 0;"><i class="fa-solid fa-user-clock"></i> سجل عهدة الموظف</h3>
+                    <button id="exportBtn" onclick="exportUserHistoryToExcel()" class="btn btn-ghost hidden">
+                        <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> تصدير إلى Excel
+                    </button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">ابحث عن موظف بالرقم الوظيفي لعرض تاريخ الأجهزة التي دخلت وخرجت من عهدته.</p>
+
+                <div class="form-row" style="margin-bottom: 20px; align-items: flex-end;">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="searchEmpId" class="form-label">الرقم الوظيفي للموظف</label>
+                        <input type="text" id="searchEmpId" class="form-input" placeholder="ادخل الرقم الوظيفي للموظف..." required>
+                        <div id="searchedUserInfo" style="font-size: 0.8rem; color: var(--primary); margin-top: 5px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <button onclick="searchUserCustodyHistory()" class="btn btn-primary">
+                            <i class="fa-solid fa-magnifying-glass"></i> بحث
+                        </button>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0; border-color: var(--border);">
+
+                <h4>نتائج البحث</h4>
+                <div class="table-container">
+                    <table id="userCustodyHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>تاريخ العملية</th>
+                                <th>الجهاز (الرقم التسلسلي)</th>
+                                <th>العملية</th>
+                                <th>بواسطة</th>
+                                <th>الفرع</th>
+                                <th>ملاحظات</th>
+                                <th>تتبع الموافقات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userCustodyHistoryTableBody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">ادخل الرقم الوظيفي واضغط بحث لعرض السجل.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <script>
+        checkAuth();
+
+        const userCustodyHistoryTableBody = document.getElementById('userCustodyHistoryTableBody');
+        const searchEmpIdInput = document.getElementById('searchEmpId');
+        const searchedUserInfoDiv = document.getElementById('searchedUserInfo');
+        let lastSearchResults = [];
+
+        searchEmpIdInput.addEventListener('input', () => {
+            const empId = searchEmpIdInput.value.trim();
+            document.getElementById('exportBtn').classList.add('hidden'); // إخفاء الزر عند تغيير المدخلات
+            const user = db.users.find(u => u.empId === empId);
+            if (user) {
+                searchedUserInfoDiv.textContent = `الموظف: ${user.name} (${user.role === 'admin' ? 'مدير' : user.role === 'head' ? 'رئيس مساحين' : 'مساح'})`;
+            } else {
+                searchedUserInfoDiv.textContent = '';
+            }
+        });
+
+        function searchUserCustodyHistory() {
+            reloadDB();
+            const empId = searchEmpIdInput.value.trim();
+            const exportBtn = document.getElementById('exportBtn');
+            if (!empId) {
+                alert('الرجاء إدخال الرقم الوظيفي للموظف.');
+                return;
+            }
+
+            const targetUser = db.users.find(u => u.empId === empId);
+            if (!targetUser) {
+                alert('لم يتم العثور على موظف بهذا الرقم الوظيفي.');
+                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">لم يتم العثور على موظف بهذا الرقم الوظيفي.</td></tr>';
+                exportBtn.classList.add('hidden');
+                return;
+            }
+
+            lastSearchResults = [];
+
+            db.custodies.forEach(c => {
+                if (c.status === 'approved') { // فقط السجلات المعتمدة
+                    // حالة: الجهاز دخل عهدة هذا الموظف
+                    if (c.userId === targetUser.id) {
+                        lastSearchResults.push({
+                            timestamp: c.timestamp,
+                            serialNumber: c.serialNumber,
+                            deviceType: c.deviceType,
+                            action: c.transferData ? `نقل إليه من ${c.transferData.fromUserName}` : 'استلام عهدة جديدة',
+                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'النظام',
+                            branchId: c.branchId,
+                            notes: c.notes || (c.transferData ? c.transferData.reason : ''),
+                            approvalHistory: c.approvalHistory || []
+                        });
+                    }
+                    // حالة: الجهاز خرج من عهدة هذا الموظف (عبر نقل)
+                    if (c.transferData && c.transferData.fromUserId === targetUser.id) {
+                        lastSearchResults.push({
+                            timestamp: c.timestamp,
+                            serialNumber: c.serialNumber,
+                            deviceType: c.deviceType,
+                            action: `نقل منه إلى ${db.users.find(u => u.id === c.userId)?.name || 'غير معروف'}`,
+                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'النظام',
+                            branchId: c.branchId, // الفرع عند النقل
+                            notes: c.notes || c.transferData.reason,
+                            approvalHistory: c.approvalHistory || []
+                        });
+                    }
+                }
+            });
+
+            lastSearchResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // الأحدث أولاً
+
+            // إظهار الزر فقط في حال وجود نتائج
+            if (lastSearchResults.length > 0) {
+                exportBtn.classList.remove('hidden');
+            } else {
+                exportBtn.classList.add('hidden');
+            }
+
+            renderUserCustodyHistory(lastSearchResults);
+        }
+
+        function renderUserCustodyHistory(records) {
+            userCustodyHistoryTableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">لا توجد سجلات عهدة لهذا الموظف.</td></tr>';
+                return;
+            }
+
+            records.forEach(record => {
+                const branch = db.branches.find(b => b.id === record.branchId);
+                const row = userCustodyHistoryTableBody.insertRow();
+                row.insertCell().textContent = new Date(record.timestamp).toLocaleString('ar-EG');
+                row.insertCell().textContent = `${getDeviceTypeName(record.deviceType)} (S/N: ${record.serialNumber})`;
+                row.insertCell().textContent = record.action;
+                row.insertCell().textContent = record.byUser;
+                row.insertCell().textContent = branch ? branch.name : '—';
+                row.insertCell().textContent = record.notes || '—';
+                
+                const historyCell = row.insertCell();
+                historyCell.innerHTML = record.approvalHistory && record.approvalHistory.length > 0 
+                    ? record.approvalHistory.map(h => `<div style="font-size:0.75rem; border-bottom:1px solid #eee; margin-bottom:4px; padding-bottom:4px;">
+                        <i class="fa-solid fa-check-double" style="color:var(--primary)"></i> <strong>${h.approverRole}:</strong> ${h.approverName}<br>
+                        <small style="color:var(--text-muted)">${new Date(h.timestamp).toLocaleString('ar-EG')}</small></div>`).join('')
+                    : '<span style="color:var(--text-muted)">—</span>';
+            });
+        }
+
+        function exportUserHistoryToExcel() {
+            if (lastSearchResults.length === 0) {
+                alert('لا توجد بيانات لتصديرها. يرجى البحث عن موظف أولاً.');
+                return;
+            }
+            
+            const empId = searchEmpIdInput.value.trim();
+            const user = db.users.find(u => u.empId === empId);
+            const userName = user ? user.name : 'موظف';
+
+            let csvContent = "\uFEFF"; 
+            csvContent += "تاريخ العملية,الجهاز,العملية,بواسطة,الفرع,ملاحظات,تتبع الموافقات\n";
+
+            lastSearchResults.forEach(r => {
+                const branch = db.branches.find(b => b.id === r.branchId);
+                const branchName = branch ? branch.name : '—';
+                const historyText = r.approvalHistory.map(h => `${h.approverRole}: ${h.approverName} (${new Date(h.timestamp).toLocaleString('ar-EG')})`).join(' | ');
+                csvContent += `"${new Date(r.timestamp).toLocaleString('ar-EG')}","${getDeviceTypeName(r.deviceType)} (S/N: ${r.serialNumber})","${r.action}","${r.byUser}","${branchName}","${r.notes || ''}","${historyText}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `سجل_عهدة_${userName}_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        window.onload = () => {
+            renderSidebar();
+        };
+    </script>
+</body>
+</html>

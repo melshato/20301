@@ -1,0 +1,675 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الصيانة والمعايرة | ساجكو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .upload-zone {
+            border: 2px dashed #94a3b8; border-radius: 12px; padding: 28px;
+            text-align: center; cursor: pointer; transition: all .25s; background: #f8fafc; position: relative;
+        }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary); background: #f0fdf4; }
+        .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .upload-zone .upload-icon { font-size: 2.2rem; color: #94a3b8; margin-bottom: 8px; }
+        .upload-zone.has-file { border-color: var(--primary); background: #f0fdf4; }
+        .upload-zone.has-file .upload-icon { color: var(--primary); }
+        .cert-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 8px; background: #fff; }
+        .cert-icon { width: 36px; height: 36px; background: #fee2e2; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #dc2626; flex-shrink: 0; }
+        .cert-icon.img { background: #dbeafe; color: #2563eb; }
+        .upload-progress { background: #e2e8f0; border-radius: 4px; height: 6px; margin-top: 8px; overflow: hidden; display: none; }
+        .upload-progress-bar { height: 100%; background: var(--primary); border-radius: 4px; width: 0; transition: width .3s; }
+        .requests-table tr:hover td { background: #f8fafc; }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <header style="margin-bottom:24px;">
+            <h2 style="font-size:1.5rem;font-weight:700;"><i class="fa-solid fa-screwdriver-wrench" style="color:var(--primary)"></i> إدارة الصيانة والمعايرة</h2>
+            <p style="color:var(--text-muted)">متابعة الأجهزة المرسلة للوكيل وإدارة طلبات الصيانة والمعايرة.</p>
+        </header>
+
+        <!-- الإحصائيات -->
+        <div class="maint-stats">
+            <div class="maint-card" style="border-top:4px solid #ef4444;">
+                <h4>تحتاج صيانة</h4>
+                <div id="totalMaint" style="color:#ef4444;">0</div>
+            </div>
+            <div class="maint-card" style="border-top:4px solid #f59e0b;">
+                <h4>تحتاج معايرة</h4>
+                <div id="totalCalib" style="color:#f59e0b;">0</div>
+            </div>
+            <div class="maint-card" style="border-top:4px solid #3b82f6;">
+                <h4>عند الوكيل حالياً</h4>
+                <div id="totalAtAgent" style="color:#3b82f6;">0</div>
+            </div>
+            <div class="maint-card" style="border-top:4px solid #8b5cf6;">
+                <h4>طلبات انتظار موافقة</h4>
+                <div id="totalPendingReqs" style="color:#8b5cf6;">0</div>
+            </div>
+            <div class="maint-card" style="border-top:4px solid #16a34a;">
+                <h4>شهادات مرفوعة</h4>
+                <div id="totalCerts" style="color:#16a34a;">0</div>
+            </div>
+        </div>
+
+        <!-- طلبات الصيانة/المعايرة بانتظار الموافقة (للمدير فقط) -->
+        <div class="card" id="pendingRequestsCard" style="display:none;">
+            <h3 style="color:#92400e;"><i class="fa-solid fa-clock"></i> طلبات بانتظار الموافقة</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>الجهاز</th><th>النوع</th><th>الطلب</th><th>مقدم الطلب</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
+                    <tbody id="pendingReqsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- بانتظار الإرسال للوكيل -->
+        <div class="card">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> أجهزة بانتظار الإرسال للوكيل</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr>
+                        <th>الجهاز (S/N)</th><th>النوع</th><th>الفرع</th><th>المالك الحالي</th>
+                        <th>الحالة</th><th>إجراء الإرسال</th>
+                    </tr></thead>
+                    <tbody id="waitingTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- عند الوكيل -->
+        <div class="card" style="border-right:4px solid #3b82f6;">
+            <h3><i class="fa-solid fa-truck-fast"></i> أجهزة موجودة عند الوكيل حالياً</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr>
+                        <th>الجهاز (S/N)</th><th>النوع</th><th>العملية الجارية</th>
+                        <th>تاريخ الإرسال</th><th>شهادات المعايرة</th><th>استلام من الوكيل</th>
+                    </tr></thead>
+                    <tbody id="agentTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ============================================================
+     Modal استلام من الوكيل
+============================================================ -->
+<div class="modal-overlay" id="returnModal">
+    <div class="modal-box" style="max-width:500px;">
+        <button class="modal-close" onclick="closeReturnModal()"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:4px;"><i class="fa-solid fa-box-open" style="color:var(--primary);margin-left:8px;"></i> تأكيد استلام الجهاز من الوكيل</h3>
+        <p id="returnModalSubtitle" style="color:var(--text-muted);font-size:.9rem;margin-bottom:6px;"></p>
+        <p id="returnModalOwner" style="color:#374151;font-size:.85rem;margin-bottom:18px;background:#f8fafc;border-radius:8px;padding:8px 12px;"></p>
+
+        <!-- وجهة الجهاز بعد الاستلام -->
+        <div style="margin-bottom:18px;">
+            <label style="font-weight:700;font-size:.9rem;display:block;margin-bottom:10px;">
+                <i class="fa-solid fa-route" style="color:#6366f1;margin-left:6px;"></i>
+                وجهة الجهاز بعد الاستلام <span style="color:#ef4444;">*</span>
+            </label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <label style="flex:1;min-width:180px;display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all .2s;" id="destSameLabel">
+                    <input type="radio" name="returnDest" id="destSameUser" value="same_user" style="width:18px;height:18px;accent-color:var(--primary);" onchange="onReturnDestChange()">
+                    <div>
+                        <div style="font-weight:700;font-size:.88rem;"><i class="fa-solid fa-user-check" style="color:var(--primary);margin-left:6px;"></i> نفس الموظف</div>
+                        <div style="font-size:.75rem;color:var(--text-muted);">العهدة تبقى كما هي</div>
+                    </div>
+                </label>
+                <label style="flex:1;min-width:180px;display:flex;align-items:center;gap:10px;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;transition:all .2s;" id="destWhLabel">
+                    <input type="radio" name="returnDest" id="destWarehouse" value="warehouse" checked style="width:18px;height:18px;accent-color:#f59e0b;" onchange="onReturnDestChange()">
+                    <div>
+                        <div style="font-weight:700;font-size:.88rem;"><i class="fa-solid fa-warehouse" style="color:#f59e0b;margin-left:6px;"></i> المستودع</div>
+                        <div style="font-size:.75rem;color:var(--text-muted);">تُنهى عهدة الموظف</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div id="returnCalibFields">
+            <div class="form-group">
+                <label class="form-label" style="font-weight:700;font-size:.9rem;">
+                    <i class="fa-solid fa-calendar-check" style="color:var(--primary);margin-left:6px;"></i>
+                    تاريخ شهادة المعايرة الجديدة
+                    <span style="color:#ef4444;font-size:.85rem;font-weight:800;margin-right:4px;">* إلزامي</span>
+                </label>
+                <div class="apple-date-wrapper">
+                    <input type="date" id="newCalDate" class="apple-date-input required-field">
+                </div>
+                <div class="required-label" style="margin-top:6px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    يجب إدخال تاريخ المعايرة الجديد لإتمام الاستلام
+                </div>
+                <div id="newCalDateErr" style="color:#ef4444;font-size:.8rem;margin-top:4px;display:none;font-weight:600;"></div>
+            </div>
+
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:14px;margin:16px 0;">
+                <div style="font-weight:700;color:#15803d;margin-bottom:8px;"><i class="fa-solid fa-certificate"></i> رفع شهادة المعايرة بعد الاستلام؟</div>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500;color:#166534;">
+                    <input type="checkbox" id="uploadCertAfterReturn" style="width:18px;height:18px;accent-color:var(--primary);">
+                    نعم، أريد رفع شهادة المعايرة الآن
+                </label>
+            </div>
+        </div>
+
+        <div id="returnError" style="color:#ef4444;font-size:.85rem;margin:8px 0;display:none;font-weight:600;"></div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="confirmReturn()" class="btn btn-primary" style="flex:1;">
+                <i class="fa-solid fa-check"></i> تأكيد الاستلام
+            </button>
+            <button onclick="closeReturnModal()" class="btn btn-ghost">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     Modal رفع شهادة المعايرة
+============================================================ -->
+<div class="modal-overlay" id="certModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeCertModal()"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:6px;"><i class="fa-solid fa-certificate" style="color:var(--primary);margin-left:8px;"></i> شهادة المعايرة</h3>
+        <p id="certModalSubtitle" style="color:var(--text-muted);font-size:.9rem;margin-bottom:20px;"></p>
+
+        <div id="existingCerts" style="margin-bottom:16px;"></div>
+
+        <h4 style="font-size:.9rem;margin-bottom:12px;"><i class="fa-solid fa-upload"></i> رفع شهادة جديدة</h4>
+
+        <div class="upload-zone" id="uploadZone">
+            <input type="file" id="certFileInput" accept=".pdf,image/*" onchange="handleFileSelect(event)">
+            <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div style="font-weight:600;">اسحب الملف هنا أو انقر للاختيار</div>
+            <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;">PDF أو صورة (JPG, PNG) - حجم أقصى 20 ميجا</div>
+            <div id="selectedFileName" style="margin-top:8px;font-size:.82rem;color:var(--primary);font-weight:600;display:none;"></div>
+            <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+        </div>
+
+        <div style="background:#fafafa;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:14px;">
+            <div style="text-align:center;color:#94a3b8;font-size:.82rem;margin:10px 0;">أو استخدم رابط Google Drive</div>
+            <div class="form-group"><label class="form-label" style="font-size:.82rem;">رابط الملف</label>
+                <input type="url" id="driveUrl" class="form-input" placeholder="https://drive.google.com/file/d/..." style="font-size:.88rem;"></div>
+            <div class="form-group"><label class="form-label" style="font-size:.82rem;">اسم الملف (اختياري)</label>
+                <input type="text" id="driveFileName" class="form-input" style="font-size:.88rem;"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+            <div class="form-group">
+                <label class="form-label" style="font-size:.82rem;">تاريخ المعايرة</label>
+                <input type="date" id="certCalDate" class="apple-date-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-size:.82rem;">تاريخ الانتهاء (اختياري)</label>
+                <input type="date" id="certExpiryDate" class="apple-date-input">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:8px;">
+            <label class="form-label" style="font-size:.82rem;">ملاحظات (اختياري)</label>
+            <textarea id="certNotes" class="form-input" rows="2" style="font-size:.88rem;resize:none;"></textarea>
+        </div>
+
+        <div id="certUploadError" style="color:#ef4444;font-size:.82rem;margin:8px 0;display:none;"></div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="submitCert()" class="btn btn-primary" id="submitCertBtn" style="flex:1;">
+                <i class="fa-solid fa-upload"></i> رفع الشهادة
+            </button>
+            <button onclick="closeCertModal()" class="btn btn-ghost">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal إرسال للوكيل -->
+<div class="modal-overlay" id="sendModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeSendModal()"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:6px;"><i class="fa-solid fa-truck-fast" style="color:var(--primary);margin-left:8px;"></i> إرسال الجهاز للوكيل</h3>
+        <p id="sendModalSubtitle" style="color:var(--text-muted);font-size:.9rem;margin-bottom:20px;"></p>
+        <div class="form-group">
+            <label class="form-label">نوع العملية <span style="color:#ef4444;">*</span></label>
+            <select id="sendType" class="form-select">
+                <option value="maintenance">صيانة</option>
+                <option value="calibration">معايرة</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">ملاحظات (اختياري)</label>
+            <textarea id="sendNotes" class="form-input" rows="3" style="resize:none;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="confirmSend()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-paper-plane"></i> إرسال للوكيل</button>
+            <button onclick="closeSendModal()" class="btn btn-ghost">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+checkAuth();
+if (currentUser.role === 'surveyor') window.location.href = 'surveyor-dashboard.html';
+
+let _currentCertSerial = null;
+let _currentCertDeviceId = null;
+let _selectedFile = null;
+let _currentReturnDeviceId = null;
+let _currentReturnIsCalib = false;
+let _currentSendDeviceId = null;
+
+// ============================================================
+// تحديث الصفحة
+// ============================================================
+function refreshMaintenancePage() {
+    reloadDB();
+    const isAdmin = currentUser.role === 'admin';
+    const myBranch = currentUser.responsibleBranch;
+
+    // الأجهزة المرئية حسب الدور
+    let allDevices = getVisibleDevices();
+
+    const waitingDevices = allDevices.filter(d => d.status === 'maintenance' || d.status === 'needs_calibration');
+    const agentDevices = allDevices.filter(d => d.status === 'at_maintenance' || d.status === 'at_calibration');
+
+    // الإحصائيات
+    document.getElementById('totalMaint').innerText = allDevices.filter(d => d.status === 'maintenance' || d.status === 'at_maintenance').length;
+    document.getElementById('totalCalib').innerText = allDevices.filter(d => d.status === 'needs_calibration' || d.status === 'at_calibration').length;
+    document.getElementById('totalAtAgent').innerText = agentDevices.length;
+    document.getElementById('totalCerts').innerText = (db.calibrationCerts || []).length;
+
+    // طلبات بانتظار الموافقة (للمدير فقط)
+    const pendingReqs = (db.maintenanceRequests || []).filter(r => r.status === 'pending');
+    document.getElementById('totalPendingReqs').innerText = pendingReqs.length;
+    if (isAdmin && pendingReqs.length > 0) {
+        document.getElementById('pendingRequestsCard').style.display = '';
+        document.getElementById('pendingReqsBody').innerHTML = pendingReqs.map(r => {
+            const reqType = r.requestType === 'maintenance' ? '<span class="badge badge-danger">صيانة</span>' : '<span class="badge badge-warning">معايرة</span>';
+            return `<tr>
+                <td><strong>${r.serialNumber}</strong></td>
+                <td>${r.deviceType || '—'}</td>
+                <td>${reqType}</td>
+                <td>${r.requestedByName || '—'}</td>
+                <td>${formatDate(r.timestamp)}</td>
+                <td style="display:flex;gap:6px;">
+                    <button class="btn-approve" onclick="doApproveRequest('${r.id}')"><i class="fa-solid fa-check"></i> قبول وإرسال</button>
+                    <button class="btn-reject" onclick="doRejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>
+                </td>
+            </tr>`;
+        }).join('');
+    } else {
+        document.getElementById('pendingRequestsCard').style.display = 'none';
+    }
+
+    // جدول الانتظار
+    const waitingBody = document.getElementById('waitingTableBody');
+    if (waitingDevices.length === 0) {
+        waitingBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">لا توجد أجهزة بانتظار الإرسال.</td></tr>';
+    } else {
+        waitingBody.innerHTML = waitingDevices.map(d => {
+            const owner = db.users.find(u => u.id === d.ownerId);
+            const branch = db.branches.find(b => b.id === d.branch);
+            const isM = d.status === 'maintenance';
+            const sendBtn = isAdmin
+                ? `<button class="btn-${isM ? 'maintenance' : 'calibration'}" onclick="openSendModal('${d.id}','${d.serial}','${isM ? 'maintenance' : 'calibration'}')">
+                    <i class="fa-solid fa-paper-plane"></i> إرسال للوكيل
+                   </button>`
+                : `<button onclick="reqSend('${d.id}','${d.serial}','${isM ? 'maintenance' : 'calibration'}')" class="btn btn-ghost btn-sm">
+                    <i class="fa-solid fa-hand-paper"></i> طلب إرسال
+                   </button>`;
+            return `<tr>
+                <td><strong>${d.serial}</strong></td>
+                <td>${getDeviceTypeName(d.type)}</td>
+                <td>${branch ? branch.name : '—'}</td>
+                <td>${owner ? owner.name : 'المستودع'}</td>
+                <td>${isM ? '<span class="badge badge-danger">تحتاج صيانة</span>' : '<span class="badge badge-warning">تحتاج معايرة</span>'}</td>
+                <td>${sendBtn}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // جدول عند الوكيل
+    const agentBody = document.getElementById('agentTableBody');
+    if (agentDevices.length === 0) {
+        agentBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">لا توجد أجهزة عند الوكيل حالياً.</td></tr>';
+    } else {
+        agentBody.innerHTML = agentDevices.map(d => {
+            const isCalib = d.status === 'at_calibration';
+            const certs = getCalibrationCerts(d.serial);
+            const certsHtml = certs.length > 0
+                ? `<span class="badge badge-success" style="cursor:pointer;" onclick="openCertModal('${d.serial}','${d.id}')">${certs.length} شهادة <i class="fa-solid fa-eye"></i></span>`
+                : `<span class="badge" style="cursor:pointer;" onclick="openCertModal('${d.serial}','${d.id}')">لا توجد <i class="fa-solid fa-plus"></i></span>`;
+            return `<tr>
+                <td><strong>${d.serial}</strong></td>
+                <td>${getDeviceTypeName(d.type)}</td>
+                <td><span class="badge badge-info">${isCalib ? 'جاري المعايرة' : 'جاري الإصلاح'}</span></td>
+                <td>${d.sentToAgentDate ? formatDate(d.sentToAgentDate) : '—'}</td>
+                <td>${certsHtml}</td>
+                <td>
+                    <button onclick="openReturnModal('${d.id}',${isCalib})" class="btn-receive">
+                        <i class="fa-solid fa-box-open"></i> تأكيد الاستلام
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+}
+
+// ============================================================
+// Send Modal
+// ============================================================
+window.openSendModal = (deviceId, serial, defaultType) => {
+    _currentSendDeviceId = deviceId;
+    document.getElementById('sendModalSubtitle').textContent = `الجهاز: ${getDeviceTypeName(db.devices.find(d=>d.id===deviceId)?.type)} — S/N: ${serial}`;
+    document.getElementById('sendType').value = defaultType;
+    document.getElementById('sendNotes').value = '';
+    document.getElementById('sendModal').classList.add('open');
+};
+
+window.closeSendModal = () => document.getElementById('sendModal').classList.remove('open');
+
+window.confirmSend = () => {
+    const type  = document.getElementById('sendType').value;
+    const notes = document.getElementById('sendNotes').value.trim();
+    if (sendToAgent(_currentSendDeviceId, type, notes)) {
+        closeSendModal();
+        showToast('تم إرسال الجهاز للوكيل بنجاح وتم تسجيل طلب الصيانة', 'success');
+        refreshMaintenancePage();
+    }
+};
+
+window.reqSend = (deviceId, serial, type) => {
+    const notes = prompt(`ملاحظات طلب ${type === 'maintenance' ? 'الصيانة' : 'المعايرة'} (اختياري):`);
+    if (notes === null) return;
+    const dev = db.devices.find(d => d.id === deviceId);
+    const result = sendMaintenanceRequest(deviceId, serial, dev?.type, type, notes);
+    if (result.success) {
+        showToast('تم إرسال الطلب للمدير وبانتظار الموافقة', 'success');
+        refreshMaintenancePage();
+    }
+};
+
+window.doApproveRequest = (reqId) => {
+    if (!confirm('الموافقة على الطلب وإرسال الجهاز للوكيل؟')) return;
+    if (approveMaintenanceRequest(reqId)) {
+        showToast('تمت الموافقة وإرسال الجهاز للوكيل', 'success');
+        refreshMaintenancePage();
+    }
+};
+
+window.doRejectRequest = (reqId) => {
+    const reason = prompt('سبب الرفض (اختياري):');
+    if (reason === null) return;
+    if (rejectMaintenanceRequest(reqId, reason)) {
+        showToast('تم رفض الطلب', 'success');
+        refreshMaintenancePage();
+    }
+};
+
+// ============================================================
+// Return Modal - استلام من الوكيل
+// ============================================================
+window.openReturnModal = (deviceId, isCalib) => {
+    _currentReturnDeviceId = deviceId;
+    _currentReturnIsCalib = isCalib;
+    const device = db.devices.find(d => d.id === deviceId);
+
+    document.getElementById('returnModalSubtitle').textContent =
+        `${getDeviceTypeName(device?.type)} — S/N: ${device?.serial}`;
+
+    // عرض المالك الأصلي من سجل الصيانة النشط
+    const req = (db.maintenanceRequests || []).find(r =>
+        (r.deviceId === deviceId || r.serialNumber === device?.serial) && r.status === 'sent_to_agent'
+    );
+    const ownerId = req?.ownerIdBeforeSend || device?.ownerId;
+    const owner = ownerId ? db.users.find(u => u.id === ownerId) : null;
+    const ownerEl = document.getElementById('returnModalOwner');
+    ownerEl.innerHTML = owner
+        ? `<i class="fa-solid fa-user" style="color:var(--primary);margin-left:6px;"></i> الموظف الأصلي: <strong>${owner.name}</strong>`
+        : `<i class="fa-solid fa-warehouse" style="color:#f59e0b;margin-left:6px;"></i> الجهاز كان في <strong>المستودع</strong>`;
+
+    // إعادة تعيين وجهة الاستلام
+    document.getElementById('destWarehouse').checked = true;
+    onReturnDestChange();
+
+    document.getElementById('returnCalibFields').style.display = isCalib ? '' : 'none';
+    document.getElementById('newCalDate').value = '';
+    document.getElementById('newCalDateErr').style.display = 'none';
+    document.getElementById('returnError').style.display = 'none';
+    document.getElementById('uploadCertAfterReturn').checked = false;
+    document.getElementById('returnModal').classList.add('open');
+    if (isCalib) setTimeout(() => document.getElementById('newCalDate').focus(), 300);
+};
+
+window.closeReturnModal = () => document.getElementById('returnModal').classList.remove('open');
+
+window.onReturnDestChange = () => {
+    const isSameUser = document.getElementById('destSameUser').checked;
+    document.getElementById('destSameLabel').style.borderColor = isSameUser ? 'var(--primary)' : '#e2e8f0';
+    document.getElementById('destWhLabel').style.borderColor   = isSameUser ? '#e2e8f0' : '#f59e0b';
+};
+
+window.confirmReturn = () => {
+    const device = db.devices.find(d => d.id === _currentReturnDeviceId);
+    if (!device) return;
+    const errEl = document.getElementById('returnError');
+    errEl.style.display = 'none';
+    let newCalDate = null;
+
+    if (_currentReturnIsCalib) {
+        newCalDate = document.getElementById('newCalDate').value;
+        if (!newCalDate) {
+            document.getElementById('newCalDateErr').textContent = 'يرجى إدخال تاريخ المعايرة الجديد — هذا الحقل إلزامي.';
+            document.getElementById('newCalDateErr').style.display = 'block';
+            document.getElementById('newCalDate').focus();
+            return;
+        }
+        const sel = new Date(newCalDate);
+        const today = new Date(); today.setHours(0,0,0,0);
+        if (sel <= today) {
+            document.getElementById('newCalDateErr').textContent = 'تاريخ المعايرة يجب أن يكون في المستقبل.';
+            document.getElementById('newCalDateErr').style.display = 'block';
+            document.getElementById('newCalDate').focus();
+            return;
+        }
+    }
+
+    const destination = document.getElementById('destSameUser').checked ? 'same_user' : 'warehouse';
+
+    if (returnFromAgent(_currentReturnDeviceId, newCalDate, destination)) {
+        const uploadAfter = document.getElementById('uploadCertAfterReturn').checked;
+        closeReturnModal();
+        const destMsg = destination === 'same_user' ? 'وأُعيد لعهدة الموظف' : 'ونُقل للمستودع';
+        showToast(`تم الاستلام من الوكيل بنجاح ${destMsg}`, 'success');
+        refreshMaintenancePage();
+        if (uploadAfter && _currentReturnIsCalib)
+            setTimeout(() => openCertModal(device.serial, device.id, newCalDate), 400);
+    } else {
+        errEl.textContent = 'حدث خطأ. حاول مجدداً.';
+        errEl.style.display = 'block';
+    }
+};
+
+// ============================================================
+// Certificate Modal
+// ============================================================
+window.openCertModal = (serialNumber, deviceId, prefillDate = null) => {
+    _currentCertSerial = serialNumber;
+    _currentCertDeviceId = deviceId;
+    _selectedFile = null;
+    document.getElementById('certModalSubtitle').textContent = `الجهاز S/N: ${serialNumber}`;
+    document.getElementById('certFileInput').value = '';
+    document.getElementById('selectedFileName').style.display = 'none';
+    document.getElementById('driveUrl').value = '';
+    document.getElementById('driveFileName').value = '';
+    document.getElementById('certNotes').value = '';
+    document.getElementById('certCalDate').value = prefillDate || '';
+    document.getElementById('certExpiryDate').value = '';
+    document.getElementById('certUploadError').style.display = 'none';
+    document.getElementById('uploadZone').classList.remove('has-file');
+    document.getElementById('uploadProgress').style.display = 'none';
+    document.getElementById('uploadProgressBar').style.width = '0';
+    _renderExistingCerts(serialNumber);
+    document.getElementById('certModal').classList.add('open');
+};
+
+window.closeCertModal = () => { document.getElementById('certModal').classList.remove('open'); _selectedFile = null; };
+
+function _renderExistingCerts(serial) {
+    const certs = getCalibrationCerts(serial);
+    const container = document.getElementById('existingCerts');
+    if (certs.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);font-size:.82rem;margin-bottom:10px;">لا توجد شهادات مرفوعة لهذا الجهاز بعد.</p>'; return; }
+    container.innerHTML = `<h4 style="font-size:.88rem;margin-bottom:8px;"><i class="fa-solid fa-folder-open"></i> الشهادات الموجودة (${certs.length})</h4>` +
+        certs.map(c => {
+            const isPdf = c.fileType === 'application/pdf' || c.fileName?.endsWith('.pdf');
+            return `<div class="cert-item">
+                <div class="cert-icon ${!isPdf ? 'img' : ''}"><i class="fa-solid ${isPdf ? 'fa-file-pdf' : 'fa-image'}"></i></div>
+                <div style="flex:1;">
+                    <div style="font-weight:600;font-size:.82rem;">${c.fileName || 'شهادة'}</div>
+                    <div style="font-size:.72rem;color:#64748b;">${c.calibrationDate ? `معايرة: ${formatDate(c.calibrationDate)}` : ''}${c.expiryDate ? ` · انتهاء: ${formatDate(c.expiryDate)}` : ''}</div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    ${c.fileUrl ? `<a href="${c.fileUrl}" target="_blank" class="btn btn-ghost btn-sm"><i class="fa-solid fa-eye"></i></a>` : ''}
+                    <button onclick="handleDeleteCert('${c.id}')" class="btn btn-ghost btn-sm" style="color:#ef4444;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+}
+
+window.handleDeleteCert = (certId) => {
+    if (!confirm('حذف هذه الشهادة؟')) return;
+    if (deleteCalibrationCert(certId)) { _renderExistingCerts(_currentCertSerial); refreshMaintenancePage(); }
+};
+
+window.handleFileSelect = (e) => { const file = e.target.files[0]; if (file) _validateAndSetFile(file); };
+
+function _validateAndSetFile(file) {
+    if (file.size > 20 * 1024 * 1024) { _showCertError('حجم الملف يتجاوز 20 ميجا.'); return; }
+    const allowed = ['application/pdf','image/jpeg','image/png','image/webp','image/gif'];
+    if (!allowed.includes(file.type)) { _showCertError('نوع الملف غير مدعوم.'); return; }
+    _selectedFile = file;
+    const nameEl = document.getElementById('selectedFileName');
+    nameEl.textContent = `✓ ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
+    nameEl.style.display = 'block';
+    document.getElementById('uploadZone').classList.add('has-file');
+    document.getElementById('certUploadError').style.display = 'none';
+}
+
+function _showCertError(msg) {
+    const el = document.getElementById('certUploadError');
+    el.textContent = msg; el.style.display = 'block';
+}
+
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0]; if (file) _validateAndSetFile(file);
+});
+
+function _convertDriveUrl(url) {
+    if (!url) return null;
+    const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (match2) return `https://drive.google.com/uc?export=download&id=${match2[1]}`;
+    return url;
+}
+
+function _getDrivePreviewUrl(url) {
+    const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return `https://drive.google.com/file/d/${match[1]}/preview`;
+    const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (match2) return `https://drive.google.com/file/d/${match2[1]}/preview`;
+    return url;
+}
+
+window.submitCert = async () => {
+    const driveUrl = document.getElementById('driveUrl').value.trim();
+    const driveName = document.getElementById('driveFileName').value.trim();
+    const calDate = document.getElementById('certCalDate').value;
+    const expiryDate = document.getElementById('certExpiryDate').value;
+    const notes = document.getElementById('certNotes').value.trim();
+    document.getElementById('certUploadError').style.display = 'none';
+    if (!_selectedFile && !driveUrl) { _showCertError('الرجاء اختيار ملف أو إدخال رابط Google Drive.'); return; }
+    const btn = document.getElementById('submitCertBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الرفع...';
+    try {
+        let certData = { serialNumber: _currentCertSerial, deviceId: _currentCertDeviceId, calibrationDate: calDate || null, expiryDate: expiryDate || null, notes };
+        if (_selectedFile) {
+            const progressBar = document.getElementById('uploadProgressBar');
+            const progressWrap = document.getElementById('uploadProgress');
+            progressWrap.style.display = 'block';
+            let prog = 0;
+            const progInterval = setInterval(() => { prog = Math.min(prog + 15, 85); progressBar.style.width = prog + '%'; }, 200);
+            let fileUrl = null; let storagePath = null;
+            if (typeof SupabaseStorage !== 'undefined' && supabaseClient) {
+                const result = await SupabaseStorage.uploadCalibrationCert(_selectedFile, _currentCertSerial, currentUser.id);
+                if (result.success) { fileUrl = result.url; storagePath = result.path; }
+                else throw new Error(result.error || 'فشل رفع الملف');
+            } else {
+                fileUrl = await _fileToDataUrl(_selectedFile);
+                storagePath = `local/${_selectedFile.name}`;
+            }
+            clearInterval(progInterval);
+            progressBar.style.width = '100%';
+            setTimeout(() => { progressWrap.style.display = 'none'; }, 500);
+            certData = { ...certData, fileName: _selectedFile.name, fileUrl, storagePath, fileType: _selectedFile.type, fileSize: _selectedFile.size };
+        } else {
+            const convertedUrl = _convertDriveUrl(driveUrl);
+            const viewUrl = _getDrivePreviewUrl(driveUrl);
+            certData = { ...certData, fileName: driveName || `شهادة_معايرة_${_currentCertSerial}`, fileUrl: viewUrl, storagePath: `gdrive/${driveUrl}`, fileType: 'application/pdf', fileSize: null, isGoogleDrive: true, originalDriveUrl: driveUrl, downloadUrl: convertedUrl };
+        }
+        addCalibrationCert(certData);
+        _renderExistingCerts(_currentCertSerial);
+        refreshMaintenancePage();
+        showToast('تم رفع شهادة المعايرة بنجاح', 'success');
+        setTimeout(() => {
+            document.getElementById('certFileInput').value = '';
+            document.getElementById('selectedFileName').style.display = 'none';
+            document.getElementById('driveUrl').value = '';
+            document.getElementById('driveFileName').value = '';
+            document.getElementById('certNotes').value = '';
+            document.getElementById('certCalDate').value = '';
+            document.getElementById('certExpiryDate').value = '';
+            document.getElementById('uploadZone').classList.remove('has-file');
+            _selectedFile = null;
+        }, 200);
+    } catch (err) {
+        _showCertError('حدث خطأ: ' + (err.message || 'فشل الرفع'));
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-upload"></i> رفع الشهادة';
+    }
+};
+
+function _fileToDataUrl(file) {
+    return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+}
+
+function showToast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type === 'error' ? 'error' : ''}`;
+    el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> <span>${msg}</span>`;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3500);
+}
+
+// تحديث تلقائي كل 30 ثانية
+setInterval(() => refreshMaintenancePage(), 30000);
+
+window.onload = () => { renderSidebar(); refreshMaintenancePage(); };
+</script>
+</body>
+</html>

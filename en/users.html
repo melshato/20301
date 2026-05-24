@@ -1,0 +1,466 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees & Surveyors | SAJCO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <header style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700">Employee & Surveyor Management</h2>
+                    <p style="color: var(--text-muted)">Manage team data and control access permissions.</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="exportUsersToExcel()" class="btn btn-ghost"><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Export to Excel</button>
+                    <button id="addEmployeeBtn" onclick="toggleUserForm()" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus"></i> Add New Employee
+                    </button>
+                </div>
+            </header>
+
+            <!-- form Add andEdit -->
+            <div class="card hidden" id="userFormContainer">
+                <h3 id="formTitle">Add New Employee</h3>
+                <form id="userForm">
+                    <input type="hidden" id="editUserId">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group"><label class="form-label">Full Name</label><input id="uName" class="form-input" required></div>
+                        <div class="form-group"><label class="form-label">Employee ID</label><input id="uEmpId" class="form-input" required></div>
+                        <div class="form-group"><label class="form-label">Email</label><input type="email" id="uEmail" class="form-input" required></div>
+                        <div class="form-group"><label class="form-label">Password</label><input type="password" id="uPass" class="form-input" required></div>
+                        <div class="form-group">
+                            <label class="form-label">Position / Role</label>
+                            <select id="uRole" class="form-select">
+                                <option value="surveyor">Surveyor</option>
+                                <option value="head">Head Surveyor</option>
+                                <option value="admin">System Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="substituteGroup">
+                            <label class="form-label">Substitute Approver (in case of Head Surveyor Absence)</label>
+                            <select id="uSubstitute" class="form-select">
+                                <option value="">No Substitute</option>
+                            </select>
+                            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                                <button type="button" onclick="assignSubstituteAction()" class="btn btn-primary btn-sm">Assign Substitute</button>
+                                <button type="button" onclick="removeSubstituteAction()" class="btn btn-ghost btn-sm">Remove Substitute</button>
+                            </div>
+                        </div>
+                        <div class="form-group hidden" id="responsibleBranchGroup">
+                            <label class="form-label">Responsible Branch</label>
+                            <select id="uResponsibleBranch" class="form-select">
+                                <option value="">Select Branch...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Branch</label>
+                            <select id="uBranch" class="form-select" required>
+                                <option value="">Select Branch...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">Save Data</button>
+                        <button type="button" onclick="toggleUserForm()" class="btn btn-ghost">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- قسم Requests التسجيل Pending (يظهر for Admin only) -->
+            <div id="pendingUsersSection" class="card hidden" style="border-left: 4px solid #f6e05e; background: #fffaf0;">
+                <h3 style="color: #975a16; margin-bottom: 15px;"><i class="fa-solid fa-user-clock"></i> Pending Registration Requests</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Employee ID</th>
+                                <th>Email</th>
+                                <th>Required Branch</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingUsersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- table Employeeين -->
+            <div class="card">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">Search for Employee</label>
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                            <input type="text" id="userSearch" class="form-input" placeholder="Enter Name or Employee ID..." style="padding-right: 35px;">
+                        </div>
+                    </div>
+                    <div id="branchFilterGroup" class="form-group">
+                        <label class="form-label">Filter by Branch</label>
+                        <select id="branchFilter" class="form-select">
+                            <option value="">All Branches</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Employee ID</th>
+                                <th>Rating</th>
+                                <th>Phone</th>
+                                <th>Project</th>
+                                <th>Branch</th>
+                                <th>Email</th>
+                                <th>Permission</th>
+                                <th>Join Date</th>
+                                <th>Responsible Branch</th>
+                                <th>Service Duration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="designer-credit">
+        <div><i class="fa-solid fa-code" style="color: var(--primary); margin-left: 6px;"></i>Website designed by <strong>Mohammed El-Shatry</strong></div>
+        <div style="font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 4px;">Under supervision of Eng. <strong>Mohammed Youssef Aqtait</strong></div>
+    </div>
+
+    <script>
+        checkAuth();
+
+        function toggleUserForm() {
+            document.getElementById('editUserId').value = ''; // Clear edit ID
+            const container = document.getElementById('userFormContainer');
+            container.classList.toggle('hidden');
+            if (container.classList.contains('hidden')) {
+                document.getElementById('userForm').reset();
+                document.getElementById('editUserId').value = '';
+                document.getElementById('formTitle').innerText = 'Add New Employee';
+            }
+        }
+
+        function calculateService(joinDate) {
+            if (!joinDate) return '—';
+            const start = new Date(joinDate);
+            const end = new Date();
+            let years = end.getFullYear() - start.getFullYear();
+            let months = end.getMonth() - start.getMonth();
+            if (months < 0 || (months === 0 && end.getDate() < start.getDate())) {
+                years--;
+                months += 12;
+            }
+            return `${years} year and ${months} month`;
+        }
+
+        function refreshUserTable() {
+            reloadDB();
+            const text = document.getElementById('userSearch').value.toLowerCase();
+            const branch = document.getElementById('branchFilter').value;
+            const tbody = document.getElementById('userTableBody');
+            const roleLabels = { admin: 'System Admin', head: 'Head Surveyor', surveyor: 'Surveyor' };
+
+            // Deduplicate by empId before rendering (safety net for any residual duplicates)
+            const _seenEmpIds = new Set(), _seenIds = new Set();
+            const uniqueUsers = db.users.filter(u => {
+                if (_seenIds.has(u.id)) return false;
+                _seenIds.add(u.id);
+                if (u.empId && _seenEmpIds.has(String(u.empId))) return false;
+                if (u.empId) _seenEmpIds.add(String(u.empId));
+                return true;
+            });
+
+            let filteredUsers = uniqueUsers.filter(u =>
+                (u.name.toLowerCase().includes(text) || (u.empId && u.empId.includes(text)))
+            );
+
+            // تقييد رؤية Employeeين لHead Surveyor بفرعه Responsible عنه only
+            if (currentUser.role === 'head') {
+                filteredUsers = filteredUsers.filter(u => u.branch === currentUser.responsibleBranch);
+            } else if (branch !== '') {
+                // Filter by Branch المختار (for Admin General)
+                filteredUsers = filteredUsers.filter(u => u.branch === branch);
+            }
+
+            tbody.innerHTML = filteredUsers.map(u => {
+                const rating = getAverageRating(u.id);
+                return `
+                <tr>
+                    <td><strong>${u.name}</strong></td>
+                    <td>${u.empId}</td>
+                    <td>${renderStars(rating)}</td>
+                    <td>${u.phone || '—'}</td>
+                    <td>${u.project || '—'}</td>
+                    <td>${db.branches.find(b => b.id === u.branch)?.name || '—'}</td>
+                    <td>${u.email}</td>
+                    <td><span class="badge badge-info">${roleLabels[u.role] || u.role}</span></td>
+                    <td>${formatDate(u.joinDate)}</td> 
+                    <td>${getBranchName(u.responsibleBranch) || '—'}</td>
+                    <td><span class="badge badge-success">${calculateService(u.joinDate)}</span></td>
+                    <td><span class="badge ${u.status === 'approved' ? 'badge-success' : 'badge-warning'}">${u.status === 'approved' ? 'Active' : 'Pending'}</span></td>
+                    <td>
+                        ${currentUser.role === 'admin' && u.status === 'pending' ?
+                            `<button onclick="approveUserAction('${u.id}')" class="btn btn-primary" style="padding: 5px 10px;"><i class="fa-solid fa-check"></i></button>` : ''
+                        }
+                        ${currentUser.role === 'admin' ? `<button onclick="editUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px;"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+                        ${currentUser.role === 'admin' && u.id !== 'admin_1' ? `<button onclick="deleteUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);"><i class="fa-solid fa-user-xmark"></i></button>` : ''}
+                        ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role !== 'admin' ? `<button onclick="clearEmployeeCustody('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#f59e0b;" title="Clear Custody — return devices to warehouse"><i class="fa-solid fa-box-open"></i></button>` : ''}
+                        ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role === 'surveyor' ? `<button onclick="clearSurveyorWorkers('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#8b5cf6;" title="Clear Workers — unassign surveyor's workers"><i class="fa-solid fa-users-slash"></i></button>` : ''}
+                    </td>
+                </tr>
+            `}).join('') || '<tr><td colspan="13" style="text-align:center; padding:20px;">None نتائج مطابقة للSearch</td></tr>';
+        }
+
+        document.getElementById('userForm').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editUserId').value;
+            const userData = {
+                id: id || Date.now().toString(),
+                joinDate: id ? db.users.find(u => u.id === id).joinDate : new Date().toISOString().split('T')[0], // Keep original joinDate or set new
+                name: document.getElementById('uName').value,
+                empId: document.getElementById('uEmpId').value,
+                email: document.getElementById('uEmail').value,
+                password: document.getElementById('uPass').value,
+                role: document.getElementById('uRole').value,
+                responsibleBranch: document.getElementById('uRole').value === 'head' ? document.getElementById('uResponsibleBranch').value : null,
+                branch: document.getElementById('uBranch').value,
+                substituteId: document.getElementById('uRole').value === 'head' ? document.getElementById('uSubstitute').value || null : null, // Save substituteId
+                status: id ? db.users.find(u => u.id === id).status : (document.getElementById('uRole').value === 'head' ? 'pending' : 'approved') // Keep status or set pending for new head
+            };
+
+            if (id) {
+                updateUser(id, userData); // Use the new centralized updateUser function
+            } else {
+                // Check for duplicate empId or name before adding
+                const dupEmpId = db.users.some(u => String(u.empId) === String(userData.empId));
+                if (dupEmpId) { alert(`Employee ID "${userData.empId}" مستخدم بالفعل لحساب آخر. No يمكن التكرار.`); return; }
+                const dupName = db.users.some(u => u.name === userData.name);
+                if (dupName) { alert(`Name "${userData.name}" مستخدم بالفعل لحساب آخر. Please Use اسم مختلف.`); return; }
+                db.users.push(userData);
+                addLog(`Done Add New Employee: ${userData.name} By ${currentUser.name}.`);
+            }
+
+            saveDB();
+            toggleUserForm();
+            refreshUserTable();
+            // Refresh pending users if admin
+            if (currentUser.role === 'admin') renderPendingUsers();
+        };
+
+        window.editUser = (id) => {
+            const u = db.users.find(user => user.id === id);
+            document.getElementById('editUserId').value = u.id;
+            document.getElementById('uName').value = u.name;
+            document.getElementById('uEmpId').value = u.empId;
+            document.getElementById('uEmail').value = u.email;
+            document.getElementById('uPass').value = u.password;
+            document.getElementById('uRole').value = u.role;
+            document.getElementById('uResponsibleBranch').value = u.responsibleBranch || '';
+            document.getElementById('uBranch').value = u.branch || '';
+            populateSubstitutes(u.id, u.substituteId); // Populate and select substitute
+            document.getElementById('formTitle').innerText = 'Edit بيانات Employee';
+            document.getElementById('userFormContainer').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.deleteUser = (id) => {
+            if (confirm('هل أنت متأكد from Delete هذا Employee؟ سيDone نقل جميع أجهزته to Warehouse.')) {
+                if (deleteUser(id)) { // Use the new centralized deleteUser function
+                    alert('Done Delete Employee بSuccess.');
+                } else {
+                    alert('فشل Delete Employee. قد No Doneلك Permission or أن الحساب هand حساب المدير الأساسي.');
+                }
+                refreshUserTable();
+            }
+        };
+
+        document.getElementById('userSearch').oninput = () => refreshUserTable();
+        document.getElementById('branchFilter').onchange = () => refreshUserTable();
+
+        document.getElementById('uRole').onchange = (e) => {
+            const isHead = e.target.value === 'head';
+            document.getElementById('responsibleBranchGroup').classList.toggle('hidden', !isHead);
+            document.getElementById('substituteGroup').classList.toggle('hidden', !isHead); // Show/hide substitute group
+            document.getElementById('uResponsibleBranch').required = isHead;
+        };
+
+        function populateBranches() {
+            const selects = [
+                document.getElementById('uBranch'), 
+                document.getElementById('branchFilter'),
+                document.getElementById('uResponsibleBranch')
+            ];
+            
+            // Filter قائمة branches الAvailableة في القandائم الfromسدلة بناءً على صNoحية المستخدم
+            const availableBranches = currentUser.role === 'head' 
+                ? db.branches.filter(b => b.id === currentUser.responsibleBranch)
+                : db.branches;
+
+            const options = availableBranches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            selects.forEach(s => {
+                let placeholder = 'Select Branch...';
+                if (s.id === 'branchFilter') placeholder = 'All Branches';
+                if (s.id === 'uResponsibleBranch') placeholder = 'Select Responsible Branch...';
+                s.innerHTML = `<option value="">${placeholder}</option>${options}`;
+                
+                // تعيين Branch automatically إذا كان المستخدم Head Surveyor
+                if (currentUser.role === 'head' && availableBranches.length === 1) {
+                    s.value = availableBranches[0].id;
+                }
+            });
+            // Trigger change for uRole to show/hide responsibleBranchGroup
+            document.getElementById('uRole').dispatchEvent(new Event('change'));
+        }
+
+        // NEW: Populate substitute dropdown
+        function populateSubstitutes(headId, currentSubstituteId = null) {
+            const select = document.getElementById('uSubstitute');
+            // Only show other heads or admins as potential substitutes, excluding the head himself
+            const availableSubstitutes = db.users.filter(u => 
+                (u.role === 'head' || u.role === 'admin') && u.id !== headId
+            );
+            select.innerHTML = '<option value="">No Substitute</option>' + 
+                availableSubstitutes.map(u => `<option value="${u.id}">${u.name} (${u.role === 'admin' ? 'مدير' : 'Head Surveyor'})</option>`).join('');
+            
+            if (currentSubstituteId) {
+                select.value = currentSubstituteId;
+            }
+        }
+
+        // NEW: Assign Substitute Action
+        window.assignSubstituteAction = () => {
+            const headId = document.getElementById('editUserId').value;
+            const substituteId = document.getElementById('uSubstitute').value;
+
+            if (!headId) { alert('Please اختيار Head Surveyor orNoً.'); return; }
+            if (!substituteId) { alert('Please اختيار OK بديل.'); return; }
+
+            const result = assignSubstitute(headId, substituteId);
+            alert(result.msg);
+            if (result.success) {
+                refreshUserTable();
+            }
+        };
+
+        // NEW: Remove Substitute Action
+        window.removeSubstituteAction = () => {
+            const headId = document.getElementById('editUserId').value;
+            if (!headId) { alert('Please اختيار Head Surveyor orNoً.'); return; }
+
+            const result = removeSubstitute(headId);
+            alert(result.msg);
+            if (result.success) {
+                populateSubstitutes(headId, null); // Clear selection
+                refreshUserTable();
+            }
+        };
+
+        // NEW: Render Pending User Registrations
+        function renderPendingUsers() {
+            if (currentUser.role !== 'admin') return; // Only admin can see this
+
+            const pendingUsers = db.users.filter(u => u.status === 'pending' && u.role === 'head');
+            const section = document.getElementById('pendingUsersSection');
+            const tbody = document.getElementById('pendingUsersTableBody');
+
+            if (pendingUsers.length > 0) {
+                section.classList.remove('hidden');
+                tbody.innerHTML = pendingUsers.map(u => `
+                    <tr>
+                        <td>${u.name}</td>
+                        <td>${u.empId}</td>
+                        <td>${u.email}</td>
+                        <td>${db.branches.find(b => b.id === u.responsibleBranch)?.name || '—'}</td>
+                        <td>${formatDate(u.joinDate)}</td>
+                        <td>
+                            <button onclick="approveUserAction('${u.id}')" class="btn btn-primary btn-sm">Approve</button>
+                            <button onclick="rejectUserAction('${u.id}')" class="btn btn-danger btn-sm">Reject</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                section.classList.add('hidden');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">None Requests تسجيل Pending currently.</td></tr>';
+            }
+        }
+
+        window.approveUserAction = (id) => {
+            if (confirm('هل أنت متأكد from Approval على تسجيل Head Surveyor هذا؟')) {
+                if (approveUser(id)) {
+                    alert('Doneت Approval بSuccess.');
+                    renderPendingUsers();
+                    refreshUserTable(); // Update main user table
+                }
+            }
+        };
+
+        window.rejectUserAction = (id) => {
+            if (confirm('هل أنت متأكد from Reject تسجيل Head Surveyor هذا؟ سيDone Delete الحساب.')) {
+                if (rejectUser(id)) {
+                    alert('Done الReject andDelete الحساب بSuccess.');
+                    renderPendingUsers();
+                }
+            }
+        };
+
+        window.exportUsersToExcel = () => {
+            const text = document.getElementById('userSearch').value.toLowerCase();
+            const branch = document.getElementById('branchFilter').value;
+            const roleLabels = { admin: 'System Admin', head: 'Head Surveyor', surveyor: 'Surveyor' };
+            let csvContent = "\uFEFF"; // Add BOM لدعم اللغة Arabic في Excel
+            csvContent += "Name,Employee ID,Branch,Responsible Branch,Email,Permission,Status\n";
+
+            db.users.filter(u => 
+                (u.name.toLowerCase().includes(text) || u.empId.toLowerCase().includes(text)) &&
+                (branch === '' || u.branch === branch)
+            ).forEach(u => {
+                const role = roleLabels[u.role] || u.role;
+                const branchName = db.branches.find(b => b.id === u.branch)?.name || '—';
+                const responsibleBranchName = db.branches.find(b => b.id === u.responsibleBranch)?.name || '—';
+                csvContent += `"${u.name}","${u.empId}","${branchName}","${responsibleBranchName}","${u.email}","${role}","${u.status === 'approved' ? 'Active' : 'Pending'}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `بيانات_Employeeين_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        };
+
+        window.onload = () => {
+            renderSidebar();
+            populateBranches();
+            renderPendingUsers();
+            populateSubstitutes(null);
+            refreshUserTable();
+
+            if (currentUser.role === 'head') {
+                const addBtn = document.getElementById('addEmployeeBtn');
+                if (addBtn) addBtn.style.display = 'none';
+                const filterGroup = document.getElementById('branchFilterGroup');
+                if (filterGroup) filterGroup.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

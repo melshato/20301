@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Custody History - SAJCO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 0;"><i class="fa-solid fa-user-clock"></i> Employee Custody History</h3>
+                    <button id="exportBtn" onclick="exportUserHistoryToExcel()" class="btn btn-ghost hidden">
+                        <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Export to Excel
+                    </button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Search for an employee by Employee ID to view device custody history.</p>
+
+                <div class="form-row" style="margin-bottom: 20px; align-items: flex-end;">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="searchEmpId" class="form-label">Employee ID</label>
+                        <input type="text" id="searchEmpId" class="form-input" placeholder="Enter Employee ID..." required>
+                        <div id="searchedUserInfo" style="font-size: 0.8rem; color: var(--primary); margin-top: 5px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <button onclick="searchUserCustodyHistory()" class="btn btn-primary">
+                            <i class="fa-solid fa-magnifying-glass"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                <hr style="margin: 30px 0; border-color: var(--border);">
+
+                <h4>Search Results</h4>
+                <div class="table-container">
+                    <table id="userCustodyHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Operation Date</th>
+                                <th>Device (Serial Number)</th>
+                                <th>Operation</th>
+                                <th>By</th>
+                                <th>Branch</th>
+                                <th>Notes</th>
+                                <th>Approval Tracking</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userCustodyHistoryTableBody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Enter Employee ID and press Search to view the log.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <script>
+        checkAuth();
+
+        const userCustodyHistoryTableBody = document.getElementById('userCustodyHistoryTableBody');
+        const searchEmpIdInput = document.getElementById('searchEmpId');
+        const searchedUserInfoDiv = document.getElementById('searchedUserInfo');
+        let lastSearchResults = [];
+
+        searchEmpIdInput.addEventListener('input', () => {
+            const empId = searchEmpIdInput.value.trim();
+            document.getElementById('exportBtn').classList.add('hidden'); // Hide الزر عند تغيير المدخNoت
+            const user = db.users.find(u => u.empId === empId);
+            if (user) {
+                searchedUserInfoDiv.textContent = `Employee: ${user.name} (${user.role === 'admin' ? 'مدير' : user.role === 'head' ? 'Head Surveyor' : 'Surveyor'})`;
+            } else {
+                searchedUserInfoDiv.textContent = '';
+            }
+        });
+
+        function searchUserCustodyHistory() {
+            reloadDB();
+            const empId = searchEmpIdInput.value.trim();
+            const exportBtn = document.getElementById('exportBtn');
+            if (!empId) {
+                alert('الرجاء إدخال Employee ID.');
+                return;
+            }
+
+            const targetUser = db.users.find(u => u.empId === empId);
+            if (!targetUser) {
+                alert('لم يDone العثandر على مemployee بهذا Employee ID.');
+                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">لم يDone العثandر على مemployee بهذا Employee ID.</td></tr>';
+                exportBtn.classList.add('hidden');
+                return;
+            }
+
+            lastSearchResults = [];
+
+            db.custodies.forEach(c => {
+                if (c.status === 'approved') { // only السجNoت Approvaldة
+                    // حالة: Device دخل Custody هذا Employee
+                    if (c.userId === targetUser.id) {
+                        lastSearchResults.push({
+                            timestamp: c.timestamp,
+                            serialNumber: c.serialNumber,
+                            deviceType: c.deviceType,
+                            action: c.transferData ? `نقل إليه from ${c.transferData.fromUserName}` : 'Receive Custody جديدة',
+                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'النظام',
+                            branchId: c.branchId,
+                            notes: c.notes || (c.transferData ? c.transferData.reason : ''),
+                            approvalHistory: c.approvalHistory || []
+                        });
+                    }
+                    // حالة: Device خرج from Custody هذا Employee (عبر نقل)
+                    if (c.transferData && c.transferData.fromUserId === targetUser.id) {
+                        lastSearchResults.push({
+                            timestamp: c.timestamp,
+                            serialNumber: c.serialNumber,
+                            deviceType: c.deviceType,
+                            action: `نقل fromه to ${db.users.find(u => u.id === c.userId)?.name || 'غير معرandف'}`,
+                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'النظام',
+                            branchId: c.branchId, // Branch عند النقل
+                            notes: c.notes || c.transferData.reason,
+                            approvalHistory: c.approvalHistory || []
+                        });
+                    }
+                }
+            });
+
+            lastSearchResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // الأحدث orNoً
+
+            // إظهار الزر only في حال andجandد نتائج
+            if (lastSearchResults.length > 0) {
+                exportBtn.classList.remove('hidden');
+            } else {
+                exportBtn.classList.add('hidden');
+            }
+
+            renderUserCustodyHistory(lastSearchResults);
+        }
+
+        function renderUserCustodyHistory(records) {
+            userCustodyHistoryTableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">None سجNoت Custody لهذا Employee.</td></tr>';
+                return;
+            }
+
+            records.forEach(record => {
+                const branch = db.branches.find(b => b.id === record.branchId);
+                const row = userCustodyHistoryTableBody.insertRow();
+                row.insertCell().textContent = new Date(record.timestamp).toLocaleString('en-US');
+                row.insertCell().textContent = `${getDeviceTypeName(record.deviceType)} (S/N: ${record.serialNumber})`;
+                row.insertCell().textContent = record.action;
+                row.insertCell().textContent = record.byUser;
+                row.insertCell().textContent = branch ? branch.name : '—';
+                row.insertCell().textContent = record.notes || '—';
+                
+                const historyCell = row.insertCell();
+                historyCell.innerHTML = record.approvalHistory && record.approvalHistory.length > 0 
+                    ? record.approvalHistory.map(h => `<div style="font-size:0.75rem; border-bottom:1px solid #eee; margin-bottom:4px; padding-bottom:4px;">
+                        <i class="fa-solid fa-check-double" style="color:var(--primary)"></i> <strong>${h.approverRole}:</strong> ${h.approverName}<br>
+                        <small style="color:var(--text-muted)">${new Date(h.timestamp).toLocaleString('en-US')}</small></div>`).join('')
+                    : '<span style="color:var(--text-muted)">—</span>';
+            });
+        }
+
+        function exportUserHistoryToExcel() {
+            if (lastSearchResults.length === 0) {
+                alert('None بيانات لExportها. Please Search for Employee orNoً.');
+                return;
+            }
+            
+            const empId = searchEmpIdInput.value.trim();
+            const user = db.users.find(u => u.empId === empId);
+            const userName = user ? user.name : 'مemployee';
+
+            let csvContent = "\uFEFF"; 
+            csvContent += "Operation Date,Device,Operation,By,Branch,Notes,Approval Tracking\n";
+
+            lastSearchResults.forEach(r => {
+                const branch = db.branches.find(b => b.id === r.branchId);
+                const branchName = branch ? branch.name : '—';
+                const historyText = r.approvalHistory.map(h => `${h.approverRole}: ${h.approverName} (${new Date(h.timestamp).toLocaleString('en-US')})`).join(' | ');
+                csvContent += `"${new Date(r.timestamp).toLocaleString('en-US')}","${getDeviceTypeName(r.deviceType)} (S/N: ${r.serialNumber})","${r.action}","${r.byUser}","${branchName}","${r.notes || ''}","${historyText}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `سجل_Custody_${userName}_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        window.onload = () => {
+            renderSidebar();
+        };
+    </script>
+</body>
+</html>

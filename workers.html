@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة العمال | ساجكو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .worker-stat-card {
+            background:#fff; border:1px solid var(--border); border-radius:14px;
+            padding:16px 20px; display:flex; align-items:center; gap:14px; flex:1; min-width:130px;
+        }
+        .worker-stat-icon {
+            width:44px; height:44px; border-radius:12px;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.2rem;
+        }
+        .section-accordion { border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+        .section-accordion-header {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:14px 20px; background:#f8fafc; cursor:pointer; font-weight:600; font-size:.95rem;
+            transition:background .15s;
+        }
+        .section-accordion-header:hover { background:#f1f5f9; }
+        .section-accordion-body { max-height:0; overflow:hidden; transition:max-height .35s ease, opacity .25s ease; opacity:0; }
+        .section-accordion-body.open { max-height:2000px; opacity:1; }
+        .section-accordion-body-inner { padding:20px; }
+        .worker-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+        .worker-table th { background:#f8fafc; padding:10px 12px; text-align:right; font-weight:600; color:var(--text-muted); border-bottom:2px solid var(--border); white-space:nowrap; }
+        .worker-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+        .worker-table tr:last-child td { border-bottom:none; }
+        .worker-table tr:hover td { background:#f8fafc; }
+        .wstatus-available  { background:#dcfce7; color:#166534; }
+        .wstatus-on_leave   { background:#fef3c7; color:#92400e; }
+        .wstatus-approved_leave { background:#dbeafe; color:#1e40af; }
+        .wstatus { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .wlr-status-pending_head  { background:#fffbeb; color:#92400e; }
+        .wlr-status-pending_admin { background:#eff6ff; color:#1e40af; }
+        .wlr-status-approved      { background:#dcfce7; color:#166534; }
+        .wlr-status-rejected      { background:#fee2e2; color:#991b1b; }
+        .wlr-status-departed      { background:#fef3c7; color:#92400e; }
+        .wlr-status-returned      { background:#f0fdf4; color:#166534; }
+        .wlr-sb { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .search-result-card {
+            background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:18px; margin-top:12px;
+        }
+        .search-result-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:12px; }
+        .search-result-field { background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+        .search-result-field .lbl { font-size:.72rem; color:var(--text-muted); }
+        .search-result-field .val { font-weight:700; font-size:.9rem; color:var(--text-main); margin-top:2px; }
+        .proj-card { background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+        @media(max-width:640px) { .worker-table { font-size:.78rem; } .worker-table th, .worker-table td { padding:7px 8px; } }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+
+        <header style="margin-bottom:24px;">
+            <h2 style="font-size:1.4rem;font-weight:700;display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-helmet-safety" style="color:var(--primary);"></i> إدارة العمال
+            </h2>
+            <p style="color:var(--text-muted);font-size:.88rem;" id="workersSubtitle"></p>
+        </header>
+
+        <!-- إحصائيات -->
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;" id="workerStats"></div>
+
+        <!-- بحث (رئيس مساحين + مدير) -->
+        <div id="searchSection" style="display:none;margin-bottom:20px;" class="card">
+            <h4 style="margin-bottom:12px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--primary);"></i> بحث عن عامل</h4>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                <div class="form-group" style="flex:1;min-width:180px;margin:0;">
+                    <label class="form-label">رقم الإقامة أو الرقم الوظيفي</label>
+                    <input type="text" id="workerSearchInput" class="form-input" placeholder="أدخل رقم الإقامة أو الرقم الوظيفي...">
+                </div>
+                <button onclick="searchWorker()" class="btn btn-primary" style="height:42px;">
+                    <i class="fa-solid fa-search"></i> بحث
+                </button>
+                <button onclick="clearSearch()" class="btn btn-ghost" style="height:42px;">مسح</button>
+            </div>
+            <div id="searchResult"></div>
+        </div>
+
+        <!-- إضافة عامل جديد (مساح + رئيس) -->
+        <div id="addWorkerAccordion" class="section-accordion" style="display:none;">
+            <div class="section-accordion-header" onclick="toggleAddWorker()" id="addWorkerBtn">
+                <span><i class="fa-solid fa-plus" style="color:var(--primary);margin-left:8px;"></i> إضافة عامل جديد</span>
+                <i class="fa-solid fa-chevron-down" id="addWorkerChevron"></i>
+            </div>
+            <div class="section-accordion-body" id="addWorkerBody">
+                <div class="section-accordion-body-inner">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">الاسم الكامل <span style="color:#dc2626;">*</span></label>
+                            <input id="wName" class="form-input" placeholder="اسم العامل كاملاً"></div>
+                        <div class="form-group"><label class="form-label">الجنسية</label>
+                            <input id="wNationality" class="form-input" placeholder="مثال: مصري، هندي..."></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">رقم الإقامة <span style="color:#dc2626;">*</span></label>
+                            <input id="wResidenceId" class="form-input" placeholder="رقم الإقامة"></div>
+                        <div class="form-group"><label class="form-label">الرقم الوظيفي</label>
+                            <input id="wEmpId" class="form-input" placeholder="اختياري"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">رقم الجوال</label>
+                            <input id="wPhone" class="form-input" placeholder="05xxxxxxxx"></div>
+                        <div class="form-group"><label class="form-label">البريد الإلكتروني</label>
+                            <input type="email" id="wEmail" class="form-input" placeholder="اختياري"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">تاريخ الميلاد</label>
+                            <input type="date" id="wDob" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">المشروع</label>
+                            <select id="wProject" class="form-select">
+                                <option value="">— اختر المشروع —</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:8px;">
+                        <button onclick="submitAddWorker()" class="btn btn-primary"><i class="fa-solid fa-save"></i> حفظ العامل</button>
+                        <button onclick="toggleAddWorker()" class="btn btn-ghost">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة العمال -->
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <h3 style="margin:0;" id="workerListTitle"><i class="fa-solid fa-users" style="color:var(--primary);margin-left:8px;"></i> قائمة العمال</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <input type="text" id="workerFilter" class="form-input" placeholder="تصفية..." oninput="filterWorkerTable()" style="width:160px;font-size:.85rem;">
+                    <select id="workerStatusFilter" class="form-select" onchange="filterWorkerTable()" style="width:140px;font-size:.85rem;">
+                        <option value="">كل الحالات</option>
+                        <option value="available">متاح</option>
+                        <option value="on_leave">في إجازة</option>
+                        <option value="approved_leave">موافق على إجازته</option>
+                    </select>
+                    <select id="workerBranchFilter" class="form-select" onchange="filterWorkerTable()" style="width:160px;font-size:.85rem;display:none;">
+                        <option value="">كل الفروع</option>
+                    </select>
+                    <select id="workerHeadFilter" class="form-select" onchange="filterWorkerTable()" style="width:190px;font-size:.85rem;display:none;">
+                        <option value="">كل رؤساء المساحين</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="worker-table" id="workerTable">
+                    <thead>
+                        <tr id="workerTableHead"></tr>
+                    </thead>
+                    <tbody id="workerTableBody"></tbody>
+                </table>
+            </div>
+            <div id="workerTableEmpty" style="display:none;text-align:center;padding:32px;color:var(--text-muted);">
+                <i class="fa-solid fa-helmet-safety" style="font-size:2rem;margin-bottom:8px;display:block;opacity:.3;"></i>
+                لا يوجد عمال مسجلون
+            </div>
+        </div>
+
+        <!-- طلبات إجازة العمال -->
+        <div class="card" style="margin-top:20px;" id="leaveRequestsSection">
+            <h3 style="margin-bottom:16px;"><i class="fa-solid fa-calendar-minus" style="color:#d97706;"></i> طلبات إجازة العمال</h3>
+            <div id="workerLeaveList"></div>
+        </div>
+
+        <!-- مودال طلب إجازة -->
+        <div id="leaveModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
+                <h4 style="margin-bottom:4px;"><i class="fa-solid fa-calendar-plus" style="color:#d97706;"></i> طلب إجازة للعامل</h4>
+                <p id="leaveModalWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;"></p>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">تاريخ بداية الإجازة</label>
+                        <input type="date" id="leaveStart" class="form-input" oninput="calcLeaveDays()"></div>
+                    <div class="form-group"><label class="form-label">تاريخ نهاية الإجازة</label>
+                        <input type="date" id="leaveEnd" class="form-input" oninput="calcLeaveDays()"></div>
+                </div>
+                <div id="leaveDaysDisplay" style="background:#eff6ff;border-radius:8px;padding:8px 14px;font-size:.88rem;color:#1e40af;margin-bottom:12px;display:none;"></div>
+                <div class="form-group"><label class="form-label">سبب الإجازة</label>
+                    <textarea id="leaveReason" class="form-input" rows="3" placeholder="أدخل سبب الإجازة..."></textarea>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="submitLeaveModal()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button>
+                    <button onclick="document.getElementById('leaveModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال تفاصيل العامل -->
+        <div id="workerDetailModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:520px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-id-card" style="color:var(--primary);"></i> بيانات العامل</h4>
+                    <button onclick="document.getElementById('workerDetailModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">✕</button>
+                </div>
+                <div id="workerDetailContent"></div>
+            </div>
+        </div>
+
+        <!-- مودال رفض إجازة -->
+        <div id="wlrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> سبب الرفض</h4>
+                <div class="form-group"><label class="form-label">ملاحظة (اختياري)</label>
+                    <input type="text" id="wlrRejectNote" class="form-input" placeholder="السبب..."></div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="confirmWlrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> رفض</button>
+                    <button onclick="document.getElementById('wlrRejectModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال طلب زيادة راتب العامل -->
+        <div id="workerRaiseModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:560px;width:95%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:92vh;overflow-y:auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> طلب زيادة راتب عامل</h4>
+                    <button onclick="document.getElementById('workerRaiseModal').style.display='none'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#64748b;">✕</button>
+                </div>
+
+                <!-- بيانات تلقائية -->
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.84rem;color:#166534;">
+                    <div style="font-weight:700;margin-bottom:6px;"><i class="fa-solid fa-circle-info"></i> البيانات المعبأة تلقائياً</div>
+                    <div id="workerRaiseAutoInfo" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">الراتب الحالي (ريال) <span style="color:#ef4444;">*</span></label>
+                        <input type="number" id="wrCurrentSalary" class="form-input" placeholder="0" min="0">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">مبلغ الزيادة المطلوبة (ريال)</label>
+                        <input type="number" id="wrRaiseAmount" class="form-input" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">نسبة الزيادة (%)</label>
+                        <input type="number" id="wrRaisePct" class="form-input" placeholder="0" min="0" max="100" step="0.5">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">تاريخ آخر زيادة</label>
+                        <input type="date" id="wrLastRaise" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">سبب طلب الزيادة <span style="color:#ef4444;">*</span></label>
+                    <select id="wrReason" class="form-select">
+                        <option value="">— اختر السبب —</option>
+                        <option value="أداء متميز">أداء متميز</option>
+                        <option value="زيادة المهام والمسؤوليات">زيادة المهام والمسؤوليات</option>
+                        <option value="طول فترة الخدمة دون زيادة">طول فترة الخدمة دون زيادة</option>
+                        <option value="ارتفاع تكاليف المعيشة">ارتفاع تكاليف المعيشة</option>
+                        <option value="مهارات إضافية اكتسبها">مهارات إضافية اكتسبها</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">إنجازات وأعمال بارزة</label>
+                    <textarea id="wrAchievements" class="form-input" rows="2" placeholder="اذكر الإنجازات التي تبرر الزيادة..." style="resize:vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ملاحظات إضافية</label>
+                    <textarea id="wrNotes" class="form-input" rows="2" placeholder="أي معلومات إضافية..." style="resize:vertical;"></textarea>
+                </div>
+                <div id="workerRaiseAlert" style="margin-bottom:10px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="submitWorkerRaiseRequest()" class="btn btn-primary" style="flex:1;background:#15803d;border-color:#15803d;">
+                        <i class="fa-solid fa-paper-plane"></i> إرسال الطلب لرئيس المساحين
+                    </button>
+                    <button onclick="document.getElementById('workerRaiseModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- توزيع العمال على المساحين -->
+        <div class="card" id="surveyorWorkerCountCard" style="display:none;margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-chart-bar" style="color:#7c3aed;margin-left:8px;"></i> توزيع العمال على المساحين</h3>
+                <select id="svcMinFilter" class="form-select" onchange="renderSurveyorWorkerCount()" style="width:170px;font-size:.85rem;">
+                    <option value="0">الكل</option>
+                    <option value="1">لديه عامل أو أكثر</option>
+                    <option value="2">عاملان أو أكثر</option>
+                    <option value="3">ثلاثة عمال أو أكثر</option>
+                </select>
+            </div>
+            <div id="surveyorWorkerCountBody"></div>
+        </div>
+
+        <!-- مودال نقل العامل لفرع آخر -->
+        <div id="branchTransferModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:440px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-code-branch" style="color:#0369a1;"></i> نقل العامل لفرع آخر</h4>
+                    <button onclick="closeBranchTransferModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;">✕</button>
+                </div>
+                <p id="btmWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;font-weight:600;"></p>
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label class="form-label">الفرع الجديد <span style="color:#ef4444;">*</span></label>
+                    <select id="btmBranchSelect" class="form-select" onchange="onBtmBranchChange()">
+                        <option value="">— اختر الفرع —</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:18px;">
+                    <label class="form-label">المساح المسؤول <span style="color:var(--text-muted);font-size:.8rem;">(اختياري — يُسند لرئيس الفرع إن لم تختر)</span></label>
+                    <select id="btmSurveyorSelect" class="form-select" disabled>
+                        <option value="">— اختر الفرع أولاً —</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:4px;">
+                    <button onclick="submitBranchTransfer()" class="btn btn-primary" style="flex:1;background:#0369a1;border-color:#0369a1;">
+                        <i class="fa-solid fa-code-branch"></i> نقل للفرع
+                    </button>
+                    <button onclick="closeBranchTransferModal()" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال نقل العامل -->
+        <div id="transferModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:420px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-people-arrows" style="color:#7c3aed;"></i> نقل العامل لمساح آخر</h4>
+                    <button onclick="document.getElementById('transferModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;">✕</button>
+                </div>
+                <p id="transferWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;font-weight:600;"></p>
+                <div class="form-group">
+                    <label class="form-label">المساح المستهدف <span style="color:#ef4444;">*</span></label>
+                    <select id="transferTargetSurveyor" class="form-select"></select>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:16px;">
+                    <button onclick="submitTransfer()" class="btn btn-primary" style="flex:1;background:#7c3aed;border-color:#7c3aed;">
+                        <i class="fa-solid fa-people-arrows"></i> نقل العامل
+                    </button>
+                    <button onclick="document.getElementById('transferModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+checkAuth();
+
+let _leaveWorkerId = null;
+let _wlrRejectId   = null;
+let _allWorkers    = [];
+let _filteredWorkers = [];
+
+const WLR_STATUS_LABEL = {
+    pending_head:  'بانتظار رئيس المساحين',
+    pending_admin: 'بانتظار المدير',
+    approved:      'معتمدة',
+    rejected:      'مرفوضة',
+    departed:      'في إجازة',
+    returned:      'عاد'
+};
+
+// ─── Init ────────────────────────────────────────────────
+function init() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const isAdmin    = currentUser.role === 'admin';
+
+    document.getElementById('workersSubtitle').textContent =
+        isSurveyor ? 'إدارة العمال التابعين لك — إضافة وتتبع الإجازات وتسجيل المغادرة'
+      : isHead     ? 'جميع عمال فرعك — بحث ومتابعة الإجازات ومتابعة المشاريع'
+      :              'نظرة شاملة على عمال جميع الفروع';
+
+    if (!isSurveyor) document.getElementById('searchSection').style.display = 'block';
+    if (!isAdmin)    document.getElementById('addWorkerAccordion').style.display = 'block';
+
+    if (isAdmin) {
+        populateAdminFilters();
+        document.getElementById('workerBranchFilter').style.display = '';
+        document.getElementById('workerHeadFilter').style.display = '';
+    }
+
+    populateProjects();
+    renderStats();
+    renderTable();
+    renderLeaveRequests();
+    renderSurveyorWorkerCount();
+}
+
+function populateProjects() {
+    const sel = document.getElementById('wProject');
+    const branchId = currentUser.branch || currentUser.responsibleBranch;
+    const projs = (db.projects || []).filter(p =>
+        p.status === 'active' && (!branchId || p.branchId === branchId));
+    sel.innerHTML = '<option value="">— اختر المشروع —</option>' +
+        projs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+function populateAdminFilters() {
+    const branchSel = document.getElementById('workerBranchFilter');
+    const prevBranch = branchSel.value;
+    branchSel.innerHTML = '<option value="">كل الفروع</option>' +
+        db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    if (prevBranch) branchSel.value = prevBranch;
+
+    const headSel = document.getElementById('workerHeadFilter');
+    const prevHead = headSel.value;
+    const heads = db.users.filter(u => u.role === 'head' && u.status === 'approved');
+    headSel.innerHTML = '<option value="">كل رؤساء المساحين</option>' +
+        heads.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+    if (prevHead) headSel.value = prevHead;
+}
+
+// ─── Stats ───────────────────────────────────────────────
+function renderStats() {
+    const branchId = currentUser.branch || currentUser.responsibleBranch;
+    const myWorkers = getVisibleWorkers();
+    const total     = myWorkers.length;
+    const available = myWorkers.filter(w => w.status === 'available').length;
+    const onLeave   = myWorkers.filter(w => w.status === 'on_leave').length;
+    const approvedL = myWorkers.filter(w => w.status === 'approved_leave').length;
+
+    const cards = [
+        { icon:'fa-users',           bg:'#eff6ff', color:'#1e40af', label:'إجمالي العمال',   val:total },
+        { icon:'fa-circle-check',    bg:'#f0fdf4', color:'#166534', label:'متاحون',          val:available },
+        { icon:'fa-plane-departure', bg:'#fef3c7', color:'#92400e', label:'في إجازة',        val:onLeave },
+        { icon:'fa-calendar-check',  bg:'#f5f3ff', color:'#6d28d9', label:'موافق على إجازة', val:approvedL },
+    ];
+
+    document.getElementById('workerStats').innerHTML = cards.map(c => `
+        <div class="worker-stat-card">
+            <div class="worker-stat-icon" style="background:${c.bg};color:${c.color};">
+                <i class="fa-solid ${c.icon}"></i>
+            </div>
+            <div>
+                <div style="font-size:.78rem;color:var(--text-muted);">${c.label}</div>
+                <div style="font-size:1.5rem;font-weight:800;color:${c.color};">${c.val}</div>
+            </div>
+        </div>`).join('');
+}
+
+// ─── Table ───────────────────────────────────────────────
+function getVisibleWorkers() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const branchId   = currentUser.responsibleBranch || currentUser.branch;
+    if (isSurveyor) return db.workers.filter(w => w.surveyorId === currentUser.id);
+    if (isHead)     return db.workers.filter(w => w.branchId === branchId);
+    return db.workers;
+}
+
+function renderTable() {
+    _allWorkers     = getVisibleWorkers();
+    _filteredWorkers = [..._allWorkers];
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isAdmin    = currentUser.role === 'admin';
+
+    document.getElementById('workerTableHead').innerHTML = `
+        <th>#</th>
+        <th>الاسم</th>
+        <th>رقم الإقامة</th>
+        <th>الجنسية</th>
+        <th>الجوال</th>
+        <th>العمر</th>
+        <th>الحالة</th>
+        <th>المشروع</th>
+        ${!isSurveyor ? '<th>المساح المسؤول</th>' : ''}
+        ${isAdmin ? '<th>الفرع</th>' : ''}
+        <th>الإجراءات</th>`;
+
+    applyWorkerFilter();
+}
+
+function applyWorkerFilter() {
+    const q        = (document.getElementById('workerFilter').value || '').toLowerCase();
+    const status   = document.getElementById('workerStatusFilter').value;
+    const branchId = document.getElementById('workerBranchFilter')?.value || '';
+    const headId   = document.getElementById('workerHeadFilter')?.value || '';
+
+    _filteredWorkers = _allWorkers.filter(w => {
+        const matchText = !q ||
+            w.name.toLowerCase().includes(q) ||
+            (w.residenceId || '').toLowerCase().includes(q) ||
+            (w.empId || '').toLowerCase().includes(q) ||
+            (w.nationality || '').toLowerCase().includes(q);
+        const matchStatus = !status   || w.status === status;
+        const matchBranch = !branchId || w.branchId === branchId;
+        const matchHead   = !headId   || (() => {
+            const head = db.users.find(u => u.id === headId);
+            return !!head && w.branchId === (head.responsibleBranch || head.branch);
+        })();
+        return matchText && matchStatus && matchBranch && matchHead;
+    });
+    renderTableBody();
+}
+
+window.filterWorkerTable = applyWorkerFilter;
+
+function renderTableBody() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const isAdmin    = currentUser.role === 'admin';
+    const tbody      = document.getElementById('workerTableBody');
+    const empty      = document.getElementById('workerTableEmpty');
+
+    if (!_filteredWorkers.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    const statusLabel = { available:'متاح', on_leave:'في إجازة', approved_leave:'موافق على إجازة' };
+    const statusClass = { available:'wstatus-available', on_leave:'wstatus-on_leave', approved_leave:'wstatus-approved_leave' };
+
+    tbody.innerHTML = _filteredWorkers.map((w, i) => {
+        const proj  = (db.projects || []).find(p => p.id === w.projectId);
+        const surveyor = db.users.find(u => u.id === w.surveyorId);
+        const hasActiveLeave = db.workerLeaveRequests.some(r =>
+            r.workerId === w.id && ['pending_head','pending_admin','approved','departed'].includes(r.status));
+
+        const actions = `
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onclick="showWorkerDetail('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="عرض البيانات">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                ${(isSurveyor || isHead) && w.status === 'available' && !hasActiveLeave ? `
+                <button onclick="openLeaveModal('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#d97706;border-color:#d97706;" title="طلب إجازة">
+                    <i class="fa-solid fa-calendar-plus"></i> إجازة
+                </button>` : ''}
+                ${isSurveyor && w.status === 'approved_leave' ? `
+                <button onclick="doRegisterDeparture('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#7c3aed;border-color:#7c3aed;" title="تسجيل مغادرة">
+                    <i class="fa-solid fa-plane-departure"></i> مغادرة
+                </button>` : ''}
+                ${isSurveyor && w.status === 'on_leave' ? `
+                <button onclick="doRegisterReturn('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#166534;border-color:#166534;" title="تسجيل عودة">
+                    <i class="fa-solid fa-plane-arrival"></i> عودة
+                </button>` : ''}
+                ${isSurveyor ? `
+                <button onclick="openWorkerRaiseModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#15803d;border-color:#15803d;" title="طلب زيادة راتب">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </button>` : ''}
+                ${(isHead || isAdmin) ? `
+                <button onclick="openTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" title="نقل لمساح آخر">
+                    <i class="fa-solid fa-people-arrows"></i>
+                </button>
+                <button onclick="openBranchTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#0369a1;border-color:#0369a1;" title="نقل لفرع آخر">
+                    <i class="fa-solid fa-code-branch"></i>
+                </button>` : ''}
+                ${isSurveyor ? `
+                <button onclick="doDeleteWorker('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#dc2626;border-color:#dc2626;" title="حذف">
+                    <i class="fa-solid fa-trash"></i>
+                </button>` : ''}
+            </div>`;
+
+        const branch = isAdmin ? db.branches.find(b => b.id === w.branchId) : null;
+        return `<tr>
+            <td style="color:var(--text-muted);">${i+1}</td>
+            <td style="font-weight:600;">${w.name}</td>
+            <td style="font-family:monospace;font-size:.82rem;">${w.residenceId || '—'}</td>
+            <td>${w.nationality || '—'}</td>
+            <td dir="ltr" style="text-align:right;">${w.phone || '—'}</td>
+            <td>${getWorkerAge(w.dob)}</td>
+            <td><span class="wstatus ${statusClass[w.status] || ''}">${statusLabel[w.status] || w.status}</span></td>
+            <td style="font-size:.8rem;">${proj ? proj.name : '—'}</td>
+            ${!isSurveyor ? `<td style="font-size:.82rem;">${surveyor?.name || '—'}</td>` : ''}
+            ${isAdmin ? `<td style="font-size:.82rem;">${branch?.name || '—'}</td>` : ''}
+            <td>${actions}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ─── Add Worker ──────────────────────────────────────────
+function toggleAddWorker() {
+    const body    = document.getElementById('addWorkerBody');
+    const chevron = document.getElementById('addWorkerChevron');
+    const isOpen  = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+window.submitAddWorker = () => {
+    const data = {
+        name:        document.getElementById('wName').value.trim(),
+        nationality: document.getElementById('wNationality').value.trim(),
+        residenceId: document.getElementById('wResidenceId').value.trim(),
+        empId:       document.getElementById('wEmpId').value.trim(),
+        phone:       document.getElementById('wPhone').value.trim(),
+        email:       document.getElementById('wEmail').value.trim(),
+        dob:         document.getElementById('wDob').value,
+        projectId:   document.getElementById('wProject').value,
+    };
+    if (!data.name)        { alert('يرجى إدخال اسم العامل'); return; }
+    if (!data.residenceId) { alert('يرجى إدخال رقم الإقامة'); return; }
+
+    const w = addWorker(data);
+    if (w) {
+        ['wName','wNationality','wResidenceId','wEmpId','wPhone','wEmail','wDob'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('wProject').value = '';
+        toggleAddWorker();
+        init();
+        _showSyncToast('تم إضافة العامل بنجاح ✓', 'success');
+    }
+};
+
+// ─── Worker Detail Modal ─────────────────────────────────
+window.showWorkerDetail = (id) => {
+    const w = db.workers.find(x => x.id === id);
+    if (!w) return;
+    const proj     = (db.projects || []).find(p => p.id === w.projectId);
+    const surveyor = db.users.find(u => u.id === w.surveyorId);
+    const branch   = db.branches.find(b => b.id === w.branchId);
+    const leaveHistory = db.workerLeaveRequests.filter(r => r.workerId === id)
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    const fields = [
+        { label:'الاسم الكامل',      val: w.name },
+        { label:'رقم الإقامة',       val: w.residenceId || '—' },
+        { label:'الرقم الوظيفي',     val: w.empId || '—' },
+        { label:'الجنسية',           val: w.nationality || '—' },
+        { label:'رقم الجوال',        val: w.phone || '—' },
+        { label:'البريد الإلكتروني', val: w.email || '—' },
+        { label:'تاريخ الميلاد',     val: w.dob ? new Date(w.dob).toLocaleDateString('ar-EG') : '—' },
+        { label:'العمر',             val: getWorkerAge(w.dob) },
+        { label:'الفرع',             val: branch?.name || '—' },
+        { label:'المشروع',           val: proj?.name || '—' },
+        { label:'المساح المسؤول',    val: surveyor?.name || '—' },
+        { label:'تاريخ الإضافة',     val: new Date(w.addedAt).toLocaleDateString('ar-EG') },
+    ];
+
+    let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+        ${fields.map(f => `
+            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+                <div style="font-size:.72rem;color:var(--text-muted);">${f.label}</div>
+                <div style="font-weight:700;font-size:.9rem;">${f.val}</div>
+            </div>`).join('')}
+    </div>`;
+
+    if (leaveHistory.length) {
+        html += `<hr style="border-color:var(--border);margin:16px 0;">
+        <h4 style="margin-bottom:10px;font-size:.9rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> سجل الإجازات</h4>
+        ${leaveHistory.map(r => `
+            <div style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                <span>${r.startDate} → ${r.endDate} (${r.daysRequested} يوم)</span>
+                <span class="wlr-sb wlr-status-${r.status}">${WLR_STATUS_LABEL[r.status] || r.status}</span>
+            </div>`).join('')}`;
+    }
+
+    document.getElementById('workerDetailContent').innerHTML = html;
+    document.getElementById('workerDetailModal').style.display = 'flex';
+};
+
+// ─── Leave Modal ─────────────────────────────────────────
+window.openLeaveModal = (workerId) => {
+    _leaveWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    document.getElementById('leaveModalWorkerName').textContent = `العامل: ${w?.name || ''}`;
+    document.getElementById('leaveStart').value = '';
+    document.getElementById('leaveEnd').value   = '';
+    document.getElementById('leaveReason').value = '';
+    document.getElementById('leaveDaysDisplay').style.display = 'none';
+    document.getElementById('leaveModal').style.display = 'flex';
+};
+
+window.calcLeaveDays = () => {
+    const s = document.getElementById('leaveStart').value;
+    const e = document.getElementById('leaveEnd').value;
+    const el = document.getElementById('leaveDaysDisplay');
+    if (s && e) {
+        const days = Math.floor((new Date(e) - new Date(s)) / 86400000) + 1;
+        el.style.display = 'block';
+        el.innerHTML = days > 0
+            ? `<i class="fa-solid fa-calendar-days"></i> مدة الإجازة: <strong>${days} يوم</strong>`
+            : `<span style="color:#dc2626;">تاريخ العودة يجب أن يكون بعد تاريخ البداية</span>`;
+    } else { el.style.display = 'none'; }
+};
+
+window.submitLeaveModal = () => {
+    const s = document.getElementById('leaveStart').value;
+    const e = document.getElementById('leaveEnd').value;
+    const r = document.getElementById('leaveReason').value.trim();
+    if (!s || !e) { alert('يرجى تحديد تاريخ البداية والنهاية'); return; }
+    if (submitWorkerLeaveRequest(_leaveWorkerId, s, e, r)) {
+        document.getElementById('leaveModal').style.display = 'none';
+        renderLeaveRequests();
+        renderStats();
+        renderTableBody();
+        _showSyncToast('تم إرسال طلب الإجازة بنجاح', 'success');
+    }
+};
+
+// ─── Departure / Return ──────────────────────────────────
+window.doRegisterDeparture = (workerId) => {
+    const req = db.workerLeaveRequests.find(r =>
+        r.workerId === workerId && r.status === 'approved');
+    if (!req) { alert('لا يوجد طلب إجازة معتمد لهذا العامل'); return; }
+    if (!confirm(`تأكيد تسجيل مغادرة العامل ${req.workerName}؟`)) return;
+    if (registerWorkerDeparture(req.id)) {
+        init();
+        _showSyncToast('تم تسجيل المغادرة ✓', 'success');
+    }
+};
+
+window.doRegisterReturn = (workerId) => {
+    const req = db.workerLeaveRequests.find(r =>
+        r.workerId === workerId && r.status === 'departed');
+    if (!req) return;
+    if (!confirm(`تأكيد تسجيل عودة العامل ${req.workerName}؟`)) return;
+    if (registerWorkerReturn(req.id)) {
+        init();
+        _showSyncToast('تم تسجيل العودة ✓', 'success');
+    }
+};
+
+window.doDeleteWorker = (id) => {
+    const w = db.workers.find(x => x.id === id);
+    if (!w) return;
+    if (!confirm(`حذف العامل "${w.name}" نهائياً؟`)) return;
+    if (deleteWorker(id)) { init(); _showSyncToast('تم الحذف', 'info'); }
+};
+
+// ─── Leave Requests List ─────────────────────────────────
+function renderLeaveRequests() {
+    const el = document.getElementById('workerLeaveList');
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const isAdmin    = currentUser.role === 'admin';
+    const branchId   = currentUser.responsibleBranch || currentUser.branch;
+
+    let reqs = db.workerLeaveRequests;
+    if (isSurveyor) reqs = reqs.filter(r => r.surveyorId === currentUser.id);
+    else if (isHead) reqs = reqs.filter(r => r.branchId === branchId);
+
+    reqs = [...reqs].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (!reqs.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">لا توجد طلبات إجازة.</p>';
+        return;
+    }
+
+    el.innerHTML = reqs.map(r => {
+        const canApproveHead  = isHead  && r.status === 'pending_head';
+        const canApproveAdmin = isAdmin && r.status === 'pending_admin';
+        const canDepart = isSurveyor && r.status === 'approved';
+        const canReturn = isSurveyor && r.status === 'departed';
+
+        return `
+        <div style="padding:12px 16px;border-radius:10px;border:1px solid var(--border);margin-bottom:10px;background:#f8fafc;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                <div>
+                    <span style="font-weight:700;font-size:.9rem;">${r.workerName}</span>
+                    <span style="color:var(--text-muted);font-size:.78rem;margin-right:8px;">(${r.workerResidenceId || r.workerEmpId || '—'})</span>
+                    ${!isSurveyor ? `<span style="font-size:.78rem;color:var(--text-muted);"> — المساح: ${r.surveyorName}</span>` : ''}
+                    <div style="font-size:.8rem;color:var(--text-muted);margin-top:3px;">
+                        <i class="fa-regular fa-calendar"></i> ${r.startDate} → ${r.endDate}
+                        &nbsp;|&nbsp; <strong>${r.daysRequested} يوم</strong>
+                        ${r.reason ? `&nbsp;|&nbsp; ${r.reason}` : ''}
+                    </div>
+                </div>
+                <span class="wlr-sb wlr-status-${r.status}">${WLR_STATUS_LABEL[r.status] || r.status}</span>
+            </div>
+            ${r.rejectionNote ? `<div style="font-size:.78rem;color:#991b1b;margin-top:6px;"><i class="fa-solid fa-circle-xmark"></i> سبب الرفض: ${r.rejectionNote}</div>` : ''}
+            ${r.departureDate ? `<div style="font-size:.78rem;color:#92400e;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> غادر: ${r.departureDate}</div>` : ''}
+            ${r.returnDate    ? `<div style="font-size:.78rem;color:#166534;margin-top:4px;"><i class="fa-solid fa-plane-arrival"></i> عاد: ${r.returnDate}</div>` : ''}
+            ${(canApproveHead || canApproveAdmin || canDepart || canReturn) ? `
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                ${canApproveHead || canApproveAdmin ? `
+                <button onclick="doApproveWlr('${r.id}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;">
+                    <i class="fa-solid fa-check"></i> ${canApproveAdmin ? 'اعتماد وموافقة' : 'موافقة وإرسال للمدير'}
+                </button>
+                <button onclick="openWlrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.8rem;padding:5px 14px;color:#dc2626;border-color:#dc2626;">
+                    <i class="fa-solid fa-times"></i> رفض
+                </button>` : ''}
+                ${canDepart ? `
+                <button onclick="doRegisterDeparture('${r.workerId}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;background:#7c3aed;border-color:#7c3aed;">
+                    <i class="fa-solid fa-plane-departure"></i> تسجيل مغادرة
+                </button>` : ''}
+                ${canReturn ? `
+                <button onclick="doRegisterReturn('${r.workerId}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;background:#166534;border-color:#166534;">
+                    <i class="fa-solid fa-plane-arrival"></i> تسجيل عودة
+                </button>` : ''}
+            </div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+window.doApproveWlr = (id) => {
+    if (approveWorkerLeaveRequest(id)) {
+        renderLeaveRequests(); renderStats(); renderTableBody();
+        _showSyncToast('تمت الموافقة ✓', 'success');
+    }
+};
+
+window.openWlrRejectModal = (id) => {
+    _wlrRejectId = id;
+    document.getElementById('wlrRejectNote').value = '';
+    document.getElementById('wlrRejectModal').style.display = 'flex';
+};
+
+window.confirmWlrReject = () => {
+    const note = document.getElementById('wlrRejectNote').value.trim();
+    if (rejectWorkerLeaveRequest(_wlrRejectId, note)) {
+        document.getElementById('wlrRejectModal').style.display = 'none';
+        renderLeaveRequests(); renderStats();
+        _showSyncToast('تم الرفض', 'info');
+    }
+};
+
+// ─── Search ──────────────────────────────────────────────
+window.searchWorker = () => {
+    const q = document.getElementById('workerSearchInput').value.trim();
+    if (!q) { alert('يرجى إدخال رقم الإقامة أو الرقم الوظيفي'); return; }
+
+    const w = db.workers.find(x =>
+        x.residenceId === q || String(x.empId) === q);
+    const el = document.getElementById('searchResult');
+
+    if (!w) {
+        el.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;margin-top:12px;font-size:.88rem;">
+            <i class="fa-solid fa-circle-xmark"></i> لا يوجد عامل بهذا الرقم</div>`;
+        return;
+    }
+
+    const proj     = (db.projects || []).find(p => p.id === w.projectId);
+    const surveyor = db.users.find(u => u.id === w.surveyorId);
+    const branch   = db.branches.find(b => b.id === w.branchId);
+    const statusLabel = { available:'متاح', on_leave:'في إجازة', approved_leave:'موافق على إجازة' };
+
+    el.innerHTML = `
+        <div class="search-result-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                <div style="width:44px;height:44px;border-radius:12px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#166534;flex-shrink:0;">
+                    ${w.name.charAt(0)}
+                </div>
+                <div>
+                    <div style="font-weight:800;font-size:1rem;">${w.name}</div>
+                    <div style="font-size:.8rem;color:var(--text-muted);">${statusLabel[w.status] || w.status}</div>
+                </div>
+            </div>
+            <div class="search-result-row">
+                ${[
+                    ['رقم الإقامة', w.residenceId || '—'],
+                    ['الرقم الوظيفي', w.empId || '—'],
+                    ['الجنسية', w.nationality || '—'],
+                    ['رقم الجوال', w.phone || '—'],
+                    ['البريد', w.email || '—'],
+                    ['تاريخ الميلاد', w.dob ? new Date(w.dob).toLocaleDateString('ar-EG') : '—'],
+                    ['العمر', getWorkerAge(w.dob)],
+                    ['الفرع', branch?.name || '—'],
+                    ['المشروع', proj?.name || '—'],
+                    ['المساح المسؤول', surveyor?.name || '—'],
+                ].map(([l,v]) => `
+                    <div class="search-result-field">
+                        <div class="lbl">${l}</div>
+                        <div class="val">${v}</div>
+                    </div>`).join('')}
+            </div>
+        </div>`;
+};
+
+window.clearSearch = () => {
+    document.getElementById('workerSearchInput').value = '';
+    document.getElementById('searchResult').innerHTML = '';
+};
+
+window.refreshPage = () => { init(); };
+
+// ─── Worker Salary Raise ────────────────────────────────
+let _raiseWorkerId = null;
+
+window.openWorkerRaiseModal = (workerId) => {
+    _raiseWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    if (!w) return;
+    const branch = db.branches.find(b => b.id === w.branchId);
+    document.getElementById('workerRaiseAutoInfo').innerHTML = `
+        <span><strong>الاسم:</strong> ${w.name}</span>
+        <span><strong>رقم الإقامة:</strong> ${w.residenceId || '—'}</span>
+        <span><strong>الجنسية:</strong> ${w.nationality || '—'}</span>
+        <span><strong>الفرع:</strong> ${branch?.name || '—'}</span>
+        <span><strong>المساح المسؤول:</strong> ${w.surveyorName || currentUser.name}</span>
+        <span><strong>رقم جواله:</strong> ${w.phone || '—'}</span>`;
+    ['wrCurrentSalary','wrRaiseAmount','wrRaisePct','wrLastRaise','wrAchievements','wrNotes'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('wrReason').value = '';
+    document.getElementById('workerRaiseAlert').innerHTML = '';
+    document.getElementById('workerRaiseModal').style.display = 'flex';
+};
+
+window.submitWorkerRaiseRequest = () => {
+    const alertEl = document.getElementById('workerRaiseAlert');
+    const currentSalary = document.getElementById('wrCurrentSalary').value.trim();
+    const reason        = document.getElementById('wrReason').value;
+    if (!currentSalary) { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">الراتب الحالي مطلوب</div>`; return; }
+    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">سبب الطلب مطلوب</div>`; return; }
+
+    const result = submitSalaryRaiseRequest('worker', _raiseWorkerId, {
+        currentSalary,
+        requestedRaiseAmount: document.getElementById('wrRaiseAmount').value.trim(),
+        raisePercentage:      document.getElementById('wrRaisePct').value.trim(),
+        lastRaiseDate:        document.getElementById('wrLastRaise').value,
+        reason,
+        achievements:         document.getElementById('wrAchievements').value.trim(),
+        notes:                document.getElementById('wrNotes').value.trim()
+    });
+    if (result) {
+        document.getElementById('workerRaiseModal').style.display = 'none';
+        _showSyncToast('تم إرسال طلب زيادة الراتب لرئيس المساحين ✓', 'success');
+    }
+};
+
+// ─── Transfer Worker ─────────────────────────────────────
+let _transferWorkerId = null;
+
+window.openTransferModal = (workerId) => {
+    _transferWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    if (!w) return;
+    const isAdmin = currentUser.role === 'admin';
+    const branchId = isAdmin ? null : (currentUser.responsibleBranch || currentUser.branch || w.branchId);
+    const surveyors = db.users.filter(u =>
+        u.role === 'surveyor' &&
+        (!branchId || u.branch === branchId) &&
+        u.id !== w.surveyorId
+    );
+    document.getElementById('transferWorkerName').textContent = `العامل: ${w.name}`;
+    document.getElementById('transferTargetSurveyor').innerHTML =
+        '<option value="">— اختر المساح —</option>' +
+        surveyors.map(s => `<option value="${s.id}">${s.name} (${s.empId || '—'})</option>`).join('');
+    document.getElementById('transferModal').style.display = 'flex';
+};
+
+window.submitTransfer = () => {
+    const targetId = document.getElementById('transferTargetSurveyor').value;
+    if (!targetId) { alert('يرجى اختيار مساح'); return; }
+    if (transferWorker(_transferWorkerId, targetId)) {
+        document.getElementById('transferModal').style.display = 'none';
+        init();
+        renderSurveyorWorkerCount();
+        _showSyncToast('تم نقل العامل بنجاح ✓', 'success');
+    }
+};
+
+// ─── Branch Transfer ─────────────────────────────────────
+let _btmWorkerId = null;
+
+window.openBranchTransferModal = (workerId) => {
+    _btmWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    if (!w) return;
+    document.getElementById('btmWorkerName').textContent = `العامل: ${w.name}`;
+    // Populate branches (exclude current branch)
+    const branchSel = document.getElementById('btmBranchSelect');
+    branchSel.innerHTML = '<option value="">— اختر الفرع —</option>' +
+        db.branches
+            .filter(b => b.id !== w.branchId)
+            .map(b => `<option value="${b.id}">${b.name}</option>`)
+            .join('');
+    document.getElementById('btmSurveyorSelect').innerHTML = '<option value="">— اختر الفرع أولاً —</option>';
+    document.getElementById('btmSurveyorSelect').disabled = true;
+    document.getElementById('branchTransferModal').style.display = 'flex';
+};
+
+window.onBtmBranchChange = () => {
+    const branchId = document.getElementById('btmBranchSelect').value;
+    const survSel  = document.getElementById('btmSurveyorSelect');
+    if (!branchId) { survSel.innerHTML = '<option value="">— اختر الفرع أولاً —</option>'; survSel.disabled = true; return; }
+    const surveyors = db.users.filter(u => u.role === 'surveyor' && u.branch === branchId && u.status === 'approved');
+    const head      = db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId && u.status === 'approved');
+    survSel.innerHTML = '<option value="">— رئيس الفرع تلقائياً —</option>' +
+        (head ? `<option value="${head.id}">★ ${head.name} (رئيس مساحين)</option>` : '') +
+        surveyors.map(s => `<option value="${s.id}">${s.name} (${s.empId || '—'})</option>`).join('');
+    survSel.disabled = false;
+};
+
+window.closeBranchTransferModal = () => {
+    document.getElementById('branchTransferModal').style.display = 'none';
+};
+
+window.submitBranchTransfer = () => {
+    const branchId    = document.getElementById('btmBranchSelect').value;
+    const surveyorId  = document.getElementById('btmSurveyorSelect').value;
+    if (!branchId) { alert('يرجى اختيار الفرع'); return; }
+    if (transferWorkerToBranch(_btmWorkerId, branchId, surveyorId || null)) {
+        closeBranchTransferModal();
+        init();
+        renderSurveyorWorkerCount();
+        _showSyncToast('تم نقل العامل للفرع بنجاح ✓', 'success');
+    } else {
+        alert('حدث خطأ أثناء النقل');
+    }
+};
+
+// ─── Surveyor Worker Count ───────────────────────────────
+function renderSurveyorWorkerCount() {
+    const card = document.getElementById('surveyorWorkerCountCard');
+    if (!card) return;
+    const isHead  = currentUser.role === 'head';
+    const isAdmin = currentUser.role === 'admin';
+    if (!isHead && !isAdmin) return;
+    card.style.display = 'block';
+
+    const minVal   = parseInt(document.getElementById('svcMinFilter').value) || 0;
+    const branchId = currentUser.responsibleBranch || currentUser.branch;
+
+    let surveyors = db.users.filter(u => u.role === 'surveyor');
+    if (isHead) surveyors = surveyors.filter(u => u.branch === branchId);
+
+    const rows = surveyors.map(s => {
+        const all       = (db.workers || []).filter(w => w.surveyorId === s.id);
+        const available = all.filter(w => w.status === 'available').length;
+        const onLeave   = all.filter(w => w.status === 'on_leave').length;
+        return { ...s, total: all.length, available, onLeave };
+    })
+    .filter(s => s.total >= minVal)
+    .sort((a, b) => b.total - a.total);
+
+    const body = document.getElementById('surveyorWorkerCountBody');
+    if (!rows.length) {
+        body.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">لا يوجد مساحون يطابقون الفلتر.</p>';
+        return;
+    }
+
+    const branch = (id) => (db.branches.find(b => b.id === id) || {}).name || '—';
+
+    body.innerHTML = `
+    <table class="worker-table">
+        <thead><tr>
+            <th>#</th>
+            <th>المساح</th>
+            <th>الرقم الوظيفي</th>
+            ${isAdmin ? '<th>الفرع</th>' : ''}
+            <th style="text-align:center;">إجمالي العمال</th>
+            <th style="text-align:center;">متاحون</th>
+            <th style="text-align:center;">في إجازة</th>
+            <th>إجراء</th>
+        </tr></thead>
+        <tbody>
+        ${rows.map((s, i) => `
+        <tr>
+            <td style="color:var(--text-muted);">${i + 1}</td>
+            <td style="font-weight:600;">${s.name}</td>
+            <td style="font-family:monospace;font-size:.82rem;">${s.empId || '—'}</td>
+            ${isAdmin ? `<td style="font-size:.82rem;">${branch(s.branch)}</td>` : ''}
+            <td style="text-align:center;">
+                <span style="background:#ede9fe;color:#6d28d9;font-weight:800;padding:2px 12px;border-radius:20px;">${s.total}</span>
+            </td>
+            <td style="text-align:center;"><span style="color:#166534;font-weight:700;">${s.available}</span></td>
+            <td style="text-align:center;"><span style="color:#92400e;font-weight:700;">${s.onLeave}</span></td>
+            <td>
+                ${s.total > 0 ? `
+                <button onclick="filterBySurveyor('${s.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;">
+                    <i class="fa-solid fa-eye"></i> عرض عماله
+                </button>` : ''}
+            </td>
+        </tr>`).join('')}
+        </tbody>
+    </table>`;
+}
+
+window.filterBySurveyor = (surveyorId) => {
+    document.getElementById('workerFilter').value = '';
+    document.getElementById('workerStatusFilter').value = '';
+    _filteredWorkers = _allWorkers.filter(w => w.surveyorId === surveyorId);
+    renderTableBody();
+    document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.onload = () => {
+    renderSidebar();
+    init();
+    renderNewsTicker();
+    renderSurveyorWorkerCount();
+};
+</script>
+</body>
+</html>

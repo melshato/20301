@@ -1,0 +1,46 @@
+name: 🚀 Deploy SAJCO to Netlify
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Netlify
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Verify project files
+        run: |
+          echo "=== Project files ==="
+          ls -la
+          echo ""
+          echo "=== Key files check ==="
+          [ -f "index.html" ]      && echo "✅ index.html" || echo "❌ index.html missing"
+          [ -f "app-core.js" ]     && echo "✅ app-core.js" || echo "❌ app-core.js missing"
+          [ -f "netlify.toml" ]    && echo "✅ netlify.toml" || echo "❌ netlify.toml missing"
+          [ -f "maintenance.html" ] && echo "✅ maintenance.html" || echo "❌ maintenance.html missing"
+          [ -f "custody.html" ]    && echo "✅ custody.html" || echo "❌ custody.html missing"
+          [ -f "devices.html" ]    && echo "✅ devices.html" || echo "❌ devices.html missing"
+          [ -f "settings.html" ]   && echo "✅ settings.html" || echo "❌ settings.html missing"
+
+      - name: 🚀 Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: '.'
+          production-branch: main
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 10

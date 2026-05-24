@@ -1,0 +1,962 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Management | SAJCO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .worker-stat-card {
+            background:#fff; border:1px solid var(--border); border-radius:14px;
+            padding:16px 20px; display:flex; align-items:center; gap:14px; flex:1; min-width:130px;
+        }
+        .worker-stat-icon {
+            width:44px; height:44px; border-radius:12px;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.2rem;
+        }
+        .section-accordion { border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+        .section-accordion-header {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:14px 20px; background:#f8fafc; cursor:pointer; font-weight:600; font-size:.95rem;
+            transition:background .15s;
+        }
+        .section-accordion-header:hover { background:#f1f5f9; }
+        .section-accordion-body { max-height:0; overflow:hidden; transition:max-height .35s ease, opacity .25s ease; opacity:0; }
+        .section-accordion-body.open { max-height:2000px; opacity:1; }
+        .section-accordion-body-inner { padding:20px; }
+        .worker-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+        .worker-table th { background:#f8fafc; padding:10px 12px; text-align:right; font-weight:600; color:var(--text-muted); border-bottom:2px solid var(--border); white-space:nowrap; }
+        .worker-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+        .worker-table tr:last-child td { border-bottom:none; }
+        .worker-table tr:hover td { background:#f8fafc; }
+        .wstatus-available  { background:#dcfce7; color:#166534; }
+        .wstatus-on_leave   { background:#fef3c7; color:#92400e; }
+        .wstatus-approved_leave { background:#dbeafe; color:#1e40af; }
+        .wstatus { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .wlr-status-pending_head  { background:#fffbeb; color:#92400e; }
+        .wlr-status-pending_admin { background:#eff6ff; color:#1e40af; }
+        .wlr-status-approved      { background:#dcfce7; color:#166534; }
+        .wlr-status-rejected      { background:#fee2e2; color:#991b1b; }
+        .wlr-status-departed      { background:#fef3c7; color:#92400e; }
+        .wlr-status-returned      { background:#f0fdf4; color:#166534; }
+        .wlr-sb { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .search-result-card {
+            background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:18px; margin-top:12px;
+        }
+        .search-result-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:12px; }
+        .search-result-field { background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+        .search-result-field .lbl { font-size:.72rem; color:var(--text-muted); }
+        .search-result-field .val { font-weight:700; font-size:.9rem; color:var(--text-main); margin-top:2px; }
+        .proj-card { background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+        @media(max-width:640px) { .worker-table { font-size:.78rem; } .worker-table th, .worker-table td { padding:7px 8px; } }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+
+        <header style="margin-bottom:24px;">
+            <h2 style="font-size:1.4rem;font-weight:700;display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-helmet-safety" style="color:var(--primary);"></i> Worker Management
+            </h2>
+            <p style="color:var(--text-muted);font-size:.88rem;" id="workersSubtitle"></p>
+        </header>
+
+        <!-- Statistics -->
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;" id="workerStats"></div>
+
+        <!-- Search (Head Surveyor + مدير) -->
+        <div id="searchSection" style="display:none;margin-bottom:20px;" class="card">
+            <h4 style="margin-bottom:12px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--primary);"></i> Search for Worker</h4>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                <div class="form-group" style="flex:1;min-width:180px;margin:0;">
+                    <label class="form-label">Residence ID or Employee ID</label>
+                    <input type="text" id="workerSearchInput" class="form-input" placeholder="Enter Residence ID or Employee ID...">
+                </div>
+                <button onclick="searchWorker()" class="btn btn-primary" style="height:42px;">
+                    <i class="fa-solid fa-search"></i> Search
+                </button>
+                <button onclick="clearSearch()" class="btn btn-ghost" style="height:42px;">Clear</button>
+            </div>
+            <div id="searchResult"></div>
+        </div>
+
+        <!-- Add New Worker (Surveyor + رئيس) -->
+        <div id="addWorkerAccordion" class="section-accordion" style="display:none;">
+            <div class="section-accordion-header" onclick="toggleAddWorker()" id="addWorkerBtn">
+                <span><i class="fa-solid fa-plus" style="color:var(--primary);margin-left:8px;"></i> Add New Worker</span>
+                <i class="fa-solid fa-chevron-down" id="addWorkerChevron"></i>
+            </div>
+            <div class="section-accordion-body" id="addWorkerBody">
+                <div class="section-accordion-body-inner">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Full Name <span style="color:#dc2626;">*</span></label>
+                            <input id="wName" class="form-input" placeholder="Full Worker Name"></div>
+                        <div class="form-group"><label class="form-label">Nationality</label>
+                            <input id="wNationality" class="form-input" placeholder="e.g. Egyptian, Indian..."></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Residence ID <span style="color:#dc2626;">*</span></label>
+                            <input id="wResidenceId" class="form-input" placeholder="Residence ID"></div>
+                        <div class="form-group"><label class="form-label">Employee ID</label>
+                            <input id="wEmpId" class="form-input" placeholder="Optional"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Phone Number</label>
+                            <input id="wPhone" class="form-input" placeholder="05xxxxxxxx"></div>
+                        <div class="form-group"><label class="form-label">Email</label>
+                            <input type="email" id="wEmail" class="form-input" placeholder="Optional"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Date of Birth</label>
+                            <input type="date" id="wDob" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">Project</label>
+                            <select id="wProject" class="form-select">
+                                <option value="">— Select Project —</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:8px;">
+                        <button onclick="submitAddWorker()" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save Worker</button>
+                        <button onclick="toggleAddWorker()" class="btn btn-ghost">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workers List -->
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <h3 style="margin:0;" id="workerListTitle"><i class="fa-solid fa-users" style="color:var(--primary);margin-left:8px;"></i> Workers List</h3>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <input type="text" id="workerFilter" class="form-input" placeholder="Filter..." oninput="filterWorkerTable()" style="width:160px;font-size:.85rem;">
+                    <select id="workerStatusFilter" class="form-select" onchange="filterWorkerTable()" style="width:140px;font-size:.85rem;">
+                        <option value="">All Statuses</option>
+                        <option value="available">Available</option>
+                        <option value="on_leave">On Leave</option>
+                        <option value="approved_leave">Leave Approved</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="worker-table" id="workerTable">
+                    <thead>
+                        <tr id="workerTableHead"></tr>
+                    </thead>
+                    <tbody id="workerTableBody"></tbody>
+                </table>
+            </div>
+            <div id="workerTableEmpty" style="display:none;text-align:center;padding:32px;color:var(--text-muted);">
+                <i class="fa-solid fa-helmet-safety" style="font-size:2rem;margin-bottom:8px;display:block;opacity:.3;"></i>
+                No Workers Registered
+            </div>
+        </div>
+
+        <!-- Requests Leave Workers -->
+        <div class="card" style="margin-top:20px;" id="leaveRequestsSection">
+            <h3 style="margin-bottom:16px;"><i class="fa-solid fa-calendar-minus" style="color:#d97706;"></i> Requests Leave Workers</h3>
+            <div id="workerLeaveList"></div>
+        </div>
+
+        <!-- مandدال طلب Leave -->
+        <div id="leaveModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
+                <h4 style="margin-bottom:4px;"><i class="fa-solid fa-calendar-plus" style="color:#d97706;"></i> Worker Leave Request</h4>
+                <p id="leaveModalWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;"></p>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Leave Start Date</label>
+                        <input type="date" id="leaveStart" class="form-input" oninput="calcLeaveDays()"></div>
+                    <div class="form-group"><label class="form-label">Leave End Date</label>
+                        <input type="date" id="leaveEnd" class="form-input" oninput="calcLeaveDays()"></div>
+                </div>
+                <div id="leaveDaysDisplay" style="background:#eff6ff;border-radius:8px;padding:8px 14px;font-size:.88rem;color:#1e40af;margin-bottom:12px;display:none;"></div>
+                <div class="form-group"><label class="form-label">Leave Reason</label>
+                    <textarea id="leaveReason" class="form-input" rows="3" placeholder="Enter Leave Reason..."></textarea>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="submitLeaveModal()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-paper-plane"></i> Send Request</button>
+                    <button onclick="document.getElementById('leaveModal').style.display='none'" class="btn btn-ghost">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مandدال Details الWorker -->
+        <div id="workerDetailModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:520px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-id-card" style="color:var(--primary);"></i> Worker Details</h4>
+                    <button onclick="document.getElementById('workerDetailModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">✕</button>
+                </div>
+                <div id="workerDetailContent"></div>
+            </div>
+        </div>
+
+        <!-- مandدال Reject Leave -->
+        <div id="wlrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> Rejection Reason</h4>
+                <div class="form-group"><label class="form-label">Note (Optional)</label>
+                    <input type="text" id="wlrRejectNote" class="form-input" placeholder="Reason..."></div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="confirmWlrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> Reject</button>
+                    <button onclick="document.getElementById('wlrRejectModal').style.display='none'" class="btn btn-ghost">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مandدال Salary Raise Request الWorker -->
+        <div id="workerRaiseModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:560px;width:95%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:92vh;overflow-y:auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> Salary Raise Request Worker</h4>
+                    <button onclick="document.getElementById('workerRaiseModal').style.display='none'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#64748b;">✕</button>
+                </div>
+
+                <!-- بيانات تلقائية -->
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.84rem;color:#166534;">
+                    <div style="font-weight:700;margin-bottom:6px;"><i class="fa-solid fa-circle-info"></i> Auto-filled Data</div>
+                    <div id="workerRaiseAutoInfo" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Current Salary (SAR) <span style="color:#ef4444;">*</span></label>
+                        <input type="number" id="wrCurrentSalary" class="form-input" placeholder="0" min="0">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Required Raise Amount (SAR)</label>
+                        <input type="number" id="wrRaiseAmount" class="form-input" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Raise Percentage (%)</label>
+                        <input type="number" id="wrRaisePct" class="form-input" placeholder="0" min="0" max="100" step="0.5">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">Date Last Raise</label>
+                        <input type="date" id="wrLastRaise" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reason for Raise Request <span style="color:#ef4444;">*</span></label>
+                    <select id="wrReason" class="form-select">
+                        <option value="">— Select Reason —</option>
+                        <option value="Outstanding Performance">Outstanding Performance</option>
+                        <option value="Increased Responsibilities">Increased Responsibilities</option>
+                        <option value="Long Service Without Raise">Long Service Without Raise</option>
+                        <option value="Rising Cost of Living">Rising Cost of Living</option>
+                        <option value="Additional Skills Acquired">Additional Skills Acquired</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notable Achievements and Projects</label>
+                    <textarea id="wrAchievements" class="form-input" rows="2" placeholder="Mention the achievements that justify the raise..." style="resize:vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea id="wrNotes" class="form-input" rows="2" placeholder="Any additional information..." style="resize:vertical;"></textarea>
+                </div>
+                <div id="workerRaiseAlert" style="margin-bottom:10px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="submitWorkerRaiseRequest()" class="btn btn-primary" style="flex:1;background:#15803d;border-color:#15803d;">
+                        <i class="fa-solid fa-paper-plane"></i> Send Request to Head Surveyor
+                    </button>
+                    <button onclick="document.getElementById('workerRaiseModal').style.display='none'" class="btn btn-ghost">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Worker Distribution Among Surveyors -->
+        <div class="card" id="surveyorWorkerCountCard" style="display:none;margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-chart-bar" style="color:#7c3aed;margin-left:8px;"></i> Worker Distribution Among Surveyors</h3>
+                <select id="svcMinFilter" class="form-select" onchange="renderSurveyorWorkerCount()" style="width:170px;font-size:.85rem;">
+                    <option value="0">All</option>
+                    <option value="1">Has 1 or more Worker</option>
+                    <option value="2">2 or more Workers</option>
+                    <option value="3">3 or more workers</option>
+                </select>
+            </div>
+            <div id="surveyorWorkerCountBody"></div>
+        </div>
+
+        <!-- مandدال Transfer Worker -->
+        <div id="transferModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:420px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-people-arrows" style="color:#7c3aed;"></i> Transfer Worker to Another Surveyor</h4>
+                    <button onclick="document.getElementById('transferModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;">✕</button>
+                </div>
+                <p id="transferWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;font-weight:600;"></p>
+                <div class="form-group">
+                    <label class="form-label">Target Surveyor <span style="color:#ef4444;">*</span></label>
+                    <select id="transferTargetSurveyor" class="form-select"></select>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:16px;">
+                    <button onclick="submitTransfer()" class="btn btn-primary" style="flex:1;background:#7c3aed;border-color:#7c3aed;">
+                        <i class="fa-solid fa-people-arrows"></i> Transfer Worker
+                    </button>
+                    <button onclick="document.getElementById('transferModal').style.display='none'" class="btn btn-ghost">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+checkAuth();
+
+let _leaveWorkerId = null;
+let _wlrRejectId   = null;
+let _allWorkers    = [];
+let _filteredWorkers = [];
+
+const WLR_STATUS_LABEL = {
+    pending_head:  'Pending Head Surveyor',
+    pending_admin: 'Pending المدير',
+    approved:      'Approved',
+    rejected:      'Rejected',
+    departed:      'On Leave',
+    returned:      'عاد'
+};
+
+// ─── Init ────────────────────────────────────────────────
+function init() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const isAdmin    = currentUser.role === 'admin';
+
+    document.getElementById('workersSubtitle').textContent =
+        isSurveyor ? 'Worker Management التابعين لك — Add andتتبع Leave andRegister Departure'
+      : isHead     ? 'جميع Workers your branch — Search andمتابعة Leave andمتابعة Projects'
+      :              'Comprehensive overview of Workers جميع branches';
+
+    if (!isSurveyor) document.getElementById('searchSection').style.display = 'block';
+    if (!isAdmin)    document.getElementById('addWorkerAccordion').style.display = 'block';
+
+    populateProjects();
+    renderStats();
+    renderTable();
+    renderLeaveRequests();
+    renderSurveyorWorkerCount();
+}
+
+function populateProjects() {
+    const sel = document.getElementById('wProject');
+    const branchId = currentUser.branch || currentUser.responsibleBranch;
+    const projs = (db.projects || []).filter(p =>
+        p.status === 'active' && (!branchId || p.branchId === branchId));
+    sel.innerHTML = '<option value="">— Select Project —</option>' +
+        projs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+// ─── Stats ───────────────────────────────────────────────
+function renderStats() {
+    const branchId = currentUser.branch || currentUser.responsibleBranch;
+    const myWorkers = getVisibleWorkers();
+    const total     = myWorkers.length;
+    const available = myWorkers.filter(w => w.status === 'available').length;
+    const onLeave   = myWorkers.filter(w => w.status === 'on_leave').length;
+    const approvedL = myWorkers.filter(w => w.status === 'approved_leave').length;
+
+    const cards = [
+        { icon:'fa-users',           bg:'#eff6ff', color:'#1e40af', label:'Total Workers',   val:total },
+        { icon:'fa-circle-check',    bg:'#f0fdf4', color:'#166534', label:'Availableandن',          val:available },
+        { icon:'fa-plane-departure', bg:'#fef3c7', color:'#92400e', label:'On Leave',        val:onLeave },
+        { icon:'fa-calendar-check',  bg:'#f5f3ff', color:'#6d28d9', label:'Leave Approved', val:approvedL },
+    ];
+
+    document.getElementById('workerStats').innerHTML = cards.map(c => `
+        <div class="worker-stat-card">
+            <div class="worker-stat-icon" style="background:${c.bg};color:${c.color};">
+                <i class="fa-solid ${c.icon}"></i>
+            </div>
+            <div>
+                <div style="font-size:.78rem;color:var(--text-muted);">${c.label}</div>
+                <div style="font-size:1.5rem;font-weight:800;color:${c.color};">${c.val}</div>
+            </div>
+        </div>`).join('');
+}
+
+// ─── Table ───────────────────────────────────────────────
+function getVisibleWorkers() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const branchId   = currentUser.responsibleBranch || currentUser.branch;
+    if (isSurveyor) return db.workers.filter(w => w.surveyorId === currentUser.id);
+    if (isHead)     return db.workers.filter(w => w.branchId === branchId);
+    return db.workers;
+}
+
+function renderTable() {
+    _allWorkers     = getVisibleWorkers();
+    _filteredWorkers = [..._allWorkers];
+    const isSurveyor = currentUser.role === 'surveyor';
+
+    // Table headers
+    document.getElementById('workerTableHead').innerHTML = `
+        <th>#</th>
+        <th>Name</th>
+        <th>Residence ID</th>
+        <th>Nationality</th>
+        <th>Phone</th>
+        <th>Age</th>
+        <th>Status</th>
+        <th>Project</th>
+        ${!isSurveyor ? '<th>Responsible Surveyor</th>' : ''}
+        <th>Actions</th>`;
+
+    applyWorkerFilter();
+}
+
+function applyWorkerFilter() {
+    const q      = (document.getElementById('workerFilter').value || '').toLowerCase();
+    const status = document.getElementById('workerStatusFilter').value;
+    _filteredWorkers = _allWorkers.filter(w => {
+        const matchText = !q ||
+            w.name.toLowerCase().includes(q) ||
+            (w.residenceId || '').toLowerCase().includes(q) ||
+            (w.empId || '').toLowerCase().includes(q) ||
+            (w.nationality || '').toLowerCase().includes(q);
+        const matchStatus = !status || w.status === status;
+        return matchText && matchStatus;
+    });
+    renderTableBody();
+}
+
+window.filterWorkerTable = applyWorkerFilter;
+
+function renderTableBody() {
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const tbody      = document.getElementById('workerTableBody');
+    const empty      = document.getElementById('workerTableEmpty');
+
+    if (!_filteredWorkers.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    const statusLabel = { available:'Available', on_leave:'On Leave', approved_leave:'Leave Approved' };
+    const statusClass = { available:'wstatus-available', on_leave:'wstatus-on_leave', approved_leave:'wstatus-approved_leave' };
+
+    tbody.innerHTML = _filteredWorkers.map((w, i) => {
+        const proj  = (db.projects || []).find(p => p.id === w.projectId);
+        const surveyor = db.users.find(u => u.id === w.surveyorId);
+        const hasActiveLeave = db.workerLeaveRequests.some(r =>
+            r.workerId === w.id && ['pending_head','pending_admin','approved','departed'].includes(r.status));
+
+        const actions = `
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onclick="showWorkerDetail('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="View Data">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                ${(isSurveyor || isHead) && w.status === 'available' && !hasActiveLeave ? `
+                <button onclick="openLeaveModal('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#d97706;border-color:#d97706;" title="طلب Leave">
+                    <i class="fa-solid fa-calendar-plus"></i> Leave
+                </button>` : ''}
+                ${isSurveyor && w.status === 'approved_leave' ? `
+                <button onclick="doRegisterDeparture('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#7c3aed;border-color:#7c3aed;" title="Register Departure">
+                    <i class="fa-solid fa-plane-departure"></i> Departure
+                </button>` : ''}
+                ${isSurveyor && w.status === 'on_leave' ? `
+                <button onclick="doRegisterReturn('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#166534;border-color:#166534;" title="تسجيل Return">
+                    <i class="fa-solid fa-plane-arrival"></i> Return
+                </button>` : ''}
+                ${isSurveyor ? `
+                <button onclick="openWorkerRaiseModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#15803d;border-color:#15803d;" title="Salary Raise Request">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </button>` : ''}
+                ${(isHead || isAdmin) ? `
+                <button onclick="openTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" title="نقل لSurveyor آخر">
+                    <i class="fa-solid fa-people-arrows"></i>
+                </button>` : ''}
+                ${isSurveyor ? `
+                <button onclick="doDeleteWorker('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#dc2626;border-color:#dc2626;" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                </button>` : ''}
+            </div>`;
+
+        return `<tr>
+            <td style="color:var(--text-muted);">${i+1}</td>
+            <td style="font-weight:600;">${w.name}</td>
+            <td style="font-family:monospace;font-size:.82rem;">${w.residenceId || '—'}</td>
+            <td>${w.nationality || '—'}</td>
+            <td dir="ltr" style="text-align:right;">${w.phone || '—'}</td>
+            <td>${getWorkerAge(w.dob)}</td>
+            <td><span class="wstatus ${statusClass[w.status] || ''}">${statusLabel[w.status] || w.status}</span></td>
+            <td style="font-size:.8rem;">${proj ? proj.name : '—'}</td>
+            ${!isSurveyor ? `<td style="font-size:.82rem;">${surveyor?.name || '—'}</td>` : ''}
+            <td>${actions}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ─── Add Worker ──────────────────────────────────────────
+function toggleAddWorker() {
+    const body    = document.getElementById('addWorkerBody');
+    const chevron = document.getElementById('addWorkerChevron');
+    const isOpen  = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+window.submitAddWorker = () => {
+    const data = {
+        name:        document.getElementById('wName').value.trim(),
+        nationality: document.getElementById('wNationality').value.trim(),
+        residenceId: document.getElementById('wResidenceId').value.trim(),
+        empId:       document.getElementById('wEmpId').value.trim(),
+        phone:       document.getElementById('wPhone').value.trim(),
+        email:       document.getElementById('wEmail').value.trim(),
+        dob:         document.getElementById('wDob').value,
+        projectId:   document.getElementById('wProject').value,
+    };
+    if (!data.name)        { alert('Please إدخال اسم الWorker'); return; }
+    if (!data.residenceId) { alert('Please إدخال Residence ID'); return; }
+
+    const w = addWorker(data);
+    if (w) {
+        ['wName','wNationality','wResidenceId','wEmpId','wPhone','wEmail','wDob'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('wProject').value = '';
+        toggleAddWorker();
+        init();
+        _showSyncToast('Done Add الWorker بSuccess ✓', 'success');
+    }
+};
+
+// ─── Worker Detail Modal ─────────────────────────────────
+window.showWorkerDetail = (id) => {
+    const w = db.workers.find(x => x.id === id);
+    if (!w) return;
+    const proj     = (db.projects || []).find(p => p.id === w.projectId);
+    const surveyor = db.users.find(u => u.id === w.surveyorId);
+    const branch   = db.branches.find(b => b.id === w.branchId);
+    const leaveHistory = db.workerLeaveRequests.filter(r => r.workerId === id)
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    const fields = [
+        { label:'Full Name',      val: w.name },
+        { label:'Residence ID',       val: w.residenceId || '—' },
+        { label:'Employee ID',     val: w.empId || '—' },
+        { label:'Nationality',           val: w.nationality || '—' },
+        { label:'Phone Number',        val: w.phone || '—' },
+        { label:'Email', val: w.email || '—' },
+        { label:'Date of Birth',     val: w.dob ? new Date(w.dob).toLocaleDateString('en-US') : '—' },
+        { label:'Age',             val: getWorkerAge(w.dob) },
+        { label:'Branch',             val: branch?.name || '—' },
+        { label:'Project',           val: proj?.name || '—' },
+        { label:'Responsible Surveyor',    val: surveyor?.name || '—' },
+        { label:'Date Add',     val: new Date(w.addedAt).toLocaleDateString('en-US') },
+    ];
+
+    let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+        ${fields.map(f => `
+            <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+                <div style="font-size:.72rem;color:var(--text-muted);">${f.label}</div>
+                <div style="font-weight:700;font-size:.9rem;">${f.val}</div>
+            </div>`).join('')}
+    </div>`;
+
+    if (leaveHistory.length) {
+        html += `<hr style="border-color:var(--border);margin:16px 0;">
+        <h4 style="margin-bottom:10px;font-size:.9rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> Leave History</h4>
+        ${leaveHistory.map(r => `
+            <div style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                <span>${r.startDate} → ${r.endDate} (${r.daysRequested} day)</span>
+                <span class="wlr-sb wlr-status-${r.status}">${WLR_STATUS_LABEL[r.status] || r.status}</span>
+            </div>`).join('')}`;
+    }
+
+    document.getElementById('workerDetailContent').innerHTML = html;
+    document.getElementById('workerDetailModal').style.display = 'flex';
+};
+
+// ─── Leave Modal ─────────────────────────────────────────
+window.openLeaveModal = (workerId) => {
+    _leaveWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    document.getElementById('leaveModalWorkerName').textContent = `الWorker: ${w?.name || ''}`;
+    document.getElementById('leaveStart').value = '';
+    document.getElementById('leaveEnd').value   = '';
+    document.getElementById('leaveReason').value = '';
+    document.getElementById('leaveDaysDisplay').style.display = 'none';
+    document.getElementById('leaveModal').style.display = 'flex';
+};
+
+window.calcLeaveDays = () => {
+    const s = document.getElementById('leaveStart').value;
+    const e = document.getElementById('leaveEnd').value;
+    const el = document.getElementById('leaveDaysDisplay');
+    if (s && e) {
+        const days = Math.floor((new Date(e) - new Date(s)) / 86400000) + 1;
+        el.style.display = 'block';
+        el.innerHTML = days > 0
+            ? `<i class="fa-solid fa-calendar-days"></i> مدة الLeave: <strong>${days} day</strong>`
+            : `<span style="color:#dc2626;">Date Return يجب أن يكandن بعد Start Date</span>`;
+    } else { el.style.display = 'none'; }
+};
+
+window.submitLeaveModal = () => {
+    const s = document.getElementById('leaveStart').value;
+    const e = document.getElementById('leaveEnd').value;
+    const r = document.getElementById('leaveReason').value.trim();
+    if (!s || !e) { alert('Please تحديد Start Date andالنهاية'); return; }
+    if (submitWorkerLeaveRequest(_leaveWorkerId, s, e, r)) {
+        document.getElementById('leaveModal').style.display = 'none';
+        renderLeaveRequests();
+        renderStats();
+        renderTableBody();
+        _showSyncToast('Done Send طلب الLeave بSuccess', 'success');
+    }
+};
+
+// ─── Departure / Return ──────────────────────────────────
+window.doRegisterDeparture = (workerId) => {
+    const req = db.workerLeaveRequests.find(r =>
+        r.workerId === workerId && r.status === 'approved');
+    if (!req) { alert('None طلب Leave Approved لهذا الWorker'); return; }
+    if (!confirm(`Confirm Register Departure الWorker ${req.workerName}؟`)) return;
+    if (registerWorkerDeparture(req.id)) {
+        init();
+        _showSyncToast('Done Register Departure ✓', 'success');
+    }
+};
+
+window.doRegisterReturn = (workerId) => {
+    const req = db.workerLeaveRequests.find(r =>
+        r.workerId === workerId && r.status === 'departed');
+    if (!req) return;
+    if (!confirm(`Confirm تسجيل Return الWorker ${req.workerName}؟`)) return;
+    if (registerWorkerReturn(req.id)) {
+        init();
+        _showSyncToast('Done تسجيل Return ✓', 'success');
+    }
+};
+
+window.doDeleteWorker = (id) => {
+    const w = db.workers.find(x => x.id === id);
+    if (!w) return;
+    if (!confirm(`Delete الWorker "${w.name}" نهائياً؟`)) return;
+    if (deleteWorker(id)) { init(); _showSyncToast('Done الDelete', 'info'); }
+};
+
+// ─── Leave Requests List ─────────────────────────────────
+function renderLeaveRequests() {
+    const el = document.getElementById('workerLeaveList');
+    const isSurveyor = currentUser.role === 'surveyor';
+    const isHead     = currentUser.role === 'head';
+    const isAdmin    = currentUser.role === 'admin';
+    const branchId   = currentUser.responsibleBranch || currentUser.branch;
+
+    let reqs = db.workerLeaveRequests;
+    if (isSurveyor) reqs = reqs.filter(r => r.surveyorId === currentUser.id);
+    else if (isHead) reqs = reqs.filter(r => r.branchId === branchId);
+
+    reqs = [...reqs].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (!reqs.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">None Requests Leave.</p>';
+        return;
+    }
+
+    el.innerHTML = reqs.map(r => {
+        const canApproveHead  = isHead  && r.status === 'pending_head';
+        const canApproveAdmin = isAdmin && r.status === 'pending_admin';
+        const canDepart = isSurveyor && r.status === 'approved';
+        const canReturn = isSurveyor && r.status === 'departed';
+
+        return `
+        <div style="padding:12px 16px;border-radius:10px;border:1px solid var(--border);margin-bottom:10px;background:#f8fafc;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                <div>
+                    <span style="font-weight:700;font-size:.9rem;">${r.workerName}</span>
+                    <span style="color:var(--text-muted);font-size:.78rem;margin-right:8px;">(${r.workerResidenceId || r.workerEmpId || '—'})</span>
+                    ${!isSurveyor ? `<span style="font-size:.78rem;color:var(--text-muted);"> — the Surveyor: ${r.surveyorName}</span>` : ''}
+                    <div style="font-size:.8rem;color:var(--text-muted);margin-top:3px;">
+                        <i class="fa-regular fa-calendar"></i> ${r.startDate} → ${r.endDate}
+                        &nbsp;|&nbsp; <strong>${r.daysRequested} day</strong>
+                        ${r.reason ? `&nbsp;|&nbsp; ${r.reason}` : ''}
+                    </div>
+                </div>
+                <span class="wlr-sb wlr-status-${r.status}">${WLR_STATUS_LABEL[r.status] || r.status}</span>
+            </div>
+            ${r.rejectionNote ? `<div style="font-size:.78rem;color:#991b1b;margin-top:6px;"><i class="fa-solid fa-circle-xmark"></i> Rejection Reason: ${r.rejectionNote}</div>` : ''}
+            ${r.departureDate ? `<div style="font-size:.78rem;color:#92400e;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> غادر: ${r.departureDate}</div>` : ''}
+            ${r.returnDate    ? `<div style="font-size:.78rem;color:#166534;margin-top:4px;"><i class="fa-solid fa-plane-arrival"></i> عاد: ${r.returnDate}</div>` : ''}
+            ${(canApproveHead || canApproveAdmin || canDepart || canReturn) ? `
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                ${canApproveHead || canApproveAdmin ? `
+                <button onclick="doApproveWlr('${r.id}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;">
+                    <i class="fa-solid fa-check"></i> ${canApproveAdmin ? 'اعDoneاد andApprove' : 'Approve andSend for Admin'}
+                </button>
+                <button onclick="openWlrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.8rem;padding:5px 14px;color:#dc2626;border-color:#dc2626;">
+                    <i class="fa-solid fa-times"></i> Reject
+                </button>` : ''}
+                ${canDepart ? `
+                <button onclick="doRegisterDeparture('${r.workerId}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;background:#7c3aed;border-color:#7c3aed;">
+                    <i class="fa-solid fa-plane-departure"></i> Register Departure
+                </button>` : ''}
+                ${canReturn ? `
+                <button onclick="doRegisterReturn('${r.workerId}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;background:#166534;border-color:#166534;">
+                    <i class="fa-solid fa-plane-arrival"></i> تسجيل Return
+                </button>` : ''}
+            </div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+window.doApproveWlr = (id) => {
+    if (approveWorkerLeaveRequest(id)) {
+        renderLeaveRequests(); renderStats(); renderTableBody();
+        _showSyncToast('Doneت Approval ✓', 'success');
+    }
+};
+
+window.openWlrRejectModal = (id) => {
+    _wlrRejectId = id;
+    document.getElementById('wlrRejectNote').value = '';
+    document.getElementById('wlrRejectModal').style.display = 'flex';
+};
+
+window.confirmWlrReject = () => {
+    const note = document.getElementById('wlrRejectNote').value.trim();
+    if (rejectWorkerLeaveRequest(_wlrRejectId, note)) {
+        document.getElementById('wlrRejectModal').style.display = 'none';
+        renderLeaveRequests(); renderStats();
+        _showSyncToast('Done الReject', 'info');
+    }
+};
+
+// ─── Search ──────────────────────────────────────────────
+window.searchWorker = () => {
+    const q = document.getElementById('workerSearchInput').value.trim();
+    if (!q) { alert('Please إدخال Residence ID or Employee ID'); return; }
+
+    const w = db.workers.find(x =>
+        x.residenceId === q || String(x.empId) === q);
+    const el = document.getElementById('searchResult');
+
+    if (!w) {
+        el.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;margin-top:12px;font-size:.88rem;">
+            <i class="fa-solid fa-circle-xmark"></i> None Worker بهذا Number</div>`;
+        return;
+    }
+
+    const proj     = (db.projects || []).find(p => p.id === w.projectId);
+    const surveyor = db.users.find(u => u.id === w.surveyorId);
+    const branch   = db.branches.find(b => b.id === w.branchId);
+    const statusLabel = { available:'Available', on_leave:'On Leave', approved_leave:'Leave Approved' };
+
+    el.innerHTML = `
+        <div class="search-result-card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                <div style="width:44px;height:44px;border-radius:12px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:#166534;flex-shrink:0;">
+                    ${w.name.charAt(0)}
+                </div>
+                <div>
+                    <div style="font-weight:800;font-size:1rem;">${w.name}</div>
+                    <div style="font-size:.8rem;color:var(--text-muted);">${statusLabel[w.status] || w.status}</div>
+                </div>
+            </div>
+            <div class="search-result-row">
+                ${[
+                    ['Residence ID', w.residenceId || '—'],
+                    ['Employee ID', w.empId || '—'],
+                    ['Nationality', w.nationality || '—'],
+                    ['Phone Number', w.phone || '—'],
+                    ['Email', w.email || '—'],
+                    ['Date of Birth', w.dob ? new Date(w.dob).toLocaleDateString('en-US') : '—'],
+                    ['Age', getWorkerAge(w.dob)],
+                    ['Branch', branch?.name || '—'],
+                    ['Project', proj?.name || '—'],
+                    ['Responsible Surveyor', surveyor?.name || '—'],
+                ].map(([l,v]) => `
+                    <div class="search-result-field">
+                        <div class="lbl">${l}</div>
+                        <div class="val">${v}</div>
+                    </div>`).join('')}
+            </div>
+        </div>`;
+};
+
+window.clearSearch = () => {
+    document.getElementById('workerSearchInput').value = '';
+    document.getElementById('searchResult').innerHTML = '';
+};
+
+window.refreshPage = () => { init(); };
+
+// ─── Worker Salary Raise ────────────────────────────────
+let _raiseWorkerId = null;
+
+window.openWorkerRaiseModal = (workerId) => {
+    _raiseWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    if (!w) return;
+    const branch = db.branches.find(b => b.id === w.branchId);
+    document.getElementById('workerRaiseAutoInfo').innerHTML = `
+        <span><strong>Name:</strong> ${w.name}</span>
+        <span><strong>Residence ID:</strong> ${w.residenceId || '—'}</span>
+        <span><strong>Nationality:</strong> ${w.nationality || '—'}</span>
+        <span><strong>Branch:</strong> ${branch?.name || '—'}</span>
+        <span><strong>Responsible Surveyor:</strong> ${w.surveyorName || currentUser.name}</span>
+        <span><strong>رقم جandاله:</strong> ${w.phone || '—'}</span>`;
+    ['wrCurrentSalary','wrRaiseAmount','wrRaisePct','wrLastRaise','wrAchievements','wrNotes'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('wrReason').value = '';
+    document.getElementById('workerRaiseAlert').innerHTML = '';
+    document.getElementById('workerRaiseModal').style.display = 'flex';
+};
+
+window.submitWorkerRaiseRequest = () => {
+    const alertEl = document.getElementById('workerRaiseAlert');
+    const currentSalary = document.getElementById('wrCurrentSalary').value.trim();
+    const reason        = document.getElementById('wrReason').value;
+    if (!currentSalary) { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">Current Salary Required</div>`; return; }
+    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">سبب Request Required</div>`; return; }
+
+    const result = submitSalaryRaiseRequest('worker', _raiseWorkerId, {
+        currentSalary,
+        requestedRaiseAmount: document.getElementById('wrRaiseAmount').value.trim(),
+        raisePercentage:      document.getElementById('wrRaisePct').value.trim(),
+        lastRaiseDate:        document.getElementById('wrLastRaise').value,
+        reason,
+        achievements:         document.getElementById('wrAchievements').value.trim(),
+        notes:                document.getElementById('wrNotes').value.trim()
+    });
+    if (result) {
+        document.getElementById('workerRaiseModal').style.display = 'none';
+        _showSyncToast('Done Send Salary Raise Request لHead Surveyor ✓', 'success');
+    }
+};
+
+// ─── Transfer Worker ─────────────────────────────────────
+let _transferWorkerId = null;
+
+window.openTransferModal = (workerId) => {
+    _transferWorkerId = workerId;
+    const w = db.workers.find(x => x.id === workerId);
+    if (!w) return;
+    const isAdmin = currentUser.role === 'admin';
+    const branchId = isAdmin ? null : (currentUser.responsibleBranch || currentUser.branch || w.branchId);
+    const surveyors = db.users.filter(u =>
+        u.role === 'surveyor' &&
+        (!branchId || u.branch === branchId) &&
+        u.id !== w.surveyorId
+    );
+    document.getElementById('transferWorkerName').textContent = `الWorker: ${w.name}`;
+    document.getElementById('transferTargetSurveyor').innerHTML =
+        '<option value="">— Select the Surveyor —</option>' +
+        surveyors.map(s => `<option value="${s.id}">${s.name} (${s.empId || '—'})</option>`).join('');
+    document.getElementById('transferModal').style.display = 'flex';
+};
+
+window.submitTransfer = () => {
+    const targetId = document.getElementById('transferTargetSurveyor').value;
+    if (!targetId) { alert('Please اختيار Surveyor'); return; }
+    if (transferWorker(_transferWorkerId, targetId)) {
+        document.getElementById('transferModal').style.display = 'none';
+        init();
+        renderSurveyorWorkerCount();
+        _showSyncToast('Done Transfer Worker بSuccess ✓', 'success');
+    }
+};
+
+// ─── Surveyor Worker Count ───────────────────────────────
+function renderSurveyorWorkerCount() {
+    const card = document.getElementById('surveyorWorkerCountCard');
+    if (!card) return;
+    const isHead  = currentUser.role === 'head';
+    const isAdmin = currentUser.role === 'admin';
+    if (!isHead && !isAdmin) return;
+    card.style.display = 'block';
+
+    const minVal   = parseInt(document.getElementById('svcMinFilter').value) || 0;
+    const branchId = currentUser.responsibleBranch || currentUser.branch;
+
+    let surveyors = db.users.filter(u => u.role === 'surveyor');
+    if (isHead) surveyors = surveyors.filter(u => u.branch === branchId);
+
+    const rows = surveyors.map(s => {
+        const all       = (db.workers || []).filter(w => w.surveyorId === s.id);
+        const available = all.filter(w => w.status === 'available').length;
+        const onLeave   = all.filter(w => w.status === 'on_leave').length;
+        return { ...s, total: all.length, available, onLeave };
+    })
+    .filter(s => s.total >= minVal)
+    .sort((a, b) => b.total - a.total);
+
+    const body = document.getElementById('surveyorWorkerCountBody');
+    if (!rows.length) {
+        body.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">None Surveyors يطابقandن الFilter.</p>';
+        return;
+    }
+
+    const branch = (id) => (db.branches.find(b => b.id === id) || {}).name || '—';
+
+    body.innerHTML = `
+    <table class="worker-table">
+        <thead><tr>
+            <th>#</th>
+            <th>the Surveyor</th>
+            <th>Employee ID</th>
+            ${isAdmin ? '<th>Branch</th>' : ''}
+            <th style="text-align:center;">Total Workers</th>
+            <th style="text-align:center;">Availableandن</th>
+            <th style="text-align:center;">On Leave</th>
+            <th>Action</th>
+        </tr></thead>
+        <tbody>
+        ${rows.map((s, i) => `
+        <tr>
+            <td style="color:var(--text-muted);">${i + 1}</td>
+            <td style="font-weight:600;">${s.name}</td>
+            <td style="font-family:monospace;font-size:.82rem;">${s.empId || '—'}</td>
+            ${isAdmin ? `<td style="font-size:.82rem;">${branch(s.branch)}</td>` : ''}
+            <td style="text-align:center;">
+                <span style="background:#ede9fe;color:#6d28d9;font-weight:800;padding:2px 12px;border-radius:20px;">${s.total}</span>
+            </td>
+            <td style="text-align:center;"><span style="color:#166534;font-weight:700;">${s.available}</span></td>
+            <td style="text-align:center;"><span style="color:#92400e;font-weight:700;">${s.onLeave}</span></td>
+            <td>
+                ${s.total > 0 ? `
+                <button onclick="filterBySurveyor('${s.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;">
+                    <i class="fa-solid fa-eye"></i> View Workersه
+                </button>` : ''}
+            </td>
+        </tr>`).join('')}
+        </tbody>
+    </table>`;
+}
+
+window.filterBySurveyor = (surveyorId) => {
+    document.getElementById('workerFilter').value = '';
+    document.getElementById('workerStatusFilter').value = '';
+    _filteredWorkers = _allWorkers.filter(w => w.surveyorId === surveyorId);
+    renderTableBody();
+    document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.onload = () => {
+    renderSidebar();
+    init();
+    renderNewsTicker();
+    renderSurveyorWorkerCount();
+};
+</script>
+</body>
+</html>

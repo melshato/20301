@@ -1,0 +1,41 @@
+# Vercel
+.vercel
+
+# Claude Code settings (sensitive)
+.claude/
+
+# Editor / IDE
+.vscode/
+.kilo/
+.autoapi/
+.autoapi.config.json
+en/.autoapi.config.json
+*.code-workspace
+
+# Temp / logs
+*.log
+git-error-*.txt
+Untitled-*.log
+
+# Zip / archive files
+*.zip
+
+# Database backup (sensitive)
+backup_*.json
+
+# Wrong-path placeholder files
+path/
+
+# Scripts for local setup only
+copy_to_vscode.ps1
+update_vscode.bat
+en/update_vscode.bat
+deploy.bat
+en/deploy.bat
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

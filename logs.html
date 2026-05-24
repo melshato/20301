@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل العمليات | ساجكو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <div class="flex-between" style="margin-bottom:16px">
+                <h2>سجل العمليات التفصيلي</h2>
+                <div id="adminActions"></div>
+            </div>
+            <div class="card">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="logSearch" class="form-input" placeholder="بحث في العمليات أو أسماء المستخدمين...">
+                    </div>
+                </div>
+                <div class="scroll-y" style="margin-top:15px">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>التاريخ والوقت</th>
+                                <th>المستخدم المسؤول</th>
+                                <th>وصف العملية</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="designer-credit">
+        <div><i class="fa-solid fa-code" style="color: var(--primary); margin-left: 6px;"></i>تم تصميم الموقع بواسطة <strong>محمود الشطورى</strong></div>
+        <div style="font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 4px;">بإشراف المهندس <strong>محمد يوسف اقطيط</strong></div>
+    </div>
+
+    <script>
+        checkAuth();
+
+        function refreshLogs(filter = '') {
+            const tbody = document.getElementById('logsTableBody');
+            let logList = db.logs || [];
+            // Head surveyor sees only their own operations
+            if (currentUser.role === 'head') {
+                logList = logList.filter(l => l.user === currentUser.name);
+            }
+            const filtered = logList.filter(l =>
+                l.msg.toLowerCase().includes(filter.toLowerCase()) ||
+                l.user.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            tbody.innerHTML = filtered.map(l => `
+                <tr>
+                    <td style="white-space:nowrap">${new Date(l.id).toLocaleString('ar-EG')}</td>
+                    <td><strong>${l.user}</strong></td>
+                    <td>${l.msg}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="3" style="text-align:center">لا توجد سجلات حالياً</td></tr>';
+        }
+
+        if (currentUser && currentUser.role === 'admin') {
+            document.getElementById('adminActions').innerHTML = `
+                <button onclick="clearLogs()" class="btn btn-danger btn-sm">
+                    <i class="fa-solid fa-trash-can"></i> مسح السجل بالكامل
+                </button>
+            `;
+        }
+
+        window.clearLogs = () => {
+            if (confirm('هل أنت متأكد من مسح جميع سجلات العمليات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                db.logs = [];
+                saveDB();
+                addLog('قام المدير بمسح سجل العمليات بالكامل');
+                refreshLogs();
+            }
+        };
+
+        document.getElementById('logSearch').oninput = e => refreshLogs(e.target.value);
+        
+        window.onload = () => {
+            renderSidebar();
+            refreshLogs();
+        };
+    </script>
+</body>
+</html>

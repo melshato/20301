@@ -1,0 +1,1038 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم رئيس المساحين | ساجكو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 24px; }
+        .stat-card { display: flex; align-items: center; gap: 18px; padding: 22px; background: #fff; border-radius: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: transform .2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; }
+        .branch-isolation-notice {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-right: 4px solid #16a34a;
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            font-size: .82rem;
+            color: #166534;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pending-card {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-right: 4px solid #f59e0b;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <!-- شريط الأخبار -->
+        <div class="news-ticker hidden-ticker" id="newsTicker">
+            <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;"></i> أخبار</span>
+            <div class="ticker-wrapper">
+                <div class="ticker-text" id="tickerContent"></div>
+            </div>
+        </div>
+
+        <div style="padding-top:24px;">
+        <header style="margin-bottom:20px;">
+            <h2 id="userGreeting" style="font-size:1.5rem;font-weight:700;"></h2>
+            <p style="color:var(--text-muted)">لوحة تحكم فرعك - جميع البيانات المعروضة تخص فرعك فقط.</p>
+        </header>
+
+        <!-- مؤشر عزل الفرع -->
+        <div class="branch-isolation-notice">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>أنت ترى بيانات <strong id="branchIsolationName">فرعك</strong> فقط. البيانات محمية ومنعزلة.</span>
+        </div>
+
+        <!-- إشعارات الفرع -->
+        <div id="headNotifications"></div>
+
+        <!-- طلبات بانتظار موافقتك -->
+        <div id="pendingSection"></div>
+
+        <!-- تنبيهات المعايرة -->
+        <div id="calibrationAlerts"></div>
+
+        <!-- الإحصائيات -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <div style="font-size:.82rem;color:var(--text-muted)">المساحون في فرعك</div>
+                    <div id="branchSurveyorCount" style="font-size:1.5rem;font-weight:800;">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-microchip"></i></div>
+                <div>
+                    <div style="font-size:.82rem;color:var(--text-muted)">أجهزة فرعك (غير المستودع)</div>
+                    <div id="branchDeviceCount" style="font-size:1.5rem;font-weight:800;">0</div>
+                </div>
+            </div>
+            <div class="stat-card" style="cursor:pointer;" onclick="scrollToPending()">
+                <div class="stat-icon" style="background:#fef3c7;color:#92400e;"><i class="fa-solid fa-clock"></i></div>
+                <div>
+                    <div style="font-size:.82rem;color:var(--text-muted)">طلبات بانتظار موافقتك</div>
+                    <div id="pendingApprovalCount" style="font-size:1.5rem;font-weight:800;color:#92400e;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ملخص الأجهزة -->
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-microchip" style="color:var(--primary)"></i> ملخص أجهزة فرعك</h3>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px;align-items:flex-start;">
+            <div class="stats-grid" style="flex:1;min-width:280px;margin-bottom:0;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f0fdf4;color:#166534;"><i class="fa-solid fa-tower-observation"></i></div>
+                    <div><div style="font-size:.75rem;color:var(--text-muted)">محطة متكاملة</div><div id="countTS" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-ruler-horizontal"></i></div>
+                    <div><div style="font-size:.75rem;color:var(--text-muted)">ميزان مساحي</div><div id="countAL" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fff7ed;color:#9a3412;"><i class="fa-solid fa-satellite-dish"></i></div>
+                    <div><div style="font-size:.75rem;color:var(--text-muted)">جهاز GPS</div><div id="countGPS" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                </div>
+            </div>
+            <div class="card" style="width:180px;margin-bottom:0;padding:14px;display:flex;flex-direction:column;align-items:center;">
+                <h4 style="font-size:.8rem;margin-bottom:10px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
+                    <i class="fa-solid fa-chart-pie" style="color:var(--primary);"></i> التوزيع
+                </h4>
+                <div style="width:150px;height:150px;"><canvas id="deviceTypePieChart"></canvas></div>
+            </div>
+            <div class="card" style="width:180px;margin-bottom:0;padding:14px;display:flex;flex-direction:column;align-items:center;">
+                <h4 style="font-size:.8rem;margin-bottom:10px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
+                    <i class="fa-solid fa-certificate" style="color:#dc2626;"></i> المعايرة
+                </h4>
+                <div style="width:150px;height:150px;"><canvas id="calibStatusChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- بار شارت حالة الأجهزة — رئيس المساحين -->
+        <div class="card" style="margin-bottom:28px;padding:20px;">
+            <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:.95rem;">
+                <i class="fa-solid fa-chart-column" style="color:#7c3aed;"></i> تحليل حالة أجهزة الفرع
+            </h3>
+            <canvas id="headDeviceStatusBar" height="120"></canvas>
+        </div>
+
+        <!-- مشاريع فرعك -->
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-diagram-project" style="color:var(--primary)"></i> مشاريع فرعك</h3>
+        <div id="branchProjectsSection" style="margin-bottom:28px;"></div>
+
+        <!-- توزيع الأجهزة على المساحين -->
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-users-gear" style="color:var(--primary)"></i> توزيع الأجهزة على مساحي فرعك</h3>
+        <div class="card">
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>المساح</th><th>الرقم الوظيفي</th><th>التقييم</th><th>الأجهزة في عهدته</th><th>حالة المعايرة</th></tr></thead>
+                    <tbody id="surveyorsDistributionBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- إدارة إجازات مساحي فرعك -->
+        <div style="margin-top:32px;">
+            <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-calendar-days" style="color:var(--primary)"></i> إدارة إجازات مساحي فرعك
+                <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);margin-right:8px;">تأكيد المغادرة والإرجاع للعمل</span>
+            </h3>
+
+            <!-- مساحون في إجازة حالياً — قائمة بحث -->
+            <div class="card" style="border-right:4px solid #f59e0b;margin-bottom:20px;">
+                <h4 style="font-size:.95rem;color:#92400e;margin-bottom:12px;"><i class="fa-solid fa-umbrella-beach"></i> مساحون في إجازة حالياً</h4>
+                <div id="headOnLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون في إجازة حالياً.</p></div>
+            </div>
+
+            <!-- مساحون بانتظار تأكيد المغادرة -->
+            <div class="card" style="border-right:4px solid #3b82f6;margin-bottom:20px;">
+                <h4 style="font-size:.95rem;color:#1e40af;margin-bottom:12px;"><i class="fa-solid fa-calendar-check"></i> مساحون بانتظار تأكيد المغادرة</h4>
+                <div id="headPlanningLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون بانتظار مغادرة.</p></div>
+            </div>
+
+            <!-- إضافة مساح للإجازة يدوياً -->
+            <div class="card" style="border-right:4px solid #16a34a;">
+                <h4 style="font-size:.95rem;color:#166534;margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> إضافة مساح للإجازة يدوياً</h4>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+                    <div style="flex:1;min-width:200px;">
+                        <label class="form-label">اختر الموظف</label>
+                        <select id="headLeaveManualEmployee" class="form-select" style="font-size:.9rem;"></select>
+                    </div>
+                    <div style="flex:1;min-width:150px;">
+                        <label class="form-label">تاريخ المغادرة</label>
+                        <input type="date" id="headLeaveManualDate" class="form-input" style="font-size:.9rem;">
+                    </div>
+                    <button onclick="headSendToLeave()" class="btn btn-primary" style="font-size:.85rem;">
+                        <i class="fa-solid fa-plane-departure"></i> تسجيل المغادرة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        </div><!-- end inner wrapper -->
+
+        <!-- ====== طلبات زيادة الراتب ====== -->
+        <div id="srrHeadPanel" style="display:none;margin-top:24px;" class="card" style="border-right:4px solid #15803d;">
+            <h3 style="margin-bottom:4px;border-right:4px solid #15803d;padding-right:12px;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> طلبات زيادة الراتب — بانتظار موافقتك</h3>
+            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">بعد الموافقة يُرفع الطلب للإدارة العليا تلقائياً — لا يحتاج مراجعة المدير العام في النظام</p>
+            <div id="srrHeadList"></div>
+        </div>
+
+        <!-- مودال رفض طلب زيادة الراتب -->
+        <div id="srrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> سبب رفض طلب الزيادة</h4>
+                <div class="form-group"><label class="form-label">ملاحظة الرفض (اختياري)</label>
+                <input type="text" id="srrRejectNote" class="form-input" placeholder="أدخل سبب الرفض..."></div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="confirmSrrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> رفض</button>
+                    <button onclick="document.getElementById('srrRejectModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== طلبات تعديل بيانات المساحين ====== -->
+        <div class="card" id="pcrHeadPanel" style="margin-top:24px;border-right:4px solid #d97706;">
+            <h3 style="margin-bottom:4px;"><i class="fa-solid fa-user-pen" style="color:#d97706;"></i> طلبات تعديل بيانات الموظفين</h3>
+            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">طلبات بانتظار موافقتك — بعد الموافقة تُرسل للمدير للاعتماد النهائي</p>
+            <div id="pcrHeadList"></div>
+        </div>
+
+        <!-- ====== طلبات استعادة كلمة المرور ====== -->
+        <div class="card" id="pwrHeadPanel" style="margin-top:16px;border-right:4px solid #dc2626;">
+            <h3 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> طلبات استعادة كلمة المرور</h3>
+            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">موظفون نسوا كلمة المرور — حدد كلمة مرور مؤقتة وأرسلها لهم</p>
+            <div id="pwrHeadList"></div>
+        </div>
+
+        <!-- مودال تعيين كلمة مرور مؤقتة -->
+        <div id="pwrModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> تعيين كلمة مرور مؤقتة</h4>
+                <p id="pwrModalEmployeeName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;"></p>
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور المؤقتة</label>
+                    <input type="text" id="pwrTempPass" class="form-input" placeholder="أدخل كلمة مرور مؤقتة (4 أحرف على الأقل)">
+                </div>
+                <div style="font-size:.8rem;color:#d97706;background:#fffbeb;border-radius:8px;padding:8px 12px;margin-bottom:16px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> أبلغ الموظف بهذه الكلمة — سيُطلب منه تغييرها فوراً عند الدخول
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="confirmPwrReset()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> تأكيد وتعيين</button>
+                    <button onclick="document.getElementById('pwrModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+                <div id="pwrModalResult" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- مودال التحقق قبل المغادرة -->
+        <div id="headDeptCheckModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> تنبيه قبل تسجيل المغادرة</h4>
+                <div id="headDeptCheckBody" style="margin:12px 0;font-size:.9rem;"></div>
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:.82rem;color:#92400e;margin-bottom:16px;">
+                    <i class="fa-solid fa-circle-info"></i> يُنصح بنقل العهدة والعمال قبل المغادرة لضمان استمرارية العمل
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button onclick="executeHeadPendingDept()" class="btn btn-primary" style="flex:1;">
+                        <i class="fa-solid fa-plane-departure"></i> إتمام المغادرة على أي حال
+                    </button>
+                    <a href="workers.html" class="btn btn-ghost" style="flex:1;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fa-solid fa-helmet-safety"></i> نقل العمال أولاً
+                    </a>
+                    <button onclick="document.getElementById('headDeptCheckModal').style.display='none'" class="btn btn-ghost" style="width:100%;margin-top:4px;">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال رفض طلب التعديل -->
+        <div id="pcrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+                <h4 style="margin-bottom:16px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> سبب الرفض</h4>
+                <div class="form-group">
+                    <label class="form-label">ملاحظة الرفض (اختياري)</label>
+                    <input type="text" id="pcrRejectNote" class="form-input" placeholder="أدخل سبب الرفض...">
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="confirmPcrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;"><i class="fa-solid fa-times"></i> رفض</button>
+                    <button onclick="document.getElementById('pcrRejectModal').style.display='none'" class="btn btn-ghost">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+checkAuth();
+if (!currentUser || currentUser.role !== 'head') { window.location.href = 'index.html'; }
+
+let myChart = null;
+
+function scrollToPending() {
+    document.getElementById('pendingSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function loadHeadSurveyorDashboard() {
+    reloadDB();
+    const myBranch = currentUser.responsibleBranch;
+    const branch = db.branches.find(b => b.id === myBranch);
+    const branchName = branch ? branch.name : 'غير محدد';
+
+    document.getElementById('userGreeting').innerText = `مرحباً، رئيس المساحين ${currentUser.name} — ${branchName}`;
+    document.getElementById('branchIsolationName').textContent = branchName;
+
+    // المساحون في فرعي فقط
+    const branchSurveyors = db.users.filter(u => u.branch === myBranch && u.role === 'surveyor' && u.status === 'approved');
+    document.getElementById('branchSurveyorCount').innerText = branchSurveyors.length;
+
+    // أجهزة فرعي فقط (بدون المستودع)
+    const branchUsers = branchSurveyors.map(u => u.id);
+    branchUsers.push(currentUser.id);
+    const branchDevices = db.devices.filter(d =>
+        d.status !== 'warehouse' &&
+        (d.branch === myBranch || branchUsers.includes(d.ownerId))
+    );
+    document.getElementById('branchDeviceCount').innerText = branchDevices.length;
+
+    // طلبات بانتظار موافقتي من فرعي فقط
+    const pendingCustodies = db.custodies.filter(c =>
+        c.status === 'pending_head_approval' && c.branchId === myBranch
+    );
+    document.getElementById('pendingApprovalCount').innerText = pendingCustodies.length;
+
+    // تنبيهات المعايرة لأجهزة فرعي
+    const today = new Date(); today.setHours(0,0,0,0);
+    const alertLimit = new Date(); alertLimit.setDate(today.getDate() + (db.settings.alertDays || 30));
+    const expiring = branchDevices.filter(d => d.calDate && new Date(d.calDate) <= alertLimit);
+    if (expiring.length > 0) {
+        const list = expiring.map(d => {
+            const diff = Math.ceil((new Date(d.calDate) - today) / 86400000);
+            const owner = db.users.find(u => u.id === d.ownerId);
+            const statusT = diff <= 0 ? '<span style="color:#ef4444;font-weight:700;">منتهية!</span>' : `متبقي ${diff} يوم`;
+            return `<li>${getDeviceTypeName(d.type)} (${d.serial}) — ${owner ? owner.name : 'غير معين'} — ${statusT}</li>`;
+        }).join('');
+        document.getElementById('calibrationAlerts').innerHTML = `
+            <div style="background:#fff5f5;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:12px;padding:16px;margin-bottom:20px;color:#991b1b;display:flex;align-items:flex-start;gap:14px;">
+                <i class="fa-solid fa-triangle-exclamation fa-xl" style="margin-top:3px;"></i>
+                <div><strong>تنبيهات معايرة عاجلة</strong><ul style="margin-top:8px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
+            </div>`;
+    } else {
+        document.getElementById('calibrationAlerts').innerHTML = '';
+    }
+
+    // إشعارات غير مقروءة
+    const unreadNotifs = db.notifications.filter(n => n.userId === currentUser.id && !n.read);
+    if (unreadNotifs.length > 0) {
+        const items = unreadNotifs.slice(0, 5).map(n => {
+            const canApprove = n.requiresAction && n.relatedId;
+            const custodyInNotif = n.relatedId && n.actionType === 'custody_approval' ? db.custodies.find(c => c.id === n.relatedId) : null;
+            const canActOnCustody = custodyInNotif && custodyInNotif.status === 'pending_head_approval' && custodyInNotif.branchId === myBranch;
+            const approveBtns = canActOnCustody ? `
+                <button class="btn-approve" onclick="doApprove('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> قبول</button>
+                <button class="btn-reject" onclick="doReject('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>
+            ` : '';
+            const leaveInNotif = n.relatedId && n.actionType === 'leave_approval' ? db.leaveRequests?.find(lr => lr.id === n.relatedId) : null;
+            const canActOnLeave = leaveInNotif && leaveInNotif.status === 'pending_head_approval' && leaveInNotif.branchId === myBranch;
+            const leaveBtns = canActOnLeave ? `
+                <button class="btn-approve" onclick="doApproveLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> قبول</button>
+                <button class="btn-reject" onclick="doRejectLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>
+            ` : '';
+            const actionLink = n.actionUrl ? `<a href="${n.actionUrl}" class="btn-view-service" onclick="markNotificationAsRead('${n.id}')"><i class="fa-solid fa-arrow-left"></i> عرض</a>` : '';
+            return `
+                <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                    <div style="font-size:.88rem;margin-bottom:6px;">${n.message}</div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        ${approveBtns || leaveBtns}
+                        ${actionLink}
+                        <button onclick="markNotificationAsRead('${n.id}');loadHeadSurveyorDashboard();" style="font-size:.72rem;color:var(--primary);background:none;border:none;cursor:pointer;font-weight:600;">قراءة</button>
+                    </div>
+                </div>`;
+        }).join('');
+        document.getElementById('headNotifications').innerHTML = `
+            <div style="background:#e0f2fe;border:1px solid #90cdf4;border-right:4px solid #3182ce;border-radius:12px;padding:16px;margin-bottom:20px;color:#1e40af;">
+                <div style="font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+                    <span><i class="fa-solid fa-bell"></i> إشعارات جديدة (${unreadNotifs.length})</span>
+                    <a href="notification-center.html" style="font-size:.78rem;color:#1e40af;font-weight:600;">عرض الكل</a>
+                </div>
+                ${items}
+            </div>`;
+    } else {
+        document.getElementById('headNotifications').innerHTML = '';
+    }
+
+    // طلبات العهدة بانتظار موافقتي
+    if (pendingCustodies.length > 0) {
+        const rows = pendingCustodies.map(req => {
+            const user = db.users.find(u => u.id === req.userId);
+            const isTransfer = !!req.transferData;
+            return `<tr>
+                <td>${user ? user.name : '—'}</td>
+                <td>${getDeviceTypeName(req.deviceType)} <small style="color:var(--text-muted);">(${req.serialNumber})</small></td>
+                <td>${isTransfer ? '<span class="badge badge-info">نقل عهدة</span>' : '<span class="badge badge-success">جديد</span>'}</td>
+                <td>${formatDate(req.timestamp)}</td>
+                <td style="display:flex;gap:6px;">
+                    <button class="btn-approve" onclick="doApproveCustodyDirect('${req.id}')"><i class="fa-solid fa-check"></i> قبول</button>
+                    <button class="btn-reject" onclick="doRejectCustodyDirect('${req.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>
+                </td>
+            </tr>`;
+        }).join('');
+        document.getElementById('pendingSection').innerHTML = `
+            <div class="pending-card" id="pendingSectionAnchor">
+                <h3 style="color:#92400e;margin-bottom:14px;"><i class="fa-solid fa-user-clock"></i> طلبات عهدة بانتظار موافقتك (${pendingCustodies.length})</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>المساح</th><th>الجهاز</th><th>نوع الطلب</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+    } else {
+        document.getElementById('pendingSection').innerHTML = '';
+    }
+
+    // ملخص الأنواع
+    const tsCount = branchDevices.filter(d => d.type === 'total_station' || d.type.includes('station')).length;
+    const alCount = branchDevices.filter(d => d.type === 'auto_level' || d.type.includes('level')).length;
+    const gpsCount = branchDevices.filter(d => d.type.toLowerCase().includes('gps')).length;
+    document.getElementById('countTS').innerText = tsCount;
+    document.getElementById('countAL').innerText = alCount;
+    document.getElementById('countGPS').innerText = gpsCount;
+
+    // رسم التوزيع الدائري
+    const ctx = document.getElementById('deviceTypePieChart').getContext('2d');
+    if (myChart) myChart.destroy();
+    myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['محطة', 'ميزان', 'GPS'],
+            datasets: [{ data: [tsCount, alCount, gpsCount], backgroundColor: ['#6366f1', '#0ea5e9', '#f59e0b'], borderWidth: 0, hoverOffset: 6 }]
+        },
+        options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, font: { size: 9 }, padding: 8 } } } }
+    });
+
+    // رسم حالة المعايرة
+    const calibOk = branchDevices.filter(d => !(d.calDate && new Date(d.calDate) <= alertLimit)).length;
+    const calibAlert = expiring.length;
+    const ctxCalib = document.getElementById('calibStatusChart').getContext('2d');
+    if (window._calibChart) window._calibChart.destroy();
+    window._calibChart = new Chart(ctxCalib, {
+        type: 'doughnut',
+        data: {
+            labels: ['معايرة جيدة', 'تحتاج معايرة'],
+            datasets: [{ data: [calibOk, calibAlert], backgroundColor: ['#10b981', '#f43f5e'], borderWidth: 0, hoverOffset: 6 }]
+        },
+        options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, font: { size: 9 }, padding: 8 } } } }
+    });
+
+    // بار شارت حالة الأجهزة
+    const statuses = [
+        { label:'المستودع', key:'warehouse',        color:'#6366f1' },
+        { label:'معيّنة',   key:'assigned',         color:'#10b981' },
+        { label:'صيانة',    key:'maintenance',      color:'#f43f5e' },
+        { label:'معايرة',   key:'needs_calibration',color:'#f59e0b' },
+        { label:'متاحة',    key:'available',        color:'#3b82f6' },
+    ];
+    const barLabels = statuses.map(s => s.label);
+    const barData   = statuses.map(s => branchDevices.filter(d => d.status === s.key || d.status === ('at_'+s.key)).length);
+    const barColors = statuses.map(s => s.color);
+    const ctxBar = document.getElementById('headDeviceStatusBar');
+    if (ctxBar) {
+        if (window._headBarChart) window._headBarChart.destroy();
+        window._headBarChart = new Chart(ctxBar.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{ label: 'عدد الأجهزة', data: barData, backgroundColor: barColors.map(c=>c+'CC'), borderColor: barColors, borderWidth: 2, borderRadius: 8, borderSkipped: false }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // مشاريع الفرع
+    const myProjects = (db.projects || []).filter(p => p.branchId === myBranch);
+    const projContainer = document.getElementById('branchProjectsSection');
+    if (myProjects.length === 0) {
+        projContainer.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:var(--text-muted);"><i class="fa-solid fa-folder-open fa-2x" style="margin-bottom:10px;display:block;"></i>لا توجد مشاريع مسجلة لهذا الفرع. <a href="projects.html" style="color:var(--primary);font-weight:600;">إضافة مشروع</a></div>';
+    } else {
+        const statusColors = { active: '#10b981', completed: '#6366f1', paused: '#f59e0b' };
+        const statusLabels = { active: 'نشط', completed: 'مكتمل', paused: 'متوقف' };
+        projContainer.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">` +
+            myProjects.map(p => {
+                const completion = p.completion || 0;
+                const survCount = (p.surveyors || []).length;
+                const workerCount = (db.workers || []).filter(w => w.projectId === p.id).length;
+                const endDate = p.endDate ? new Date(p.endDate) : null;
+                const daysLeft = endDate ? Math.ceil((endDate - new Date()) / 86400000) : null;
+                const daysLabel = daysLeft === null ? '' : daysLeft < 0 ? `<span style="color:#ef4444;font-size:.72rem;">تأخر ${Math.abs(daysLeft)} يوم</span>` : `<span style="font-size:.72rem;color:#64748b;">متبقي ${daysLeft} يوم</span>`;
+                const color = statusColors[p.status] || '#6366f1';
+                const pct = Math.min(100, completion);
+                return `<div class="card" style="padding:18px;border-top:3px solid ${color};">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                        <div style="font-weight:700;font-size:.95rem;">${p.name}</div>
+                        <span style="background:${color}20;color:${color};font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;">${statusLabels[p.status] || p.status}</span>
+                    </div>
+                    <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px;">${p.description || ''}</div>
+                    <div style="margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><span>نسبة الإنجاز</span><strong style="color:${color};">${pct}%</strong></div>
+                        <div style="height:7px;background:#f1f5f9;border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width .4s;"></div></div>
+                    </div>
+                    <div style="display:flex;gap:12px;font-size:.75rem;color:#64748b;flex-wrap:wrap;">
+                        <span><i class="fa-solid fa-users" style="color:${color};"></i> ${survCount} مساح</span>
+                        ${workerCount > 0 ? `<span><i class="fa-solid fa-helmet-safety" style="color:#d97706;"></i> ${workerCount} عامل</span>` : ''}
+                        ${daysLabel}
+                    </div>
+                </div>`;
+            }).join('') + `</div>`;
+    }
+
+    // توزيع الأجهزة على المساحين
+    const tbody = document.getElementById('surveyorsDistributionBody');
+    if (branchSurveyors.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);">لا يوجد مساحون مسجلون في هذا الفرع.</td></tr>';
+    } else {
+        tbody.innerHTML = branchSurveyors.map(s => {
+            const devs = db.devices.filter(d => d.ownerId === s.id);
+            const alertDev = devs.filter(d => d.calDate && (new Date(d.calDate) - today) / 86400000 <= 30);
+            const calStatus = alertDev.length > 0
+                ? `<span class="badge badge-warning">${alertDev.length} جهاز قريب من الانتهاء</span>`
+                : `<span class="badge badge-success">جيد</span>`;
+            const rating = getAverageRating(s.id);
+            let starsHtml = '';
+            if (rating) {
+                for (let i = 1; i <= 5; i++)
+                    starsHtml += `<i class="fa-${i <= rating ? 'solid' : 'regular'} fa-star" style="color:${i <= rating ? '#fbbf24' : '#d1d5db'};font-size:.95rem;"></i>`;
+                starsHtml += ` <span style="font-size:.75rem;color:#64748b;">(${rating}/5)</span>`;
+            } else {
+                starsHtml = '<span style="color:#94a3b8;font-size:.8rem;">لم يُقيَّم</span>';
+            }
+            return `<tr>
+                <td><strong>${s.name}</strong></td>
+                <td>${s.empId}</td>
+                <td style="white-space:nowrap;">${starsHtml}</td>
+                <td><strong>${devs.length}</strong></td>
+                <td>${calStatus}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    renderHeadLeavePanel();
+}
+
+// ============================================================
+// أزرار الموافقة والرفض
+// ============================================================
+window.doApprove = (custodyId, notifId) => {
+    if (!confirm('هل أنت متأكد من قبول طلب العهدة؟')) return;
+    if (approveCustody(custodyId, 'head')) {
+        markNotificationAsRead(notifId);
+        showToast('تمت الموافقة وأُرسل الطلب للمدير العام', 'success');
+        loadHeadSurveyorDashboard();
+    } else showToast('لا يمكن الموافقة', 'error');
+};
+
+window.doReject = (custodyId, notifId) => {
+    if (!confirm('هل أنت متأكد من رفض طلب العهدة؟')) return;
+    if (rejectCustody(custodyId)) {
+        markNotificationAsRead(notifId);
+        showToast('تم رفض طلب العهدة', 'success');
+        loadHeadSurveyorDashboard();
+    } else showToast('لا يمكن الرفض', 'error');
+};
+
+window.doApproveLeave = (leaveId, notifId) => {
+    if (!confirm('هل أنت متأكد من قبول طلب الإجازة؟')) return;
+    if (approveLeaveRequest(leaveId, 'head')) {
+        markNotificationAsRead(notifId);
+        showToast('تمت الموافقة على الإجازة وأُرسل للمدير', 'success');
+        loadHeadSurveyorDashboard();
+    } else showToast('لا يمكن الموافقة', 'error');
+};
+
+window.doRejectLeave = (leaveId, notifId) => {
+    if (!confirm('هل أنت متأكد من رفض طلب الإجازة؟')) return;
+    if (rejectLeaveRequest(leaveId)) {
+        markNotificationAsRead(notifId);
+        showToast('تم رفض طلب الإجازة', 'success');
+        loadHeadSurveyorDashboard();
+    } else showToast('لا يمكن الرفض', 'error');
+};
+
+window.doApproveCustodyDirect = (id) => {
+    if (!confirm('الموافقة على طلب العهدة وإرساله للمدير العام؟')) return;
+    if (approveCustody(id, 'head')) {
+        showToast('تمت الموافقة وأُرسل للمدير العام', 'success');
+        loadHeadSurveyorDashboard();
+    } else showToast('لا يمكن الموافقة', 'error');
+};
+
+window.doRejectCustodyDirect = (id) => {
+    if (!confirm('رفض طلب العهدة؟')) return;
+    if (rejectCustody(id)) {
+        showToast('تم رفض طلب العهدة', 'success');
+        loadHeadSurveyorDashboard();
+    } else showToast('لا يمكن الرفض', 'error');
+};
+
+function showToast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type === 'error' ? 'error' : ''}`;
+    el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> <span>${msg}</span>`;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3500);
+}
+
+// تحديث تلقائي كل 30 ثانية
+setInterval(() => { reloadDB(); loadHeadSurveyorDashboard(); }, 30000);
+
+// ── Head Leave Management ────────────────────────────────
+function renderHeadLeavePanel() {
+    const myBranch = currentUser.responsibleBranch;
+    const onLeave      = getSurveyorsOnLeave().filter(u => u.branch === myBranch);
+    const planningLeave = getSurveyorsPlanningLeave().filter(u => u.branch === myBranch);
+    const branchSurveyors = db.users.filter(u => u.branch === myBranch && u.role === 'surveyor' && u.status === 'approved');
+
+    // ─ مساحون في إجازة — قائمة بحث ─
+    const onLeaveEl = document.getElementById('headOnLeaveList');
+    if (onLeave.length === 0) {
+        onLeaveEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون في إجازة حالياً.</p>';
+    } else {
+        window._headOnLeaveRows = onLeave.map(u => {
+            const req = (db.leaveRequests || []).find(r => r.userId === u.id && r.isDeparted && !r.isReturned);
+            const departDate = req?.actualDepartureDate ? new Date(req.actualDepartureDate).toLocaleDateString('ar-SA') : '—';
+            return { u, req, departDate };
+        });
+        onLeaveEl.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                <div style="position:relative;flex:1;min-width:200px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;"></i>
+                    <input type="text" id="headOnLeaveSearch" class="form-input"
+                        placeholder="بحث برقم الموظف..."
+                        style="padding-right:34px;font-size:.88rem;"
+                        oninput="filterHeadOnLeaveList(this.value)">
+                </div>
+                <span style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;white-space:nowrap;">
+                    <i class="fa-solid fa-umbrella-beach"></i> ${onLeave.length} في إجازة
+                </span>
+            </div>
+            <div id="headOnLeaveSearchMsg" style="display:none;margin-bottom:10px;"></div>
+            <div id="headOnLeaveSearchCard" style="display:none;margin-bottom:12px;"></div>
+            <div class="table-container" style="max-height:300px;overflow-y:auto;">
+                <table>
+                    <thead>
+                        <tr><th>#</th><th>الاسم</th><th>الرقم الوظيفي</th><th>تاريخ المغادرة</th><th>الإجراء</th></tr>
+                    </thead>
+                    <tbody id="headOnLeaveTableBody">
+                        ${window._headOnLeaveRows.map((item, i) => `
+                            <tr data-empid="${item.u.empId}" data-reqid="${item.req?.id || ''}">
+                                <td style="color:var(--text-muted);font-size:.82rem;">${i+1}</td>
+                                <td><strong>${item.u.name}</strong></td>
+                                <td style="font-family:monospace;font-size:.85rem;">${item.u.empId}</td>
+                                <td style="font-size:.82rem;color:#92400e;">${item.departDate}</td>
+                                <td>${item.req ? `<button onclick="headReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.76rem;padding:4px 10px;"><i class="fa-solid fa-plane-arrival"></i> إرجاع</button>` : '—'}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    }
+
+    // ─ مساحون بانتظار تأكيد المغادرة ─
+    const planningEl = document.getElementById('headPlanningLeaveList');
+    if (planningLeave.length === 0) {
+        planningEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">لا يوجد مساحون بانتظار مغادرة.</p>';
+    } else {
+        planningEl.innerHTML = planningLeave.map(u => {
+            const req = (db.leaveRequests || []).find(r =>
+                r.userId === u.id && !r.isDeparted &&
+                (r.status === 'approved' || r.status === 'pending_admin_approval' || r.status === 'pending_head_approval'));
+            const startDate = req?.startDate ? new Date(req.startDate).toLocaleDateString('ar-SA') : '—';
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;border:1px solid #bfdbfe;background:#eff6ff;margin-bottom:8px;gap:12px;flex-wrap:wrap;">
+                <div>
+                    <strong>${u.name}</strong>
+                    <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">رقم: ${u.empId}</span>
+                    <span style="font-size:.8rem;color:#1e40af;">موعد الإجازة: ${startDate}</span>
+                    ${getLeaveStatusBadge ? getLeaveStatusBadge(req?.status) : ''}
+                </div>
+                ${req ? `<button onclick="headConfirmDeparture('${req.id}')" class="btn" style="font-size:.8rem;padding:6px 14px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">
+                    <i class="fa-solid fa-plane-departure"></i> تأكيد المغادرة
+                </button>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    // ─ قائمة الموظفين للإضافة اليدوية ─
+    const empSelect = document.getElementById('headLeaveManualEmployee');
+    const available = branchSurveyors.filter(u => !onLeave.find(o => o.id === u.id));
+    empSelect.innerHTML = '<option value="">-- اختر موظف --</option>' +
+        available.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
+    document.getElementById('headLeaveManualDate').value = new Date().toISOString().split('T')[0];
+}
+
+window.filterHeadOnLeaveList = (query) => {
+    const q = query.trim();
+    const msgEl  = document.getElementById('headOnLeaveSearchMsg');
+    const cardEl = document.getElementById('headOnLeaveSearchCard');
+    const tbody  = document.getElementById('headOnLeaveTableBody');
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr');
+
+    if (!q) {
+        rows.forEach(tr => tr.style.display = '');
+        msgEl.style.display = 'none';
+        cardEl.style.display = 'none';
+        return;
+    }
+
+    let match = null;
+    rows.forEach(tr => {
+        const show = (tr.dataset.empid || '').includes(q);
+        tr.style.display = show ? '' : 'none';
+        if (show && tr.dataset.empid === q) match = tr;
+    });
+
+    const visible = [...rows].filter(tr => tr.style.display !== 'none');
+    if (visible.length === 0) {
+        msgEl.style.display = 'block';
+        msgEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:.85rem;"><i class="fa-solid fa-circle-exclamation"></i> لا يوجد مساح برقم "<strong>${q}</strong>" في قائمة الإجازة.</div>`;
+        cardEl.style.display = 'none';
+    } else {
+        msgEl.style.display = 'none';
+        if (match) {
+            const item = (window._headOnLeaveRows || []).find(r => r.u.empId === q);
+            if (item) {
+                cardEl.style.display = 'block';
+                cardEl.innerHTML = `
+                    <div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                        <div>
+                            <div style="font-weight:700;font-size:.95rem;">${item.u.name}</div>
+                            <div style="font-size:.82rem;color:var(--text-muted);margin-top:3px;">
+                                <i class="fa-solid fa-id-badge"></i> ${item.u.empId}
+                                &nbsp;|&nbsp; <i class="fa-solid fa-plane-departure"></i> غادر: ${item.departDate}
+                            </div>
+                        </div>
+                        ${item.req ? `<button onclick="headReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.85rem;padding:8px 18px;">
+                            <i class="fa-solid fa-plane-arrival"></i> إرجاع للعمل
+                        </button>` : ''}
+                    </div>`;
+            }
+        } else {
+            cardEl.style.display = 'none';
+        }
+    }
+};
+
+// ── Head departure check helpers ────────────────────────
+let _headPendingDept = null;
+
+function _headDeptCheckItems(userId) {
+    const devices = db.devices.filter(d => d.ownerId === userId && d.status !== 'warehouse');
+    const workers = (db.workers || []).filter(w => w.surveyorId === userId && w.status === 'available');
+    return { devices, workers };
+}
+
+function _showHeadDeptCheckModal(userId, items, onProceed) {
+    const user = db.users.find(u => u.id === userId);
+    let html = `<div style="font-weight:700;margin-bottom:10px;font-size:.95rem;">${user?.name || ''} (${user?.empId || ''})</div>`;
+    if (items.devices.length)
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#991b1b;"><i class="fa-solid fa-microchip"></i> <strong>${items.devices.length}</strong> جهاز في عهدته</div>`;
+    if (items.workers.length) {
+        html += `<div style="display:flex;align-items:center;gap:8px;color:#92400e;"><i class="fa-solid fa-helmet-safety"></i> <strong>${items.workers.length}</strong> عامل مرتبط به</div>`;
+        if (items.workers.length <= 6)
+            html += `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;padding-right:22px;">${items.workers.map(w=>w.name).join('، ')}</div>`;
+    }
+    document.getElementById('headDeptCheckBody').innerHTML = html;
+    _headPendingDept = onProceed;
+    document.getElementById('headDeptCheckModal').style.display = 'flex';
+}
+
+window.executeHeadPendingDept = () => {
+    document.getElementById('headDeptCheckModal').style.display = 'none';
+    if (typeof _headPendingDept === 'function') _headPendingDept();
+    _headPendingDept = null;
+};
+
+window.headReturnFromLeave = (leaveId) => {
+    if (!leaveId) return;
+    const returnDate = prompt('أدخل تاريخ الإرجاع (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+    if (!returnDate) return;
+    if (markLeaveReturned(leaveId, returnDate)) {
+        renderHeadLeavePanel();
+        loadHeadSurveyorDashboard();
+        showToast('تم تسجيل عودة الموظف بنجاح', 'success');
+    }
+};
+
+window.headConfirmDeparture = (leaveId) => {
+    if (!leaveId) return;
+    const req = (db.leaveRequests || []).find(r => r.id === leaveId);
+    if (!req) return;
+    const departDate = prompt('أكد تاريخ المغادرة (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+    if (!departDate) return;
+    const items = _headDeptCheckItems(req.userId);
+    const proceed = () => {
+        if (markLeaveDeparted(leaveId, departDate)) {
+            renderHeadLeavePanel();
+            loadHeadSurveyorDashboard();
+            showToast('تم تسجيل مغادرة الموظف', 'success');
+        }
+    };
+    if (items.devices.length || items.workers.length) {
+        _showHeadDeptCheckModal(req.userId, items, proceed);
+    } else {
+        proceed();
+    }
+};
+
+window.headSendToLeave = () => {
+    const userId    = document.getElementById('headLeaveManualEmployee').value;
+    const departDate = document.getElementById('headLeaveManualDate').value;
+    if (!userId || !departDate) { showToast('اختر موظفاً وتاريخاً', 'error'); return; }
+    const user = db.users.find(u => u.id === userId);
+    if (!user) return;
+    const req = {
+        id: 'lr_head_' + Date.now(),
+        userId,
+        assignedBy: currentUser.id,
+        leaveType: 'annual',
+        startDate: departDate,
+        endDate: departDate,
+        daysRequested: 1,
+        reason: 'إضافة يدوية من رئيس المساحين',
+        status: 'approved',
+        branchId: user.branch || null,
+        timestamp: new Date().toISOString(),
+        approvalHistory: [{ approverName: currentUser.name, approverRole: 'رئيس المساحين', decision: 'approved', timestamp: new Date().toISOString() }]
+    };
+    const items = _headDeptCheckItems(userId);
+    const proceed = () => {
+        if (!db.leaveRequests) db.leaveRequests = [];
+        db.leaveRequests.push(req);
+        markLeaveDeparted(req.id, departDate);
+        addNotification(userId, `تم تسجيلك في إجازة بواسطة رئيس المساحين ${currentUser.name}.`, 'info');
+        renderHeadLeavePanel();
+        loadHeadSurveyorDashboard();
+        showToast(`تم تسجيل ${user.name} في إجازة`, 'success');
+    };
+    if (items.devices.length || items.workers.length) {
+        _showHeadDeptCheckModal(userId, items, proceed);
+    } else {
+        proceed();
+    }
+};
+
+// ── Salary Raise Requests ────────────────────────────────
+function renderSrrHeadPanel() {
+    const panel = document.getElementById('srrHeadPanel');
+    const reqs  = (db.salaryRaiseRequests || [])
+        .filter(r => r.headId === currentUser.id && r.status === 'pending_head')
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+    panel.style.display = reqs.length ? 'block' : 'none';
+    if (!reqs.length) return;
+
+    document.getElementById('srrHeadList').innerHTML = reqs.map(r => {
+        const targetIcon = r.targetType === 'employee'
+            ? '<i class="fa-solid fa-user-tie" style="color:#7c3aed;"></i>'
+            : '<i class="fa-solid fa-helmet-safety" style="color:#d97706;"></i>';
+        const targetTypeLabel = r.targetType === 'employee' ? 'مساح' : 'عامل';
+        const branch = db.branches.find(b => b.id === r.branchId);
+        return `
+        <div style="border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:14px 18px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                <div>
+                    <div style="font-weight:700;font-size:.92rem;">${targetIcon} ${r.targetName} <span style="color:var(--text-muted);font-size:.8rem;">(${targetTypeLabel})</span></div>
+                    <div style="font-size:.78rem;color:var(--text-muted);margin-top:3px;">
+                        قدّمه: <strong>${r.surveyorName}</strong>
+                        ${branch ? ` | فرع: ${branch.name}` : ''}
+                        &nbsp;|&nbsp; ${new Date(r.timestamp).toLocaleDateString('ar-EG')}
+                    </div>
+                </div>
+                <span style="background:#dcfce7;color:#15803d;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap;">بانتظار موافقتك</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:4px 16px;font-size:.82rem;color:#374151;margin-bottom:12px;background:#fff;border-radius:8px;padding:10px;">
+                <span><i class="fa-solid fa-money-bill" style="color:#15803d;"></i> الراتب الحالي: <strong>${r.currentSalary ? r.currentSalary + ' ريال' : '—'}</strong></span>
+                ${r.requestedRaiseAmount ? `<span><i class="fa-solid fa-arrow-trend-up" style="color:#15803d;"></i> الزيادة المطلوبة: <strong>${r.requestedRaiseAmount} ريال</strong></span>` : ''}
+                ${r.raisePercentage ? `<span><i class="fa-solid fa-percent" style="color:#15803d;"></i> النسبة: <strong>${r.raisePercentage}%</strong></span>` : ''}
+                ${r.lastRaiseDate ? `<span><i class="fa-solid fa-calendar" style="color:#64748b;"></i> آخر زيادة: ${r.lastRaiseDate}</span>` : ''}
+                ${r.targetRating ? `<span><i class="fa-solid fa-star" style="color:#fbbf24;"></i> التقييم: <strong>${r.targetRating}/5</strong></span>` : ''}
+                <span><i class="fa-solid fa-comment" style="color:#6366f1;"></i> السبب: ${r.reason || '—'}</span>
+            </div>
+            ${r.achievements ? `<div style="font-size:.8rem;color:#374151;margin-bottom:8px;"><strong>الإنجازات:</strong> ${r.achievements}</div>` : ''}
+            ${r.notes ? `<div style="font-size:.8rem;color:#64748b;margin-bottom:10px;"><strong>ملاحظات:</strong> ${r.notes}</div>` : ''}
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;font-size:.78rem;color:#92400e;margin-bottom:12px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                عند الموافقة يُرفع هذا الطلب للإدارة العليا تلقائياً — سيصل إشعار للمساح بذلك
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="approveSrr('${r.id}')" class="btn btn-primary" style="background:#15803d;border-color:#15803d;font-size:.85rem;">
+                    <i class="fa-solid fa-check"></i> الموافقة والرفع للإدارة العليا
+                </button>
+                <button onclick="openSrrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.85rem;color:#dc2626;border-color:#dc2626;">
+                    <i class="fa-solid fa-times"></i> رفض
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+window.approveSrr = (id) => {
+    if (!confirm('الموافقة على طلب زيادة الراتب ورفعه للإدارة العليا؟')) return;
+    if (approveSalaryRaiseRequest(id)) {
+        renderSrrHeadPanel();
+        _showSyncToast('تمت الموافقة — تم إشعار المساح برفع الطلب للإدارة العليا ✓', 'success');
+    }
+};
+
+let _srrRejectId = null;
+window.openSrrRejectModal = (id) => {
+    _srrRejectId = id;
+    document.getElementById('srrRejectNote').value = '';
+    document.getElementById('srrRejectModal').style.display = 'flex';
+};
+window.confirmSrrReject = () => {
+    const note = document.getElementById('srrRejectNote').value.trim();
+    if (rejectSalaryRaiseRequest(_srrRejectId, note)) {
+        document.getElementById('srrRejectModal').style.display = 'none';
+        renderSrrHeadPanel();
+        _showSyncToast('تم رفض طلب زيادة الراتب', 'info');
+    }
+};
+
+// ── Profile Change Requests (head approval) ──────────────
+const _pcrLabelH = { phone:'رقم الهاتف', email:'البريد الإلكتروني', password:'كلمة المرور' };
+
+function renderPcrHeadList() {
+    const el = document.getElementById('pcrHeadList');
+    const reqs = (db.profileChangeRequests || []).filter(r =>
+        r.headId === currentUser.id && r.status === 'pending_head'
+    ).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    document.getElementById('pcrHeadPanel').style.display = reqs.length ? 'block' : 'none';
+    if (!reqs.length) return;
+
+    el.innerHTML = reqs.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid var(--border);margin-bottom:10px;background:#fffbeb;">
+            <div>
+                <div style="font-weight:700;font-size:.9rem;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.userEmpId})</span></div>
+                <div style="font-size:.82rem;color:var(--text-muted);margin-top:2px;">
+                    طلب تعديل: <strong style="color:#92400e;">${_pcrLabelH[r.type]}</strong>
+                    ${r.type !== 'password' ? `← <span style="color:#1e40af;">${r.newValueDisplay}</span>` : ''}
+                    &nbsp;|&nbsp; ${new Date(r.timestamp).toLocaleDateString('ar-EG')}
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="headApprovePcr('${r.id}')" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;">
+                    <i class="fa-solid fa-check"></i> موافقة وإرسال للمدير
+                </button>
+                <button onclick="openPcrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.82rem;padding:6px 14px;color:#dc2626;border-color:#dc2626;">
+                    <i class="fa-solid fa-times"></i> رفض
+                </button>
+            </div>
+        </div>`).join('');
+}
+
+let _activePcrRejectId = null;
+window.openPcrRejectModal = (id) => {
+    _activePcrRejectId = id;
+    document.getElementById('pcrRejectNote').value = '';
+    document.getElementById('pcrRejectModal').style.display = 'flex';
+};
+window.confirmPcrReject = () => {
+    const note = document.getElementById('pcrRejectNote').value.trim();
+    if (rejectProfileChangeRequest(_activePcrRejectId, note)) {
+        document.getElementById('pcrRejectModal').style.display = 'none';
+        renderPcrHeadList();
+        _showSyncToast('تم رفض الطلب', 'info');
+    }
+};
+window.headApprovePcr = (id) => {
+    if (approveProfileChangeRequest(id)) {
+        renderPcrHeadList();
+        _showSyncToast('تمت الموافقة وأُرسل الطلب للمدير', 'success');
+    }
+};
+
+// ── Password Reset Requests ──────────────────────────────
+function renderPwrHeadList() {
+    const el = document.getElementById('pwrHeadList');
+    const reqs = (db.passwordResetRequests || []).filter(r =>
+        r.headId === currentUser.id && r.status === 'pending'
+    ).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    document.getElementById('pwrHeadPanel').style.display = reqs.length ? 'block' : 'none';
+    if (!reqs.length) return;
+
+    el.innerHTML = reqs.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid #fecaca;margin-bottom:10px;background:#fff5f5;">
+            <div>
+                <div style="font-weight:700;font-size:.9rem;color:#991b1b;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.empId})</span></div>
+                <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">نسي كلمة المرور — ${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
+            </div>
+            <button onclick="openPwrModal('${r.id}','${r.userName}')" class="btn" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;cursor:pointer;font-family:inherit;">
+                <i class="fa-solid fa-key"></i> تعيين كلمة مرور مؤقتة
+            </button>
+        </div>`).join('');
+}
+
+let _activePwrReqId = null;
+window.openPwrModal = (id, name) => {
+    _activePwrReqId = id;
+    document.getElementById('pwrModalEmployeeName').textContent = `الموظف: ${name}`;
+    document.getElementById('pwrTempPass').value = '';
+    document.getElementById('pwrModalResult').innerHTML = '';
+    document.getElementById('pwrModal').style.display = 'flex';
+};
+window.confirmPwrReset = async () => {
+    const pass = document.getElementById('pwrTempPass').value.trim();
+    const result = await resolvePasswordResetRequest(_activePwrReqId, pass);
+    if (result && result.success) {
+        document.getElementById('pwrModalResult').innerHTML =
+            `<div style="background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;font-size:.85rem;">
+                <i class="fa-solid fa-circle-check"></i> تم تعيين كلمة المرور المؤقتة: <strong>${result.tempPassword}</strong><br>
+                أبلغ الموظف <strong>${result.userName}</strong> بهذه الكلمة
+            </div>`;
+        setTimeout(() => {
+            document.getElementById('pwrModal').style.display = 'none';
+            renderPwrHeadList();
+        }, 3500);
+    }
+};
+
+window.onload = () => {
+    renderSidebar();
+    loadHeadSurveyorDashboard();
+    renderSrrHeadPanel();
+    renderPcrHeadList();
+    renderPwrHeadList();
+    renderNewsTicker();
+};
+</script>
+</body>
+</html>

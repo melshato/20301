@@ -1,0 +1,654 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنبيهات المعايرة التفصيلية | ساجكو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        /* ── لوحة الإخطار الجماعي (مدير فقط) ── */
+        .bulk-notify-panel {
+            border: 2px solid #dc2626;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .bulk-notify-header {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #fff;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+        .bulk-notify-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bulk-notify-body {
+            background: #fff5f5;
+            padding: 20px;
+            display: none;
+        }
+        .bulk-notify-body.open { display: block; }
+
+        .recipients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+            margin-bottom: 14px;
+        }
+        .recipient-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            transition: background .15s;
+        }
+        .recipient-item:hover { background: #fee2e2; }
+        .recipient-item input[type="checkbox"] { width:16px; height:16px; accent-color:#dc2626; cursor:pointer; flex-shrink:0; }
+        .recipient-item label { cursor:pointer; font-size:.85rem; line-height:1.3; }
+        .recipient-item label .role-badge {
+            font-size:.7rem; padding:1px 6px; border-radius:999px; font-weight:600;
+            margin-right:4px; vertical-align:middle;
+        }
+        .role-badge.head { background:#fef3c7; color:#92400e; }
+        .role-badge.surv { background:#ede9fe; color:#5b21b6; }
+
+        .select-all-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .select-all-row button {
+            font-size: .82rem;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid #dc2626;
+            background: #fff;
+            color: #dc2626;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all .15s;
+        }
+        .select-all-row button:hover { background: #dc2626; color: #fff; }
+        .selected-count { font-size:.82rem; color:#991b1b; font-weight:600; }
+
+        .alert-note-textarea {
+            width: 100%;
+            border: 1.5px solid #fca5a5;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: .9rem;
+            color: #1e293b;
+            background: #fff;
+            resize: vertical;
+            min-height: 80px;
+            direction: rtl;
+            box-sizing: border-box;
+        }
+        .alert-note-textarea:focus { outline: none; border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.15); }
+
+        .send-alert-btn {
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            padding: 11px 28px;
+            border-radius: 10px;
+            font-size: .95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background .2s;
+            margin-top: 14px;
+        }
+        .send-alert-btn:hover { background: #b91c1c; }
+        .send-alert-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+        /* ── تنبيهات عاجلة واردة (رئيس / مساح) ── */
+        .urgent-alerts-section {
+            border: 2.5px solid #dc2626;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            animation: urgentPulse 2s ease-in-out infinite;
+        }
+        @keyframes urgentPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,.3); }
+            50%      { box-shadow: 0 0 0 6px rgba(220,38,38,.08); }
+        }
+        .urgent-alerts-header {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #fff;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: .95rem;
+        }
+        .urgent-alert-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid #fecaca;
+            background: #fff5f5;
+        }
+        .urgent-alert-item:last-child { border-bottom: none; }
+        .urgent-alert-msg {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: .95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .urgent-alert-meta {
+            font-size: .75rem;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+        .urgent-alert-dismiss {
+            float: left;
+            background: none;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: .75rem;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .urgent-alert-dismiss:hover { background: #fee2e2; }
+    </style>
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700">تنبيهات معايرة الأجهزة</h2>
+                    <p style="color: var(--text-muted)">تقرير شامل بالأجهزة التي تحتاج إلى معايرة فورية أو قريبة.</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="exportAlertsToExcel()" class="btn btn-ghost"><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> تصدير إلى Excel</button>
+                    <button onclick="window.print()" class="btn btn-ghost"><i class="fa-solid fa-print"></i> طباعة التقرير</button>
+                </div>
+            </header>
+
+            <!-- تنبيهات عاجلة واردة (رئيس مساحين / مساح) -->
+            <div id="urgentAlertsSection" class="urgent-alerts-section" style="display:none;">
+                <div class="urgent-alerts-header">
+                    <i class="fa-solid fa-triangle-exclamation fa-beat"></i>
+                    تنبيهات عاجلة من إدارة الشركة بشأن المعايرة
+                </div>
+                <div id="urgentAlertsBody"></div>
+            </div>
+
+            <!-- لوحة الإخطار الجماعي (مدير فقط) -->
+            <div id="bulkNotifyPanel" class="bulk-notify-panel" style="display:none;">
+                <div class="bulk-notify-header" onclick="toggleBulkPanel()">
+                    <h3><i class="fa-solid fa-bullhorn"></i> إرسال إخطار عاجل بالمعايرة</h3>
+                    <i class="fa-solid fa-chevron-down" id="bulkPanelChevron" style="transition:transform .3s;"></i>
+                </div>
+                <div class="bulk-notify-body" id="bulkNotifyBody">
+                    <p style="color:#7f1d1d;font-size:.85rem;margin-bottom:14px;">
+                        <i class="fa-solid fa-circle-info"></i>
+                        اختر المستلمين من القائمة أدناه ثم اكتب الملاحظة — ستصلهم فورياً وتظهر باللون الأحمر في صفحة تنبيهات المعايرة.
+                    </p>
+
+                    <label style="font-weight:700;color:#991b1b;font-size:.88rem;display:block;margin-bottom:8px;">
+                        <i class="fa-solid fa-users"></i> اختر المستلمين
+                    </label>
+                    <div class="select-all-row">
+                        <button onclick="selectAll(true)">تحديد الكل</button>
+                        <button onclick="selectAll(false)">إلغاء الكل</button>
+                        <span class="selected-count" id="selectedCount">0 مستلم محدد</span>
+                    </div>
+                    <div class="recipients-grid" id="recipientsGrid"></div>
+
+                    <!-- حقل الإيميلات المجمعة -->
+                    <div id="emailsBlock" style="display:none;margin-bottom:18px;">
+                        <label style="font-weight:700;color:#991b1b;font-size:.88rem;display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                            <i class="fa-solid fa-envelope"></i>
+                            عناوين البريد الإلكتروني للمحددين
+                            <span style="color:#6b7280;font-size:.75rem;font-weight:400;">(جاهزة للنسخ واللصق في حقل المستلمين)</span>
+                        </label>
+                        <div style="position:relative;">
+                            <textarea id="emailsField" readonly
+                                style="width:100%;min-height:70px;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 44px 10px 10px;
+                                       font-size:.82rem;background:#fff;color:#1e293b;resize:vertical;direction:ltr;
+                                       font-family:monospace;box-sizing:border-box;line-height:1.5;"
+                                placeholder="ستظهر الإيميلات هنا بعد تحديد المستلمين..."></textarea>
+                            <button onclick="copyEmails()" title="نسخ الإيميلات"
+                                style="position:absolute;top:8px;left:8px;background:#dc2626;color:#fff;border:none;
+                                       border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8rem;transition:background .2s;"
+                                onmouseenter="this.style.background='#b91c1c'" onmouseleave="this.style.background='#dc2626'">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                        <div id="copyConfirm" style="color:#16a34a;font-size:.78rem;margin-top:4px;display:none;">
+                            <i class="fa-solid fa-check"></i> تم النسخ بنجاح!
+                        </div>
+                    </div>
+
+                    <label style="font-weight:700;color:#991b1b;font-size:.88rem;display:block;margin-bottom:8px;">
+                        <i class="fa-solid fa-pen-to-square"></i> نص الإخطار العاجل
+                        <span style="color:#6b7280;font-size:.78rem;font-weight:400;"> (سيظهر باللون الأحمر للمستلمين)</span>
+                    </label>
+                    <textarea id="bulkAlertMsg" class="alert-note-textarea" rows="4"
+                        placeholder="اكتب هنا نص التنبيه العاجل بشأن المعايرة... مثال: يُرجى إجراء معايرة جميع الأجهزة في الفرع قبل نهاية الأسبوع وإرسال التقرير للإدارة."></textarea>
+
+                    <button class="send-alert-btn" id="sendAlertBtn" onclick="sendBulkAlert()">
+                        <i class="fa-solid fa-paper-plane"></i> إرسال الإخطار العاجل
+                    </button>
+                </div>
+            </div>
+
+            <!-- جدول التنبيهات -->
+            <div class="card">
+                <div id="branchFilterGroup" class="form-group" style="max-width: 300px; margin-bottom: 20px;">
+                    <label class="form-label">تصفية حسب الفرع</label>
+                    <select id="branchFilter" class="form-select">
+                        <option value="">كل الفروع</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>سيريال الجهاز</th>
+                                <th>نوع الجهاز</th>
+                                <th>اسم المساح (المالك)</th>
+                                <th>الفرع</th>
+                                <th>رئيس المساحين</th>
+                                <th>تاريخ المعايرة</th>
+                                <th>الأيام المتبقية</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        checkAuth();
+
+        // ======================================================
+        // لوحة الإخطار الجماعي (مدير)
+        // ======================================================
+        let _bulkOpen = false;
+
+        function toggleBulkPanel() {
+            _bulkOpen = !_bulkOpen;
+            document.getElementById('bulkNotifyBody').classList.toggle('open', _bulkOpen);
+            const chev = document.getElementById('bulkPanelChevron');
+            chev.style.transform = _bulkOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            if (_bulkOpen) buildRecipientsGrid();
+        }
+
+        function buildRecipientsGrid() {
+            const grid = document.getElementById('recipientsGrid');
+
+            // أجهزة تحتاج معايرة — نفس فلتر الجدول (يشمل الموجودة عند الوكيل)
+            const alertDevices = db.devices.filter(d => {
+                if (!d.calDate) return false;
+                if (d.status === 'at_calibration') return true;
+                const diff = Math.ceil((new Date(d.calDate) - new Date()) / (1000 * 60 * 60 * 24));
+                return diff <= db.settings.alertDays;
+            });
+
+            // معرّفات المساحين الذين بحوزتهم أجهزة منتهية/قريبة الانتهاء
+            const affectedSurveyorIds = new Set(alertDevices.map(d => d.ownerId).filter(Boolean));
+
+            // معرّفات الفروع المتأثرة
+            const affectedBranchIds = new Set(alertDevices.map(d => {
+                const owner = db.users.find(u => u.id === d.ownerId);
+                return owner?.branch || d.branch;
+            }).filter(Boolean));
+
+            const targets = db.users.filter(u => {
+                if (u.status !== 'approved') return false;
+                if (u.role === 'surveyor') return affectedSurveyorIds.has(u.id);
+                if (u.role === 'head')     return affectedBranchIds.has(u.responsibleBranch);
+                return false;
+            }).sort((a, b) => {
+                if (a.role !== b.role) return a.role === 'head' ? -1 : 1;
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+            if (!targets.length) {
+                grid.innerHTML = '<p style="color:#9ca3af;font-size:.85rem;padding:8px;">لا توجد أجهزة منتهية المعايرة حالياً.</p>';
+                updateCount();
+                return;
+            }
+
+            grid.innerHTML = targets.map(u => {
+                const branch = db.branches.find(b => b.id === (u.branch || u.responsibleBranch))?.name || '';
+                const roleLabel = u.role === 'head' ? 'رئيس' : 'مساح';
+                const roleCls   = u.role === 'head' ? 'head' : 'surv';
+                return `
+                <div class="recipient-item">
+                    <input type="checkbox" id="rec_${u.id}" value="${u.id}" onchange="updateCount()">
+                    <label for="rec_${u.id}">
+                        <span class="role-badge ${roleCls}">${roleLabel}</span>
+                        ${u.name}
+                        ${branch ? `<br><span style="color:#9ca3af;font-size:.72rem;">${branch}</span>` : ''}
+                    </label>
+                </div>`;
+            }).join('');
+
+            updateCount();
+        }
+
+        function selectAll(checked) {
+            document.querySelectorAll('#recipientsGrid input[type="checkbox"]').forEach(cb => cb.checked = checked);
+            updateCount();
+        }
+
+        function updateCount() {
+            const checked = [...document.querySelectorAll('#recipientsGrid input[type="checkbox"]:checked')];
+            document.getElementById('selectedCount').textContent = `${checked.length} مستلم محدد`;
+
+            // بناء قائمة الإيميلات للمحددين
+            const emailsBlock = document.getElementById('emailsBlock');
+            const emailsField = document.getElementById('emailsField');
+            if (!checked.length) { emailsBlock.style.display = 'none'; return; }
+
+            const emails = checked.map(cb => {
+                const u = db.users.find(x => x.id === cb.value);
+                if (!u || !u.email) return null;
+                return `${u.name} <${u.email}>`;
+            }).filter(Boolean);
+
+            if (!emails.length) { emailsBlock.style.display = 'none'; return; }
+            emailsBlock.style.display = 'block';
+            // صيغة مناسبة لـ Outlook وGmail (فاصلة منقوطة)
+            emailsField.value = emails.join('; ');
+        }
+
+        function copyEmails() {
+            const field = document.getElementById('emailsField');
+            if (!field.value) return;
+            navigator.clipboard.writeText(field.value).then(() => {
+                const confirm = document.getElementById('copyConfirm');
+                confirm.style.display = 'block';
+                setTimeout(() => confirm.style.display = 'none', 2500);
+            }).catch(() => {
+                field.select();
+                document.execCommand('copy');
+                const confirm = document.getElementById('copyConfirm');
+                confirm.style.display = 'block';
+                setTimeout(() => confirm.style.display = 'none', 2500);
+            });
+        }
+
+        function sendBulkAlert() {
+            const msg = document.getElementById('bulkAlertMsg').value.trim();
+            if (!msg) { alert('يرجى كتابة نص الإخطار.'); return; }
+
+            const selected = [...document.querySelectorAll('#recipientsGrid input[type="checkbox"]:checked')]
+                .map(cb => cb.value);
+            if (!selected.length) { alert('يرجى اختيار مستلم واحد على الأقل.'); return; }
+
+            const btn = document.getElementById('sendAlertBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+
+            const fullMsg = `⚠ إخطار عاجل من إدارة الشركة بشأن المعايرة:\n${msg}`;
+            selected.forEach(uid => {
+                addNotification(uid, fullMsg, 'error', null, false, 'calibration-alerts.html', 'calib_urgent_alert', false);
+            });
+
+            addLog(`أرسل ${currentUser.name} إخطاراً عاجلاً بالمعايرة إلى ${selected.length} مستخدم`);
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الإخطار العاجل';
+                document.getElementById('bulkAlertMsg').value = '';
+                selectAll(false);
+                alert(`تم إرسال الإخطار بنجاح إلى ${selected.length} مستلم.`);
+                toggleBulkPanel();
+            }, 600);
+        }
+
+        // ======================================================
+        // تنبيهات عاجلة واردة (رئيس / مساح)
+        // ======================================================
+        function renderUrgentAlerts() {
+            if (currentUser.role === 'admin') return;
+            const section = document.getElementById('urgentAlertsSection');
+            const body    = document.getElementById('urgentAlertsBody');
+
+            const alerts = (db.notifications || []).filter(n =>
+                n.userId === currentUser.id &&
+                n.type === 'error' &&
+                n.actionUrl === 'calibration-alerts.html' &&
+                n.actionType === 'calib_urgent_alert' &&
+                !n.dismissed
+            ).sort((a, b) => new Date(b.id) - new Date(a.id));
+
+            if (!alerts.length) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+
+            body.innerHTML = alerts.map(n => `
+                <div class="urgent-alert-item" id="ua_${n.id}">
+                    <button class="urgent-alert-dismiss" onclick="dismissUrgentAlert('${n.id}')">
+                        <i class="fa-solid fa-xmark"></i> تم القراءة
+                    </button>
+                    <div class="urgent-alert-msg">${n.msg.replace(/\n/g, '<br>')}</div>
+                    <div class="urgent-alert-meta">
+                        <i class="fa-regular fa-clock"></i>
+                        ${new Date(Number(n.id) || n.id).toLocaleString('ar-EG')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.dismissUrgentAlert = id => {
+            const n = db.notifications.find(x => x.id === id);
+            if (n) {
+                n.dismissed = true;
+                saveDB();
+            }
+            document.getElementById(`ua_${id}`)?.remove();
+            // hide section if no more items
+            if (!document.getElementById('urgentAlertsBody').children.length) {
+                document.getElementById('urgentAlertsSection').style.display = 'none';
+            }
+        };
+
+        // ======================================================
+        // جدول التنبيهات
+        // ======================================================
+        function refreshAlertsTable() {
+            const tbody = document.getElementById('alertsTableBody');
+            let branchId = document.getElementById('branchFilter').value;
+            if (currentUser.role === 'head') branchId = currentUser.responsibleBranch;
+
+            const showActions = currentUser.role === 'head' || currentUser.role === 'admin';
+
+            const alertDevices = db.devices.filter(d => {
+                if (!d.calDate) return false;
+                const surveyor = db.users.find(u => u.id === d.ownerId) || {};
+                const deviceBranchId = surveyor.branch || d.branch;
+                if (branchId && deviceBranchId !== branchId) return false;
+                // دائماً أظهر الأجهزة المرسلة للوكيل للمعايرة (لم تُستلم بعد)
+                if (d.status === 'at_calibration') return true;
+                const diff = Math.ceil((new Date(d.calDate) - new Date()) / (1000 * 60 * 60 * 24));
+                return diff <= db.settings.alertDays;
+            });
+
+            alertDevices.sort((a, b) => {
+                // الأجهزة عند الوكيل تظهر أخيراً (مُعالجة)
+                if (a.status === 'at_calibration' && b.status !== 'at_calibration') return 1;
+                if (b.status === 'at_calibration' && a.status !== 'at_calibration') return -1;
+                return new Date(a.calDate) - new Date(b.calDate);
+            });
+
+            tbody.innerHTML = alertDevices.map(d => {
+                const surveyor = db.users.find(u => u.id === d.ownerId) || {};
+                const branch = db.branches.find(b => b.id === (surveyor.branch || d.branch)) || { name: 'المستودع' };
+                const headSurveyorUser = db.users.find(u => u.role === 'head' && u.responsibleBranch === branch.id);
+                const headSurveyorName = headSurveyorUser ? headSurveyorUser.name : '—';
+                const diff = Math.ceil((new Date(d.calDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const isExpired  = diff < 0;
+                const atAgent    = d.status === 'at_calibration';
+                const sOwnerId = d.ownerId ? d.ownerId.replace(/'/g, '') : '';
+                const sSerial  = d.serial  ? d.serial.replace(/'/g, '')  : '';
+                const sType    = d.type    ? d.type.replace(/'/g, '')    : '';
+
+                const rowBg = atAgent ? 'style="background:#eff6ff;"'
+                            : isExpired ? 'style="background:#fff1f2;"' : '';
+
+                const daysCell = atAgent
+                    ? `<span style="font-weight:700;color:#2563eb;">بانتظار الاستلام</span>`
+                    : `<span style="font-weight:700;color:${isExpired ? 'var(--danger)' : 'var(--warning)'}">
+                           ${isExpired ? `متأخر بـ ${Math.abs(diff)} يوم` : `${diff} يوم متبقي`}
+                       </span>`;
+
+                const statusCell = atAgent
+                    ? `<span class="badge badge-info"><i class="fa-solid fa-wrench" style="font-size:.7rem;"></i> عند الوكيل للمعايرة</span>`
+                    : `<span class="badge ${isExpired ? 'badge-danger' : 'badge-warning'}">
+                           ${isExpired ? 'انتهت الصلاحية' : 'مطلوب قريباً'}
+                       </span>`;
+
+                const actionsCell = atAgent
+                    ? `<span style="color:#6b7280;font-size:.8rem;"><i class="fa-solid fa-clock"></i> جارٍ المعايرة</span>`
+                    : (showActions && sOwnerId ? `
+                        <button onclick="notifySurveyor('${sSerial}','${sType}','${sOwnerId}')" class="btn btn-primary btn-sm" style="margin-bottom:4px;white-space:nowrap;display:block;">
+                            <i class="fa-solid fa-bell"></i> إخطار المساح
+                        </button>
+                        ${currentUser.role === 'head' ? `<button onclick="requestCalibFromAdmin('${sSerial}','${sType}')" class="btn btn-ghost btn-sm" style="white-space:nowrap;display:block;">
+                            <i class="fa-solid fa-paper-plane"></i> طلب إلى المدير
+                        </button>` : ''}
+                    ` : '—');
+
+                return `
+                    <tr ${rowBg}>
+                        <td><strong>${d.serial}</strong></td>
+                        <td>${d.type}</td>
+                        <td>${surveyor.name || '<span style="color:var(--text-muted)">غير محدد</span>'}</td>
+                        <td>${branch.name}</td>
+                        <td>${headSurveyorName}</td>
+                        <td>${formatDate(d.calDate)}</td>
+                        <td>${daysCell}</td>
+                        <td>${statusCell}</td>
+                        <td>${actionsCell}</td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="9" style="text-align:center; padding:30px;">لا توجد أجهزة تتطلب معايرة حالياً ${branchId ? 'في هذا الفرع' : ''} وفقاً للمعايير المحددة.</td></tr>`;
+        }
+
+        function notifySurveyor(deviceSerial, deviceType, surveyorId) {
+            if (!surveyorId) { alert('لا يوجد مساح مرتبط بهذا الجهاز.'); return; }
+            addNotification(surveyorId,
+                `تنبيه: الجهاز (${deviceType} — S/N: ${deviceSerial}) الذي بحوزتك مطلوب للمعايرة. يرجى التنسيق مع رئيس المساحين لإجراء المعايرة في أقرب وقت ممكن.`,
+                'warning', null, false, 'calibration-alerts.html');
+            addLog(`أرسل ${currentUser.name} إخطاراً للمساح بشأن معايرة الجهاز (${deviceSerial})`);
+            alert('تم إرسال إشعار للمساح بنجاح.');
+        }
+
+        function requestCalibFromAdmin(deviceSerial, deviceType) {
+            const msg = `طلب من رئيس المساحين ${currentUser.name}: يرجى ترتيب إجراء المعايرة أو الصيانة للجهاز (${deviceType} — S/N: ${deviceSerial}).`;
+            db.users.filter(u => u.role === 'admin').forEach(admin => {
+                addNotification(admin.id, msg, 'warning', null, false, 'calibration-alerts.html', null, true);
+            });
+            addLog(`أرسل ${currentUser.name} طلب معايرة للإدارة بشأن الجهاز (${deviceSerial})`);
+            alert('تم إرسال الطلب إلى المدير ومطور النظام.');
+        }
+
+        function populateBranches() {
+            const select = document.getElementById('branchFilter');
+            if (!select) return;
+            select.innerHTML = `<option value="">كل الفروع</option>` +
+                db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            if (currentUser.role === 'head') {
+                select.value = currentUser.responsibleBranch;
+                const group = document.getElementById('branchFilterGroup');
+                if (group) group.style.display = 'none';
+            }
+        }
+
+        document.getElementById('branchFilter').onchange = () => refreshAlertsTable();
+
+        window.onload = () => {
+            renderSidebar();
+            populateBranches();
+            refreshAlertsTable();
+            // إظهار اللوحات حسب الدور
+            if (currentUser.role === 'admin') {
+                document.getElementById('bulkNotifyPanel').style.display = 'block';
+            } else {
+                renderUrgentAlerts();
+            }
+        };
+    </script>
+
+    <script>
+        window.exportAlertsToExcel = () => {
+            const branchId = document.getElementById('branchFilter').value;
+            const alertDevices = db.devices.filter(d => {
+                if (!d.calDate) return false;
+                const surveyor = db.users.find(u => u.id === d.ownerId) || {};
+                const deviceBranchId = surveyor.branch || d.branch;
+                if (branchId && deviceBranchId !== branchId) return false;
+                const diff = Math.ceil((new Date(d.calDate) - new Date()) / (1000 * 60 * 60 * 24));
+                return diff <= db.settings.alertDays;
+            });
+            alertDevices.sort((a, b) => new Date(a.calDate) - new Date(b.calDate));
+            let csvContent = "﻿";
+            csvContent += "سيريال الجهاز,نوع الجهاز,اسم المساح (المالك),الفرع,رئيس المساحين,تاريخ المعايرة,الأيام المتبقية,الحالة\n";
+            alertDevices.forEach(d => {
+                const surveyor = db.users.find(u => u.id === d.ownerId) || {};
+                const branch = db.branches.find(b => b.id === (surveyor.branch || d.branch)) || { name: 'المستودع' };
+                const headSurveyor = surveyor.headSurveyor || '—';
+                const diff = Math.ceil((new Date(d.calDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const isExpired = diff < 0;
+                csvContent += `"${d.serial}","${d.type}","${surveyor.name || 'غير محدد'}","${branch.name}","${headSurveyor}","${formatDate(d.calDate)}","${isExpired ? `متأخر بـ ${Math.abs(diff)} يوم` : `${diff} يوم متبقي`}","${isExpired ? 'انتهت الصلاحية' : 'مطلوب قريباً'}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `تنبيهات_المعايرة_${document.getElementById('branchFilter').selectedOptions[0].text}_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        };
+    </script>
+
+    <style>
+        @media print {
+            .sidebar, .designer-credit, .btn-ghost, .bulk-notify-panel, .urgent-alerts-section { display: none !important; }
+            .main { padding: 0 !important; margin: 0 !important; }
+            .card { box-shadow: none !important; border: 1px solid #eee !important; }
+            body { background: white !important; }
+        }
+    </style>
+</body>
+</html>

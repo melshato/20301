@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branch Management | SAJCO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <header style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700">Branch Management</h2>
+                    <p style="color: var(--text-muted)">Add, edit, and assign Head Surveyors to branches.</p>
+                </div>
+                <button onclick="toggleBranchForm()" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add New Branch
+                </button>
+            </header>
+
+            <!-- Add / Edit Form -->
+            <div class="card hidden" id="branchFormContainer">
+                <h3 id="formTitle">Add New Branch</h3>
+                <form id="branchForm">
+                    <input type="hidden" id="editBranchId">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Branch Name (English) <span style="color:#dc2626">*</span></label>
+                            <input id="bNameEn" class="form-input" placeholder="e.g. Riyadh Branch" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">اسم الفرع (عربي)</label>
+                            <input id="bNameAr" class="form-input" placeholder="مثال: فرع الرياض">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Responsible Head Surveyor</label>
+                            <select id="bHeadSurveyor" class="form-select">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" onclick="toggleBranchForm()" class="btn btn-ghost">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Branches Table -->
+            <div class="card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>English Name</th>
+                                <th>Arabic Name</th>
+                                <th>Head Surveyor</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="branchesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="designer-credit">
+        <div><i class="fa-solid fa-code" style="color: var(--primary); margin-left: 6px;"></i>Website designed by <strong>Mohammed El-Shatry</strong></div>
+        <div style="font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>Under supervision of Eng. <strong>Mohammed Youssef Aqtait</strong></span>
+            <i class="fa-solid fa-user-tie" style="color: #1e3a8a; font-size: 0.9rem;"></i>
+        </div>
+    </div>
+
+    <script>
+        checkAuth();
+        if (currentUser.role !== 'admin') {
+            window.location.href = 'dashboard.html';
+        }
+
+        function toggleBranchForm() {
+            const container = document.getElementById('branchFormContainer');
+            container.classList.toggle('hidden');
+            if (container.classList.contains('hidden')) {
+                document.getElementById('branchForm').reset();
+                document.getElementById('editBranchId').value = '';
+                document.getElementById('bNameEn').value = '';
+                document.getElementById('bNameAr').value = '';
+                document.getElementById('formTitle').innerText = 'Add New Branch';
+                populateHeadSurveyors();
+            } else {
+                populateHeadSurveyors();
+            }
+        }
+
+        function populateHeadSurveyors(currentHeadId = null) {
+            const select = document.getElementById('bHeadSurveyor');
+            const available = db.users.filter(u =>
+                u.role === 'head' && (!u.responsibleBranch || u.id === currentHeadId)
+            );
+            select.innerHTML = '<option value="">None</option>' +
+                available.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            if (currentHeadId) select.value = currentHeadId;
+        }
+
+        function refreshBranchesTable() {
+            const tbody = document.getElementById('branchesTableBody');
+            const sorted = [...db.branches].sort((a, b) => (a.serialNumber || 0) - (b.serialNumber || 0));
+            tbody.innerHTML = sorted.map(b => {
+                const head = db.users.find(u => u.responsibleBranch === b.id);
+                return `
+                    <tr>
+                        <td><span style="font-weight:700;color:var(--primary)">${b.serialNumber || '—'}</span></td>
+                        <td><strong>${b.nameEn || b.name}</strong></td>
+                        <td style="color:var(--text-muted)">${b.nameAr || '—'}</td>
+                        <td>${head ? head.name : '<span style="color:var(--text-muted)">Not assigned</span>'}</td>
+                        <td>
+                            <button onclick="editBranch('${b.id}')" class="btn btn-ghost" style="padding:5px 10px;"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteBranch('${b.id}')" class="btn btn-ghost" style="padding:5px 10px;color:var(--danger);"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;">No branches added yet.</td></tr>';
+        }
+
+        document.getElementById('branchForm').onsubmit = (e) => {
+            e.preventDefault();
+            const id     = document.getElementById('editBranchId').value;
+            const nameEn = document.getElementById('bNameEn').value.trim();
+            const nameAr = document.getElementById('bNameAr').value.trim();
+            const headId = document.getElementById('bHeadSurveyor').value;
+
+            db.users.forEach(u => { if (u.responsibleBranch === id) u.responsibleBranch = null; });
+
+            if (id) {
+                updateBranchName(id, nameAr || nameEn, nameEn);
+            } else {
+                const newId = 'br_' + Date.now().toString();
+                addBranch(newId, nameAr || nameEn, nameEn);
+            }
+
+            if (headId) {
+                const branchId = id || db.branches[db.branches.length - 1].id;
+                const head = db.users.find(u => u.id === headId);
+                if (head) head.responsibleBranch = branchId;
+                saveDB();
+            }
+
+            toggleBranchForm();
+            refreshBranchesTable();
+            if (typeof populateBranches === 'function') populateBranches();
+        };
+
+        window.editBranch = (id) => {
+            const b    = db.branches.find(branch => branch.id === id);
+            const head = db.users.find(u => u.responsibleBranch === id);
+            document.getElementById('editBranchId').value = b.id;
+            document.getElementById('bNameEn').value = b.nameEn || b.name || '';
+            document.getElementById('bNameAr').value = b.nameAr || '';
+            populateHeadSurveyors(head ? head.id : null);
+            document.getElementById('formTitle').innerText = 'Edit Branch';
+            document.getElementById('branchFormContainer').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const coreDeleteBranch = window.deleteBranch;
+        window.deleteBranch = (id) => {
+            if (coreDeleteBranch(id)) {
+                refreshBranchesTable();
+                if (typeof populateBranches === 'function') populateBranches();
+            }
+        };
+
+        window.onload = () => {
+            renderSidebar();
+            refreshBranchesTable();
+        };
+    </script>
+</body>
+</html>

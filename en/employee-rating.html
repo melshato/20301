@@ -1,0 +1,532 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Ratings - SAJCO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .question-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .question-weight-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .rating-stars { display:flex; gap:10px; font-size:2rem; margin:20px 0; justify-content:center; }
+        .rating-stars i { cursor:pointer; transition:all .2s; color:#d1d5db; }
+        .rating-stars i:hover, .rating-stars i.active { color:#fbbf24; transform:scale(1.2); }
+        .score-bar-wrap { background:#e2e8f0; border-radius:999px; height:8px; overflow:hidden; margin:6px 0; }
+        .score-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#2563eb,#7c3aed); transition:width .6s; }
+        .total-score-ring {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) var(--pct, 0%), #e2e8f0 0%);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .total-score-ring::before {
+            content: '';
+            position: absolute;
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .total-score-ring .score-text {
+            position: relative; z-index: 1;
+            font-size: 1.3rem; font-weight: 800; color: var(--primary);
+        }
+        .weights-panel {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .weight-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .weight-label { flex: 1; font-size: .85rem; color: var(--text-main); }
+        .weight-input {
+            width: 70px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 8px;
+            font-family: inherit;
+            font-size: .9rem;
+            text-align: center;
+        }
+        .weight-bar { flex: 2; }
+        .total-weight-display {
+            font-weight: 700;
+            font-size: .9rem;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+
+        <!-- Weights configuration panel (admin/head only, collapsible) -->
+        <div class="weights-panel" id="weightsPanel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;cursor:pointer;" onclick="toggleWeights()">
+                <h4 style="margin:0;"><i class="fa-solid fa-sliders" style="color:#d97706;"></i> Rating Weight Settings (%)</h4>
+                <i class="fa-solid fa-chevron-down" id="weightsChevron"></i>
+            </div>
+            <div id="weightsContent" style="display:none;">
+                <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:12px;">Set the percentage for each criterion. Total weights must equal 100%.</p>
+                <div id="weightsRows"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px;">
+                    <div id="totalWeightDisplay" class="total-weight-display"></div>
+                    <button onclick="saveWeights()" class="btn btn-primary" style="padding:8px 16px;">
+                        <i class="fa-solid fa-save"></i> Save Weights
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fa-solid fa-star"></i> Employee Ratings</h3>
+            <p style="color:var(--text-muted);margin-bottom:20px;">Rate the performance of your team members according to the configured criteria</p>
+
+            <div class="form-row" style="margin-bottom:30px;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+                <!-- Search by Position Number -->
+                <div class="form-group" style="flex:1;min-width:160px;">
+                    <label class="form-label"><i class="fa-solid fa-magnifying-glass" style="color:var(--primary);margin-left:4px;"></i> Search by Position Number</label>
+                    <div style="position:relative;">
+                        <input type="text" id="empIdSearch" class="form-input"
+                               placeholder="Enter position number..."
+                               oninput="searchByEmpId()"
+                               style="padding-right:12px;padding-left:36px;">
+                        <i class="fa-solid fa-id-badge" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.9rem;"></i>
+                    </div>
+                    <div id="searchResult" style="font-size:.78rem;margin-top:5px;min-height:1rem;"></div>
+                </div>
+                <!-- القائمة الfromسدلة -->
+                <div class="form-group" style="flex:2;min-width:200px;">
+                    <label class="form-label"><i class="fa-solid fa-list" style="color:var(--primary);margin-left:4px;"></i> or Select from List</label>
+                    <select id="employeeSelect" class="form-select" onchange="onDropdownChange()">
+                        <option value="">Select Employee...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="ratingForm" class="hidden">
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;margin-bottom:20px;text-align:center;">
+                    <strong style="color:#15803d;">Employee Rating: <span id="employeeName"></span></strong>
+                </div>
+
+                <!-- General stars -->
+                <div style="text-align:center;margin-bottom:30px;">
+                    <label class="form-label" style="font-size:1.1rem;margin-bottom:10px;">Overall Rating by Stars</label>
+                    <div class="rating-stars" id="ratingStars">
+                        <i class="fa-regular fa-star" data-rating="1"></i>
+                        <i class="fa-regular fa-star" data-rating="2"></i>
+                        <i class="fa-regular fa-star" data-rating="3"></i>
+                        <i class="fa-regular fa-star" data-rating="4"></i>
+                        <i class="fa-regular fa-star" data-rating="5"></i>
+                    </div>
+                    <div id="ratingValue" style="font-size:1.1rem;font-weight:700;color:var(--primary);"></div>
+                </div>
+
+                <!-- Questions with weights -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                    <h4><i class="fa-solid fa-clipboard-question"></i> Rating Criteria</h4>
+                    <!-- Live weighted score -->
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div>
+                            <div style="font-size:.8rem;color:var(--text-muted);">Weighted Score</div>
+                            <div id="liveScore" style="font-size:1.4rem;font-weight:800;color:var(--primary);">—</div>
+                        </div>
+                        <div class="total-score-ring" id="scoreRing" style="--pct:0%;">
+                            <span class="score-text" id="scoreRingText">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="questionCards"></div>
+
+                <div class="form-group">
+                    <label class="form-label">Additional Notes (Optional)</label>
+                    <textarea id="ratingNotes" class="form-input" rows="4" placeholder="Add any notes or recommendations..."></textarea>
+                </div>
+
+                <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+                    <button onclick="saveRating()" class="btn btn-primary">
+                        <i class="fa-solid fa-save"></i> Save Rating
+                    </button>
+                    <button onclick="cancelRating()" class="btn btn-ghost">
+                        <i class="fa-solid fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current rating display -->
+            <div id="currentRating" class="hidden" style="margin-top:30px;">
+                <hr style="margin:30px 0;border-color:var(--border);">
+                <h4><i class="fa-solid fa-chart-line"></i> Last Recorded Rating</h4>
+                <div id="currentRatingDisplay"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+checkAuth();
+let selectedRating = 0;
+let selectedEmployeeId = null;
+
+const QUESTIONS = [
+    { id: 'q1', label: 'Work Quality andالدقة', icon: 'fa-star-half-stroke' },
+    { id: 'q2', label: 'اNoلتزام بالمandاعيد andالAttendance', icon: 'fa-clock' },
+    { id: 'q3', label: 'Teamwork مع الفريق', icon: 'fa-people-group' },
+    { id: 'q4', label: 'Initiative & Creativity', icon: 'fa-lightbulb' },
+    { id: 'q5', label: 'المعرفة التقنية andالمهارات', icon: 'fa-code' },
+    { id: 'q6', label: 'Care Level بDevices andالحفاظ عليها', icon: 'fa-gears', highlight: true }
+];
+
+const SCORE_OPTIONS = [
+    { value: '', label: 'Select...' },
+    { value: '5', label: 'ممتاز (5)' },
+    { value: '4', label: 'جيد جداً (4)' },
+    { value: '3', label: 'جيد (3)' },
+    { value: '2', label: 'مaccept (2)' },
+    { value: '1', label: 'ضعيف (1)' }
+];
+
+function getWeights() {
+    return db.ratingWeights || { q1:20, q2:20, q3:15, q4:15, q5:15, q6:15 };
+}
+
+function renderWeightsPanel() {
+    const w = getWeights();
+    const rows = document.getElementById('weightsRows');
+    rows.innerHTML = QUESTIONS.map(q => `
+        <div class="weight-row">
+            <span class="weight-label"><i class="fa-solid ${q.icon}" style="color:var(--primary);width:16px;"></i> ${q.label}</span>
+            <input type="number" class="weight-input" id="w_${q.id}" value="${w[q.id]||0}" min="0" max="100" onchange="updateTotalWeight()">
+            <span style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;">%</span>
+        </div>
+    `).join('');
+    updateTotalWeight();
+}
+
+function updateTotalWeight() {
+    const total = QUESTIONS.reduce((s, q) => s + Number(document.getElementById('w_' + q.id)?.value || 0), 0);
+    const el = document.getElementById('totalWeightDisplay');
+    el.textContent = `Total: ${total}%`;
+    el.style.background = total === 100 ? '#dcfce7' : '#fee2e2';
+    el.style.color = total === 100 ? '#166534' : '#991b1b';
+}
+
+function saveWeights() {
+    const total = QUESTIONS.reduce((s, q) => s + Number(document.getElementById('w_' + q.id)?.value || 0), 0);
+    if (total !== 100) { alert(`total الweights = ${total}% — يجب أن يكandن 100%`); return; }
+    db.ratingWeights = {};
+    QUESTIONS.forEach(q => { db.ratingWeights[q.id] = Number(document.getElementById('w_' + q.id).value); });
+    saveDB(true);
+    alert('Done Save Weights بSuccess!');
+    if (selectedEmployeeId) loadEmployeeRating();
+}
+
+function toggleWeights() {
+    const content = document.getElementById('weightsContent');
+    const chevron = document.getElementById('weightsChevron');
+    const isOpen = content.style.display !== 'none';
+    content.style.display = isOpen ? 'none' : 'block';
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function renderQuestionCards() {
+    const w = getWeights();
+    document.getElementById('questionCards').innerHTML = QUESTIONS.map((q, i) => `
+        <div class="question-card" ${q.highlight ? 'style="border-left:4px solid #7c3aed;border-color:var(--border);border-left: 4px solid #7c3aed;"' : ''}>
+            <div class="question-header">
+                <label class="form-label" style="margin:0;${q.highlight ? 'color:#7c3aed;font-weight:800;' : ''}">
+                    <i class="fa-solid ${q.icon}" style="color:${q.highlight?'#7c3aed':'var(--primary)'};margin-left:6px;"></i>
+                    ${i+1}. ${q.label}
+                </label>
+                <span class="question-weight-badge" style="${q.highlight?'background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed;':''}">
+                    andزن: ${w[q.id]||0}%
+                </span>
+            </div>
+            <select class="form-select" id="${q.id}" onchange="calcLiveScore()">
+                ${SCORE_OPTIONS.map(o=>`<option value="${o.value}">${o.label}</option>`).join('')}
+            </select>
+            <div style="margin-top:8px;">
+                <div class="score-bar-wrap">
+                    <div class="score-bar-fill" id="bar_${q.id}" style="width:0%;"></div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function calcLiveScore() {
+    const w = getWeights();
+    let totalScore = 0;
+    let allFilled = true;
+    QUESTIONS.forEach(q => {
+        const val = Number(document.getElementById(q.id)?.value || 0);
+        const bar = document.getElementById('bar_' + q.id);
+        if (bar) bar.style.width = (val / 5 * 100) + '%';
+        if (!val) allFilled = false;
+        totalScore += (val / 5) * (w[q.id] || 0);
+    });
+    const rounded = Math.round(totalScore);
+    document.getElementById('liveScore').textContent = allFilled ? rounded + '/100' : '—';
+    const ring = document.getElementById('scoreRing');
+    const ringText = document.getElementById('scoreRingText');
+    if (ring && allFilled) {
+        ring.style.setProperty('--pct', rounded + '%');
+        ring.style.background = `conic-gradient(${rounded>=80?'#16a34a':rounded>=60?'#d97706':'#2563eb'} ${rounded}%, #e2e8f0 0%)`;
+        ringText.textContent = rounded;
+    }
+}
+
+function loadEmployees() {
+    const select = document.getElementById('employeeSelect');
+    let employees = [];
+    if (currentUser.role === 'admin') {
+        employees = db.users.filter(u => u.role==='head' && u.status==='approved');
+    } else if (currentUser.role === 'head') {
+        employees = db.users.filter(u => u.role==='surveyor' && u.status==='approved' && u.branch===currentUser.responsibleBranch);
+    }
+    select.innerHTML = '<option value="">Select Employee...</option>' +
+        employees.map(emp => `<option value="${emp.id}">${emp.name} (${emp.empId})</option>`).join('');
+}
+
+function getEligibleEmployees() {
+    if (currentUser.role === 'admin')
+        return db.users.filter(u => u.role === 'head' && u.status === 'approved');
+    if (currentUser.role === 'head')
+        return db.users.filter(u => u.role === 'surveyor' && u.status === 'approved' && u.branch === currentUser.responsibleBranch);
+    return [];
+}
+
+function searchByEmpId() {
+    const query = document.getElementById('empIdSearch').value.trim();
+    const resultEl = document.getElementById('searchResult');
+    if (!query) { resultEl.textContent = ''; return; }
+
+    const match = getEligibleEmployees().find(u => String(u.empId) === query);
+    if (match) {
+        document.getElementById('employeeSelect').value = match.id;
+        loadEmployeeRating();
+        resultEl.innerHTML = `<span style="color:#15803d;"><i class="fa-solid fa-circle-check"></i> ${match.name}</span>`;
+    } else {
+        resultEl.innerHTML = `<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> None مemployee بهذا Number</span>`;
+        document.getElementById('employeeSelect').value = '';
+        document.getElementById('ratingForm').classList.add('hidden');
+        document.getElementById('currentRating').classList.add('hidden');
+        selectedEmployeeId = null;
+    }
+}
+
+function onDropdownChange() {
+    document.getElementById('empIdSearch').value = '';
+    document.getElementById('searchResult').textContent = '';
+    loadEmployeeRating();
+}
+
+function loadEmployeeRating() {
+    const employeeId = document.getElementById('employeeSelect').value;
+    if (!employeeId) {
+        document.getElementById('ratingForm').classList.add('hidden');
+        document.getElementById('currentRating').classList.add('hidden');
+        return;
+    }
+    selectedEmployeeId = employeeId;
+    const employee = db.users.find(u => u.id === employeeId);
+    document.getElementById('employeeName').textContent = employee.name;
+    renderQuestionCards();
+    document.getElementById('ratingForm').classList.remove('hidden');
+
+    const rating = getUserRating(employeeId);
+    if (rating) {
+        selectedRating = rating.stars;
+        updateStarsDisplay();
+        if (rating.answers) {
+            QUESTIONS.forEach(q => {
+                const el = document.getElementById(q.id);
+                if (el) el.value = rating.answers[q.id] || '';
+            });
+        }
+        document.getElementById('ratingNotes').value = rating.notes || '';
+        calcLiveScore();
+        displayCurrentRating(rating);
+    } else {
+        selectedRating = 0;
+        updateStarsDisplay();
+        QUESTIONS.forEach(q => { const el = document.getElementById(q.id); if (el) el.value = ''; });
+        document.getElementById('ratingNotes').value = '';
+        calcLiveScore();
+        document.getElementById('currentRating').classList.add('hidden');
+    }
+}
+
+function updateStarsDisplay() {
+    const stars = document.querySelectorAll('#ratingStars i');
+    const ratingText = ['','ضعيف','مaccept','جيد','جيد جداً','ممتاز'];
+    stars.forEach((star, i) => {
+        star.classList.toggle('fa-solid', i < selectedRating);
+        star.classList.toggle('fa-regular', i >= selectedRating);
+        star.classList.toggle('active', i < selectedRating);
+    });
+    document.getElementById('ratingValue').textContent =
+        selectedRating > 0 ? `${ratingText[selectedRating]} (${selectedRating}/5)` : 'Select Rating';
+}
+
+document.getElementById('ratingStars').addEventListener('click', e => {
+    if (e.target.tagName === 'I') { selectedRating = parseInt(e.target.dataset.rating); updateStarsDisplay(); }
+});
+
+function saveRating() {
+    if (!selectedEmployeeId) { alert('الرجاء اختيار مemployee'); return; }
+    if (selectedRating === 0) { alert('الرجاء اختيار تقييم بstars'); return; }
+
+    const answers = {};
+    let allFilled = true;
+    QUESTIONS.forEach(q => {
+        answers[q.id] = document.getElementById(q.id).value;
+        if (!answers[q.id]) allFilled = false;
+    });
+    if (!allFilled) { alert('الرجاء الإجابة على جميع Rating Criteria'); return; }
+
+    // Calculate weighted score
+    const w = getWeights();
+    let weightedScore = 0;
+    QUESTIONS.forEach(q => { weightedScore += (Number(answers[q.id]) / 5) * (w[q.id] || 0); });
+
+    const ratingData = {
+        stars: selectedRating,
+        answers,
+        weightedScore: Math.round(weightedScore),
+        weights: { ...w },
+        notes: document.getElementById('ratingNotes').value
+    };
+
+    if (addOrUpdateRating(selectedEmployeeId, ratingData)) {
+        const el = document.createElement('div');
+        el.className = 'toast success';
+        el.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Done Save Rating! Weighted Score: ${ratingData.weightedScore}/100</span>`;
+        document.getElementById('toasts').appendChild(el);
+        setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),400); }, 3000);
+        loadEmployeeRating();
+    }
+}
+
+function cancelRating() {
+    if (confirm('هل أنت متأكد from Cancel Rating؟')) {
+        document.getElementById('employeeSelect').value = '';
+        document.getElementById('empIdSearch').value = '';
+        document.getElementById('searchResult').textContent = '';
+        document.getElementById('ratingForm').classList.add('hidden');
+        document.getElementById('currentRating').classList.add('hidden');
+        selectedEmployeeId = null;
+    }
+}
+
+function displayCurrentRating(rating) {
+    const w = rating.weights || getWeights();
+    const stars = Array.from({length:5},(_,i)=>`<i class="fa-solid fa-star" style="color:${i<rating.stars?'#fbbf24':'#d1d5db'};font-size:1rem;"></i>`).join('');
+    let html = `
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <div style="font-size:.85rem;color:var(--text-muted);">Rating General: ${stars}</div>
+                    <div style="font-size:.8rem;color:var(--text-muted);margin-top:4px;">
+                        By: ${rating.ratedByName} — ${new Date(rating.timestamp).toLocaleDateString('en-US')}
+                    </div>
+                </div>
+                ${rating.weightedScore !== undefined ? `
+                <div style="text-align:center;">
+                    <div style="font-size:.8rem;color:var(--text-muted);">Weighted Score</div>
+                    <div style="font-size:2rem;font-weight:800;color:${rating.weightedScore>=80?'#16a34a':rating.weightedScore>=60?'#d97706':'#dc2626'};">
+                        ${rating.weightedScore}<span style="font-size:.9rem;font-weight:400;color:var(--text-muted);">/100</span>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+            <hr style="border-color:var(--border);margin:10px 0 14px;">
+    `;
+    if (rating.answers) {
+        QUESTIONS.forEach(q => {
+            const val = Number(rating.answers[q.id] || 0);
+            const labels = ['','ضعيف','مaccept','جيد','جيد جداً','ممتاز'];
+            const contribution = Math.round((val/5)*(w[q.id]||0));
+            html += `
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px;">
+                        <span style="${q.highlight?'color:#7c3aed;font-weight:700;':''}">
+                            <i class="fa-solid ${q.icon}" style="color:${q.highlight?'#7c3aed':'var(--primary)'};margin-left:4px;"></i>
+                            ${q.label}
+                            <span style="color:var(--text-muted);font-size:.75rem;">(${w[q.id]||0}%)</span>
+                        </span>
+                        <span style="font-weight:700;color:var(--primary);">${labels[val]||'—'} (+${contribution})</span>
+                    </div>
+                    <div class="score-bar-wrap">
+                        <div class="score-bar-fill" style="width:${val/5*100}%;background:${q.highlight?'linear-gradient(90deg,#7c3aed,#a78bfa)':'linear-gradient(90deg,#2563eb,#7c3aed)'};"></div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    if (rating.notes) {
+        html += `<hr style="border-color:var(--border);margin:10px 0;"><p style="color:var(--text-muted);font-style:italic;font-size:.9rem;">${rating.notes}</p>`;
+    }
+    html += '</div>';
+    document.getElementById('currentRatingDisplay').innerHTML = html;
+    document.getElementById('currentRating').classList.remove('hidden');
+}
+
+// Weight settings are for admin/dev only
+if (currentUser.role !== 'admin') {
+    document.getElementById('weightsPanel').style.display = 'none';
+}
+
+window.onload = () => {
+    renderSidebar();
+    loadEmployees();
+    renderWeightsPanel();
+};
+</script>
+</body>
+</html>

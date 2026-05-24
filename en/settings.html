@@ -1,0 +1,854 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | SAJCO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .settings-section { background:#fff; border-radius:16px; border:1px solid var(--border); padding:28px; margin-bottom:24px; }
+        .settings-section h3 { font-size:1.05rem; font-weight:600; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+
+        .image-upload-card {
+            background:#f8fafc; border-radius:12px; border:1px solid var(--border);
+            padding:20px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+        }
+        .image-preview-box {
+            width:80px; height:80px; border-radius:12px; border:2px solid var(--border);
+            overflow:hidden; flex-shrink:0; background:#fff; display:flex; align-items:center; justify-content:center;
+        }
+        .image-preview-box img { width:100%; height:100%; object-fit:contain; }
+        .image-preview-box .placeholder-icon { font-size:2rem; color:#cbd5e1; }
+
+        .upload-btn-group { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .upload-status { font-size:.8rem; padding:6px 12px; border-radius:8px; font-weight:600; }
+        .upload-status.uploading { background:#fef3c7; color:#92400e; }
+        .upload-status.success { background:#dcfce7; color:#166534; }
+        .upload-status.error { background:#fee2e2; color:#991b1b; }
+
+        .storage-select-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .settings-divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
+        .url-input-row { display:flex; gap:8px; align-items:flex-start; }
+
+        .alert-days-control { display:flex; align-items:center; gap:12px; }
+        .alert-days-control input[type=range] { flex:1; accent-color:var(--primary); }
+
+        @media (prefers-color-scheme:dark) {
+            .settings-section { background:#1e293b; }
+            .image-upload-card { background:#0f172a; }
+            .image-preview-box { background:#1e293b; }
+        }
+        .btn-ghost { color:#16a34a !important; border-color:#16a34a; }
+        .btn-ghost:hover { background:#f0fdf4; }
+        #logoPreviewModal { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.75); align-items:center; justify-content:center; cursor:pointer; }
+        #logoPreviewModal.open { display:flex; }
+        #logoPreviewModal img { max-width:80vw; max-height:80vh; border-radius:16px; box-shadow:0 8px 40px rgba(0,0,0,.5); cursor:default; }
+        .pcr-tab { padding:8px 16px; border-radius:20px; border:1px solid var(--border); background:#f8fafc; cursor:pointer; font-size:.85rem; font-weight:600; color:var(--text-muted); transition:all .2s; }
+        .pcr-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .pcr-panel { display:none; margin-top:16px; }
+        .pcr-panel.active { display:block; }
+        .pcr-sb { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .pcr-sb.pending_head  { background:#fffbeb; color:#92400e; }
+        .pcr-sb.pending_admin { background:#eff6ff; color:#1e40af; }
+        .pcr-sb.approved      { background:#dcfce7; color:#166534; }
+        .pcr-sb.rejected      { background:#fee2e2; color:#991b1b; }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <header style="margin-bottom:32px;">
+            <h2 style="font-size:1.5rem;font-weight:700">Settings</h2>
+            <p style="color:var(--text-muted)" id="settingsSubtitle">My Account Data and System Settings.</p>
+        </header>
+
+        <!-- ====== My Account Data & Edit Requests (جميع Roles) ====== -->
+        <div class="settings-section" style="border-left: 4px solid var(--primary);">
+            <h3><i class="fa-solid fa-user-gear" style="color:var(--primary)"></i> My Account Data & Edit Requests</h3>
+
+            <!-- Info الحساب current -->
+            <div id="profileInfoDisplay" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"></div>
+
+            <!-- أزرار tab -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                <button class="pcr-tab active" id="pcrTab_phone"    onclick="showPcrTab('phone')"><i class="fa-solid fa-phone"></i> Edit Phone</button>
+                <button class="pcr-tab"        id="pcrTab_email"    onclick="showPcrTab('email')"><i class="fa-solid fa-envelope"></i> Edit Email</button>
+                <button class="pcr-tab"        id="pcrTab_password" onclick="showPcrTab('password')"><i class="fa-solid fa-lock"></i> Change Password</button>
+            </div>
+
+            <!-- tab Phone -->
+            <div class="pcr-panel active" id="pcrPanel_phone">
+                <div class="form-group"><label class="form-label">New Phone Number</label>
+                <input type="tel" id="pcr_phone" class="form-input" placeholder="05xxxxxxxx"></div>
+                <button onclick="submitPcr('phone')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_phone"></p>
+            </div>
+
+            <!-- tab Email -->
+            <div class="pcr-panel" id="pcrPanel_email">
+                <div class="form-group"><label class="form-label">New Email</label>
+                <input type="email" id="pcr_email" class="form-input" placeholder="example@email.com"></div>
+                <button onclick="submitPcr('email')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_email"></p>
+            </div>
+
+            <!-- tab Password -->
+            <div class="pcr-panel" id="pcrPanel_password">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">New Password</label>
+                    <input type="password" id="pcr_password" class="form-input" placeholder="At least 6 characters"></div>
+                    <div class="form-group"><label class="form-label">Confirm Password</label>
+                    <input type="password" id="pcr_password_confirm" class="form-input" placeholder="Re-enter password"></div>
+                </div>
+                <button onclick="submitPcr('password')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_password"></p>
+            </div>
+
+            <div id="pcrSubmitResult" style="margin-top:10px;"></div>
+
+            <!-- سجل My Requests -->
+            <hr style="border-color:var(--border);margin:20px 0;">
+            <h4 style="margin-bottom:12px;font-size:.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> My Previous Requests</h4>
+            <div id="myPcrList"></div>
+        </div>
+
+        <!-- ====== Supabase Connection Status ====== -->
+        <div id="adminOnlySections">
+        <div class="settings-section" style="border-left: 4px solid var(--primary);">
+            <h3><i class="fa-solid fa-cloud" style="color:var(--primary)"></i> Supabase Connection Status</h3>
+            <div id="supabaseStatus" style="padding:14px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+                <div id="statusDot" style="width:12px;height:12px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></div>
+                <div id="statusText" style="font-weight:500;">Checking connection......</div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="testConnection()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-rotate"></i> Test Connection
+                </button>
+                <button onclick="syncNow()" class="btn btn-primary" style="font-size:.85rem;" id="syncBtn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Sync Data Now
+                </button>
+                <button onclick="loadFromSupabase()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Loading from Supabase
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== شعار النظام ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-image"></i> System Logo</h3>
+            <div class="image-upload-card">
+                <div class="image-preview-box" id="logoPreviewBox">
+                    <img id="logoPreviewImg" src="" alt="Logo" style="display:none;">
+                    <span class="placeholder-icon" id="logoPlaceholderIcon"><i class="fa-solid fa-image"></i></span>
+                </div>
+                <div style="flex:1;">
+                    <div class="upload-btn-group">
+                        <label class="btn btn-primary" style="cursor:pointer;font-size:.85rem;margin:0;">
+                            <i class="fa-solid fa-upload"></i> Upload New Logo
+                            <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+                        </label>
+                        <button onclick="resetLogo()" class="btn btn-ghost" style="font-size:.85rem;">Restore Default</button>
+                        <button onclick="previewCurrentLogo()" class="btn btn-ghost" style="font-size:.85rem;" id="logoPreviewBtn" title="Preview Current Logo">
+                            <i class="fa-solid fa-eye"></i> Preview
+                        </button>
+                        <span id="logoUploadStatus" class="upload-status" style="display:none;"></span>
+                    </div>
+                    <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">
+                        Prefer PNG image with transparent background and square dimensions. It will be uploaded automatically to Supabase Storage.
+                    </div>
+                </div>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">or Use a Direct URL</div>
+            <div class="url-input-row">
+                <input type="url" id="logoGoogleUrl" class="form-input" placeholder="https://..." style="flex:1;font-size:.9rem;">
+                <button onclick="applyLogoFromUrl()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-link"></i> Apply
+                </button>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">Select from Supabase Storage</div>
+            <div class="storage-select-row">
+                <select id="logoFromStorageSelect" class="form-select" style="flex:1;font-size:.9rem;">
+                    <option value="">-- Select Logo from Storage --</option>
+                </select>
+                <button onclick="applyLogoFromStorage()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-check"></i> Use
+                </button>
+                <button onclick="loadStorageFiles('assets','brand','logoFromStorageSelect')" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== System Background Image ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> System Background Image</h3>
+            <div class="image-upload-card">
+                <div class="image-preview-box" id="appImagePreviewBox" style="width:100px;height:100px;">
+                    <img id="appImagePreviewImg" src="" alt="App Image" style="display:none;">
+                    <span class="placeholder-icon" id="appImagePlaceholderIcon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                </div>
+                <div style="flex:1;">
+                    <div class="upload-btn-group">
+                        <label class="btn btn-primary" style="cursor:pointer;font-size:.85rem;margin:0;">
+                            <i class="fa-solid fa-upload"></i> Upload New Image
+                            <input type="file" id="appImageFileInput" accept="image/*" style="display:none;" onchange="handleAppImageUpload(event)">
+                        </label>
+                        <button onclick="resetAppImage()" class="btn btn-ghost" style="font-size:.85rem;color:var(--danger);">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                        <span id="appImageUploadStatus" class="upload-status" style="display:none;"></span>
+                    </div>
+                    <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">
+                        Shown on the Login page and as a watermark. It will be uploaded to Supabase Storage.
+                    </div>
+                </div>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">or Use a Direct URL</div>
+            <div class="url-input-row">
+                <input type="url" id="appImageGoogleUrl" class="form-input" placeholder="https://..." style="flex:1;font-size:.9rem;">
+                <button onclick="applyAppImageFromUrl()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-link"></i> Apply
+                </button>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">Select from Supabase Storage</div>
+            <div class="storage-select-row">
+                <select id="appImageFromStorageSelect" class="form-select" style="flex:1;font-size:.9rem;">
+                    <option value="">-- Select Image from Storage --</option>
+                </select>
+                <button onclick="applyAppImageFromStorage()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-check"></i> Use
+                </button>
+                <button onclick="loadStorageFiles('assets','brand','appImageFromStorageSelect')" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== Alert Settings ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-bell"></i> Alert Settings</h3>
+            <div style="margin-bottom:20px;">
+                <label class="form-label">Calibration Early Alert Duration</label>
+                <div class="alert-days-control">
+                    <input type="range" id="alertDaysSlider" min="7" max="90" value="30" oninput="document.getElementById('alertDaysVal').textContent=this.value">
+                    <span style="font-weight:700;min-width:80px;" id="alertDaysVal">30</span>
+                    <span style="color:var(--text-muted);">day</span>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+                <input type="checkbox" id="alertSoundToggle" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary);">
+                <label for="alertSoundToggle" class="form-label" style="margin:0;cursor:pointer;">Enable alert sound for devices with expired calibration</label>
+            </div>
+            <button onclick="saveAlertSettings()" class="btn btn-primary" style="margin-top:16px;font-size:.9rem;">
+                <i class="fa-solid fa-save"></i> Save Alert Settings
+            </button>
+        </div>
+
+        <!-- ====== شريط News ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-newspaper" style="color:#dc2626;"></i> Urgent News Ticker</h3>
+            <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">News and warnings shown to all employees in a scrolling ticker at the top of every page.</p>
+
+            <!-- Add خبر جديد -->
+            <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end;">
+                <div style="flex:1;min-width:220px;">
+                    <label class="form-label">News or Warning Text</label>
+                    <input type="text" id="newTickerText" class="form-input" placeholder="Write the news here..." style="font-size:.9rem;">
+                </div>
+                <div style="min-width:130px;">
+                    <label class="form-label">Type</label>
+                    <select id="newTickerType" class="form-select" style="font-size:.9rem;">
+                        <option value="news">News</option>
+                        <option value="warning">Warning</option>
+                    </select>
+                </div>
+                <button onclick="addTickerNews()" class="btn btn-primary" style="font-size:.85rem;">
+                    <i class="fa-solid fa-plus"></i> Add
+                </button>
+            </div>
+
+            <!-- قائمة News current -->
+            <div id="tickerItemsList"></div>
+        </div>
+
+        <!-- ====== الCopy اNoحتياطي ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-database"></i> Backup and Data</h3>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;color:#166534;">
+                <i class="fa-solid fa-circle-info"></i>
+                Last Backup: <strong id="lastBackupInfo">No backup taken yet</strong>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="exportBackup()" class="btn btn-primary" style="font-size:.85rem;">
+                    <i class="fa-solid fa-file-export"></i> Export Backup
+                </button>
+                <button onclick="importBackup()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-file-import"></i> Import Copyة احتياطية
+                </button>
+            </div>
+        </div>
+        </div><!-- /adminOnlySections -->
+    </main>
+</div>
+
+<div id="logoPreviewModal" onclick="this.classList.remove('open')">
+    <img id="logoPreviewModalImg" src="" alt="Preview الشعار" onclick="event.stopPropagation()">
+</div>
+
+<div class="designer-credit">
+    <div><i class="fa-solid fa-code" style="color:var(--primary);margin-left:6px;"></i>Website designed by <strong>Mohammed El-Shatry</strong></div>
+    <div style="font-size:.75rem;border-top:1px solid var(--border);margin-top:6px;padding-top:4px;">Under supervision of Eng. <strong>Mohammed Youssef Aqtait</strong></div>
+</div>
+
+<script>
+checkAuth();
+// Hide admin-only sections for non-admin roles
+if (currentUser.role !== 'admin') {
+    document.getElementById('adminOnlySections').style.display = 'none';
+}
+
+// ── Profile Change Request Section ──────────────────────
+const _pcrTypeLabel = { phone: 'Phone Number', email: 'Email', password: 'Password' };
+const _pcrStatusLabel = { pending_head: 'Pending Head Surveyor', pending_admin: 'Pending Admin', approved: 'Approved', rejected: 'Rejected' };
+
+window.showPcrTab = (type) => {
+    ['phone','email','password'].forEach(t => {
+        document.getElementById('pcrTab_' + t).classList.toggle('active', t === type);
+        document.getElementById('pcrPanel_' + t).classList.toggle('active', t === type);
+    });
+};
+
+function initProfileSection() {
+    // Current info display
+    const el = document.getElementById('profileInfoDisplay');
+    const infoItems = [
+        { icon: 'fa-user', label: 'Name', value: currentUser.name },
+        { icon: 'fa-id-badge', label: 'Employee ID', value: currentUser.empId },
+        { icon: 'fa-phone', label: 'Phone', value: currentUser.phone || '—' },
+        { icon: 'fa-envelope', label: 'Email', value: currentUser.email || '—' },
+    ];
+    el.innerHTML = infoItems.map(i => `
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;border:1px solid var(--border);padding:10px 12px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid ${i.icon}" style="color:var(--primary);font-size:.9rem;"></i>
+            </div>
+            <div><div style="font-size:.72rem;color:var(--text-muted);">${i.label}</div>
+            <div style="font-weight:700;font-size:.9rem;color:var(--text-main);">${i.value}</div></div>
+        </div>`).join('');
+
+    // Flow hints
+    const flowHint = 'Changes are applied directly to your account.';
+    ['phone','email','password'].forEach(t => {
+        const h = document.getElementById('pcrFlowHint_' + t);
+        if (h) h.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> ${flowHint}`;
+    });
+
+    renderMyPcrList();
+}
+
+function renderMyPcrList() {
+    const el = document.getElementById('myPcrList');
+    const reqs = (db.profileChangeRequests || []).filter(r => r.userId === currentUser.id)
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 10);
+    if (!reqs.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">No previous requests.</p>';
+        return;
+    }
+    el.innerHTML = reqs.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;background:#f8fafc;">
+            <div>
+                <span style="font-weight:600;font-size:.88rem;">${_pcrTypeLabel[r.type] || r.type}</span>
+                ${r.type !== 'password' ? `<span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">← ${r.newValueDisplay}</span>` : ''}
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${new Date(r.timestamp).toLocaleDateString('en-US')}</div>
+            </div>
+            <div>
+                <span class="pcr-sb ${r.status}">${_pcrStatusLabel[r.status] || r.status}</span>
+                ${r.rejectionNote ? `<div style="font-size:.75rem;color:#991b1b;margin-top:3px;">Reason: ${r.rejectionNote}</div>` : ''}
+            </div>
+        </div>`).join('');
+}
+
+window.submitPcr = (type) => {
+    const val = type === 'password' ? document.getElementById('pcr_password').value.trim()
+                                    : document.getElementById('pcr_' + type).value.trim();
+    const cfm = type === 'password' ? document.getElementById('pcr_password_confirm').value.trim() : null;
+    const res = document.getElementById('pcrSubmitResult');
+    if (!val) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">Please enter the new value.</div>`; return; }
+    if (type === 'password') {
+        if (val !== cfm) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">Passwords do not match.</div>`; return; }
+        if (val.length < 6) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">Password must be at least 6 characters.</div>`; return; }
+    }
+    const user = db.users.find(u => u.id === currentUser.id);
+    if (!user) return;
+    if (type === 'phone') { user.phone = val; currentUser.phone = val; }
+    else if (type === 'email') { user.email = val; currentUser.email = val; }
+    else if (type === 'password') { user.password = val; currentUser.password = val; }
+    currentUser = { ...currentUser };
+    localStorage.setItem('sajco_session', JSON.stringify(currentUser));
+    saveDB(true);
+    addLog(`${currentUser.name} updated their account: ${_pcrTypeLabel[type]}`);
+    res.innerHTML = `<div style="color:#166534;background:#dcfce7;border-radius:8px;padding:8px 14px;font-size:.88rem;"><i class="fa-solid fa-circle-check"></i> Updated successfully.</div>`;
+    document.getElementById('pcr_' + (type === 'password' ? 'password' : type)).value = '';
+    if (type === 'password') document.getElementById('pcr_password_confirm').value = '';
+    initProfileSection();
+};
+
+function initSettings() {
+    // Logo
+    const logoSrc = db.settings.logo;
+    if (logoSrc) {
+        const img = document.getElementById('logoPreviewImg');
+        img.src = logoSrc; img.style.display = 'block';
+        document.getElementById('logoPlaceholderIcon').style.display = 'none';
+        document.getElementById('logoGoogleUrl').value = logoSrc;
+    }
+    // App Image
+    const appImg = db.settings.appImage;
+    if (appImg) {
+        const img = document.getElementById('appImagePreviewImg');
+        img.src = appImg; img.style.display = 'block';
+        document.getElementById('appImagePlaceholderIcon').style.display = 'none';
+        document.getElementById('appImageGoogleUrl').value = appImg;
+    }
+    // Alert settings
+    const slider = document.getElementById('alertDaysSlider');
+    slider.value = db.settings.alertDays || 30;
+    document.getElementById('alertDaysVal').textContent = slider.value;
+    document.getElementById('alertSoundToggle').checked = db.settings.alertSoundEnabled !== false;
+    // Backup date
+    if (db.settings.lastLocalBackup) {
+        document.getElementById('lastBackupInfo').textContent = new Date(db.settings.lastLocalBackup).toLocaleString('en-US');
+    }
+    // Check Supabase connection
+    checkSupabaseStatus();
+    // Load storage files
+    loadStorageFiles('assets', 'brand', 'logoFromStorageSelect');
+    loadStorageFiles('assets', 'brand', 'appImageFromStorageSelect');
+}
+
+// ============================================================
+// Supabase Status
+// ============================================================
+async function checkSupabaseStatus() {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (!supabaseClient) {
+        dot.style.background = '#ef4444';
+        text.textContent = '❌ غير متصل - تأكد from andجandد window.__env في HTML';
+        return false;
+    }
+    try {
+        const { error } = await supabaseClient.from('settings').select('key').limit(1);
+        if (error) throw error;
+        dot.style.background = '#16a34a';
+        text.textContent = `✅ متصل بـ Supabase بSuccess (${new Date().toLocaleTimeString('en-US')})`;
+        return true;
+    } catch (e) {
+        dot.style.background = '#ef4444';
+        text.textContent = `❌ Error في Connection: ${e.message}`;
+        return false;
+    }
+}
+
+window.testConnection = async () => {
+    document.getElementById('statusText').textContent = 'جاري اNoختبار...';
+    document.getElementById('statusDot').style.background = '#f59e0b';
+    await checkSupabaseStatus();
+};
+
+window.syncNow = async () => {
+    const btn = document.getElementById('syncBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الSync...';
+    try {
+        await _syncToSupabase();
+        showSettingsToast('✅ Doneت الSync بSuccess');
+    } catch(e) {
+        showSettingsToast('❌ فشلت الSync: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Sync Data Now';
+    }
+};
+
+window.loadFromSupabase = async () => {
+    if (!supabaseClient) { showSettingsToast('Supabase غير متصل', 'error'); return; }
+    if (!confirm('Loading Data from Supabase سيستبدل Data المحلية. هل أنت متأكد؟')) return;
+    try {
+        const tables = ['users','devices','custodies','notifications','branches','allowed_employee_ids','settings','calibration_certificates'];
+        for (const t of tables) {
+            const { data, error } = await supabaseClient.from(t).select('*');
+            if (error) continue;
+            if (t === 'users') db.users = data.map(_fromSnake('users'));
+            else if (t === 'devices') db.devices = data.map(_fromSnake('devices'));
+            else if (t === 'custodies') db.custodies = data.map(_fromSnake('custodies'));
+            else if (t === 'notifications') db.notifications = data.map(_fromSnake('notifications'));
+            else if (t === 'calibration_certificates') db.calibrationCerts = data.map(_fromSnakeCalib);
+            else if (t === 'branches') {
+                const merged = data.map(b => ({ id: b.id, name: b.name }));
+                db.branches = merged;
+            } else if (t === 'allowed_employee_ids') {
+                db.allowedEmployeeIds = data.map(r => r.emp_id).filter(Boolean);
+            } else if (t === 'settings') {
+                data.forEach(r => {
+                    try { db.settings[r.key] = JSON.parse(r.value); } catch(e) { db.settings[r.key] = r.value; }
+                });
+            }
+        }
+        saveDB(true);
+        showSettingsToast('✅ Done Loading Data from Supabase');
+        setTimeout(() => location.reload(), 1500);
+    } catch(e) {
+        showSettingsToast('❌ فشل الLoading: ' + e.message, 'error');
+    }
+};
+
+function _fromSnake(table) {
+    const maps = {
+        users: { emp_id:'empId', branch_id:'branch', responsible_branch_id:'responsibleBranch', substitute_id:'substituteId', head_surveyor:'headSurveyor', total_exp:'totalExp', company_exp:'companyExp', join_date:'joinDate' },
+        devices: { owner_id:'ownerId', branch_id:'branch', cal_date:'calDate', sent_to_agent_date:'sentToAgentDate' },
+        custodies: { user_id:'userId', assigned_by:'assignedBy', device_type:'deviceType', serial_number:'serialNumber', receipt_date:'receiptDate', branch_id:'branchId', calibration_date:'calibrationDate', device_condition:'deviceCondition', received_from:'receivedFrom', received_from_name:'receivedFromName', care_level:'careLevel', approval_history:'approvalHistory', transfer_data:'transferData' },
+        notifications: { user_id:'userId', related_id:'relatedId', is_substitute_notif:'isSubstituteNotif' }
+    };
+    const map = maps[table] || {};
+    return (obj) => {
+        const res = {};
+        for (const [k,v] of Object.entries(obj)) { res[map[k] || k] = v; }
+        return res;
+    };
+}
+
+function _fromSnakeCalib(obj) {
+    return {
+        id: obj.id, serialNumber: obj.serial_number, deviceId: obj.device_id,
+        fileName: obj.file_name, fileUrl: obj.file_url, storagePath: obj.storage_path,
+        fileType: obj.file_type, fileSize: obj.file_size, calibrationDate: obj.calibration_date,
+        expiryDate: obj.expiry_date, uploadedBy: obj.uploaded_by, notes: obj.notes,
+        uploadedAt: obj.created_at
+    };
+}
+
+// ============================================================
+// Logo Upload
+// ============================================================
+window.handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('logoUploadStatus');
+    status.style.display = 'inline-block'; status.className = 'upload-status uploading';
+    status.textContent = 'جاري الرفع...';
+    try {
+        const url = await _uploadToStorage(file, 'brand/logo');
+        _applyLogo(url);
+        status.className = 'upload-status success'; status.textContent = '✓ Done الرفع بSuccess';
+    } catch(err) {
+        status.className = 'upload-status error'; status.textContent = '✗ ' + (err.message || 'فشل');
+    }
+};
+
+window.applyLogoFromUrl = () => {
+    const url = document.getElementById('logoGoogleUrl').value.trim();
+    if (!url) { showSettingsToast('Enter رابطاً صحيحاً', 'error'); return; }
+    _applyLogo(url);
+    showSettingsToast('Done Apply الشعار from الرابط');
+};
+
+window.applyLogoFromStorage = async () => {
+    const path = document.getElementById('logoFromStorageSelect').value;
+    if (!path) return;
+    const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
+    _applyLogo(data.publicUrl);
+    showSettingsToast('Done اختيار الشعار from Storage');
+};
+
+window.resetLogo = () => {
+    if (!confirm('استعادة الشعار Default؟')) return;
+    db.settings.logo = null;
+    saveDB();
+    addLog('Done استعادة الشعار Default');
+    location.reload();
+};
+
+async function _applyLogo(url) {
+    db.settings.logo = url;
+    saveDB(true);
+    await _syncSettingsToSupabase();
+    addLog('Done Refresh شعار النظام');
+    const img = document.getElementById('logoPreviewImg');
+    img.src = url; img.style.display = 'block';
+    document.getElementById('logoPlaceholderIcon').style.display = 'none';
+    document.getElementById('logoGoogleUrl').value = url;
+}
+
+// ============================================================
+// App Image Upload
+// ============================================================
+window.handleAppImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('appImageUploadStatus');
+    status.style.display = 'inline-block'; status.className = 'upload-status uploading';
+    status.textContent = 'جاري الرفع...';
+    try {
+        const url = await _uploadToStorage(file, 'brand/app-image');
+        _applyAppImage(url);
+        status.className = 'upload-status success'; status.textContent = '✓ Done الرفع بSuccess';
+    } catch(err) {
+        status.className = 'upload-status error'; status.textContent = '✗ ' + (err.message || 'فشل');
+    }
+};
+
+window.applyAppImageFromUrl = () => {
+    const url = document.getElementById('appImageGoogleUrl').value.trim();
+    if (!url) { showSettingsToast('Enter رابطاً صحيحاً', 'error'); return; }
+    _applyAppImage(url);
+    showSettingsToast('Done Apply الimage from الرابط');
+};
+
+window.applyAppImageFromStorage = async () => {
+    const path = document.getElementById('appImageFromStorageSelect').value;
+    if (!path) return;
+    const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
+    _applyAppImage(data.publicUrl);
+    showSettingsToast('Done اختيار الimage from Storage');
+};
+
+window.resetAppImage = () => {
+    if (!confirm('Delete image الinterface؟')) return;
+    db.settings.appImage = null;
+    saveDB();
+    addLog('Done Delete System Background Image');
+    location.reload();
+};
+
+async function _applyAppImage(url) {
+    db.settings.appImage = url;
+    saveDB(true);
+    await _syncSettingsToSupabase();
+    addLog('Done Refresh System Background Image');
+    const img = document.getElementById('appImagePreviewImg');
+    img.src = url; img.style.display = 'block';
+    document.getElementById('appImagePlaceholderIcon').style.display = 'none';
+    document.getElementById('appImageGoogleUrl').value = url;
+}
+
+// ============================================================
+// Storage list
+// ============================================================
+async function loadStorageFiles(bucket, folder, selectId) {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient.storage.from(bucket).list(folder, { limit: 50 });
+    if (error || !data) return;
+    const select = document.getElementById(selectId);
+    const prev = select.value;
+    select.innerHTML = '<option value="">-- Select from Storage --</option>' +
+        data.filter(f => f.name && !f.name.startsWith('.')).map(f => {
+            const path = `${folder}/${f.name}`;
+            return `<option value="${path}">${f.name}</option>`;
+        }).join('');
+    if (prev) select.value = prev;
+}
+
+// ============================================================
+// Alert settings
+// ============================================================
+window.saveAlertSettings = () => {
+    db.settings.alertDays = parseInt(document.getElementById('alertDaysSlider').value) || 30;
+    db.settings.alertSoundEnabled = document.getElementById('alertSoundToggle').checked;
+    saveDB();
+    addLog('Done Refresh Alert Settings');
+    showSettingsToast('✅ Done Save Alert Settings');
+};
+
+// ============================================================
+// Backup
+// ============================================================
+window.exportBackup = () => {
+    const dataStr = JSON.stringify(db, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `sajco_backup_${new Date().toLocaleDateString('en-GB').replace(/\//g,'-')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    db.settings.lastLocalBackup = new Date().toISOString();
+    saveDB();
+    addLog('Done Export Backup');
+    document.getElementById('lastBackupInfo').textContent = new Date().toLocaleString('en-US');
+};
+
+window.importBackup = () => {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const imp = JSON.parse(ev.target.result);
+                if (imp.users && Array.isArray(imp.users)) {
+                    if (confirm('Warning: اNoستيراد سيClear جميع Data current. هل أنت متأكد؟')) {
+                        if (!imp.logs) imp.logs = [];
+                        imp.logs.unshift({ id: Date.now(), user: currentUser.name, msg: 'Done استعادة Copyة احتياطية للنظام' });
+                        localStorage.setItem(DB_KEY, JSON.stringify(imp));
+                        location.reload();
+                    }
+                } else { showSettingsToast('الملف المختار غير Valid', 'error'); }
+            } catch(e) { showSettingsToast('Error في قراءة الملف', 'error'); }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+};
+
+// ============================================================
+// Logo Preview
+// ============================================================
+window.previewCurrentLogo = () => {
+    const src = db.settings.logo || document.getElementById('logoPreviewImg').src;
+    if (!src || src === window.location.href) { showSettingsToast('None شعار لViewه', 'warning'); return; }
+    document.getElementById('logoPreviewModalImg').src = src;
+    document.getElementById('logoPreviewModal').classList.add('open');
+};
+
+// ============================================================
+// Helpers
+// ============================================================
+function _fileToDataUrl(file) {
+    return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+}
+
+async function _uploadToStorage(file, basePath) {
+    if (!supabaseClient) {
+        // No Supabase — fall back to base64 (local only)
+        return _fileToDataUrl(file);
+    }
+    const ext = file.name.split('.').pop().toLowerCase() || 'png';
+    const path = `${basePath}.${ext}`;
+    const { error } = await supabaseClient.storage.from('assets').upload(path, file, { upsert: true, contentType: file.type });
+    if (error) throw new Error(error.message);
+    const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
+    return data.publicUrl;
+}
+
+async function _syncSettingsToSupabase() {
+    if (!supabaseClient) return;
+    const rows = [];
+    // Settings keys
+    const keys = ['appImage', 'logo', 'alertDays', 'alertSoundEnabled', 'appName', 'companyName'];
+    for (const key of keys) {
+        const val = db.settings[key];
+        if (val === null || val === undefined) continue;
+        if (typeof val === 'string' && val.startsWith('data:')) continue; // no base64 blobs
+        rows.push({ key, value: JSON.stringify(val) });
+    }
+    // News ticker
+    if (Array.isArray(db.newsTicker)) {
+        rows.push({ key: 'newsTicker', value: JSON.stringify(db.newsTicker) });
+    }
+    // Custom device types
+    if (Array.isArray(db.settings.customDeviceTypes)) {
+        rows.push({ key: 'customDeviceTypes', value: JSON.stringify(db.settings.customDeviceTypes) });
+    }
+    if (!rows.length) return;
+    const { error } = await supabaseClient.from('settings').upsert(rows, { onConflict: 'key' });
+    if (error) console.warn('_syncSettingsToSupabase:', error.message);
+}
+
+function showSettingsToast(msg, type = 'success') {
+    const colors = { success: ['#dcfce7','#166534'], error: ['#fee2e2','#991b1b'], warning: ['#fffbeb','#92400e'] };
+    const [bg, color] = colors[type] || colors.success;
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 24px;border-radius:12px;background:${bg};color:${color};font-weight:600;font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:opacity .4s;`;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; setTimeout(()=>el.remove(),400); }, 3500);
+}
+
+// ============================================================
+// News Ticker Management
+// ============================================================
+function renderTickerList() {
+    const el = document.getElementById('tickerItemsList');
+    if (!el) return;
+    const items = db.newsTicker || [];
+    if (!items.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:16px;">None News added yet.</p>';
+        return;
+    }
+    el.innerHTML = items.map((t, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid ${t.type==='warning'?'#fde68a':'#e2e8f0'};background:${t.type==='warning'?'#fffbeb':'#f8fafc'};margin-bottom:8px;flex-wrap:wrap;">
+            <span style="font-size:.8rem;padding:2px 8px;border-radius:20px;font-weight:700;background:${t.type==='warning'?'#fef3c7':'#dbeafe'};color:${t.type==='warning'?'#92400e':'#1e40af'};">
+                ${t.type==='warning'?'⚠ Warning':'● خبر'}
+            </span>
+            <span style="flex:1;font-size:.9rem;${!t.active?'opacity:.45;text-decoration:line-through;':''}">${t.text}</span>
+            <div style="display:flex;gap:6px;">
+                <button onclick="toggleTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="${t.active?'إيقاف':'Activate'}">
+                    <i class="fa-solid ${t.active?'fa-eye-slash':'fa-eye'}"></i>
+                </button>
+                <button onclick="deleteTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#ef4444;" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.addTickerNews = () => {
+    const text = document.getElementById('newTickerText').value.trim();
+    const type = document.getElementById('newTickerType').value;
+    if (!text) { showSettingsToast('Enter نص الخبر', 'warning'); return; }
+    addTickerItem(text, type);
+    document.getElementById('newTickerText').value = '';
+    renderTickerList();
+    renderNewsTicker();
+    showSettingsToast('✅ Done Add الخبر بSuccess');
+};
+
+window.toggleTicker = (id) => {
+    toggleTickerItem(id);
+    renderTickerList();
+    renderNewsTicker();
+};
+
+window.deleteTicker = (id) => {
+    if (!confirm('Delete هذا الخبر؟')) return;
+    removeTickerItem(id);
+    renderTickerList();
+    renderNewsTicker();
+    showSettingsToast('Done الDelete');
+};
+
+window.onload = () => {
+    renderSidebar();
+    initProfileSection();
+    const _settingsSub = document.getElementById('settingsSubtitle');
+    if (_settingsSub && currentUser.role !== 'admin') {
+        _settingsSub.textContent = 'Edit your personal account details — email, password, and phone number.';
+    }
+    if (currentUser.role === 'admin') {
+        initSettings();
+        renderTickerList();
+        renderNewsTicker();
+    }
+};
+</script>
+</body>
+</html>

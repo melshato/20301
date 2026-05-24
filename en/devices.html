@@ -1,0 +1,625 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Management | SAJCO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .action-btns { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+        .btn-send-maint { background:#2563eb; color:#fff; border:none; border-radius:20px; padding:4px 12px; font-size:.78rem; cursor:pointer; font-family:inherit; }
+        .btn-send-maint:hover { background:#1d4ed8; }
+        .btn-send-calib { background:#7c3aed; color:#fff; border:none; border-radius:20px; padding:4px 12px; font-size:.78rem; cursor:pointer; font-family:inherit; }
+        .btn-send-calib:hover { background:#6d28d9; }
+        .btn-receive-agent { background:#059669; color:#fff; border:none; border-radius:20px; padding:4px 12px; font-size:.78rem; cursor:pointer; font-family:inherit; }
+        .btn-receive-agent:hover { background:#047857; }
+        .btn-req-maint { background:#f59e0b; color:#fff; border:none; border-radius:20px; padding:4px 12px; font-size:.78rem; cursor:pointer; font-family:inherit; }
+        .btn-req-maint:hover { background:#d97706; }
+        .branch-notice { background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1px solid #93c5fd; border-radius:12px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px; font-size:.9rem; color:#1d4ed8; }
+        .required-label-red { color:#dc2626; font-weight:600; font-size:.85rem; }
+        .required-date-input { border:2px solid #dc2626 !important; border-radius:12px !important; text-align:center; font-weight:600; }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <div class="flex-between" style="margin-bottom:16px">
+            <h2 id="pageTitle">Device Management</h2>
+            <button onclick="exportToExcel()" class="btn btn-ghost">
+                <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Export to Excel
+            </button>
+        </div>
+
+        <!-- Branch isolation notice for non-admin -->
+        <div class="branch-notice" id="branchNotice" style="display:none;">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span id="branchNoticeText"></span>
+        </div>
+
+        <!-- Admin-only add/edit form -->
+        <div class="card" id="adminOnlyForm">
+            <h3>Add / Edit Device</h3>
+            <form id="deviceForm" class="form-row">
+                <input type="hidden" id="editId">
+                <div class="form-group"><label>Serial Number</label><input id="dSerial" class="form-input" required></div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <div style="display:flex;gap:8px;align-items:flex-start;">
+                        <select id="dType" class="form-select" required style="flex:1;"></select>
+                        <button type="button" id="addTypeBtn" onclick="toggleAddTypeForm()"
+                            style="display:none;padding:8px 12px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;white-space:nowrap;height:42px;" title="Add New Type">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="addTypeForm" style="display:none;margin-top:8px;padding:12px;background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;">
+                        <div style="font-size:.82rem;color:#1d4ed8;margin-bottom:8px;font-weight:600;">
+                            <i class="fa-solid fa-plus-circle"></i> Add New Device Type
+                        </div>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <input type="text" id="newTypeLabel" class="form-input" placeholder="Example: Total Station" style="flex:1;font-size:.88rem;">
+                            <button type="button" onclick="saveNewDeviceType()" style="padding:7px 14px;background:#059669;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;white-space:nowrap;">
+                                <i class="fa-solid fa-check"></i> Save
+                            </button>
+                            <button type="button" onclick="toggleAddTypeForm()" style="padding:7px 10px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div id="customTypesList" style="margin-top:10px;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Calibration Date</label>
+                    <input type="date" id="dCal" class="form-input apple-date-input">
+                </div>
+                <div class="form-group">
+                    <label>Owner (Employee)</label>
+                    <select id="dOwner" class="form-select">
+                        <option value="">Warehouse (No Owner)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Branch</label>
+                    <select id="dBranch" class="form-select">
+                        <option value="">Select Branch</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Status</label>
+                    <select id="dStatus" class="form-select">
+                        <option value="warehouse">Warehouse</option>
+                        <option value="assigned">Personal Custody</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="needs_calibration">Needs Calibration</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="align-self:flex-end;">Save</button>
+            </form>
+        </div>
+
+        <!-- Filters -->
+        <div class="card">
+            <div style="display:flex;gap:15px;margin-bottom:15px;flex-wrap:wrap;">
+                <div class="form-group" style="flex:1;min-width:180px;">
+                    <input type="text" id="devSearch" class="form-input" placeholder="Search by Serial Number or Type...">
+                </div>
+                <div class="form-group" style="flex:1;min-width:160px;">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Devices</option>
+                        <option value="warehouse" class="admin-only-opt">Warehouse only</option>
+                        <option value="assigned">Personal Custody</option>
+                        <option value="maintenance">Under Maintenance</option>
+                        <option value="needs_calibration">Needs Calibration</option>
+                        <option value="at_maintenance">At Vendor — Maintenance</option>
+                        <option value="at_calibration">At Vendor — Calibration</option>
+                    </select>
+                </div>
+                <div class="form-group" id="branchFilterGroup" style="flex:1;min-width:160px;">
+                    <select id="branchFilter" class="form-select">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Serial Number</th>
+                            <th>Type</th>
+                            <th>Owner</th>
+                            <th>Branch</th>
+                            <th>Calibration Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deviceTableBody"></tbody>
+                </table>
+            </div>
+            <div id="tableFooter" style="margin-top:12px;font-size:.85rem;color:var(--text-muted);"></div>
+        </div>
+    </main>
+</div>
+
+<!-- ===== Send to Agent Modal ===== -->
+<div class="modal-overlay" id="sendModal" style="display:none;" onclick="if(event.target===this)closeSendModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="sendModalTitle">Send Device to Vendor</h3>
+            <button class="modal-close" onclick="closeSendModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding:20px;">
+            <p style="margin-bottom:16px;color:var(--text-muted);font-size:.9rem;" id="sendModalDesc"></p>
+            <div class="form-group">
+                <label>Type Request</label>
+                <select id="sendType" class="form-select">
+                    <option value="maintenance">Maintenance</option>
+                    <option value="calibration">Calibration</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea id="sendNotes" class="form-input" rows="3" placeholder="Write any notes about the device..." style="resize:vertical;"></textarea>
+            </div>
+            <input type="hidden" id="sendDeviceId">
+            <input type="hidden" id="sendSerial">
+            <input type="hidden" id="sendDeviceType">
+            <div id="sendModeNote" style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:.85rem;color:#92400e;margin-top:12px;display:none;">
+                <i class="fa-solid fa-clock"></i> Your request will be sent to the General Manager for approval first.
+            </div>
+            <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+                <button class="btn btn-ghost" onclick="closeSendModal()">Cancel</button>
+                <button class="btn btn-primary" id="confirmSendBtn" onclick="confirmSend()">
+                    <i class="fa-solid fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Return from Agent Modal ===== -->
+<div class="modal-overlay" id="returnModal" style="display:none;" onclick="if(event.target===this)closeReturnModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Receive Device from Vendor</h3>
+            <button class="modal-close" onclick="closeReturnModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding:20px;">
+            <p style="margin-bottom:16px;color:var(--text-muted);font-size:.9rem;" id="returnModalDesc"></p>
+
+            <div class="form-group">
+                <label class="required-label-red">
+                    <i class="fa-solid fa-asterisk" style="font-size:.6rem;"></i>
+                    Calibration Date new (Required)
+                </label>
+                <input type="date" id="newCalDate" class="form-input required-date-input apple-date-input" required>
+                <small class="required-label-red" style="margin-top:4px;display:block;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    A new Calibration Date must be entered — it must be in the future
+                </small>
+            </div>
+
+            <div class="form-group" style="margin-top:12px;">
+                <label>Receipt Notes (Optional)</label>
+                <textarea id="returnNotes" class="form-input" rows="2" placeholder="Notes..." style="resize:vertical;"></textarea>
+            </div>
+
+            <input type="hidden" id="returnDeviceId">
+            <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+                <button class="btn btn-ghost" onclick="closeReturnModal()">Cancel</button>
+                <button class="btn btn-primary" style="background:#059669;" onclick="confirmReturn()">
+                    <i class="fa-solid fa-check-circle"></i> Confirm Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+checkAuth();
+const isAdmin = currentUser.role === 'admin';
+const isHead  = currentUser.role === 'head';
+
+// ===== Role-based UI setup =====
+if (!isAdmin) {
+    document.getElementById('adminOnlyForm').style.display = 'none';
+    // Remove warehouse status option from filter for non-admin
+    const warehouseOpt = document.querySelector('#statusFilter .admin-only-opt');
+    if (warehouseOpt) warehouseOpt.remove();
+    // Hide branch filter — non-admin is locked to their branch
+    document.getElementById('branchFilterGroup').style.display = 'none';
+}
+
+if (isAdmin) {
+    document.getElementById('pageTitle').textContent = 'Device Management andWarehouse';
+}
+
+if (isHead) {
+    const notice = document.getElementById('branchNotice');
+    notice.style.display = 'flex';
+    const myBranch = db.branches.find(b => b.id === currentUser.responsibleBranch);
+    document.getElementById('branchNoticeText').textContent =
+        `أنت ترى أجهزة your branch only${myBranch ? ' (' + myBranch.name + ')' : ''}. Warehouse مخصص for Admin General.`;
+}
+
+if (currentUser.role === 'surveyor') {
+    const notice = document.getElementById('branchNotice');
+    notice.style.display = 'flex';
+    document.getElementById('branchNoticeText').textContent = 'أنت ترى أجهزتك الشخصية only.';
+}
+
+const statusLabels = {
+    warehouse: 'Warehouse', assigned: 'Personal Custody', maintenance: 'Maintenance',
+    needs_calibration: 'Needs Calibration', at_maintenance: 'At Vendor — Maintenance',
+    at_calibration: 'At Vendor — Calibration'
+};
+
+// ===== Device type select population =====
+function populateDeviceTypes() {
+    const s = document.getElementById('dType');
+    if (!s) return;
+    const current = s.value;
+    s.innerHTML = '<option value="">Select Device Type</option>' +
+        getAllDeviceTypes().map(t => `<option value="${t.value}">${t.label}</option>`).join('');
+    if (current) s.value = current;
+}
+
+function toggleAddTypeForm() {
+    const form = document.getElementById('addTypeForm');
+    const opening = form.style.display === 'none';
+    form.style.display = opening ? 'block' : 'none';
+    if (opening) {
+        renderCustomTypesList();
+        document.getElementById('newTypeLabel').focus();
+    }
+}
+
+function renderCustomTypesList() {
+    const list = document.getElementById('customTypesList');
+    if (!list) return;
+    const custom = db.settings.customDeviceTypes || [];
+    if (custom.length === 0) {
+        list.innerHTML = '<div style="font-size:.8rem;color:#6b7280;padding:2px 0;">None types مخصصة yet.</div>';
+        return;
+    }
+    list.innerHTML = '<div style="font-size:.8rem;color:#374151;margin-bottom:6px;font-weight:600;">الtypes المخصصة current:</div>' +
+        custom.map(t => `
+            <div style="display:flex;align-items:center;gap:6px;margin:3px 0;background:#fff;padding:5px 8px;border-radius:6px;border:1px solid #dbeafe;">
+                <span style="flex:1;font-size:.85rem;color:#1f2937;">${t.label}</span>
+                <button type="button" onclick="deleteCustomType('${t.value}')"
+                    style="padding:2px 8px;background:#dc2626;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.75rem;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>`).join('');
+}
+
+function saveNewDeviceType() {
+    const input = document.getElementById('newTypeLabel');
+    const label = input.value.trim();
+    if (!label) { input.focus(); return; }
+    addCustomDeviceType(label);
+    input.value = '';
+    populateDeviceTypes();
+    renderCustomTypesList();
+    showToast('Done Add Device Type: ' + label, 'success');
+}
+
+window.deleteCustomType = value => {
+    const t = (db.settings.customDeviceTypes || []).find(x => x.value === value);
+    if (!t) return;
+    if (confirm(`هل أنت متأكد from Delete Type "${t.label}"؟`)) {
+        removeCustomDeviceType(value);
+        populateDeviceTypes();
+        renderCustomTypesList();
+        showToast('Done Delete Device Type.', 'success');
+    }
+};
+
+// ===== Populate dropdowns =====
+function populateOwners() {
+    const s = document.getElementById('dOwner');
+    if (!s) return;
+    s.innerHTML = '<option value="">Warehouse (No Owner)</option>' +
+        db.users.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
+}
+
+function populateBranchesSelects() {
+    const opts = db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    const dBranch = document.getElementById('dBranch');
+    const bFilter = document.getElementById('branchFilter');
+    if (dBranch) dBranch.innerHTML = '<option value="">Select Branch</option>' + opts;
+    if (bFilter) bFilter.innerHTML = '<option value="">All Branches</option>' + opts;
+}
+
+// ===== Filtering (uses getVisibleDevices for role isolation) =====
+function getFiltered() {
+    const search  = document.getElementById('devSearch').value.toLowerCase();
+    const statusF = document.getElementById('statusFilter').value;
+    const branchF = isAdmin ? document.getElementById('branchFilter').value : '';
+
+    return getVisibleDevices().filter(d => {
+        const typeLabel = getDeviceTypeName(d.type).toLowerCase();
+        const matchSearch = d.serial.toLowerCase().includes(search) || typeLabel.includes(search);
+        const matchStatus = !statusF || d.status === statusF;
+        const matchBranch = !branchF || d.branch === branchF;
+        return matchSearch && matchStatus && matchBranch;
+    });
+}
+
+// ===== Build action buttons per row =====
+function buildActionButtons(d) {
+    const canEdit   = isAdmin;
+    const atAgent   = d.status === 'at_maintenance' || d.status === 'at_calibration';
+    const sendable  = !atAgent && d.status !== 'warehouse' || (isAdmin && d.status === 'warehouse');
+    let btns = '';
+
+    if (canEdit) {
+        btns += `<button onclick="editDevice('${d.id}')" class="btn btn-ghost" style="padding:5px 8px;font-size:.8rem;" title="Edit">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                 </button>
+                 <button onclick="handleDeleteDevice('${d.id}')" class="btn btn-ghost" style="padding:5px 8px;font-size:.8rem;color:var(--danger);" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                 </button>`;
+    }
+
+    if (atAgent && isAdmin) {
+        // Admin can receive from agent
+        const isCalib = d.status === 'at_calibration';
+        btns += `<button onclick="openReturnModal('${d.id}')" class="btn-receive-agent" title="Receive from Vendor">
+                    <i class="fa-solid fa-circle-check"></i> Receive
+                 </button>`;
+    } else if (sendable && isAdmin) {
+        // Admin direct send
+        btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-send-maint" title="Send للMaintenance">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> Maintenance
+                 </button>
+                 <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-send-calib" title="Send للCalibration">
+                    <i class="fa-solid fa-ruler-combined"></i> Calibration
+                 </button>`;
+    } else if (!atAgent && !isAdmin && (isHead || currentUser.role === 'surveyor')) {
+        // Non-admin: request buttons
+        btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-req-maint" title="طلب Maintenance">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> طلب Maintenance
+                 </button>
+                 <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-req-maint" style="background:#7c3aed;" title="طلب Calibration">
+                    <i class="fa-solid fa-ruler-combined"></i> طلب Calibration
+                 </button>`;
+    }
+
+    return btns || '<span style="color:var(--text-muted);font-size:.8rem;">—</span>';
+}
+
+// ===== Refresh table =====
+function refreshTable() {
+    reloadDB();
+    const filtered = getFiltered();
+    const tbody = document.getElementById('deviceTableBody');
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    tbody.innerHTML = filtered.map(d => {
+        const owner    = db.users.find(u => u.id === d.ownerId);
+        const branch   = db.branches.find(b => b.id === d.branch);
+        const calExpired = d.calDate && new Date(d.calDate) < today;
+        const calWarning = d.calDate && !calExpired &&
+            (new Date(d.calDate) - today) / 86400000 <= (db.settings.alertDays || 30);
+        return `<tr>
+            <td><strong>${d.serial}</strong></td>
+            <td>${getDeviceTypeName(d.type)}</td>
+            <td>${owner ? owner.name : '<span style="color:var(--text-muted)">Warehouse</span>'}</td>
+            <td>${branch ? branch.name : '—'}</td>
+            <td style="color:${calExpired ? '#dc2626' : calWarning ? '#d97706' : 'inherit'};">
+                ${formatDate(d.calDate)}
+                ${calExpired ? ' <span class="badge badge-danger" style="font-size:.7rem;">Completed</span>' : ''}
+                ${calWarning && !calExpired ? ' <span class="badge badge-warning" style="font-size:.7rem;">قريباً</span>' : ''}
+            </td>
+            <td>${getDeviceStatusBadge(d.status)}</td>
+            <td><div class="action-btns">${buildActionButtons(d)}</div></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">None أجهزة مطابقة.</td></tr>';
+
+    document.getElementById('tableFooter').textContent = `Total: ${filtered.length} جهاز`;
+}
+
+// ===== Add/Edit form (admin only) =====
+document.getElementById('deviceForm').onsubmit = e => {
+    e.preventDefault();
+    const id      = document.getElementById('editId').value;
+    const serial  = document.getElementById('dSerial').value.trim();
+    const type    = document.getElementById('dType').value;
+    const calDate = document.getElementById('dCal').value;
+    const ownerId = document.getElementById('dOwner').value;
+    const status  = document.getElementById('dStatus').value;
+    const branchId = document.getElementById('dBranch').value ||
+                     (db.users.find(u => u.id === ownerId)?.branch || null);
+
+    if (id) {
+        updateDevice(id, { serial, type, calDate: calDate || null, ownerId: ownerId || null, status, branch: branchId });
+    } else {
+        if (!addDevice(serial, type, calDate || null, ownerId || null, status, branchId)) return;
+    }
+    refreshTable();
+    e.target.reset();
+    document.getElementById('editId').value = '';
+    document.getElementById('dSerial').readOnly = false;
+};
+
+window.editDevice = id => {
+    const d = db.devices.find(x => x.id === id);
+    if (!d) return;
+    document.getElementById('editId').value     = d.id;
+    document.getElementById('dSerial').value    = d.serial;
+    document.getElementById('dSerial').readOnly = true;
+    document.getElementById('dType').value      = d.type || '';
+    document.getElementById('dCal').value       = d.calDate || '';
+    document.getElementById('dOwner').value     = d.ownerId || '';
+    document.getElementById('dBranch').value    = d.branch || '';
+    document.getElementById('dStatus').value    = d.status || 'warehouse';
+    document.getElementById('adminOnlyForm').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.handleDeleteDevice = id => {
+    const d = db.devices.find(x => x.id === id);
+    if (!d) return;
+    if (confirm(`هل أنت متأكد from Delete Device "${d.serial}"؟`)) {
+        if (deleteDevice(id)) { refreshTable(); }
+        else { alert('فشل الDelete.'); }
+    }
+};
+
+// ===== Send Modal =====
+window.openSendModal = (deviceId, serial, deviceType, defaultType = 'maintenance') => {
+    document.getElementById('sendDeviceId').value   = deviceId;
+    document.getElementById('sendSerial').value     = serial;
+    document.getElementById('sendDeviceType').value = deviceType;
+    document.getElementById('sendType').value       = defaultType;
+    document.getElementById('sendNotes').value      = '';
+    document.getElementById('sendModalDesc').textContent =
+        `Device: ${serial} — ${getDeviceTypeName(deviceType)}`;
+
+    const modeNote = document.getElementById('sendModeNote');
+    const btnLabel = document.getElementById('confirmSendBtn');
+    if (isAdmin) {
+        modeNote.style.display = 'none';
+        btnLabel.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Direct';
+        document.getElementById('sendModalTitle').textContent = 'Send Device to Vendor';
+    } else {
+        modeNote.style.display = 'block';
+        btnLabel.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Request';
+        document.getElementById('sendModalTitle').textContent = 'طلب Send Device to Vendor';
+    }
+    document.getElementById('sendModal').style.display = 'flex';
+};
+
+window.closeSendModal = () => {
+    document.getElementById('sendModal').style.display = 'none';
+};
+
+window.confirmSend = () => {
+    const deviceId    = document.getElementById('sendDeviceId').value;
+    const serial      = document.getElementById('sendSerial').value;
+    const deviceType  = document.getElementById('sendDeviceType').value;
+    const requestType = document.getElementById('sendType').value;
+    const notes       = document.getElementById('sendNotes').value.trim();
+
+    if (isAdmin) {
+        // Direct send to agent
+        sendToAgent(deviceId, requestType === 'calibration' ? 'calibration' : 'maintenance');
+    } else {
+        // Submit maintenance request for approval
+        const result = sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes);
+        if (!result.success) {
+            alert('An error occurred: ' + result.msg);
+            return;
+        }
+    }
+
+    closeSendModal();
+    refreshTable();
+
+    const msg = isAdmin
+        ? `Done Send Device ${serial} للvendor.`
+        : `Done Send طلب ${requestType === 'maintenance' ? 'Maintenance' : 'Calibration'} للجهاز ${serial}. Pending Approve General Manager.`;
+    showToast(msg, isAdmin ? 'success' : 'info');
+};
+
+// ===== Return Modal (Admin only) =====
+window.openReturnModal = (deviceId) => {
+    const d = db.devices.find(x => x.id === deviceId);
+    if (!d) return;
+    document.getElementById('returnDeviceId').value = deviceId;
+    document.getElementById('returnNotes').value    = '';
+    document.getElementById('newCalDate').value     = '';
+    document.getElementById('returnModalDesc').textContent =
+        `Device: ${d.serial} — ${getDeviceTypeName(d.type)} (${statusLabels[d.status] || d.status})`;
+    // Set min date to tomorrow
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('newCalDate').min = tomorrow.toISOString().split('T')[0];
+    document.getElementById('returnModal').style.display = 'flex';
+};
+
+window.closeReturnModal = () => {
+    document.getElementById('returnModal').style.display = 'none';
+};
+
+window.confirmReturn = () => {
+    const deviceId  = document.getElementById('returnDeviceId').value;
+    const newCalDate = document.getElementById('newCalDate').value;
+    const notes     = document.getElementById('returnNotes').value.trim();
+
+    if (!newCalDate) {
+        document.getElementById('newCalDate').focus();
+        alert('يجب إدخال Calibration Date new.');
+        return;
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (new Date(newCalDate) <= today) {
+        alert('يجب أن يكandن Calibration Date في المستقبل.');
+        return;
+    }
+
+    returnFromAgent(deviceId, newCalDate);
+    closeReturnModal();
+    refreshTable();
+    showToast('Done Receive Device from Vendor andRefresh Calibration Date.', 'success');
+};
+
+// ===== Simple toast helper =====
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = 'live-notif-toast';
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+        background:${type === 'success' ? '#059669' : type === 'info' ? '#2563eb' : '#d97706'};
+        color:#fff;padding:12px 24px;border-radius:12px;font-size:.9rem;
+        z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:opacity .4s;`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3000);
+}
+
+// ===== Export =====
+window.exportToExcel = () => {
+    const filtered = getFiltered();
+    if (filtered.length === 0) { alert('None بيانات للExport.'); return; }
+    let csv = '﻿';
+    csv += 'Serial Number,Type,Owner,Branch,Calibration Date,Status\n';
+    filtered.forEach(d => {
+        const owner  = db.users.find(u => u.id === d.ownerId)?.name || 'Warehouse';
+        const branch = db.branches.find(b => b.id === d.branch)?.name || '—';
+        const label  = statusLabels[d.status] || d.status;
+        csv += `"${d.serial}","${getDeviceTypeName(d.type)}","${owner}","${branch}","${formatDate(d.calDate)}","${label}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Devices_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    addLog('Done Export بيانات Devices to Excel');
+};
+
+document.getElementById('devSearch').oninput   = refreshTable;
+document.getElementById('statusFilter').onchange = refreshTable;
+if (isAdmin) document.getElementById('branchFilter').onchange = refreshTable;
+
+// Auto-refresh every 30 seconds
+setInterval(refreshTable, 30000);
+
+window.onload = () => {
+    renderSidebar();
+    populateDeviceTypes();
+    if (isAdmin) {
+        document.getElementById('addTypeBtn').style.display = 'flex';
+        populateOwners();
+        populateBranchesSelects();
+    }
+    refreshTable();
+};
+</script>
+</body>
+</html>

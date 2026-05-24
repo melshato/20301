@@ -1,0 +1,594 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلبات الإجازة | ساجكو</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .hero-banner { background:linear-gradient(135deg,#f8fafc,#f0fdf4); border:1px solid var(--border); border-right:4px solid var(--primary); border-radius:16px; padding:20px; margin-bottom:24px; display:flex; gap:16px; align-items:flex-start; }
+        .hero-icon { width:54px; height:54px; border-radius:16px; background:#dcfce7; color:#15803d; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:var(--shadow-sm); }
+        .section-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start; }
+        @media(max-width:1100px){ .section-grid{grid-template-columns:1fr;} }
+        .request-card { border:1px solid var(--border); border-right:4px solid var(--primary); border-radius:14px; padding:16px; background:#fff; margin-bottom:14px; }
+        .request-head { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:12px; }
+        .request-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:12px; }
+        @media(max-width:700px){ .request-meta{grid-template-columns:1fr;} .request-head{flex-direction:column;} }
+        .meta-box { background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+        .meta-label { font-size:.78rem; color:var(--text-muted); margin-bottom:4px; }
+        .meta-value { font-size:.92rem; font-weight:600; color:var(--text-main); word-break:break-word; }
+        .summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
+        @media(max-width:900px){ .summary-grid{grid-template-columns:repeat(2,1fr);} }
+        .summary-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow-sm); }
+        .summary-card .num { font-size:1.5rem; font-weight:800; line-height:1.1; margin-top:8px; }
+        .small-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .departure-card { background:linear-gradient(135deg,#fff7ed,#fffbeb); border:2px solid #fbbf24; border-radius:14px; padding:14px; margin-bottom:14px; }
+        .btn-departed { background:#f59e0b; color:#fff; border:none; border-radius:20px; padding:8px 16px; font-family:inherit; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+        .btn-departed:hover { background:#d97706; }
+        .btn-returned { background:#059669; color:#fff; border:none; border-radius:20px; padding:8px 16px; font-family:inherit; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+        .btn-returned:hover { background:#047857; }
+        .approve-days-input { border:1px solid var(--border); border-radius:8px; padding:6px 10px; width:80px; font-family:inherit; font-size:.9rem; text-align:center; }
+        .print-only { display:none; }
+        @media print {
+            body { background:#fff; }
+            .sidebar, .no-print, .btn, .toast-wrap, #leaveFormCard, #pendingApprovalCard, .small-actions { display:none !important; }
+            .print-only { display:block !important; }
+            .main { padding:0 !important; max-width:none !important; }
+        }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <header style="margin-bottom:24px;">
+            <h2 id="pageTitle" style="font-size:1.55rem;font-weight:800;"></h2>
+            <p style="color:var(--text-muted)">تقديم طلب الإجازة ومتابعة الموافقات بمراحلها الكاملة.</p>
+        </header>
+
+        <div class="summary-grid no-print">
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">إجمالي الطلبات</div>
+                <div id="countAll" class="num" style="color:var(--primary);">0</div>
+            </div>
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">قيد الموافقة</div>
+                <div id="countPending" class="num" style="color:#d97706;">0</div>
+            </div>
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">معتمدة / مكتملة</div>
+                <div id="countApproved" class="num" style="color:#16a34a;">0</div>
+            </div>
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">مرفوضة</div>
+                <div id="countRejected" class="num" style="color:#dc2626;">0</div>
+            </div>
+        </div>
+
+        <!-- Departure tracking section (for head/admin) -->
+        <div id="departureSection" style="display:none;margin-bottom:20px;">
+            <h3 style="margin-bottom:12px;"><i class="fa-solid fa-plane-departure" style="color:#f59e0b;"></i> تتبع المغادرة والعودة</h3>
+            <div id="departureCards"></div>
+        </div>
+
+        <div class="section-grid">
+            <!-- Leave form -->
+            <div class="card" id="leaveFormCard">
+                <h3><i class="fa-solid fa-pen-to-square"></i> طلب إجازة جديد</h3>
+                <form id="leaveForm" autocomplete="off">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">الاسم</label>
+                            <input id="requesterName" class="form-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الرقم الوظيفي</label>
+                            <input id="requesterEmpId" class="form-input" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">الفرع</label>
+                            <input id="requesterBranch" class="form-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">رئيس المساحين المباشر</label>
+                            <input id="requesterHead" class="form-input" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">نوع الإجازة</label>
+                            <select id="leaveType" class="form-select" required>
+                                <option value="annual">سنوية</option>
+                                <option value="emergency">طارئة</option>
+                                <option value="sick">مرضية</option>
+                                <option value="unpaid">بدون راتب</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">عدد الأيام</label>
+                            <input type="number" id="daysRequested" class="form-input" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" style="color:#2563eb;font-weight:700;">
+                                <i class="fa-solid fa-calendar-check"></i> تاريخ المغادرة المتوقع *
+                            </label>
+                            <input type="date" id="startDate" class="form-input apple-date-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="color:#7c3aed;font-weight:700;">
+                                <i class="fa-solid fa-calendar-xmark"></i> تاريخ العودة المتوقع *
+                            </label>
+                            <input type="date" id="endDate" class="form-input apple-date-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">سبب الإجازة</label>
+                        <textarea id="reason" class="form-textarea" rows="3" placeholder="اكتب سبب طلب الإجازة باختصار..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">رابط المرفق على Google Drive</label>
+                        <input type="url" id="attachmentUrl" class="form-input" placeholder="https://drive.google.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">رابط صورة التوقيع الإلكتروني</label>
+                        <input type="url" id="signatureImageUrl" class="form-input" placeholder="رابط صورة التوقيع">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ملاحظات إضافية</label>
+                        <textarea id="notes" class="form-textarea" rows="2" placeholder="اختياري..."></textarea>
+                    </div>
+                    <div id="leaveFormAlert" style="margin-top:12px;"></div>
+                    <div class="small-actions" style="margin-top:14px;">
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button>
+                        <button type="button" class="btn btn-ghost" id="calcDaysBtn"><i class="fa-solid fa-calculator"></i> حساب الأيام</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Pending approvals -->
+            <div class="card" id="pendingApprovalCard">
+                <h3><i class="fa-solid fa-user-check"></i> طلبات بانتظار موافقتك</h3>
+                <div id="pendingApprovalsContainer"></div>
+                <div id="pendingApprovalsEmpty" style="padding:18px 10px;color:var(--text-muted);text-align:center;" class="hidden">
+                    لا توجد طلبات تحتاج موافقتك حالياً.
+                </div>
+            </div>
+        </div>
+
+        <!-- My requests table -->
+        <div class="card" style="margin-top:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+                <h3 style="margin-bottom:0;"><i class="fa-solid fa-list-check"></i> طلباتي</h3>
+                <button type="button" class="btn btn-ghost no-print" onclick="printLatestApproved()"><i class="fa-solid fa-print"></i> طباعة آخر طلب معتمد</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>النوع</th>
+                            <th>تاريخ المغادرة</th>
+                            <th>تاريخ العودة</th>
+                            <th>الأيام المطلوبة</th>
+                            <th>الأيام المعتمدة</th>
+                            <th>الحالة</th>
+                            <th>مغادرة فعلية</th>
+                            <th class="no-print">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myRequestsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="print-only" id="printArea"></div>
+    </main>
+</div>
+
+<!-- ===== Departure Modal ===== -->
+<div class="modal-overlay" id="departureModal" style="display:none;" onclick="if(event.target===this)closeDepartureModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="departureModalTitle">تأكيد المغادرة</h3>
+            <button class="modal-close" onclick="closeDepartureModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding:20px 24px 24px;">
+            <p id="departureModalDesc" style="color:var(--text-muted);margin-bottom:16px;"></p>
+            <div class="form-group">
+                <label class="form-label" style="font-weight:700;">تاريخ المغادرة الفعلي</label>
+                <input type="date" id="actualDepartureDate" class="form-input apple-date-input">
+            </div>
+            <input type="hidden" id="departureLeaveId">
+            <input type="hidden" id="departureAction">
+            <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
+                <button class="btn btn-ghost" onclick="closeDepartureModal()">إلغاء</button>
+                <button class="btn btn-primary" onclick="confirmDepartureAction()">تأكيد</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Custody Block Modal ===== -->
+<div id="custodyBlockModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
+        <h4 style="margin-bottom:6px;color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> تعذّر تسجيل المغادرة</h4>
+        <div id="custodyBlockBody" style="margin:14px 0;font-size:.9rem;line-height:1.7;"></div>
+        <button onclick="document.getElementById('custodyBlockModal').style.display='none'" class="btn btn-primary" style="width:100%;background:#dc2626;border-color:#dc2626;">
+            <i class="fa-solid fa-check"></i> حسناً
+        </button>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+checkAuth();
+if (!currentUser) window.location.href = 'index.html';
+
+const isAdmin = currentUser.role === 'admin';
+const isHead  = currentUser.role === 'head';
+const isSurveyor = currentUser.role === 'surveyor';
+
+function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i> <span>${msg}</span>`;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3200);
+}
+
+function showAlert(msg, type='error') {
+    const colors = { error:['#fee2e2','#991b1b'], success:['#dcfce7','#166534'], warning:['#fffbeb','#92400e'] };
+    const [bg, color] = colors[type] || colors.error;
+    document.getElementById('leaveFormAlert').innerHTML =
+        `<div style="background:${bg};color:${color};padding:10px 14px;border-radius:10px;font-weight:600;">${msg}</div>`;
+}
+
+const getBranchLabel = id => { const b = db.branches.find(b => b.id === id); return b ? b.name : 'غير محدد'; };
+const getLeaveTypeLabel = v => ({ annual:'سنوية', emergency:'طارئة', sick:'مرضية', unpaid:'بدون راتب', other:'أخرى' }[v] || v || '—');
+const isLeavePending = s => s === 'pending_head_approval' || s === 'pending_admin_approval';
+const calcDays = (s, e) => { if (!s || !e) return 0; const d = Math.floor((new Date(e)-new Date(s))/86400000)+1; return d > 0 ? d : 0; };
+
+function renderUserHeader() {
+    document.getElementById('pageTitle').innerText = `طلبات الإجازة - ${currentUser.name}`;
+    document.getElementById('requesterName').value = currentUser.name || '';
+    document.getElementById('requesterEmpId').value = currentUser.empId || '';
+    document.getElementById('requesterBranch').value = getBranchLabel(currentUser.branch);
+    const head = db.users.find(u => u.role==='head' && u.responsibleBranch===currentUser.branch && u.status==='approved');
+    document.getElementById('requesterHead').value = head ? head.name : 'غير معين';
+}
+
+// ===== Pending approvals with approved-days input =====
+function getApproverRequests() {
+    if (isAdmin) return (db.leaveRequests||[]).filter(r => r.status==='pending_admin_approval').sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+    if (isHead) return (db.leaveRequests||[]).filter(r => r.status==='pending_head_approval' && r.branchId===currentUser.responsibleBranch).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+    return [];
+}
+
+function renderPendingApprovals() {
+    const list = getApproverRequests();
+    const container = document.getElementById('pendingApprovalsContainer');
+    const empty = document.getElementById('pendingApprovalsEmpty');
+    if (!list.length) { container.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    container.innerHTML = list.map(req => {
+        const user = db.users.find(u => u.id === req.userId);
+        const defaultDays = req.approvedDaysByHead || req.daysRequested;
+        return `
+        <div class="request-card">
+            <div class="request-head">
+                <div>
+                    <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">${user?user.name:'—'} - ${getLeaveTypeLabel(req.leaveType)}</div>
+                    <div style="color:var(--text-muted);font-size:.85rem;">${formatDate(req.timestamp)}</div>
+                </div>
+                ${getLeaveStatusBadge(req.status)}
+            </div>
+            <div class="request-meta">
+                <div class="meta-box"><div class="meta-label">تاريخ المغادرة</div><div class="meta-value">${formatDate(req.startDate)}</div></div>
+                <div class="meta-box"><div class="meta-label">تاريخ العودة</div><div class="meta-value">${formatDate(req.endDate)}</div></div>
+                <div class="meta-box"><div class="meta-label">الأيام المطلوبة</div><div class="meta-value">${req.daysRequested||'—'}</div></div>
+                <div class="meta-box"><div class="meta-label">السبب</div><div class="meta-value">${req.reason||'—'}</div></div>
+            </div>
+            <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:8px 12px;">
+                    <label style="font-size:.85rem;font-weight:600;white-space:nowrap;">الأيام المعتمدة:</label>
+                    <input type="number" id="appDays_${req.id}" class="approve-days-input" value="${defaultDays}" min="1" max="${req.daysRequested*2}">
+                </div>
+                ${req.attachmentUrl ? `<a href="${req.attachmentUrl}" target="_blank" class="btn btn-ghost"><i class="fa-solid fa-link"></i> المرفق</a>` : ''}
+                <button class="btn btn-primary" onclick="approveLeave('${req.id}')"><i class="fa-solid fa-check"></i> موافقة</button>
+                <button class="btn btn-ghost" style="color:#b91c1c;" onclick="rejectLeave('${req.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===== Departure tracking cards =====
+function renderDepartureSection() {
+    if (!isAdmin && !isHead) { document.getElementById('departureSection').style.display='none'; return; }
+
+    // Find approved requests where departure not yet confirmed, or departed but not returned
+    let trackableRequests = [];
+    if (isAdmin) {
+        trackableRequests = (db.leaveRequests||[]).filter(r => r.status==='approved' || r.status==='completed');
+    } else if (isHead) {
+        trackableRequests = (db.leaveRequests||[]).filter(r =>
+            (r.status==='approved' || r.status==='completed') && r.branchId===currentUser.responsibleBranch
+        );
+    }
+
+    const active = trackableRequests.filter(r => !r.isReturned).slice(0, 10);
+    if (!active.length) { document.getElementById('departureSection').style.display='none'; return; }
+
+    document.getElementById('departureSection').style.display='block';
+    document.getElementById('departureCards').innerHTML = active.map(req => {
+        const user = db.users.find(u => u.id === req.userId);
+        const finalDays = req.approvedDaysFinal || req.approvedDaysByHead || req.daysRequested;
+        return `
+        <div class="departure-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+                <div>
+                    <div style="font-size:1rem;font-weight:800;">${user?user.name:'—'} — ${getLeaveTypeLabel(req.leaveType)}</div>
+                    <div style="font-size:.85rem;color:var(--text-muted);margin-top:4px;">
+                        <i class="fa-solid fa-calendar"></i> المغادرة المتوقعة: <strong>${formatDate(req.startDate)}</strong>
+                        &nbsp;|&nbsp;
+                        <i class="fa-solid fa-calendar-check"></i> العودة المتوقعة: <strong>${formatDate(req.endDate)}</strong>
+                        &nbsp;|&nbsp;
+                        الأيام المعتمدة: <strong>${finalDays}</strong>
+                    </div>
+                    ${req.isDeparted ? `<div style="color:#16a34a;font-size:.85rem;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> غادر بتاريخ: <strong>${formatDate(req.actualDepartureDate)}</strong></div>` : ''}
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    ${!req.isDeparted ? `
+                        <button class="btn-departed" onclick="openDepartureModal('${req.id}','depart')">
+                            <i class="fa-solid fa-plane-departure"></i> غادر
+                        </button>
+                    ` : `
+                        <button class="btn-returned" onclick="openDepartureModal('${req.id}','return')">
+                            <i class="fa-solid fa-plane-arrival"></i> رجع من الإجازة
+                        </button>
+                    `}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===== My requests table =====
+function renderMyRequests() {
+    const rows = (db.leaveRequests||[])
+        .filter(r => r.userId === currentUser.id)
+        .sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+
+    document.getElementById('countAll').innerText = rows.length;
+    document.getElementById('countPending').innerText = rows.filter(r=>isLeavePending(r.status)).length;
+    document.getElementById('countApproved').innerText = rows.filter(r=>r.status==='approved'||r.status==='completed').length;
+    document.getElementById('countRejected').innerText = rows.filter(r=>r.status==='rejected').length;
+
+    const body = document.getElementById('myRequestsBody');
+    if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted);">لا توجد طلبات إجازة حتى الآن.</td></tr>';
+        return;
+    }
+    body.innerHTML = rows.map(req => {
+        const finalDays = req.approvedDaysFinal || req.approvedDaysByHead || '—';
+        const departureTxt = req.actualDepartureDate
+            ? `<span style="color:#16a34a;font-size:.8rem;"><i class="fa-solid fa-plane-departure"></i> ${formatDate(req.actualDepartureDate)}</span>`
+            : (req.status==='approved' ? '<span style="color:#d97706;font-size:.8rem;">بانتظار التأكيد</span>' : '—');
+        return `<tr>
+            <td>${getLeaveTypeLabel(req.leaveType)}</td>
+            <td>${formatDate(req.startDate)}</td>
+            <td>${formatDate(req.endDate)}</td>
+            <td><strong>${req.daysRequested||'—'}</strong></td>
+            <td style="color:${finalDays!=='—'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
+            <td>${getLeaveStatusBadge(req.status)}</td>
+            <td>${departureTxt}</td>
+            <td class="no-print"><button class="btn btn-ghost" style="padding:5px 8px;font-size:.8rem;" onclick="printLeave('${req.id}')"><i class="fa-solid fa-print"></i></button></td>
+        </tr>`;
+    }).join('');
+}
+
+window.approveLeave = (id) => {
+    if (!confirm('هل أنت متأكد من الموافقة على طلب الإجازة؟')) return;
+    const role = isAdmin ? 'admin' : 'head';
+    const daysInput = document.getElementById(`appDays_${id}`);
+    const approvedDays = daysInput ? Number(daysInput.value) : null;
+    const ok = approveLeaveRequest(id, role, approvedDays);
+    if (ok) { toast('تمت الموافقة بنجاح', 'success'); renderAll(); }
+    else { toast('تعذر الموافقة على هذا الطلب', 'error'); }
+};
+
+window.rejectLeave = (id) => {
+    if (!confirm('هل أنت متأكد من رفض طلب الإجازة؟')) return;
+    if (rejectLeaveRequest(id)) { toast('تم رفض الطلب', 'success'); renderAll(); }
+    else { toast('تعذر رفض هذا الطلب', 'error'); }
+};
+
+// ===== Departure Modal =====
+window.openDepartureModal = (leaveId, action) => {
+    const req = (db.leaveRequests||[]).find(r=>r.id===leaveId);
+    if (!req) return;
+    const user = db.users.find(u=>u.id===req.userId);
+    document.getElementById('departureLeaveId').value = leaveId;
+    document.getElementById('departureAction').value = action;
+    if (action === 'depart') {
+        document.getElementById('departureModalTitle').textContent = 'تأكيد مغادرة الموظف';
+        document.getElementById('departureModalDesc').textContent = `أكد مغادرة ${user?user.name:''} وأدخل تاريخ المغادرة الفعلي.`;
+        document.getElementById('actualDepartureDate').value = req.startDate || new Date().toISOString().split('T')[0];
+    } else {
+        document.getElementById('departureModalTitle').textContent = 'تأكيد عودة الموظف من الإجازة';
+        document.getElementById('departureModalDesc').textContent = `أكد عودة ${user?user.name:''} من الإجازة وأدخل تاريخ العودة الفعلي.`;
+        document.getElementById('actualDepartureDate').value = req.endDate || new Date().toISOString().split('T')[0];
+    }
+    document.getElementById('departureModal').style.display = 'flex';
+};
+
+window.closeDepartureModal = () => { document.getElementById('departureModal').style.display='none'; };
+
+window.confirmDepartureAction = () => {
+    const leaveId = document.getElementById('departureLeaveId').value;
+    const action = document.getElementById('departureAction').value;
+    const dateVal = document.getElementById('actualDepartureDate').value;
+    let ok = false;
+    if (action === 'depart') {
+        ok = markLeaveDeparted(leaveId, dateVal);
+        if (!ok && window._departureBlockedByCustody) {
+            closeDepartureModal();
+            const req = (db.leaveRequests || []).find(r => r.id === leaveId);
+            const user = req ? db.users.find(u => u.id === req.userId) : null;
+            document.getElementById('custodyBlockBody').innerHTML =
+                `<div style="font-weight:700;margin-bottom:8px;">${user?.name || ''}</div>` +
+                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> لا يمكن المغادرة — لدى الموظف عهدة نشطة على الأجهزة التالية:</div>` +
+                `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.85rem;font-weight:600;">${window._departureBlockedByCustody}</div>` +
+                `<div style="margin-top:10px;font-size:.82rem;color:var(--text-muted);">يجب إعادة الأجهزة أو نقل العهدة قبل تسجيل المغادرة.</div>`;
+            document.getElementById('custodyBlockModal').style.display = 'flex';
+            renderAll();
+            return;
+        }
+        if (ok) toast('تم تسجيل المغادرة بنجاح', 'success');
+    } else {
+        ok = markLeaveReturned(leaveId, dateVal);
+        if (ok) toast('تم تسجيل العودة بنجاح', 'success');
+    }
+    if (!ok) toast('تعذرت العملية', 'error');
+    closeDepartureModal();
+    renderAll();
+};
+
+// ===== Form handlers =====
+function syncDaysFromDates() {
+    const s = document.getElementById('startDate').value;
+    const e = document.getElementById('endDate').value;
+    const days = calcDays(s, e);
+    if (days > 0) document.getElementById('daysRequested').value = days;
+}
+
+document.getElementById('leaveForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const daysRequested = Number(document.getElementById('daysRequested').value);
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    if (!startDate) { showAlert('يجب إدخال تاريخ المغادرة المتوقع', 'error'); return; }
+    if (!endDate)   { showAlert('يجب إدخال تاريخ العودة المتوقع', 'error'); return; }
+    if (calcDays(startDate, endDate) <= 0) { showAlert('التواريخ غير صحيحة', 'error'); return; }
+
+    const result = addLeaveRequest({
+        userId: currentUser.id,
+        leaveType: document.getElementById('leaveType').value,
+        startDate, endDate, daysRequested,
+        reason: document.getElementById('reason').value.trim(),
+        attachmentUrl: document.getElementById('attachmentUrl').value.trim(),
+        signatureImageUrl: document.getElementById('signatureImageUrl').value.trim(),
+        notes: document.getElementById('notes').value.trim()
+    });
+    if (!result.success) { showAlert(result.msg||'تعذر إرسال الطلب', 'error'); return; }
+    showAlert('تم إرسال طلب الإجازة بنجاح', 'success');
+    toast('تم إرسال الطلب وبانتظار الموافقات', 'success');
+    e.target.reset();
+    renderAll();
+});
+
+document.getElementById('startDate').addEventListener('change', syncDaysFromDates);
+document.getElementById('endDate').addEventListener('change', syncDaysFromDates);
+document.getElementById('calcDaysBtn').addEventListener('click', syncDaysFromDates);
+
+// Auto-set end date when days field changes
+document.getElementById('daysRequested').addEventListener('change', () => {
+    const v = Number(document.getElementById('daysRequested').value);
+    const start = document.getElementById('startDate').value;
+    if (v > 0 && start) {
+        const d = new Date(start); d.setDate(d.getDate() + v - 1);
+        document.getElementById('endDate').value = d.toISOString().split('T')[0];
+    }
+});
+
+// ===== Print =====
+function buildPrintHtml(req) {
+    const user = db.users.find(u=>u.id===req.userId);
+    const head = db.users.find(u=>u.role==='head' && u.responsibleBranch===req.branchId && u.status==='approved');
+    const admin = db.users.find(u=>u.role==='admin' && u.status==='approved');
+    const history = (req.approvalHistory||[]).map(item=>`
+        <div style="margin-bottom:8px;padding:8px;border:1px solid #ddd;border-radius:6px;">
+            <strong>${item.approverRole||item.approverName||'—'}</strong>:
+            ${item.decision==='approved'?'موافقة':item.decision==='rejected'?'رفض':item.decision==='departed'?'مغادرة':item.decision==='returned'?'عودة':'—'}
+            ${item.approvedDays?` (${item.approvedDays} يوم)`:''}
+            — ${formatDate(item.timestamp)}
+        </div>
+    `).join('');
+    return `<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><style>
+        body{font-family:Arial,sans-serif;direction:rtl;padding:28px;color:#111;}
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+        .box{border:1px solid #ddd;border-radius:8px;padding:10px 12px;}
+        .label{font-size:12px;color:#6b7280;margin-bottom:3px;}
+        .val{font-size:14px;font-weight:700;}
+        @media print{body{padding:0;}}
+    </style></head><body>
+    <h2 style="text-align:center;margin-bottom:20px;">شركة شبه الجزيرة للمقاولات - ساجكو</h2>
+    <h3 style="text-align:center;margin-bottom:20px;">نموذج طلب إجازة</h3>
+    <div class="grid">
+        <div class="box"><div class="label">اسم الموظف</div><div class="val">${user?user.name:'—'}</div></div>
+        <div class="box"><div class="label">الرقم الوظيفي</div><div class="val">${user?user.empId:'—'}</div></div>
+        <div class="box"><div class="label">الفرع</div><div class="val">${getBranchLabel(req.branchId)}</div></div>
+        <div class="box"><div class="label">نوع الإجازة</div><div class="val">${getLeaveTypeLabel(req.leaveType)}</div></div>
+        <div class="box"><div class="label">تاريخ المغادرة المتوقع</div><div class="val">${formatDate(req.startDate)}</div></div>
+        <div class="box"><div class="label">تاريخ العودة المتوقع</div><div class="val">${formatDate(req.endDate)}</div></div>
+        <div class="box"><div class="label">الأيام المطلوبة</div><div class="val">${req.daysRequested||'—'}</div></div>
+        <div class="box"><div class="label">الأيام المعتمدة</div><div class="val">${req.approvedDaysFinal||req.approvedDaysByHead||'—'}</div></div>
+        <div class="box"><div class="label">تاريخ المغادرة الفعلي</div><div class="val">${req.actualDepartureDate?formatDate(req.actualDepartureDate):'—'}</div></div>
+        <div class="box"><div class="label">تاريخ العودة الفعلي</div><div class="val">${req.actualReturnDate?formatDate(req.actualReturnDate):'—'}</div></div>
+    </div>
+    <div class="box" style="margin-top:12px;"><div class="label">السبب</div><div class="val">${req.reason||'—'}</div></div>
+    <h4 style="margin:16px 0 8px;">سجل الموافقات</h4>
+    ${history || '<div class="box">لا يوجد سجل حتى الآن.</div>'}
+    <div class="grid" style="margin-top:24px;">
+        <div class="box" style="min-height:100px;"><div class="label">توقيع رئيس المساحين</div><div class="val">${head?head.name:'—'}</div></div>
+        <div class="box" style="min-height:100px;"><div class="label">توقيع المدير العام</div><div class="val">${admin?admin.name:'محمد اقطيط'}</div></div>
+    </div>
+    </body></html>`;
+}
+
+window.printLeave = (id) => {
+    const req = (db.leaveRequests||[]).find(r=>r.id===id);
+    if (!req) { toast('الطلب غير موجود','error'); return; }
+    const win = window.open('','_blank','width=900,height=700');
+    win.document.open();
+    win.document.write(buildPrintHtml(req));
+    win.document.close();
+    setTimeout(()=>win.print(), 500);
+};
+
+window.printLatestApproved = () => {
+    const latest = (db.leaveRequests||[]).filter(r=>r.userId===currentUser.id&&(r.status==='approved'||r.status==='completed'))
+        .sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))[0];
+    if (!latest) { toast('لا يوجد طلب معتمد للطباعة','warning'); return; }
+    window.printLeave(latest.id);
+};
+
+function renderAll() {
+    reloadDB();
+    renderSidebar();
+    renderUserHeader();
+    renderPendingApprovals();
+    renderDepartureSection();
+    renderMyRequests();
+}
+
+setInterval(renderAll, 30000);
+
+// Realtime hooks — fires instantly when custodies/leave_requests tables change
+window.refreshPage = renderAll;
+window.onNewNotification = (n) => {
+    if (n.actionType === 'leave_approval' || n.actionType === 'leave_departure') renderAll();
+};
+window.addEventListener('load', () => { if (currentUser) renderAll(); });
+</script>
+</body>
+</html>

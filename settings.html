@@ -1,0 +1,868 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات | ساجكو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .settings-section { background:#fff; border-radius:16px; border:1px solid var(--border); padding:28px; margin-bottom:24px; }
+        .settings-section h3 { font-size:1.05rem; font-weight:600; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+
+        .image-upload-card {
+            background:#f8fafc; border-radius:12px; border:1px solid var(--border);
+            padding:20px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+        }
+        .image-preview-box {
+            width:80px; height:80px; border-radius:12px; border:2px solid var(--border);
+            overflow:hidden; flex-shrink:0; background:#fff; display:flex; align-items:center; justify-content:center;
+        }
+        .image-preview-box img { width:100%; height:100%; object-fit:contain; }
+        .image-preview-box .placeholder-icon { font-size:2rem; color:#cbd5e1; }
+
+        .upload-btn-group { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .upload-status { font-size:.8rem; padding:6px 12px; border-radius:8px; font-weight:600; }
+        .upload-status.uploading { background:#fef3c7; color:#92400e; }
+        .upload-status.success { background:#dcfce7; color:#166534; }
+        .upload-status.error { background:#fee2e2; color:#991b1b; }
+
+        .storage-select-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .settings-divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
+        .url-input-row { display:flex; gap:8px; align-items:flex-start; }
+
+        .alert-days-control { display:flex; align-items:center; gap:12px; }
+        .alert-days-control input[type=range] { flex:1; accent-color:var(--primary); }
+
+        @media (prefers-color-scheme:dark) {
+            .settings-section { background:#1e293b; }
+            .image-upload-card { background:#0f172a; }
+            .image-preview-box { background:#1e293b; }
+        }
+        .btn-ghost { color:#16a34a !important; border-color:#16a34a; }
+        .btn-ghost:hover { background:#f0fdf4; }
+        #logoPreviewModal { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.75); align-items:center; justify-content:center; cursor:pointer; }
+        #logoPreviewModal.open { display:flex; }
+        #logoPreviewModal img { max-width:80vw; max-height:80vh; border-radius:16px; box-shadow:0 8px 40px rgba(0,0,0,.5); cursor:default; }
+        .pcr-tab { padding:8px 16px; border-radius:20px; border:1px solid var(--border); background:#f8fafc; cursor:pointer; font-size:.85rem; font-weight:600; color:var(--text-muted); transition:all .2s; }
+        .pcr-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .pcr-panel { display:none; margin-top:16px; }
+        .pcr-panel.active { display:block; }
+        .pcr-sb { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .pcr-sb.pending_head  { background:#fffbeb; color:#92400e; }
+        .pcr-sb.pending_admin { background:#eff6ff; color:#1e40af; }
+        .pcr-sb.approved      { background:#dcfce7; color:#166534; }
+        .pcr-sb.rejected      { background:#fee2e2; color:#991b1b; }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <header style="margin-bottom:32px;">
+            <h2 style="font-size:1.5rem;font-weight:700">الإعدادات</h2>
+            <p style="color:var(--text-muted)" id="settingsSubtitle">بيانات حسابي وإعدادات النظام.</p>
+        </header>
+
+        <!-- ====== بيانات حسابي وطلبات التعديل (جميع الأدوار) ====== -->
+        <div class="settings-section" style="border-right:4px solid var(--primary);">
+            <h3><i class="fa-solid fa-user-gear" style="color:var(--primary)"></i> بيانات حسابي وطلبات التعديل</h3>
+
+            <!-- معلومات الحساب الحالية -->
+            <div id="profileInfoDisplay" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"></div>
+
+            <!-- أزرار التبويب -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                <button class="pcr-tab active" id="pcrTab_phone"    onclick="showPcrTab('phone')"><i class="fa-solid fa-phone"></i> تعديل الهاتف</button>
+                <button class="pcr-tab"        id="pcrTab_email"    onclick="showPcrTab('email')"><i class="fa-solid fa-envelope"></i> تعديل البريد</button>
+                <button class="pcr-tab"        id="pcrTab_password" onclick="showPcrTab('password')"><i class="fa-solid fa-lock"></i> تغيير كلمة المرور</button>
+            </div>
+
+            <!-- تبويب الهاتف -->
+            <div class="pcr-panel active" id="pcrPanel_phone">
+                <div class="form-group"><label class="form-label">رقم الهاتف الجديد</label>
+                <input type="tel" id="pcr_phone" class="form-input" placeholder="05xxxxxxxx"></div>
+                <button onclick="submitPcr('phone')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+                <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_phone"></p>
+            </div>
+
+            <!-- تبويب البريد -->
+            <div class="pcr-panel" id="pcrPanel_email">
+                <div class="form-group"><label class="form-label">البريد الإلكتروني الجديد</label>
+                <input type="email" id="pcr_email" class="form-input" placeholder="example@email.com"></div>
+                <button onclick="submitPcr('email')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+                <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_email"></p>
+            </div>
+
+            <!-- تبويب كلمة المرور -->
+            <div class="pcr-panel" id="pcrPanel_password">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">كلمة المرور الجديدة</label>
+                    <input type="password" id="pcr_password" class="form-input" placeholder="6 أحرف على الأقل"></div>
+                    <div class="form-group"><label class="form-label">تأكيد كلمة المرور</label>
+                    <input type="password" id="pcr_password_confirm" class="form-input" placeholder="أعد كتابتها"></div>
+                </div>
+                <button onclick="submitPcr('password')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+                <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_password"></p>
+            </div>
+
+            <div id="pcrSubmitResult" style="margin-top:10px;"></div>
+
+            <!-- سجل طلباتي -->
+            <hr style="border-color:var(--border);margin:20px 0;">
+            <h4 style="margin-bottom:12px;font-size:.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> طلباتي السابقة</h4>
+            <div id="myPcrList"></div>
+        </div>
+
+        <!-- ====== حالة الاتصال بـ Supabase ====== -->
+        <div id="adminOnlySections">
+        <div class="settings-section" style="border-right:4px solid var(--primary);">
+            <h3><i class="fa-solid fa-cloud" style="color:var(--primary)"></i> حالة الاتصال بـ Supabase</h3>
+            <div id="supabaseStatus" style="padding:14px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+                <div id="statusDot" style="width:12px;height:12px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></div>
+                <div id="statusText" style="font-weight:500;">جاري التحقق من الاتصال...</div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="testConnection()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-rotate"></i> اختبار الاتصال
+                </button>
+                <button onclick="syncNow()" class="btn btn-primary" style="font-size:.85rem;" id="syncBtn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> مزامنة البيانات الآن
+                </button>
+                <button onclick="loadFromSupabase()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> تحميل من Supabase
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== شعار النظام ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-image"></i> شعار النظام (Logo)</h3>
+            <div class="image-upload-card">
+                <div class="image-preview-box" id="logoPreviewBox">
+                    <img id="logoPreviewImg" src="" alt="Logo" style="display:none;">
+                    <span class="placeholder-icon" id="logoPlaceholderIcon"><i class="fa-solid fa-image"></i></span>
+                </div>
+                <div style="flex:1;">
+                    <div class="upload-btn-group">
+                        <label class="btn btn-primary" style="cursor:pointer;font-size:.85rem;margin:0;">
+                            <i class="fa-solid fa-upload"></i> رفع شعار جديد
+                            <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+                        </label>
+                        <button onclick="resetLogo()" class="btn btn-ghost" style="font-size:.85rem;">استعادة الافتراضي</button>
+                        <button onclick="previewCurrentLogo()" class="btn btn-ghost" style="font-size:.85rem;" id="logoPreviewBtn" title="معاينة الشعار الحالي">
+                            <i class="fa-solid fa-eye"></i> معاينة
+                        </button>
+                        <span id="logoUploadStatus" class="upload-status" style="display:none;"></span>
+                    </div>
+                    <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">
+                        يفضل صورة PNG بخلفية شفافة ومقاسات مربعة. سيتم رفعها على Supabase Storage تلقائياً.
+                    </div>
+                </div>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">أو استخدم رابط مباشر</div>
+            <div class="url-input-row">
+                <input type="url" id="logoGoogleUrl" class="form-input" placeholder="https://..." style="flex:1;font-size:.9rem;">
+                <button onclick="applyLogoFromUrl()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-link"></i> تطبيق
+                </button>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">اختيار من Supabase Storage</div>
+            <div class="storage-select-row">
+                <select id="logoFromStorageSelect" class="form-select" style="flex:1;font-size:.9rem;">
+                    <option value="">-- اختر شعاراً من Storage --</option>
+                </select>
+                <button onclick="applyLogoFromStorage()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-check"></i> استخدام
+                </button>
+                <button onclick="loadStorageFiles('assets','brand','logoFromStorageSelect')" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-rotate"></i> تحديث
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== صورة واجهة النظام ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> صورة واجهة النظام</h3>
+            <div class="image-upload-card">
+                <div class="image-preview-box" id="appImagePreviewBox" style="width:100px;height:100px;">
+                    <img id="appImagePreviewImg" src="" alt="App Image" style="display:none;">
+                    <span class="placeholder-icon" id="appImagePlaceholderIcon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                </div>
+                <div style="flex:1;">
+                    <div class="upload-btn-group">
+                        <label class="btn btn-primary" style="cursor:pointer;font-size:.85rem;margin:0;">
+                            <i class="fa-solid fa-upload"></i> رفع صورة جديدة
+                            <input type="file" id="appImageFileInput" accept="image/*" style="display:none;" onchange="handleAppImageUpload(event)">
+                        </label>
+                        <button onclick="resetAppImage()" class="btn btn-ghost" style="font-size:.85rem;color:var(--danger);">
+                            <i class="fa-solid fa-trash"></i> حذف
+                        </button>
+                        <span id="appImageUploadStatus" class="upload-status" style="display:none;"></span>
+                    </div>
+                    <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">
+                        تظهر في صفحة الدخول وكعلامة مائية. سيتم رفعها على Supabase Storage.
+                    </div>
+                </div>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">أو استخدم رابط مباشر</div>
+            <div class="url-input-row">
+                <input type="url" id="appImageGoogleUrl" class="form-input" placeholder="https://..." style="flex:1;font-size:.9rem;">
+                <button onclick="applyAppImageFromUrl()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-link"></i> تطبيق
+                </button>
+            </div>
+
+            <hr class="settings-divider">
+
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">اختيار من Supabase Storage</div>
+            <div class="storage-select-row">
+                <select id="appImageFromStorageSelect" class="form-select" style="flex:1;font-size:.9rem;">
+                    <option value="">-- اختر صورة من Storage --</option>
+                </select>
+                <button onclick="applyAppImageFromStorage()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-check"></i> استخدام
+                </button>
+                <button onclick="loadStorageFiles('assets','brand','appImageFromStorageSelect')" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
+                    <i class="fa-solid fa-rotate"></i> تحديث
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== إعدادات التنبيهات ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-bell"></i> إعدادات التنبيهات</h3>
+            <div style="margin-bottom:20px;">
+                <label class="form-label">مدة التنبيه المسبق للمعايرة</label>
+                <div class="alert-days-control">
+                    <input type="range" id="alertDaysSlider" min="7" max="90" value="30" oninput="document.getElementById('alertDaysVal').textContent=this.value">
+                    <span style="font-weight:700;min-width:80px;" id="alertDaysVal">30</span>
+                    <span style="color:var(--text-muted);">يوم</span>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+                <input type="checkbox" id="alertSoundToggle" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary);">
+                <label for="alertSoundToggle" class="form-label" style="margin:0;cursor:pointer;">تفعيل صوت التنبيه للأجهزة منتهية المعايرة</label>
+            </div>
+            <button onclick="saveAlertSettings()" class="btn btn-primary" style="margin-top:16px;font-size:.9rem;">
+                <i class="fa-solid fa-save"></i> حفظ إعدادات التنبيهات
+            </button>
+        </div>
+
+        <!-- ====== شريط الأخبار ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-newspaper" style="color:#dc2626;"></i> شريط الأخبار العاجل</h3>
+            <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">الأخبار والتحذيرات التي تظهر لجميع الموظفين في شريط متحرك أعلى كل صفحة.</p>
+
+            <!-- إضافة خبر جديد -->
+            <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end;">
+                <div style="flex:1;min-width:220px;">
+                    <label class="form-label">نص الخبر أو التحذير</label>
+                    <input type="text" id="newTickerText" class="form-input" placeholder="اكتب الخبر هنا..." style="font-size:.9rem;">
+                </div>
+                <div style="min-width:130px;">
+                    <label class="form-label">النوع</label>
+                    <select id="newTickerType" class="form-select" style="font-size:.9rem;">
+                        <option value="news">خبر</option>
+                        <option value="warning">تحذير</option>
+                    </select>
+                </div>
+                <button onclick="addTickerNews()" class="btn btn-primary" style="font-size:.85rem;">
+                    <i class="fa-solid fa-plus"></i> إضافة
+                </button>
+            </div>
+
+            <!-- قائمة الأخبار الحالية -->
+            <div id="tickerItemsList"></div>
+        </div>
+
+        <!-- ====== النسخ الاحتياطي ====== -->
+        <div class="settings-section">
+            <h3><i class="fa-solid fa-database"></i> النسخ الاحتياطي والبيانات</h3>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;color:#166534;">
+                <i class="fa-solid fa-circle-info"></i>
+                آخر نسخة احتياطية: <strong id="lastBackupInfo">لم يتم أخذ نسخة بعد</strong>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="exportBackup()" class="btn btn-primary" style="font-size:.85rem;">
+                    <i class="fa-solid fa-file-export"></i> تصدير نسخة احتياطية
+                </button>
+                <button onclick="importBackup()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-file-import"></i> استيراد نسخة احتياطية
+                </button>
+            </div>
+        </div>
+        </div><!-- /adminOnlySections -->
+    </main>
+</div>
+
+<div id="logoPreviewModal" onclick="this.classList.remove('open')">
+    <img id="logoPreviewModalImg" src="" alt="معاينة الشعار" onclick="event.stopPropagation()">
+</div>
+
+<div class="designer-credit">
+    <div><i class="fa-solid fa-code" style="color:var(--primary);margin-left:6px;"></i>تم تصميم الموقع بواسطة <strong>محمود الشطورى</strong></div>
+    <div style="font-size:.75rem;border-top:1px solid var(--border);margin-top:6px;padding-top:4px;">بإشراف المهندس <strong>محمد يوسف اقطيط</strong></div>
+</div>
+
+<script>
+checkAuth();
+// Hide admin-only sections for non-admin roles
+if (currentUser.role !== 'admin') {
+    document.getElementById('adminOnlySections').style.display = 'none';
+}
+// Update subtitle based on role
+const _settingsSub = document.getElementById('settingsSubtitle');
+if (_settingsSub && currentUser.role !== 'admin') {
+    _settingsSub.textContent = 'تعديل بيانات حسابك الشخصية — البريد الإلكتروني وكلمة المرور ورقم الهاتف.';
+}
+
+// ── Profile Change Request Section ──────────────────────
+const _pcrTypeLabel = { phone: 'رقم الهاتف', email: 'البريد الإلكتروني', password: 'كلمة المرور' };
+const _pcrStatusLabel = { pending_head: 'بانتظار رئيس المساحين', pending_admin: 'بانتظار المدير', approved: 'تمت الموافقة', rejected: 'مرفوض' };
+
+window.showPcrTab = (type) => {
+    ['phone','email','password'].forEach(t => {
+        document.getElementById('pcrTab_' + t).classList.toggle('active', t === type);
+        document.getElementById('pcrPanel_' + t).classList.toggle('active', t === type);
+    });
+};
+
+function initProfileSection() {
+    // Current info display
+    const el = document.getElementById('profileInfoDisplay');
+    const infoItems = [
+        { icon: 'fa-user', label: 'الاسم', value: currentUser.name },
+        { icon: 'fa-id-badge', label: 'الرقم الوظيفي', value: currentUser.empId },
+        { icon: 'fa-phone', label: 'الهاتف', value: currentUser.phone || '—' },
+        { icon: 'fa-envelope', label: 'البريد', value: currentUser.email || '—' },
+    ];
+    el.innerHTML = infoItems.map(i => `
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;border:1px solid var(--border);padding:10px 12px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid ${i.icon}" style="color:var(--primary);font-size:.9rem;"></i>
+            </div>
+            <div><div style="font-size:.72rem;color:var(--text-muted);">${i.label}</div>
+            <div style="font-weight:700;font-size:.9rem;color:var(--text-main);">${i.value}</div></div>
+        </div>`).join('');
+
+    // Flow hints
+    const flowHint = 'التعديلات تُطبَّق مباشرة على حسابك.';
+    ['phone','email','password'].forEach(t => {
+        const h = document.getElementById('pcrFlowHint_' + t);
+        if (h) h.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> ${flowHint}`;
+    });
+
+    renderMyPcrList();
+}
+
+function renderMyPcrList() {
+    const el = document.getElementById('myPcrList');
+    const reqs = (db.profileChangeRequests || []).filter(r => r.userId === currentUser.id)
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 10);
+    if (!reqs.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">لا توجد طلبات سابقة.</p>';
+        return;
+    }
+    el.innerHTML = reqs.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;background:#f8fafc;">
+            <div>
+                <span style="font-weight:600;font-size:.88rem;">${_pcrTypeLabel[r.type] || r.type}</span>
+                ${r.type !== 'password' ? `<span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">← ${r.newValueDisplay}</span>` : ''}
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
+            </div>
+            <div>
+                <span class="pcr-sb ${r.status}">${_pcrStatusLabel[r.status] || r.status}</span>
+                ${r.rejectionNote ? `<div style="font-size:.75rem;color:#991b1b;margin-top:3px;">السبب: ${r.rejectionNote}</div>` : ''}
+            </div>
+        </div>`).join('');
+}
+
+window.submitPcr = (type) => {
+    const val = type === 'password' ? document.getElementById('pcr_password').value.trim()
+                                    : document.getElementById('pcr_' + type).value.trim();
+    const cfm = type === 'password' ? document.getElementById('pcr_password_confirm').value.trim() : null;
+    const res = document.getElementById('pcrSubmitResult');
+
+    if (!val) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">يرجى إدخال القيمة الجديدة</div>`; return; }
+    if (type === 'password') {
+        if (val !== cfm) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">كلمتا المرور غير متطابقتين</div>`; return; }
+        if (val.length < 6) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">كلمة المرور يجب أن تكون 6 أحرف على الأقل</div>`; return; }
+    }
+
+    // All roles: apply directly to own profile
+    const user = db.users.find(u => u.id === currentUser.id);
+    if (!user) return;
+
+    if (type === 'phone') {
+        user.phone = val;
+        currentUser.phone = val;
+    } else if (type === 'email') {
+        user.email = val;
+        currentUser.email = val;
+    } else if (type === 'password') {
+        user.password = val;
+        currentUser.password = val;
+    }
+
+    currentUser = { ...currentUser };
+    localStorage.setItem('sajco_session', JSON.stringify(currentUser));
+    saveDB(true);
+    addLog(`عدّل ${currentUser.name} بيانات حسابه: ${_pcrTypeLabel[type]}`);
+
+    res.innerHTML = `<div style="color:#166534;background:#dcfce7;border-radius:8px;padding:8px 14px;font-size:.88rem;"><i class="fa-solid fa-circle-check"></i> تم التعديل بنجاح</div>`;
+    document.getElementById('pcr_' + (type === 'password' ? 'password' : type)).value = '';
+    if (type === 'password') document.getElementById('pcr_password_confirm').value = '';
+    initProfileSection();
+};
+
+function initSettings() {
+    // Logo
+    const logoSrc = db.settings.logo;
+    if (logoSrc) {
+        const img = document.getElementById('logoPreviewImg');
+        img.src = logoSrc; img.style.display = 'block';
+        document.getElementById('logoPlaceholderIcon').style.display = 'none';
+        document.getElementById('logoGoogleUrl').value = logoSrc;
+    }
+    // App Image
+    const appImg = db.settings.appImage;
+    if (appImg) {
+        const img = document.getElementById('appImagePreviewImg');
+        img.src = appImg; img.style.display = 'block';
+        document.getElementById('appImagePlaceholderIcon').style.display = 'none';
+        document.getElementById('appImageGoogleUrl').value = appImg;
+    }
+    // Alert settings
+    const slider = document.getElementById('alertDaysSlider');
+    slider.value = db.settings.alertDays || 30;
+    document.getElementById('alertDaysVal').textContent = slider.value;
+    document.getElementById('alertSoundToggle').checked = db.settings.alertSoundEnabled !== false;
+    // Backup date
+    if (db.settings.lastLocalBackup) {
+        document.getElementById('lastBackupInfo').textContent = new Date(db.settings.lastLocalBackup).toLocaleString('ar-EG');
+    }
+    // Check Supabase connection
+    checkSupabaseStatus();
+    // Load storage files
+    loadStorageFiles('assets', 'brand', 'logoFromStorageSelect');
+    loadStorageFiles('assets', 'brand', 'appImageFromStorageSelect');
+}
+
+// ============================================================
+// Supabase Status
+// ============================================================
+async function checkSupabaseStatus() {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (!supabaseClient) {
+        dot.style.background = '#ef4444';
+        text.textContent = '❌ غير متصل - تأكد من وجود window.__env في HTML';
+        return false;
+    }
+    try {
+        const { error } = await supabaseClient.from('settings').select('key').limit(1);
+        if (error) throw error;
+        dot.style.background = '#16a34a';
+        text.textContent = `✅ متصل بـ Supabase بنجاح (${new Date().toLocaleTimeString('ar-EG')})`;
+        return true;
+    } catch (e) {
+        dot.style.background = '#ef4444';
+        text.textContent = `❌ خطأ في الاتصال: ${e.message}`;
+        return false;
+    }
+}
+
+window.testConnection = async () => {
+    document.getElementById('statusText').textContent = 'جاري الاختبار...';
+    document.getElementById('statusDot').style.background = '#f59e0b';
+    await checkSupabaseStatus();
+};
+
+window.syncNow = async () => {
+    const btn = document.getElementById('syncBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري المزامنة...';
+    try {
+        await _syncToSupabase();
+        showSettingsToast('✅ تمت المزامنة بنجاح');
+    } catch(e) {
+        showSettingsToast('❌ فشلت المزامنة: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> مزامنة البيانات الآن';
+    }
+};
+
+window.loadFromSupabase = async () => {
+    if (!supabaseClient) { showSettingsToast('Supabase غير متصل', 'error'); return; }
+    if (!confirm('تحميل البيانات من Supabase سيستبدل البيانات المحلية. هل أنت متأكد؟')) return;
+    try {
+        const tables = ['users','devices','custodies','notifications','branches','allowed_employee_ids','settings','calibration_certificates'];
+        for (const t of tables) {
+            const { data, error } = await supabaseClient.from(t).select('*');
+            if (error) continue;
+            if (t === 'users') db.users = data.map(_fromSnake('users'));
+            else if (t === 'devices') db.devices = data.map(_fromSnake('devices'));
+            else if (t === 'custodies') db.custodies = data.map(_fromSnake('custodies'));
+            else if (t === 'notifications') db.notifications = data.map(_fromSnake('notifications'));
+            else if (t === 'calibration_certificates') db.calibrationCerts = data.map(_fromSnakeCalib);
+            else if (t === 'branches') {
+                const merged = data.map(b => ({ id: b.id, name: b.name }));
+                db.branches = merged;
+            } else if (t === 'allowed_employee_ids') {
+                db.allowedEmployeeIds = data.map(r => r.emp_id).filter(Boolean);
+            } else if (t === 'settings') {
+                data.forEach(r => {
+                    try { db.settings[r.key] = JSON.parse(r.value); } catch(e) { db.settings[r.key] = r.value; }
+                });
+            }
+        }
+        saveDB(true);
+        showSettingsToast('✅ تم تحميل البيانات من Supabase');
+        setTimeout(() => location.reload(), 1500);
+    } catch(e) {
+        showSettingsToast('❌ فشل التحميل: ' + e.message, 'error');
+    }
+};
+
+function _fromSnake(table) {
+    const maps = {
+        users: { emp_id:'empId', branch_id:'branch', responsible_branch_id:'responsibleBranch', substitute_id:'substituteId', head_surveyor:'headSurveyor', total_exp:'totalExp', company_exp:'companyExp', join_date:'joinDate' },
+        devices: { owner_id:'ownerId', branch_id:'branch', cal_date:'calDate', sent_to_agent_date:'sentToAgentDate' },
+        custodies: { user_id:'userId', assigned_by:'assignedBy', device_type:'deviceType', serial_number:'serialNumber', receipt_date:'receiptDate', branch_id:'branchId', calibration_date:'calibrationDate', device_condition:'deviceCondition', received_from:'receivedFrom', received_from_name:'receivedFromName', care_level:'careLevel', approval_history:'approvalHistory', transfer_data:'transferData' },
+        notifications: { user_id:'userId', related_id:'relatedId', is_substitute_notif:'isSubstituteNotif' }
+    };
+    const map = maps[table] || {};
+    return (obj) => {
+        const res = {};
+        for (const [k,v] of Object.entries(obj)) { res[map[k] || k] = v; }
+        return res;
+    };
+}
+
+function _fromSnakeCalib(obj) {
+    return {
+        id: obj.id, serialNumber: obj.serial_number, deviceId: obj.device_id,
+        fileName: obj.file_name, fileUrl: obj.file_url, storagePath: obj.storage_path,
+        fileType: obj.file_type, fileSize: obj.file_size, calibrationDate: obj.calibration_date,
+        expiryDate: obj.expiry_date, uploadedBy: obj.uploaded_by, notes: obj.notes,
+        uploadedAt: obj.created_at
+    };
+}
+
+// ============================================================
+// Logo Upload
+// ============================================================
+window.handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('logoUploadStatus');
+    status.style.display = 'inline-block'; status.className = 'upload-status uploading';
+    status.textContent = 'جاري الرفع...';
+    try {
+        const url = await _uploadToStorage(file, 'brand/logo');
+        _applyLogo(url);
+        status.className = 'upload-status success'; status.textContent = '✓ تم الرفع بنجاح';
+    } catch(err) {
+        status.className = 'upload-status error'; status.textContent = '✗ ' + (err.message || 'فشل');
+    }
+};
+
+window.applyLogoFromUrl = () => {
+    const url = document.getElementById('logoGoogleUrl').value.trim();
+    if (!url) { showSettingsToast('أدخل رابطاً صحيحاً', 'error'); return; }
+    _applyLogo(url);
+    showSettingsToast('تم تطبيق الشعار من الرابط');
+};
+
+window.applyLogoFromStorage = async () => {
+    const path = document.getElementById('logoFromStorageSelect').value;
+    if (!path) return;
+    const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
+    _applyLogo(data.publicUrl);
+    showSettingsToast('تم اختيار الشعار من Storage');
+};
+
+window.resetLogo = () => {
+    if (!confirm('استعادة الشعار الافتراضي؟')) return;
+    db.settings.logo = null;
+    saveDB();
+    addLog('تم استعادة الشعار الافتراضي');
+    location.reload();
+};
+
+async function _applyLogo(url) {
+    db.settings.logo = url;
+    saveDB(true);
+    await _syncSettingsToSupabase();
+    addLog('تم تحديث شعار النظام');
+    const img = document.getElementById('logoPreviewImg');
+    img.src = url; img.style.display = 'block';
+    document.getElementById('logoPlaceholderIcon').style.display = 'none';
+    document.getElementById('logoGoogleUrl').value = url;
+}
+
+// ============================================================
+// App Image Upload
+// ============================================================
+window.handleAppImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('appImageUploadStatus');
+    status.style.display = 'inline-block'; status.className = 'upload-status uploading';
+    status.textContent = 'جاري الرفع...';
+    try {
+        const url = await _uploadToStorage(file, 'brand/app-image');
+        _applyAppImage(url);
+        status.className = 'upload-status success'; status.textContent = '✓ تم الرفع بنجاح';
+    } catch(err) {
+        status.className = 'upload-status error'; status.textContent = '✗ ' + (err.message || 'فشل');
+    }
+};
+
+window.applyAppImageFromUrl = () => {
+    const url = document.getElementById('appImageGoogleUrl').value.trim();
+    if (!url) { showSettingsToast('أدخل رابطاً صحيحاً', 'error'); return; }
+    _applyAppImage(url);
+    showSettingsToast('تم تطبيق الصورة من الرابط');
+};
+
+window.applyAppImageFromStorage = async () => {
+    const path = document.getElementById('appImageFromStorageSelect').value;
+    if (!path) return;
+    const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
+    _applyAppImage(data.publicUrl);
+    showSettingsToast('تم اختيار الصورة من Storage');
+};
+
+window.resetAppImage = () => {
+    if (!confirm('حذف صورة الواجهة؟')) return;
+    db.settings.appImage = null;
+    saveDB();
+    addLog('تم حذف صورة واجهة النظام');
+    location.reload();
+};
+
+async function _applyAppImage(url) {
+    db.settings.appImage = url;
+    saveDB(true);
+    await _syncSettingsToSupabase();
+    addLog('تم تحديث صورة واجهة النظام');
+    const img = document.getElementById('appImagePreviewImg');
+    img.src = url; img.style.display = 'block';
+    document.getElementById('appImagePlaceholderIcon').style.display = 'none';
+    document.getElementById('appImageGoogleUrl').value = url;
+}
+
+// ============================================================
+// Storage list
+// ============================================================
+async function loadStorageFiles(bucket, folder, selectId) {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient.storage.from(bucket).list(folder, { limit: 50 });
+    if (error || !data) return;
+    const select = document.getElementById(selectId);
+    const prev = select.value;
+    select.innerHTML = '<option value="">-- اختر من Storage --</option>' +
+        data.filter(f => f.name && !f.name.startsWith('.')).map(f => {
+            const path = `${folder}/${f.name}`;
+            return `<option value="${path}">${f.name}</option>`;
+        }).join('');
+    if (prev) select.value = prev;
+}
+
+// ============================================================
+// Alert settings
+// ============================================================
+window.saveAlertSettings = () => {
+    db.settings.alertDays = parseInt(document.getElementById('alertDaysSlider').value) || 30;
+    db.settings.alertSoundEnabled = document.getElementById('alertSoundToggle').checked;
+    saveDB();
+    addLog('تم تحديث إعدادات التنبيهات');
+    showSettingsToast('✅ تم حفظ إعدادات التنبيهات');
+};
+
+// ============================================================
+// Backup
+// ============================================================
+window.exportBackup = () => {
+    const dataStr = JSON.stringify(db, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `sajco_backup_${new Date().toLocaleDateString('en-GB').replace(/\//g,'-')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    db.settings.lastLocalBackup = new Date().toISOString();
+    saveDB();
+    addLog('تم تصدير نسخة احتياطية');
+    document.getElementById('lastBackupInfo').textContent = new Date().toLocaleString('ar-EG');
+};
+
+window.importBackup = () => {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const imp = JSON.parse(ev.target.result);
+                if (imp.users && Array.isArray(imp.users)) {
+                    if (confirm('تحذير: الاستيراد سيمسح جميع البيانات الحالية. هل أنت متأكد؟')) {
+                        if (!imp.logs) imp.logs = [];
+                        imp.logs.unshift({ id: Date.now(), user: currentUser.name, msg: 'تم استعادة نسخة احتياطية للنظام' });
+                        localStorage.setItem(DB_KEY, JSON.stringify(imp));
+                        location.reload();
+                    }
+                } else { showSettingsToast('الملف المختار غير صالح', 'error'); }
+            } catch(e) { showSettingsToast('خطأ في قراءة الملف', 'error'); }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+};
+
+// ============================================================
+// Logo Preview
+// ============================================================
+window.previewCurrentLogo = () => {
+    const src = db.settings.logo || document.getElementById('logoPreviewImg').src;
+    if (!src || src === window.location.href) { showSettingsToast('لا يوجد شعار لعرضه', 'warning'); return; }
+    document.getElementById('logoPreviewModalImg').src = src;
+    document.getElementById('logoPreviewModal').classList.add('open');
+};
+
+// ============================================================
+// Helpers
+// ============================================================
+function _fileToDataUrl(file) {
+    return new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+}
+
+async function _uploadToStorage(file, basePath) {
+    if (!supabaseClient) {
+        // No Supabase — fall back to base64 (local only)
+        return _fileToDataUrl(file);
+    }
+    const ext = file.name.split('.').pop().toLowerCase() || 'png';
+    const path = `${basePath}.${ext}`;
+    const { error } = await supabaseClient.storage.from('assets').upload(path, file, { upsert: true, contentType: file.type });
+    if (error) throw new Error(error.message);
+    const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
+    return data.publicUrl;
+}
+
+async function _syncSettingsToSupabase() {
+    if (!supabaseClient) return;
+    const rows = [];
+    // Settings keys
+    const keys = ['appImage', 'logo', 'alertDays', 'alertSoundEnabled', 'appName', 'companyName'];
+    for (const key of keys) {
+        const val = db.settings[key];
+        if (val === null || val === undefined) continue;
+        if (typeof val === 'string' && val.startsWith('data:')) continue; // no base64 blobs
+        rows.push({ key, value: JSON.stringify(val) });
+    }
+    // News ticker
+    if (Array.isArray(db.newsTicker)) {
+        rows.push({ key: 'newsTicker', value: JSON.stringify(db.newsTicker) });
+    }
+    // Custom device types
+    if (Array.isArray(db.settings.customDeviceTypes)) {
+        rows.push({ key: 'customDeviceTypes', value: JSON.stringify(db.settings.customDeviceTypes) });
+    }
+    if (!rows.length) return;
+    const { error } = await supabaseClient.from('settings').upsert(rows, { onConflict: 'key' });
+    if (error) console.warn('_syncSettingsToSupabase:', error.message);
+}
+
+function showSettingsToast(msg, type = 'success') {
+    const colors = { success: ['#dcfce7','#166534'], error: ['#fee2e2','#991b1b'], warning: ['#fffbeb','#92400e'] };
+    const [bg, color] = colors[type] || colors.success;
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 24px;border-radius:12px;background:${bg};color:${color};font-weight:600;font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:opacity .4s;`;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; setTimeout(()=>el.remove(),400); }, 3500);
+}
+
+// ============================================================
+// News Ticker Management
+// ============================================================
+function renderTickerList() {
+    const el = document.getElementById('tickerItemsList');
+    if (!el) return;
+    const items = db.newsTicker || [];
+    if (!items.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:16px;">لا توجد أخبار مضافة بعد.</p>';
+        return;
+    }
+    el.innerHTML = items.map((t, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid ${t.type==='warning'?'#fde68a':'#e2e8f0'};background:${t.type==='warning'?'#fffbeb':'#f8fafc'};margin-bottom:8px;flex-wrap:wrap;">
+            <span style="font-size:.8rem;padding:2px 8px;border-radius:20px;font-weight:700;background:${t.type==='warning'?'#fef3c7':'#dbeafe'};color:${t.type==='warning'?'#92400e':'#1e40af'};">
+                ${t.type==='warning'?'⚠ تحذير':'● خبر'}
+            </span>
+            <span style="flex:1;font-size:.9rem;${!t.active?'opacity:.45;text-decoration:line-through;':''}">${t.text}</span>
+            <div style="display:flex;gap:6px;">
+                <button onclick="toggleTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="${t.active?'إيقاف':'تفعيل'}">
+                    <i class="fa-solid ${t.active?'fa-eye-slash':'fa-eye'}"></i>
+                </button>
+                <button onclick="deleteTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#ef4444;" title="حذف">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.addTickerNews = () => {
+    const text = document.getElementById('newTickerText').value.trim();
+    const type = document.getElementById('newTickerType').value;
+    if (!text) { showSettingsToast('أدخل نص الخبر', 'warning'); return; }
+    addTickerItem(text, type);
+    document.getElementById('newTickerText').value = '';
+    renderTickerList();
+    renderNewsTicker();
+    showSettingsToast('✅ تم إضافة الخبر بنجاح');
+};
+
+window.toggleTicker = (id) => {
+    toggleTickerItem(id);
+    renderTickerList();
+    renderNewsTicker();
+};
+
+window.deleteTicker = (id) => {
+    if (!confirm('حذف هذا الخبر؟')) return;
+    removeTickerItem(id);
+    renderTickerList();
+    renderNewsTicker();
+    showSettingsToast('تم الحذف');
+};
+
+window.onload = () => {
+    renderSidebar();
+    initProfileSection();
+    if (currentUser.role === 'admin') {
+        initSettings();
+        renderTickerList();
+        renderNewsTicker();
+    }
+};
+</script>
+</body>
+</html>

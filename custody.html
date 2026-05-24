@@ -1,0 +1,896 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة العهد - SAJCO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .action-btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .action-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .action-toggle-btn.btn-add {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .action-toggle-btn.btn-add.active,
+        .action-toggle-btn.btn-add:hover {
+            background: #15803d;
+            border-color: #15803d;
+        }
+        .action-toggle-btn.btn-transfer {
+            background: #fff;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+        .action-toggle-btn.btn-transfer.active,
+        .action-toggle-btn.btn-transfer:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        .collapsible-section {
+            overflow: hidden;
+            transition: max-height .35s ease, opacity .25s ease;
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+        .collapsible-section.open {
+            max-height: 2000px;
+            opacity: 1;
+            margin-bottom: 20px;
+        }
+        .section-inner {
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            padding: 20px;
+            background: var(--surface);
+        }
+        .section-inner.add-inner  { border-color: #22c55e44; background: #f0fdf4; }
+        .section-inner.xfer-inner { border-color: #3b82f644; background: #eff6ff; }
+        .section-inner.wh-inner   { border-color: #f59e0b44; background: #fffbeb; }
+        .action-toggle-btn.btn-warehouse {
+            background: #fff;
+            color: #b45309;
+            border-color: #f59e0b;
+        }
+        .action-toggle-btn.btn-warehouse.active,
+        .action-toggle-btn.btn-warehouse:hover {
+            background: #f59e0b;
+            color: #fff;
+            border-color: #f59e0b;
+        }
+        .acceptance-warning {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            color: #991b1b;
+            font-size: .9rem;
+            line-height: 1.6;
+        }
+        .acceptance-warning strong { color: #dc2626; }
+        .acceptance-confirm-row {
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .acceptance-confirm-row input[type="checkbox"] {
+            width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;
+        }
+        .acceptance-confirm-row label {
+            color: #b91c1c;
+            font-size: .88rem;
+            font-weight: 600;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+
+        <!-- عهدات واردة بانتظار قبول المساح -->
+        <div id="incomingTransferSection" class="card hidden" style="border-right:4px solid #3b82f6;background:#eff6ff;margin-bottom:16px;">
+            <h3><i class="fa-solid fa-inbox"></i> عهدات واردة بانتظار قبولك</h3>
+            <div class="table-container">
+                <table>
+                    <thead><tr>
+                        <th>نوع الجهاز</th><th>الرقم التسلسلي</th><th>من المساح</th><th>سبب النقل</th><th>التاريخ</th><th>الإجراءات</th>
+                    </tr></thead>
+                    <tbody id="incomingTransferBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- قسم الموافقات -->
+        <div id="approvalSection" class="card hidden" style="border-right:4px solid #f6ad55;background:#fffbeb;margin-bottom:16px;">
+            <h3><i class="fa-solid fa-user-check"></i> طلبات بانتظار الموافقة</h3>
+            <div class="table-container">
+                <table id="pendingCustodyTable">
+                    <thead><tr>
+                        <th>نوع الطلب</th><th>المساح</th><th>الجهاز</th>
+                        <th>ملاحظة</th><th>تاريخ الطلب</th><th>الحالة</th><th>الفرع</th><th>الإجراءات</th>
+                    </tr></thead>
+                    <tbody id="pendingCustodyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- أزرار الإجراءات -->
+        <div class="action-btn-group">
+            <button id="toggleAddBtn" class="action-toggle-btn btn-add" onclick="toggleSection('add')">
+                <i class="fa-solid fa-plus" id="addIcon"></i>
+                <span>إضافة عهدة جديدة</span>
+            </button>
+            <button id="toggleTransferBtn" class="action-toggle-btn btn-transfer" onclick="toggleSection('transfer')">
+                <i class="fa-solid fa-right-left" id="transferIcon"></i>
+                <span>نقل عهدة</span>
+            </button>
+            <button id="toggleWarehouseBtn" class="action-toggle-btn btn-warehouse" onclick="toggleSection('warehouse')" style="display:none;">
+                <i class="fa-solid fa-warehouse" id="warehouseIcon"></i>
+                <span>تسليم من المستودع</span>
+            </button>
+        </div>
+
+        <!-- قسم إضافة عهدة (قابل للطي) -->
+        <div class="collapsible-section" id="addSection">
+            <div class="section-inner add-inner">
+                <h3 style="margin-bottom:20px;color:#15803d;"><i class="fa-solid fa-box-archive"></i> إضافة عهدة جديدة</h3>
+                <form id="custodyForm">
+                    <div class="form-group">
+                        <label class="form-label">اختيار المساح (بحث بالرقم الوظيفي)</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="text" id="targetEmpIdSearch" class="form-input" placeholder="ادخل الرقم الوظيفي..." style="flex:1;">
+                            <select id="targetUserId" class="form-select" style="flex:2;" required></select>
+                        </div>
+                        <div id="targetUserInfo" style="font-size:.8rem;color:var(--primary);margin-top:5px;"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label">نوع الجهاز</label>
+                            <select id="deviceType" class="form-select" required>
+                                <option value="">اختر نوع الجهاز</option>
+                                <option value="auto_level">ميزان مساحي (Auto Level)</option>
+                                <option value="total_station">محطة متكاملة (Total Station)</option>
+                                <option value="gps">جهاز تحديد المواقع (GPS)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label">الرقم التسلسلي للجهاز</label>
+                            <input type="text" id="serialNumber" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label">تاريخ استلام الجهاز</label>
+                            <input type="date" id="receiptDate" class="form-input" required>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label">تاريخ شهادة المعايرة</label>
+                            <input type="date" id="calibrationDate" class="form-input" required>
+                            <div id="calDateErr" style="color:#dc2626;font-size:.75rem;margin-top:5px;font-weight:bold;display:none;"></div>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label">حالة الجهاز</label>
+                            <select id="deviceStatus" class="form-select" required>
+                                <option value="">اختر حالة الجهاز</option>
+                                <option value="good">سليم</option>
+                                <option value="needs_maintenance">يحتاج صيانة</option>
+                                <option value="needs_calibration">يحتاج معايرة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">الجهاز مستلم من</label>
+                        <select id="receivedFrom" class="form-select" required>
+                            <option value="">اختر مصدر الاستلام</option>
+                            <option value="warehouse">المستودع</option>
+                            <option value="another_person">شخص آخر</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="receivedFromNameGroup">
+                        <label class="form-label">اسم الشخص المستلم منه</label>
+                        <input type="text" id="receivedFromName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ملاحظات عن حالة الجهاز أثناء الاستلام</label>
+                        <textarea id="notes" class="form-textarea" rows="3" placeholder="مثال: الجهاز مكتمل الأدوات والأكسسوارات / ناقص منه (اذكر ما ينقص)..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">هل أنت راضٍ عن حالة الجهاز؟</label>
+                        <div>
+                            <input type="radio" id="satisfiedYes" name="satisfied" value="true" required>
+                            <label for="satisfiedYes" style="margin-left:10px;">نعم</label>
+                            <input type="radio" id="satisfiedNo" name="satisfied" value="false" style="margin-right:20px;">
+                            <label for="satisfiedNo">لا</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">الفرع التابع له الجهاز</label>
+                        <select id="deviceBranch" class="form-select" required>
+                            <option value="">اختر الفرع</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">مدى اهتمامك بالجهاز (وصف مختصر)</label>
+                        <input type="text" id="careLevel" class="form-input" placeholder="مثال: أحرص على نظافته وصيانته الدورية">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> إضافة عهدة</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- قسم نقل العهدة (قابل للطي) -->
+        <div class="collapsible-section" id="transferSection">
+            <div class="section-inner xfer-inner">
+                <h3 style="margin-bottom:20px;color:#2563eb;"><i class="fa-solid fa-right-left"></i> نقل عهدة جهاز</h3>
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">من (الرقم الوظيفي للمساح الحالي)</label>
+                        <input type="text" id="fromEmpId" class="form-input" placeholder="ادخل الرقم الوظيفي...">
+                        <div id="fromUserInfo" style="font-size:.8rem;color:var(--primary);margin-top:5px;"></div>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">الجهاز المراد نقله</label>
+                        <select id="transferDeviceSelect" class="form-select">
+                            <option value="">اختر الجهاز من العهدة...</option>
+                        </select>
+                        <div style="margin-top:8px;">
+                            <input type="checkbox" id="transferAllCheck">
+                            <label for="transferAllCheck" style="font-size:.85rem;">نقل جميع الأجهزة في عهدته</label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">إلى (الرقم الوظيفي للمساح الجديد)</label>
+                        <input type="text" id="toEmpId" class="form-input" placeholder="ادخل الرقم الوظيفي...">
+                        <div id="toUserInfo" style="font-size:.8rem;color:var(--primary);margin-top:5px;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">سبب النقل / ملاحظات</label>
+                    <textarea id="transferReason" class="form-textarea" rows="2" placeholder="اكتب سبب النقل هنا..."></textarea>
+                </div>
+                <div class="acceptance-warning" style="margin-bottom:16px;">
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i> تنبيه للمستلم:</strong><br>
+                    عند قبول العهدة سيُطلب من المستلم تأكيد استلام الجهاز وتسجيل ملاحظاته حول اكتمال الأدوات والأكسسوارات، وسيظهر في بيانات عهدته.
+                </div>
+                <button onclick="handleTransfer()" class="btn btn-primary" style="background:#2563eb;border-color:#2563eb;width:200px;">
+                    <i class="fa-solid fa-paper-plane"></i> إرسال طلب النقل
+                </button>
+            </div>
+        </div>
+
+        <!-- قسم تسليم من المستودع (قابل للطي - للمدير فقط) -->
+        <div class="collapsible-section" id="warehouseSection">
+            <div class="section-inner wh-inner">
+                <h3 style="margin-bottom:20px;color:#b45309;"><i class="fa-solid fa-warehouse"></i> تسليم جهاز من المستودع لموظف</h3>
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">الجهاز في المستودع</label>
+                        <select id="warehouseDeviceSelect" class="form-select">
+                            <option value="">اختر الجهاز...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label class="form-label">الموظف المستلم (بحث بالرقم الوظيفي)</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="text" id="whEmpIdSearch" class="form-input" placeholder="الرقم الوظيفي..." style="flex:1;">
+                            <select id="whTargetUserId" class="form-select" style="flex:2;"></select>
+                        </div>
+                        <div id="whTargetUserInfo" style="font-size:.8rem;color:var(--primary);margin-top:5px;"></div>
+                    </div>
+                </div>
+                <button onclick="handleWarehouseAssign()" class="btn btn-primary" style="background:#f59e0b;border-color:#f59e0b;color:#fff;width:220px;">
+                    <i class="fa-solid fa-box-archive"></i> تسليم الجهاز للموظف
+                </button>
+            </div>
+        </div>
+
+        <!-- جدول سجلات العهدة -->
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h4 id="custodyTableTitle" style="margin-bottom:0;">سجلات العهدة</h4>
+                <div id="filterActionArea"></div>
+            </div>
+            <div class="table-container">
+                <table id="custodyTable">
+                    <thead><tr>
+                        <th>نوع الجهاز</th><th>الرقم التسلسلي</th><th>تاريخ الاستلام</th>
+                        <th>الفرع</th><th>تاريخ المعايرة</th><th>الحالة</th>
+                        <th>مستلم من</th><th>ملاحظات</th><th>الرضا</th><th>الاهتمام</th><th>الإجراءات</th>
+                    </tr></thead>
+                    <tbody id="custodyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- مودال قبول نقل العهدة -->
+<div id="acceptTransferModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;">
+    <div class="card" style="max-width:520px;width:93%;max-height:90vh;overflow-y:auto;">
+        <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check"></i> قبول نقل العهدة</h3>
+        <input type="hidden" id="acceptCustodyId">
+
+        <!-- تنبيه الاستلام بالأحمر -->
+        <div class="acceptance-warning">
+            <strong><i class="fa-solid fa-triangle-exclamation"></i> تنبيه عند الاستلام:</strong><br>
+            يرجى التحقق بدقة من أن <strong>جميع قطع وأكسسوارات الجهاز مكتملة</strong> قبل تأكيد الاستلام.
+            في حال وجود نقص يُرجى ذكره في خانة الملاحظات أدناه.
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">ملاحظات على الجهاز المستلم <span style="color:var(--text-muted);font-size:.8rem;">(اذكر أي نقص في الأدوات أو الأكسسوارات)</span></label>
+            <textarea id="acceptNotes" class="form-textarea" rows="3"
+                placeholder="مثال: الجهاز مكتمل الأدوات / ناقص حقيبة الحمل / ناقص بطارية احتياطية..."></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">تقييم حالة الجهاز <span style="color:var(--danger)">*</span></label>
+            <select id="acceptDeviceCondition" class="form-select">
+                <option value="">اختر التقييم...</option>
+                <option value="ممتاز">ممتاز — مكتمل ويعمل بكفاءة تامة</option>
+                <option value="جيد">جيد — مكتمل مع بعض الخدوش</option>
+                <option value="مقبول">مقبول — ناقص بعض الملحقات</option>
+                <option value="يحتاج صيانة">يحتاج صيانة — به عطل أو خلل</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">تعليق إضافي (اختياري)</label>
+            <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="أي تعليق إضافي..."></textarea>
+        </div>
+
+        <!-- تأكيد إقرار الاستلام -->
+        <div class="acceptance-confirm-row">
+            <input type="checkbox" id="acceptConfirmCheck">
+            <label for="acceptConfirmCheck">
+                أُقر وأؤكد أنني تحققت من أن جميع قطع وأكسسوارات الجهاز كاملة وهو في عهدتي الآن، وأتحمل المسؤولية الكاملة عن سلامته.
+            </label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:18px;">
+            <button onclick="submitAcceptTransfer()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> تأكيد الاستلام</button>
+            <button onclick="closeAcceptModal()" class="btn btn-ghost" style="flex:1;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال رفض نقل العهدة -->
+<div id="rejectTransferModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;">
+    <div class="card" style="max-width:400px;width:90%;">
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark"></i> رفض نقل العهدة</h3>
+        <input type="hidden" id="rejectCustodyId">
+        <div class="form-group">
+            <label class="form-label">سبب الرفض <span style="color:var(--danger)">*</span></label>
+            <textarea id="rejectReason" class="form-textarea" rows="3" placeholder="أدخل سبب الرفض..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+            <button onclick="submitRejectTransfer()" class="btn btn-ghost" style="flex:1;color:var(--danger);border-color:var(--danger);"><i class="fa-solid fa-xmark"></i> تأكيد الرفض</button>
+            <button onclick="closeRejectModal()" class="btn btn-ghost" style="flex:1;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<script>
+checkAuth();
+const isAdmin = currentUser.role === 'admin';
+
+// ===== accordion toggle =====
+let _openSection = null;
+function toggleSection(name) {
+    const ids    = { add: 'addSection', transfer: 'transferSection', warehouse: 'warehouseSection' };
+    const btnIds = { add: 'toggleAddBtn', transfer: 'toggleTransferBtn', warehouse: 'toggleWarehouseBtn' };
+    const icons  = { add: 'fa-plus', transfer: 'fa-right-left', warehouse: 'fa-warehouse' };
+
+    Object.keys(ids).forEach(key => {
+        const el  = document.getElementById(ids[key]);
+        const btn = document.getElementById(btnIds[key]);
+        if (key === name) {
+            const isOpen = el.classList.contains('open');
+            el.classList.toggle('open', !isOpen);
+            btn.classList.toggle('active', !isOpen);
+            const iconEl = btn.querySelector('i');
+            iconEl.className = !isOpen
+                ? 'fa-solid fa-minus'
+                : `fa-solid ${icons[key]}`;
+            _openSection = !isOpen ? name : null;
+        } else {
+            el.classList.remove('open');
+            btn.classList.remove('active');
+            const iconEl = btn.querySelector('i');
+            iconEl.className = `fa-solid ${icons[key]}`;
+        }
+    });
+}
+
+// ===== init =====
+function init() {
+    renderSidebar();
+    populateBranchesSelect();
+    populateTargetUsers(db.users);
+    renderCustodies();
+    renderPendingApprovals();
+    renderIncomingTransfers();
+    if (isAdmin) {
+        document.getElementById('toggleWarehouseBtn').style.display = '';
+        populateWarehouseDevices();
+        populateWhTargetUsers();
+    }
+
+    if (window.location.hash === '#filter-pending') {
+        renderPendingApprovals();
+        setTimeout(() => document.getElementById('approvalSection')?.scrollIntoView({ behavior:'smooth' }), 300);
+    }
+}
+
+// ===== warehouse assignment =====
+function populateWarehouseDevices() {
+    const select = document.getElementById('warehouseDeviceSelect');
+    const activeCustodySerials = new Set(
+        (db.custodies || []).filter(c => c.status === 'approved').map(c => c.serialNumber)
+    );
+    const devices = (db.devices || []).filter(d => d.status === 'warehouse' && !activeCustodySerials.has(d.serial));
+    select.innerHTML = '<option value="">اختر الجهاز...</option>' +
+        devices.map(d => `<option value="${d.id}">${getDeviceTypeName(d.type)} — ${d.serial}</option>`).join('');
+}
+
+function populateWhTargetUsers() {
+    const select = document.getElementById('whTargetUserId');
+    const users = (db.users || []).filter(u => u.role === 'surveyor' || u.role === 'head');
+    select.innerHTML = '<option value="">اختر الموظف...</option>' +
+        users.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
+}
+
+document.getElementById('whEmpIdSearch').addEventListener('input', e => {
+    const user = db.users.find(u => u.empId === e.target.value);
+    const info = document.getElementById('whTargetUserInfo');
+    const sel = document.getElementById('whTargetUserId');
+    if (user) {
+        info.textContent = `الموظف: ${user.name} — ${user.branch || ''}`;
+        sel.value = user.id;
+    } else {
+        info.textContent = '';
+    }
+});
+
+window.handleWarehouseAssign = () => {
+    const deviceId = document.getElementById('warehouseDeviceSelect').value;
+    const userId   = document.getElementById('whTargetUserId').value;
+    if (!deviceId || !userId) { alert('يرجى اختيار الجهاز والموظف.'); return; }
+    const ok = assignDeviceFromWarehouse(deviceId, userId);
+    if (ok) {
+        alert('تم تسليم الجهاز للموظف بنجاح.');
+        populateWarehouseDevices();
+        renderCustodies();
+        toggleSection('warehouse');
+    } else {
+        alert('فشل التسليم: تأكد من أن الجهاز في المستودع وليس لديه عهدة نشطة.');
+    }
+};
+
+// ===== from EmpId live lookup =====
+document.getElementById('fromEmpId').addEventListener('input', e => {
+    const user = db.users.find(u => u.empId === e.target.value);
+    const infoDiv = document.getElementById('fromUserInfo');
+    const deviceSelect = document.getElementById('transferDeviceSelect');
+    if (user) {
+        infoDiv.textContent = `الموظف: ${user.name}`;
+        const myDevices = db.devices.filter(d => d.ownerId === user.id);
+        deviceSelect.innerHTML = '<option value="">اختر الجهاز...</option>' +
+            myDevices.map(d => `<option value="${d.serial}">${getDeviceTypeName(d.type)} (S/N: ${d.serial})</option>`).join('');
+    } else {
+        infoDiv.textContent = '';
+        deviceSelect.innerHTML = '<option value="">ادخل رقم وظيفي صحيح أولاً...</option>';
+    }
+});
+
+document.getElementById('toEmpId').addEventListener('input', e => {
+    const user = db.users.find(u => u.empId === e.target.value);
+    document.getElementById('toUserInfo').textContent = user ? `الموظف: ${user.name}` : '';
+});
+
+// ===== target user search =====
+document.getElementById('targetEmpIdSearch').addEventListener('input', e => {
+    const users = db.users.filter(u => u.empId.includes(e.target.value));
+    populateTargetUsers(users);
+});
+
+function populateTargetUsers(userList) {
+    let filtered = userList;
+    const infoDiv = document.getElementById('targetUserInfo');
+    const search = document.getElementById('targetEmpIdSearch');
+    if (currentUser.role === 'head') {
+        filtered = userList.filter(u => u.branch === currentUser.responsibleBranch);
+    } else if (currentUser.role === 'surveyor') {
+        filtered = [db.users.find(u => u.id === currentUser.id)].filter(Boolean);
+        search.value = currentUser.empId;
+        search.readOnly = true;
+    }
+    document.getElementById('targetUserId').innerHTML =
+        filtered.map(u => `<option value="${u.id}">${u.name} (ID: ${u.empId}) - ${db.branches.find(b=>b.id===u.branch)?.name || ''}</option>`).join('');
+    if (currentUser.role === 'surveyor') {
+        document.getElementById('targetUserId').disabled = true;
+        infoDiv.textContent = `الموظف: ${currentUser.name}`;
+    } else if (filtered.length === 1 && search.value) {
+        infoDiv.textContent = `الموظف المختار: ${filtered[0]?.name || ''}`;
+    } else {
+        infoDiv.textContent = '';
+    }
+}
+
+// ===== branch select =====
+function populateBranchesSelect() {
+    const s = document.getElementById('deviceBranch');
+    s.innerHTML = '<option value="">اختر الفرع</option>' +
+        db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    if (currentUser.role === 'surveyor' && currentUser.branch) {
+        s.value = currentUser.branch;
+        s.disabled = true;
+    }
+}
+
+// ===== serial auto-fill =====
+document.getElementById('serialNumber').addEventListener('input', e => {
+    const sn = e.target.value.trim();
+    if (!sn) return;
+    const device = db.devices.find(d => d.serial === sn);
+    if (device) {
+        const typeMap = { auto_level:'auto_level', 'ميزان مساحي':'auto_level', total_station:'total_station', 'محطة متكاملة':'total_station', gps:'gps', GPS:'gps' };
+        const normalized = typeMap[device.type] || device.type;
+        const typeSelect = document.getElementById('deviceType');
+        if ([...typeSelect.options].some(o => o.value === normalized)) typeSelect.value = normalized;
+        const branchSelect = document.getElementById('deviceBranch');
+        if (device.branch && !branchSelect.disabled) branchSelect.value = device.branch;
+    }
+});
+
+// ===== calibration date warning =====
+document.getElementById('calibrationDate').addEventListener('change', function() {
+    const errEl = document.getElementById('calDateErr');
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (!this.value) {
+        errEl.textContent = '⚠ يرجى إضافة تاريخ شهادة المعايرة'; errEl.style.display = 'block';
+        this.style.borderColor = '#dc2626';
+    } else if (new Date(this.value) <= today) {
+        errEl.textContent = '⚠ تاريخ المعايرة منتهي الصلاحية أو قديم!'; errEl.style.display = 'block';
+        this.style.borderColor = '#dc2626';
+    } else {
+        errEl.textContent = ''; errEl.style.display = 'none'; this.style.borderColor = '';
+    }
+});
+
+// ===== receivedFrom =====
+document.getElementById('receivedFrom').addEventListener('change', e => {
+    const group = document.getElementById('receivedFromNameGroup');
+    const nameInput = document.getElementById('receivedFromName');
+    if (e.target.value === 'another_person') { group.classList.remove('hidden'); nameInput.setAttribute('required',''); }
+    else { group.classList.add('hidden'); nameInput.removeAttribute('required'); }
+});
+
+// ===== form submit =====
+document.getElementById('custodyForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const targetId = document.getElementById('targetUserId').value;
+    if (!targetId) { alert('الرجاء اختيار مساح.'); return; }
+
+    const result = addCustody(
+        targetId,
+        document.getElementById('deviceType').value,
+        document.getElementById('serialNumber').value,
+        document.getElementById('receiptDate').value,
+        document.getElementById('calibrationDate').value,
+        document.getElementById('deviceStatus').value,
+        document.getElementById('receivedFrom').value,
+        document.getElementById('receivedFrom').value === 'another_person' ? document.getElementById('receivedFromName').value : null,
+        document.getElementById('notes').value,
+        document.querySelector('input[name="satisfied"]:checked')?.value === 'true',
+        document.getElementById('careLevel').value,
+        document.getElementById('deviceBranch').value
+    );
+
+    if (result) {
+        alert(currentUser.role === 'admin' ? 'تمت إضافة العهدة بنجاح' : 'تم إرسال طلب العهدة للمراجعة');
+        e.target.reset();
+        document.getElementById('receivedFromNameGroup').classList.add('hidden');
+        document.getElementById('calDateErr').style.display = 'none';
+        populateTargetUsers(db.users);
+        populateBranchesSelect();
+        renderCustodies();
+        renderPendingApprovals();
+        // إغلاق القسم بعد الإضافة
+        toggleSection('add');
+    } else {
+        alert('حدث خطأ أثناء إضافة العهدة. تأكد من البيانات.');
+    }
+});
+
+// ===== transfer =====
+window.handleTransfer = () => {
+    const from = document.getElementById('fromEmpId').value;
+    const to = document.getElementById('toEmpId').value;
+    const serial = document.getElementById('transferDeviceSelect').value;
+    const reason = document.getElementById('transferReason').value;
+    const all = document.getElementById('transferAllCheck').checked;
+    const result = initiateTransferRequest(from, to, serial, reason, all);
+    alert(result.msg);
+    if (result.success) {
+        document.getElementById('transferReason').value = '';
+        document.getElementById('fromEmpId').value = '';
+        document.getElementById('toEmpId').value = '';
+        document.getElementById('fromUserInfo').textContent = '';
+        document.getElementById('toUserInfo').textContent = '';
+        document.getElementById('transferDeviceSelect').innerHTML = '<option value="">اختر الجهاز من العهدة...</option>';
+        document.getElementById('transferAllCheck').checked = false;
+        renderCustodies();
+        renderPendingApprovals();
+        // إغلاق القسم بعد الإرسال
+        toggleSection('transfer');
+    }
+};
+
+// ===== render custodies =====
+function renderCustodies() {
+    reloadDB();
+    const tbody = document.getElementById('custodyTableBody');
+    const titleEl = document.getElementById('custodyTableTitle');
+    const showReceiverInfo = isAdmin || currentUser.role === 'head';
+    let custodies = [];
+
+    if (isAdmin) {
+        titleEl.textContent = 'سجلات العهدة (المعتمدة)';
+        custodies = db.custodies.filter(c => c.status === 'approved');
+    } else if (currentUser.role === 'head') {
+        titleEl.textContent = 'عهدات فرعي';
+        custodies = db.custodies.filter(c => c.status === 'approved' && c.branchId === currentUser.responsibleBranch);
+    } else {
+        titleEl.textContent = 'عهدتي';
+        custodies = db.custodies.filter(c => c.userId === currentUser.id && c.status !== 'pending_receiver_acceptance' && c.status !== 'transferred_out');
+    }
+
+    const custodyThead = document.querySelector('#custodyTable thead tr');
+    if (custodyThead) {
+        custodyThead.querySelectorAll('.receiver-col').forEach(el => el.remove());
+        if (showReceiverInfo) {
+            const thActions = custodyThead.querySelector('th:last-child');
+            ['ملاحظات المستلم', 'تقييم المستلم', 'تعليق المستلم'].forEach(text => {
+                const th = document.createElement('th');
+                th.className = 'receiver-col';
+                th.textContent = text;
+                custodyThead.insertBefore(th, thActions);
+            });
+        }
+    }
+
+    const colspan = showReceiverInfo ? 14 : 11;
+    tbody.innerHTML = custodies.map(c => {
+        const branch = db.branches.find(b => b.id === c.branchId);
+        const receiverCols = showReceiverInfo ? `
+            <td>${c.receiverNotes || '—'}</td>
+            <td>${c.receiverDeviceCondition || '—'}</td>
+            <td>${c.receiverComment || '—'}</td>
+        ` : '';
+        return `<tr>
+            <td>${getDeviceTypeName(c.deviceType)}</td>
+            <td>${c.serialNumber}</td>
+            <td>${formatDate(c.receiptDate)}</td>
+            <td>${branch ? branch.name : '—'}</td>
+            <td>${formatDate(c.calibrationDate)}</td>
+            <td>${getStatusBadge(c.deviceCondition)}</td>
+            <td>${getReceivedFromText(c.receivedFrom, c.receivedFromName)}</td>
+            <td>${c.notes || '—'}</td>
+            <td>${c.satisfied === true ? 'نعم' : c.satisfied === false ? 'لا' : '—'}</td>
+            <td>${c.careLevel || '—'}</td>
+            ${receiverCols}
+            <td>
+                ${isAdmin ? `<button onclick="handleDeleteCustody('${c.id}')" class="btn btn-ghost" style="padding:4px 8px;font-size:.75rem;color:var(--danger);">
+                    <i class="fa-solid fa-trash"></i>
+                </button>` : ''}
+            </td>
+        </tr>`;
+    }).join('') || `<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--text-muted);">لا توجد سجلات عهدة.</td></tr>`;
+}
+
+// ===== incoming transfers (for surveyor) =====
+function renderIncomingTransfers() {
+    if (currentUser.role !== 'surveyor') return;
+    reloadDB();
+    const section = document.getElementById('incomingTransferSection');
+    const tbody = document.getElementById('incomingTransferBody');
+    const incoming = db.custodies.filter(c =>
+        c.status === 'pending_receiver_acceptance' &&
+        c.transferData?.toUserId === currentUser.id
+    );
+    if (incoming.length > 0) {
+        section.classList.remove('hidden');
+        tbody.innerHTML = incoming.map(c => `<tr>
+            <td>${getDeviceTypeName(c.deviceType)}</td>
+            <td>${c.serialNumber}</td>
+            <td>${c.transferData?.fromUserName || '—'}</td>
+            <td>${c.transferData?.reason || '—'}</td>
+            <td>${formatDate(c.timestamp)}</td>
+            <td>
+                <button onclick="openAcceptModal('${c.id}')" class="btn btn-primary btn-sm" style="margin-left:4px;">
+                    <i class="fa-solid fa-check"></i> قبول
+                </button>
+                <button onclick="openRejectModal('${c.id}')" class="btn btn-ghost btn-sm" style="color:var(--danger);">
+                    <i class="fa-solid fa-xmark"></i> رفض
+                </button>
+            </td>
+        </tr>`).join('');
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+window.openAcceptModal = id => {
+    document.getElementById('acceptCustodyId').value = id;
+    document.getElementById('acceptNotes').value = '';
+    document.getElementById('acceptDeviceCondition').value = '';
+    document.getElementById('acceptComment').value = '';
+    document.getElementById('acceptConfirmCheck').checked = false;
+    document.getElementById('acceptTransferModal').classList.remove('hidden');
+};
+window.closeAcceptModal = () => document.getElementById('acceptTransferModal').classList.add('hidden');
+
+window.openRejectModal = id => {
+    document.getElementById('rejectCustodyId').value = id;
+    document.getElementById('rejectReason').value = '';
+    document.getElementById('rejectTransferModal').classList.remove('hidden');
+};
+window.closeRejectModal = () => document.getElementById('rejectTransferModal').classList.add('hidden');
+
+window.submitAcceptTransfer = () => {
+    const id = document.getElementById('acceptCustodyId').value;
+    const notes = document.getElementById('acceptNotes').value.trim();
+    const condition = document.getElementById('acceptDeviceCondition').value;
+    const comment = document.getElementById('acceptComment').value.trim();
+    const confirmed = document.getElementById('acceptConfirmCheck').checked;
+
+    if (!condition) { alert('يرجى تقييم حالة الجهاز.'); return; }
+    if (!confirmed) {
+        alert('يجب تأكيد الإقرار بالاستلام والتحقق من اكتمال قطع وأكسسوارات الجهاز.');
+        return;
+    }
+
+    if (acceptTransferByReceiver(id, notes, condition, comment)) {
+        closeAcceptModal();
+        alert('تم قبول العهدة بنجاح. بانتظار موافقة المدير.');
+        renderIncomingTransfers();
+        renderCustodies();
+        renderPendingApprovals();
+    } else {
+        alert('حدث خطأ. تأكد من صلاحيتك.');
+    }
+};
+
+window.submitRejectTransfer = () => {
+    const id = document.getElementById('rejectCustodyId').value;
+    const reason = document.getElementById('rejectReason').value.trim();
+    if (!reason) { alert('يرجى ذكر سبب الرفض.'); return; }
+    if (rejectTransferByReceiver(id, reason)) {
+        closeRejectModal();
+        alert('تم رفض العهدة.');
+        renderIncomingTransfers();
+        renderCustodies();
+    } else {
+        alert('حدث خطأ. تأكد من صلاحيتك.');
+    }
+};
+
+window.handleDeleteCustody = id => {
+    if (confirm('هل أنت متأكد من حذف هذه العهدة؟')) {
+        if (deleteCustody(id)) { renderCustodies(); renderPendingApprovals(); }
+        else { alert('حدث خطأ أثناء الحذف.'); }
+    }
+};
+
+// ===== render pending =====
+function renderPendingApprovals() {
+    reloadDB();
+    const section = document.getElementById('approvalSection');
+    const tbody = document.getElementById('pendingCustodyTableBody');
+    let pending = [];
+
+    if (isAdmin) {
+        pending = db.custodies.filter(c => ['pending_approval','pending_admin_approval','pending_head_approval'].includes(c.status));
+    } else if (currentUser.role === 'head') {
+        pending = db.custodies.filter(c => c.status === 'pending_head_approval' && c.branchId === currentUser.responsibleBranch);
+    }
+
+    if (pending.length > 0) {
+        section.classList.remove('hidden');
+        tbody.innerHTML = pending.map(req => {
+            const user = db.users.find(u => u.id === req.userId);
+            const branch = db.branches.find(b => b.id === req.branchId);
+            let reqType = req.transferData ? 'نقل عهدة' : 'عهدة جديدة';
+            if (req.deviceCondition === 'needs_maintenance') reqType = 'صيانة جهاز';
+            if (req.deviceCondition === 'needs_calibration') reqType = 'معايرة جهاز';
+            let notes = req.notes || '—';
+            if (req.transferData) notes = `من: ${req.transferData.fromUserName} → ${req.transferData.toUserName}. ${req.transferData.reason || ''}`;
+            return `<tr>
+                <td><span class="badge badge-info">${reqType}</span></td>
+                <td>${user ? user.name : '—'}</td>
+                <td>${getDeviceTypeName(req.deviceType)} (S/N: ${req.serialNumber})</td>
+                <td>${notes}</td>
+                <td>${formatDate(req.timestamp)}</td>
+                <td>${getStatusBadge(req.deviceCondition)}</td>
+                <td>${branch ? branch.name : '—'}</td>
+                <td>
+                    <button onclick="approveCustodyAction('${req.id}')" class="btn btn-primary btn-sm" style="margin-left:4px;">
+                        <i class="fa-solid fa-check"></i> موافقة
+                    </button>
+                    <button onclick="rejectCustodyAction('${req.id}')" class="btn btn-ghost btn-sm" style="color:var(--danger);">
+                        <i class="fa-solid fa-xmark"></i> رفض
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+window.approveCustodyAction = id => {
+    if (confirm('الموافقة على هذا الطلب؟')) {
+        const step = currentUser.role === 'admin' ? 'admin' : 'head';
+        if (approveCustody(id, step)) { alert('تمت الموافقة بنجاح.'); renderPendingApprovals(); renderCustodies(); }
+        else { alert('حدث خطأ أثناء الموافقة.'); }
+    }
+};
+
+window.rejectCustodyAction = id => {
+    if (confirm('رفض هذا الطلب؟ سيتم حذفه من النظام.')) {
+        if (rejectCustody(id)) { alert('تم الرفض بنجاح.'); renderPendingApprovals(); renderCustodies(); }
+        else { alert('حدث خطأ أثناء الرفض.'); }
+    }
+};
+
+// ===== realtime refresh hooks =====
+window.refreshPage = () => {
+    reloadDB();
+    renderPendingApprovals();
+    renderCustodies();
+    renderIncomingTransfers();
+};
+
+window.onNewNotification = (n) => {
+    if (n.actionType === 'custody_approval' || n.actionType === 'custody_transfer_request') {
+        window.refreshPage();
+    }
+};
+
+// ===== onload =====
+window.onload = () => { init(); };
+</script>
+</body>
+</html>

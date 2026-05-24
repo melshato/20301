@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee ID Management - SAJCO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <style>
+        .name-edit-input {
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            width: 100%;
+            padding: 2px 4px;
+            border-radius: 6px;
+        }
+        .name-edit-input:focus {
+            outline: 2px solid var(--primary);
+            background: #eff6ff;
+        }
+        .id-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-weight: 700;
+            font-size: .95rem;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="appShell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="margin-bottom: 5px;"><i class="fa-solid fa-id-card"></i> Management of Allowed Employee IDs</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Control which Employee IDs (with names) are allowed to register in the system</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="exportToExcel()" class="btn btn-ghost">
+                            <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Export
+                        </button>
+                        <button onclick="document.getElementById('excelFileInput').click()" class="btn btn-primary">
+                            <i class="fa-solid fa-file-import"></i> Import from Excel
+                        </button>
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Add new employee ID + name -->
+                <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;">
+                    <h4 style="margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> Add New Employee ID</h4>
+                    <div class="form-row" style="align-items: flex-end;gap:12px;">
+                        <div class="form-group" style="flex:1;min-width:120px;">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" id="newEmpId" class="form-input" placeholder="Example: 1234" inputmode="numeric"
+                                style="letter-spacing:3px;font-weight:700;font-size:1.1rem;">
+                        </div>
+                        <div class="form-group" style="flex:2;min-width:200px;">
+                            <label class="form-label">Employee Name <span style="color:var(--text-muted);font-weight:400;">(Optional — appears automatically at registration)</span></label>
+                            <input type="text" id="newEmpName" class="form-input" placeholder="Full Employee Name...">
+                        </div>
+                        <div class="form-group" style="flex:0;">
+                            <button onclick="addNewEmployeeId()" class="btn btn-primary" style="white-space:nowrap;">
+                                <i class="fa-solid fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    <div id="addIdMsg" style="margin-top:6px;font-size:.85rem;min-height:18px;"></div>
+                </div>
+
+                <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fa-solid fa-circle-info" style="color: #0ea5e9; font-size: 1.2rem;"></i>
+                        <strong style="color: #0369a1;">Excel Import Instructions:</strong>
+                    </div>
+                    <ul style="margin: 0; padding-right: 20px; color: #0c4a6e; font-size: 0.9rem;">
+                        <li>First column: <strong>Employee ID</strong> — Second column (Optional): <strong>Name</strong></li>
+                        <li>The first row (headers) will be automatically ignored</li>
+                        <li>New numbers will be added only, duplicates will be ignored</li>
+                    </ul>
+                </div>
+
+                <hr style="margin: 20px 0; border-color: var(--border);">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap:wrap; gap:10px;">
+                    <h4>List of Allowed Employee IDs (<span id="totalCount">0</span>)</h4>
+                    <div style="display:flex;gap:10px;">
+                        <input type="text" id="searchEmpId" class="form-input" placeholder="Search by number or name..." style="width:220px;" oninput="renderEmployeeIds()">
+                        <button onclick="clearAllEmployeeIds()" class="btn btn-ghost" style="color: var(--danger);">
+                            <i class="fa-solid fa-trash"></i> Delete All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="employeeIdsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Employee ID</th>
+                                <th>Employee Name</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeIdsTableBody">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No Employee IDs added</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+    checkAuth();
+    if (currentUser && currentUser.role !== 'admin') {
+        window.location.href = 'index.html';
+    }
+
+    const employeeIdsTableBody = document.getElementById('employeeIdsTableBody');
+    const newEmpIdInput = document.getElementById('newEmpId');
+    const searchEmpIdInput = document.getElementById('searchEmpId');
+    const totalCountSpan = document.getElementById('totalCount');
+
+    newEmpIdInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        const val = this.value.trim();
+        const msg = document.getElementById('addIdMsg');
+        if (!val) { msg.innerHTML = ''; return; }
+        if (db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === val))
+            msg.innerHTML = '<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> هذا Number مandجandد بالفعل</span>';
+        else if (db.users.some(u => u.empId === val))
+            msg.innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-user-check"></i> هذا Number مسجل بالفعل كمستخدم</span>';
+        else
+            msg.innerHTML = '<span style="color:#16a34a;"><i class="fa-solid fa-circle-check"></i> Available</span>';
+    });
+
+    function addNewEmployeeId() {
+        const empId = newEmpIdInput.value.trim();
+        const name  = document.getElementById('newEmpName').value.trim();
+        if (!empId) { showToast('الرجاء إدخال Employee ID', 'error'); return; }
+
+        if (addAllowedEmployeeId(empId, name)) {
+            newEmpIdInput.value = '';
+            document.getElementById('newEmpName').value = '';
+            document.getElementById('addIdMsg').innerHTML = '';
+            renderEmployeeIds();
+            showToast(`Done Add Number ${empId}${name ? ' (' + name + ')' : ''} بSuccess`, 'success');
+        } else {
+            showToast('هذا Employee ID مandجandد بالفعل', 'error');
+        }
+    }
+
+    function removeEmployeeId(empId) {
+        if (confirm(`هل أنت متأكد from Delete Employee ID: ${empId}؟`)) {
+            if (removeAllowedEmployeeId(empId)) {
+                renderEmployeeIds();
+                showToast('Done Delete Employee ID بSuccess', 'success');
+            }
+        }
+    }
+
+    function saveNameEdit(empId, inputEl) {
+        const name = inputEl.value.trim();
+        updateAllowedEmployeeName(empId, name);
+        showToast('Done Save Name', 'success');
+    }
+
+    function clearAllEmployeeIds() {
+        if (confirm('هل أنت متأكد from Delete جميع الأرقام الjobة؟ هذا Action No يمكن التراجع عنه.')) {
+            db.allowedEmployeeIds = [];
+            saveDB();
+            addLog(`Done Delete جميع الأرقام الjobة المسمandحة By ${currentUser.name}`);
+            renderEmployeeIds();
+            showToast('Done Delete جميع الأرقام الjobة', 'success');
+        }
+    }
+
+    function renderEmployeeIds() {
+        reloadDB();
+        const searchText = searchEmpIdInput.value.trim().toLowerCase();
+        const allEntries = db.allowedEmployeeIds.map(e => _normalizeAllowedEmpId(e));
+        const filtered = allEntries.filter(e =>
+            e.empId.toLowerCase().includes(searchText) ||
+            (e.name && e.name.toLowerCase().includes(searchText))
+        );
+
+        totalCountSpan.textContent = allEntries.length;
+
+        if (filtered.length === 0) {
+            employeeIdsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">None نتائج</td></tr>';
+            return;
+        }
+
+        employeeIdsTableBody.innerHTML = filtered.map((entry, index) => {
+            const { empId, name } = entry;
+            const isUsed = db.users.some(u => u.empId === empId);
+            const statusBadge = isUsed
+                ? '<span class="badge badge-success">مستخدم</span>'
+                : '<span class="badge badge-warning">Available</span>';
+            const registeredUser = db.users.find(u => u.empId === empId);
+
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><span class="id-pill"><i class="fa-solid fa-id-badge" style="color:var(--primary);"></i>${empId}</span></td>
+                    <td>
+                        <input class="name-edit-input" value="${name || ''}"
+                            placeholder="اكتب Name هنا..."
+                            onblur="saveNameEdit('${empId}', this)"
+                            onkeydown="if(event.key==='Enter'){this.blur();}">
+                        ${registeredUser ? `<div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">مسجل كـ: ${registeredUser.name}</div>` : ''}
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button onclick="removeEmployeeId('${empId}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Import from Excel
+    document.getElementById('excelFileInput').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const data = new Uint8Array(ev.target.result);
+                const wb = XLSX.read(data, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                let added = 0;
+                rows.slice(1).forEach(row => {
+                    const empId = String(row[0] || '').trim().replace(/[^0-9]/g, '');
+                    const name = String(row[1] || '').trim();
+                    if (empId && addAllowedEmployeeId(empId, name)) added++;
+                });
+                renderEmployeeIds();
+                showToast(`Done Import ${added} Employee ID بSuccess`, 'success');
+            };
+            reader.readAsArrayBuffer(file);
+        } catch (error) {
+            alert('فشل Import الملف: ' + error.message);
+        }
+        e.target.value = '';
+    });
+
+    // Export to CSV
+    function exportToExcel() {
+        if (db.allowedEmployeeIds.length === 0) { alert('None Employee IDs للExport'); return; }
+        let csv = '﻿Employee ID,Name,Status\n';
+        db.allowedEmployeeIds.map(e => _normalizeAllowedEmpId(e)).forEach(({ empId, name }) => {
+            const isUsed = db.users.some(u => u.empId === empId);
+            csv += `"${empId}","${name || ''}","${isUsed ? 'مستخدم' : 'Available'}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `الأرقام_الjobة_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    function showToast(message, type = 'success') {
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> <span>${message}</span>`;
+        document.getElementById('toasts').appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 3000);
+    }
+
+    newEmpIdInput.addEventListener('keypress', e => { if (e.key === 'Enter') addNewEmployeeId(); });
+    document.getElementById('newEmpName').addEventListener('keypress', e => { if (e.key === 'Enter') addNewEmployeeId(); });
+
+    window.onload = () => {
+        renderSidebar();
+        renderEmployeeIds();
+    };
+</script>
+</body>
+</html>
