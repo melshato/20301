@@ -150,16 +150,17 @@
             // إلغاء تعيين رئيس المساحين القديم
             db.users.forEach(u => { if (u.responsibleBranch === id) u.responsibleBranch = null; });
 
+            let resolvedId = id;
             if (id) {
                 updateBranchName(id, nameAr, nameEn || nameAr);
             } else {
-                const newId = 'br_' + Date.now().toString();
-                addBranch(newId, nameAr, nameEn || nameAr);
+                resolvedId = crypto.randomUUID();
+                addBranch(resolvedId, nameAr, nameEn || nameAr);
             }
 
             // تعيين رئيس المساحين الجديد
             if (headId) {
-                const branchId = id || db.branches[db.branches.length - 1].id;
+                const branchId = resolvedId;
                 const head = db.users.find(u => u.id === headId);
                 if (head) head.responsibleBranch = branchId;
                 saveDB();
@@ -206,6 +207,7 @@
                 if (typeof populateBranches === 'function') populateBranches();
             }
         };
+        window.refreshPage = refreshBranchesTable;
         window.onload = async () => {
             renderSidebar();
             await _loadRemoteDB();

@@ -1067,6 +1067,12 @@ function deleteBranch(id) {
     if (initialBranches.some(x => x.id === id) && !db.settings.deletedDefaultBranches.includes(id))
         db.settings.deletedDefaultBranches.push(id);
     saveDB();
+    // Delete from Supabase directly — saveDB only upserts, so without this the branch comes back on next load
+    if (supabaseClient) {
+        const q = _isUUID(id) ? supabaseClient.from('branches').delete().eq('id', id)
+                               : supabaseClient.from('branches').delete().eq('serial_number', b.serialNumber);
+        q.then(({ error }) => { if (error) console.warn('branch delete:', error.message); });
+    }
     addLog(`تم حذف الفرع نهائياً: ${displayName}`);
     return true;
 }
