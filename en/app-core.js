@@ -2588,7 +2588,7 @@ function injectCreditBadge() {
                 <div class="sc-cb2">
                     Under supervision of Eng. <strong>Mohamed Aqtatit</strong>
                     &nbsp; ✦ &nbsp;
-                    برعاية <strong>Arabian Peninsula Contracting Co.</strong>
+                    Sponsored by <strong>Arabian Peninsula Contracting Co.</strong>
                 </div>
                 <div class="sc-cb3">
                     <i class="fa-regular fa-copyright" style="color:#d4af37;font-size:.65rem;vertical-align:middle;margin-left:3px;"></i>
