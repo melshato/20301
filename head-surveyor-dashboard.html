@@ -517,7 +517,7 @@ function loadHeadSurveyorDashboard() {
     // توزيع الأجهزة على المساحين
     const tbody = document.getElementById('surveyorsDistributionBody');
     if (branchSurveyors.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);">لا يوجد مساحون مسجلون في هذا الفرع.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">لا يوجد مساحون مسجلون في هذا الفرع.</td></tr>';
     } else {
         tbody.innerHTML = branchSurveyors.map(s => {
             const devs = db.devices.filter(d => d.ownerId === s.id);
@@ -534,11 +534,14 @@ function loadHeadSurveyorDashboard() {
             } else {
                 starsHtml = '<span style="color:#94a3b8;font-size:.8rem;">لم يُقيَّم</span>';
             }
+            const devHtml = devs.length
+                ? devs.map(d => `${getDeviceTypeName(d.type)}<br><small style="color:#64748b;">${d.serial}</small>`).join('<hr style="margin:2px 0;opacity:.3;">')
+                : '<span style="color:#94a3b8">لا توجد أجهزة</span>';
             return `<tr>
                 <td><strong>${s.name}</strong></td>
                 <td>${s.empId}</td>
                 <td style="white-space:nowrap;">${starsHtml}</td>
-                <td><strong>${devs.length}</strong></td>
+                <td style="font-size:.78rem;line-height:1.25;max-width:240px;">${devHtml}</td>
                 <td>${calStatus}</td>
             </tr>`;
         }).join('');
