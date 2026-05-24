@@ -521,31 +521,34 @@ document.getElementById('toEmpId').addEventListener('input', e => {
 
 // ===== target user search =====
 document.getElementById('targetEmpIdSearch').addEventListener('input', e => {
-    const users = db.users.filter(u => u.empId.includes(e.target.value));
-    populateTargetUsers(users);
+    const val = (e.target.value || '').trim();
+    const users = val ? db.users.filter(u => u.empId.includes(val)) : db.users;
+    populateTargetUsers(users, val);
 });
 
-function populateTargetUsers(userList) {
+function populateTargetUsers(userList, searchVal = '') {
     let filtered = userList;
     const infoDiv = document.getElementById('targetUserInfo');
     const search = document.getElementById('targetEmpIdSearch');
+    const sel = document.getElementById('targetUserId');
     if (currentUser.role === 'head') {
         filtered = userList.filter(u => u.branch === currentUser.responsibleBranch);
     } else if (currentUser.role === 'surveyor') {
         filtered = [db.users.find(u => u.id === currentUser.id)].filter(Boolean);
-        // Show the name in the search input and make it readOnly
-        search.value = currentUser.name;
         search.readOnly = true;
-        // Optionally, set a placeholder to indicate it's the current user
         search.placeholder = 'المساح الحالي';
+        // NOTE: never overwrite search input (empId field) with name - that caused data in wrong field
     }
-    document.getElementById('targetUserId').innerHTML =
-        filtered.map(u => `<option value="${u.id}">${u.name} (ID: ${u.empId}) - ${db.branches.find(b=>b.id===u.branch)?.name || ''}</option>`).join('');
+    sel.innerHTML = filtered.map(u => `<option value="${u.id}">${u.name} (ID: ${u.empId}) - ${db.branches.find(b=>b.id===u.branch)?.name || ''}</option>`).join('');
     if (currentUser.role === 'surveyor') {
-        document.getElementById('targetUserId').disabled = true;
+        sel.disabled = true;
+        if (filtered[0]) sel.value = filtered[0].id;
         infoDiv.textContent = `الموظف: ${currentUser.name}`;
-    } else if (filtered.length === 1 && search.value) {
-        infoDiv.textContent = `الموظف المختار: ${filtered[0]?.name || ''}`;
+    } else if (filtered.length === 1) {
+        sel.value = filtered[0].id;
+        infoDiv.textContent = `الموظف المختار: ${filtered[0].name}`;
+    } else if (searchVal) {
+        infoDiv.textContent = filtered.length ? `اختر من ${filtered.length} نتيجة` : '';
     } else {
         infoDiv.textContent = '';
     }
