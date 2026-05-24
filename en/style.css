@@ -358,6 +358,19 @@ html { scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
 .nav-item:hover  { background: var(--hover-bg); color: var(--text-main); }
 .nav-item.active { background: var(--active-nav-bg); color: var(--nav-active-color); }
 
+/* Navigation icon sizing */
+.nav-item i {
+    font-size: 1rem;
+    width: 20px;
+    min-width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.75;
+    transition: var(--transition);
+}
+.nav-item:hover i  { opacity: 1; color: var(--primary); }
+.nav-item.active i { opacity: 1; color: var(--primary); }
+
 /* ============================================================
    Main Content & Cards
    ============================================================ */
