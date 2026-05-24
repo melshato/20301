@@ -1,9 +1,12 @@
-name: Deploy to Netlify + Vercel
+name: Deploy to Netlify
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+# NOTE: Vercel deploys automatically via Git Integration (no action needed).
+# Every push to main triggers a Vercel production deploy automatically.
 
 jobs:
   deploy-netlify:
@@ -26,19 +29,3 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 5
-
-  deploy-vercel:
-    name: Deploy to Vercel
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Deploy to Vercel (Production)
-        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
