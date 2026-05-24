@@ -315,7 +315,8 @@ function calculateService(joinDate) {
     return years > 0 ? `${years} سنة و ${months} شهر` : `${months} شهر`;
 }
 
-function loadSurveyorDashboard() {
+async function loadSurveyorDashboard() {
+    await _loadRemoteDB();
     document.getElementById('userGreeting').innerText = `مرحباً، ${currentUser.name} (رقم: ${currentUser.empId})`;
     const myDevices = db.devices.filter(d => d.ownerId === currentUser.id);
     document.getElementById('myDeviceCount').innerText = myDevices.length;

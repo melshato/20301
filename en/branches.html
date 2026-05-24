@@ -130,8 +130,9 @@
                         <td style="color:var(--text-muted)">${b.nameAr || '—'}</td>
                         <td>${head ? head.name : '<span style="color:var(--text-muted)">Not assigned</span>'}</td>
                         <td>
-                            <button onclick="editBranch('${b.id}')" class="btn btn-ghost" style="padding:5px 10px;"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteBranch('${b.id}')" class="btn btn-ghost" style="padding:5px 10px;color:var(--danger);"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="editBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px;" title="Edit Branch"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="assignHeadToBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px; color:#2563eb;" title="Assign Head Surveyor"><i class="fa-solid fa-user-tie"></i></button>
+                            <button onclick="deleteBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);" title="Delete Branch"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -167,13 +168,27 @@
         };
 
         window.editBranch = (id) => {
-            const b    = db.branches.find(branch => branch.id === id);
+            const b = db.branches.find(branch => branch.id === id);
+            if (!b) { alert('Branch not found'); return; }
             const head = db.users.find(u => u.responsibleBranch === id);
             document.getElementById('editBranchId').value = b.id;
-            document.getElementById('bNameEn').value = b.nameEn || b.name || '';
-            document.getElementById('bNameAr').value = b.nameAr || '';
+            document.getElementById('bNameAr').value = b.nameAr || b.name || '';
+            document.getElementById('bNameEn').value = b.nameEn || '';
             populateHeadSurveyors(head ? head.id : null);
             document.getElementById('formTitle').innerText = 'Edit Branch';
+            document.getElementById('branchFormContainer').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.assignHeadToBranch = (id) => {
+            const b = db.branches.find(branch => branch.id === id);
+            if (!b) { alert('Branch not found'); return; }
+            const currentHead = db.users.find(u => u.responsibleBranch === id);
+            document.getElementById('editBranchId').value = b.id;
+            document.getElementById('bNameAr').value = b.nameAr || b.name || '';
+            document.getElementById('bNameEn').value = b.nameEn || '';
+            populateHeadSurveyors(currentHead ? currentHead.id : null);
+            document.getElementById('formTitle').innerText = 'Assign Head Surveyor';
             document.getElementById('branchFormContainer').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
@@ -186,8 +201,9 @@
             }
         };
 
-        window.onload = () => {
+        window.onload = async () => {
             renderSidebar();
+            await _loadRemoteDB();
             refreshBranchesTable();
         };
     </script>
