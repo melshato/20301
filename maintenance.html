@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .upload-zone {
             border: 2px dashed #94a3b8; border-radius: 12px; padding: 28px;
@@ -32,9 +33,14 @@
 <div id="appShell">
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
-        <header style="margin-bottom:24px;">
-            <h2 style="font-size:1.5rem;font-weight:700;"><i class="fa-solid fa-screwdriver-wrench" style="color:var(--primary)"></i> إدارة الصيانة والمعايرة</h2>
-            <p style="color:var(--text-muted)">متابعة الأجهزة المرسلة للوكيل وإدارة طلبات الصيانة والمعايرة.</p>
+        <header style="margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+            <div>
+                <h2 style="font-size:1.5rem;font-weight:700;"><i class="fa-solid fa-screwdriver-wrench" style="color:var(--primary)"></i> إدارة الصيانة والمعايرة</h2>
+                <p style="color:var(--text-muted)">متابعة الأجهزة المرسلة للوكيل وإدارة طلبات الصيانة والمعايرة.</p>
+            </div>
+            <button onclick="exportMaintenanceXLSX()" class="btn btn-ghost">
+                <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+            </button>
         </header>
 
         <!-- الإحصائيات -->

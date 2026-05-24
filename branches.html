@@ -11,6 +11,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
 </head>
 <body>
     <div id="appShell">
@@ -21,9 +22,14 @@
                     <h2 style="font-size: 1.5rem; font-weight: 700">إدارة الفروع</h2>
                     <p style="color: var(--text-muted)">إضافة وتعديل وتعيين رؤساء المساحين للفروع.</p>
                 </div>
-                <button onclick="toggleBranchForm()" class="btn btn-primary">
-                    <i class="fa-solid fa-plus"></i> إضافة فرع جديد
-                </button>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="exportBranchesXLSX()" class="btn btn-ghost">
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+                    </button>
+                    <button onclick="toggleBranchForm()" class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i> إضافة فرع جديد
+                    </button>
+                </div>
             </header>
 
             <!-- نموذج الإضافة والتعديل -->

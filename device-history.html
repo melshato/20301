@@ -12,7 +12,12 @@
         <aside class="sidebar" id="sidebar"></aside>
         <main class="main">
             <div class="card">
-                <h3><i class="fa-solid fa-timeline"></i> سجل تنقل الأجهزة</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <h3 style="margin:0;"><i class="fa-solid fa-timeline"></i> سجل تنقل الأجهزة</h3>
+                    <button id="exportDevHistBtn" onclick="exportDeviceHistoryXLSX(window._lastDevHistRecords)" class="btn btn-ghost hidden">
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+                    </button>
+                </div>
                 <p style="color: var(--text-muted); margin-bottom: 20px;">ابحث عن جهاز بالرقم التسلسلي لعرض تاريخ عهدته وتنقله بين المساحين.</p>
 
                 <div class="form-row" style="margin-bottom: 20px; align-items: flex-end;">
@@ -64,6 +69,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <script>
         checkAuth();
 
@@ -90,6 +96,9 @@
                 })
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // ترتيب من الأحدث للأقدم
 
+            window._lastDevHistRecords = historyRecords;
+            const exportBtn = document.getElementById('exportDevHistBtn');
+            if (exportBtn) exportBtn.classList.toggle('hidden', historyRecords.length === 0);
             renderDeviceHistory(historyRecords);
         }
 

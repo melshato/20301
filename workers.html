@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .worker-stat-card {
             background:#fff; border:1px solid var(--border); border-radius:14px;
@@ -154,6 +155,9 @@
                     <select id="workerHeadFilter" class="form-select" onchange="filterWorkerTable()" style="width:190px;font-size:.85rem;display:none;">
                         <option value="">كل رؤساء المساحين</option>
                     </select>
+                    <button onclick="exportWorkersXLSX()" class="btn btn-ghost btn-sm">
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+                    </button>
                 </div>
             </div>
             <div class="table-container">

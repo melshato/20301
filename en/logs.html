@@ -11,6 +11,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
 </head>
 <body>
     <div id="appShell">
@@ -18,7 +19,12 @@
         <main class="main">
             <div class="flex-between" style="margin-bottom:16px">
                 <h2>Detailed Activity Logs</h2>
-                <div id="adminActions"></div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <div id="adminActions"></div>
+                    <button onclick="exportLogsXLSX()" class="btn btn-ghost">
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Export Excel
+                    </button>
+                </div>
             </div>
             <div class="card">
                 <div class="form-row">

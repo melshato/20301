@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .worker-stat-card {
             background:#fff; border:1px solid var(--border); border-radius:14px;
@@ -142,6 +143,9 @@
                         <option value="on_leave">On Leave</option>
                         <option value="approved_leave">Leave Approved</option>
                     </select>
+                    <button onclick="exportWorkersXLSX()" class="btn btn-ghost btn-sm">
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Export Excel
+                    </button>
                 </div>
             </div>
             <div class="table-container">

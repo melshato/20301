@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .hero-banner { background:linear-gradient(135deg,#f8fafc,#f0fdf4); border:1px solid var(--border); border-right:4px solid var(--primary); border-radius:16px; padding:20px; margin-bottom:24px; display:flex; gap:16px; align-items:flex-start; }
         .hero-icon { width:54px; height:54px; border-radius:16px; background:#dcfce7; color:#15803d; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:var(--shadow-sm); }
@@ -169,7 +170,10 @@
         <div class="card" style="margin-top:24px;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
                 <h3 style="margin-bottom:0;"><i class="fa-solid fa-list-check"></i> طلباتي</h3>
-                <button type="button" class="btn btn-ghost no-print" onclick="printLatestApproved()"><i class="fa-solid fa-print"></i> طباعة آخر طلب معتمد</button>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="exportLeaveRequestsXLSX()" class="btn btn-ghost no-print"><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel</button>
+                    <button type="button" class="btn btn-ghost no-print" onclick="printLatestApproved()"><i class="fa-solid fa-print"></i> طباعة آخر طلب معتمد</button>
+                </div>
             </div>
             <div class="table-container">
                 <table>

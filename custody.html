@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .action-btn-group {
             display: flex;
@@ -320,7 +321,12 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                 <h4 id="custodyTableTitle" style="margin-bottom:0;">سجلات العهدة</h4>
-                <div id="filterActionArea"></div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <div id="filterActionArea"></div>
+                    <button onclick="exportCustodyXLSX()" class="btn btn-ghost btn-sm">
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+                    </button>
+                </div>
             </div>
             <div class="table-container">
                 <table id="custodyTable">

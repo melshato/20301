@@ -11,6 +11,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
 </head>
 <body>
     <div id="appShell">
@@ -22,7 +23,7 @@
                     <p style="color: var(--text-muted)">Manage team data and control access permissions.</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="exportUsersToExcel()" class="btn btn-ghost"><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Export to Excel</button>
+                    <button onclick="exportUsersXLSX()" class="btn btn-ghost"><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Export to Excel</button>
                     <button id="addEmployeeBtn" onclick="toggleUserForm()" class="btn btn-primary">
                         <i class="fa-solid fa-user-plus"></i> Add New Employee
                     </button>

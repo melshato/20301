@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .report-tabs { display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:24px; flex-wrap:wrap; }
         .report-tab { padding:10px 20px; border:none; background:none; cursor:pointer; font-weight:600; color:var(--text-muted); border-bottom:3px solid transparent; margin-bottom:-2px; font-family:inherit; font-size:.9rem; transition:all .2s; }
@@ -36,9 +37,14 @@
     <main class="main">
         <div class="flex-between" style="margin-bottom:20px;">
             <h2><i class="fa-solid fa-chart-bar" style="color:var(--primary);"></i> التقارير</h2>
-            <button onclick="printReport()" class="btn btn-ghost no-print">
-                <i class="fa-solid fa-print"></i> طباعة التقرير الحالي
-            </button>
+            <div style="display:flex;gap:8px;">
+                <button onclick="exportReportsXLSX()" class="btn btn-ghost no-print">
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير كامل Excel
+                </button>
+                <button onclick="printReport()" class="btn btn-ghost no-print">
+                    <i class="fa-solid fa-print"></i> طباعة التقرير الحالي
+                </button>
+            </div>
         </div>
 
         <div id="printHeader">

@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .question-card {
             background: #f8fafc;
@@ -121,7 +122,12 @@
         </div>
 
         <div class="card">
-            <h3><i class="fa-solid fa-star"></i> تقييم الموظفين</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-star"></i> تقييم الموظفين</h3>
+                <button onclick="exportRatingsXLSX()" class="btn btn-ghost btn-sm">
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+                </button>
+            </div>
             <p style="color:var(--text-muted);margin-bottom:20px;">قم بتقييم أداء الموظفين التابعين لك وفق المعايير المحددة</p>
 
             <div class="form-row" style="margin-bottom:30px;align-items:flex-end;gap:16px;flex-wrap:wrap;">

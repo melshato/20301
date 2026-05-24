@@ -10,6 +10,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <style>
         .project-card {
             background: #fff;
@@ -97,9 +98,14 @@
                 <h2><i class="fa-solid fa-diagram-project" style="color:var(--primary);"></i> Project Management</h2>
                 <p style="color:var(--text-muted);font-size:.9rem;" id="pageSubtitle"></p>
             </div>
-            <button onclick="openAddModal()" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> New Project
-            </button>
+            <div style="display:flex;gap:8px;">
+                <button onclick="exportProjectsXLSX()" class="btn btn-ghost">
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> Export Excel
+                </button>
+                <button onclick="openAddModal()" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> New Project
+                </button>
+            </div>
         </div>
 
         <!-- Summary cards -->

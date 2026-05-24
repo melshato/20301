@@ -14,7 +14,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 style="margin-bottom: 0;"><i class="fa-solid fa-user-clock"></i> Employee Custody History</h3>
-                    <button id="exportBtn" onclick="exportUserHistoryToExcel()" class="btn btn-ghost hidden">
+                    <button id="exportBtn" onclick="exportUserHistoryXLSX(lastSearchResults, _lastSearchUserName)" class="btn btn-ghost hidden">
                         <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Export to Excel
                     </button>
                 </div>
@@ -63,6 +63,7 @@
     <script src="supabase-config.js"></script>
     <script src="supabase-data-layer.js"></script>
     <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
     <script>
         checkAuth();
 
@@ -70,6 +71,7 @@
         const searchEmpIdInput = document.getElementById('searchEmpId');
         const searchedUserInfoDiv = document.getElementById('searchedUserInfo');
         let lastSearchResults = [];
+        let _lastSearchUserName = '';
 
         searchEmpIdInput.addEventListener('input', () => {
             const empId = searchEmpIdInput.value.trim();
@@ -132,7 +134,8 @@
                 }
             });
 
-            lastSearchResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // الأحدث orNoً
+            lastSearchResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            _lastSearchUserName = targetUser.name;
 
             // إظهار الزر only في حال andجandد نتائج
             if (lastSearchResults.length > 0) {
