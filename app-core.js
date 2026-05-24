@@ -710,7 +710,7 @@ function renderSidebar() {
         overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
         document.body.appendChild(overlay);
     }
-    const logoSrc = db.settings.logo || 'assets/sajco-logo.png';
+    const logoSrc = db.settings.logo || 'assets/sajco-logo.svg';
     const isAdmin = currentUser.role === 'admin';
     const isHead = currentUser.role === 'head';
     const isSurveyor = currentUser.role === 'surveyor';
