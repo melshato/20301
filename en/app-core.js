@@ -1514,12 +1514,12 @@ function _custodyToRow(c) {
     };
     if (_isUUID(c.userId))     row.user_id     = c.userId;
     if (_isUUID(c.assignedBy)) row.assigned_by = c.assignedBy;
-    if (_isUUID(c.branchId))   row.branch_id   = c.branchId;
+    row.branch_id = _isUUID(c.branchId) ? c.branchId : null;
     return row;
 }
 
 function _insertCustodyToSupabase(c) {
-    if (!supabaseClient || !_isUUID(c.userId) || !_isUUID(c.assignedBy) || !_isUUID(c.branchId)) return;
+    if (!supabaseClient || !_isUUID(c.userId) || !_isUUID(c.assignedBy)) return;
     const row = _custodyToRow(c);
     supabaseClient.from('custodies').insert(row).select('id')
         .then(({ data, error }) => {
@@ -1739,7 +1739,7 @@ function assignDeviceFromWarehouse(deviceId, userId) {
         row.id = custody.id;
         supabaseClient.from('custodies').insert(row)
             .then(({ error }) => { if (error) console.warn('assignDeviceFromWarehouse custody:', error.message); });
-        supabaseClient.from('devices').update({ owner_id: userId }).eq('id', deviceId)
+        supabaseClient.from('devices').update({ owner_id: userId, status: 'assigned' }).eq('id', deviceId)
             .then(({ error }) => { if (error) console.warn('assignDeviceFromWarehouse device:', error.message); });
     }
     addLog(`Device ${device.serial} assigned from warehouse to ${user.name}`);
@@ -1761,7 +1761,7 @@ function addCustody(userId, deviceType, serialNumber, receiptDate, calibrationDa
     // Resolve branchId once so every reference uses the same value
     const resolvedBranch = branchId || targetUser.branch || currentUser.responsibleBranch || currentUser.branch;
     const newCustody = {
-        id: Date.now().toString(), userId, assignedBy: currentUser.id, deviceType, serialNumber,
+        id: crypto.randomUUID(), userId, assignedBy: currentUser.id, deviceType, serialNumber,
         receiptDate, branchId: resolvedBranch,
         calibrationDate, deviceCondition, status: '',
         receivedFrom, receivedFromName, notes, satisfied, careLevel,
@@ -1961,7 +1961,7 @@ function initiateTransferRequest(fromEmpId, toEmpId, serialNumber, reason, trans
     const adminId = db.users.find(u => u.role === 'admin')?.id || 'admin_1';
     devicesToTransfer.forEach(device => {
         const rec = {
-            id: 'tr_' + Date.now() + Math.random().toString(36).substr(2, 5),
+            id: crypto.randomUUID(),
             userId: toUser.id, assignedBy: currentUser.id, deviceType: device.type,
             serialNumber: device.serial, receiptDate: new Date().toISOString().split('T')[0],
             branchId: toUser.branch, status: 'pending_receiver_acceptance',
