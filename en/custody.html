@@ -120,13 +120,13 @@
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
 
-        <!-- عهدات incoming Pending accept the Surveyor -->
+        <!-- Incoming custodies awaiting surveyor acceptance -->
         <div id="incomingTransferSection" class="card hidden" style="border-left: 4px solid #3b82f6;background:#eff6ff;margin-bottom:16px;">
-            <h3><i class="fa-solid fa-inbox"></i> Incoming Custody Awaiting Your Approval</h3>
+            <h3><i class="fa-solid fa-inbox"></i> Incoming Custody Awaiting Your Acceptance</h3>
             <div class="table-container">
                 <table>
                     <thead><tr>
-                        <th>Device Type</th><th>Serial Number</th><th>from the Surveyor</th><th>Transfer Reason</th><th>Date</th><th>Actions</th>
+                        <th>Type</th><th>Device Type</th><th>Serial Number</th><th>Source</th><th>Notes</th><th>Date</th><th>Actions</th>
                     </tr></thead>
                     <tbody id="incomingTransferBody"></tbody>
                 </table>
@@ -420,6 +420,21 @@
                 <option value="fair">Fair — Missing some accessories</option>
                 <option value="needs_maintenance">Needs Maintenance — has a fault or defect</option>
             </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Are you satisfied with the device condition? <span style="color:var(--danger)">*</span></label>
+            <div style="display:flex;gap:20px;margin-top:6px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="radio" name="acceptSatisfied" id="acceptSatisfiedYes" value="true"> Yes
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="radio" name="acceptSatisfied" id="acceptSatisfiedNo" value="false"> No
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">How well do you care for the device? (brief description)</label>
+            <input type="text" id="acceptCareLevel" class="form-input" placeholder="e.g. I keep it clean and do regular maintenance">
         </div>
         <div class="form-group">
             <label class="form-label">Additional Comment (Optional)</label>
@@ -796,7 +811,7 @@ async function renderCustodies() {
         custodies = db.custodies.filter(c => c.status === 'approved' && c.branchId === currentUser.responsibleBranch);
     } else {
         titleEl.textContent = 'عهدتي';
-        custodies = db.custodies.filter(c => c.userId === currentUser.id && c.status !== 'pending_receiver_acceptance' && c.status !== 'transferred_out');
+        custodies = db.custodies.filter(c => c.userId === currentUser.id && !['pending_receiver_acceptance','pending_surveyor_acceptance','transferred_out'].includes(c.status));
     }
 
     const custodyThead = document.querySelector('#custodyTable thead tr');
@@ -844,33 +859,51 @@ async function renderCustodies() {
     }).join('') || `<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--text-muted);">No custody records found.</td></tr>`;
 }
 
-// ===== incoming transfers (for surveyor) =====
+// ===== incoming transfers & new custodies (for surveyor) =====
 async function renderIncomingTransfers() {
     if (currentUser.role !== 'surveyor') return;
     await _loadRemoteDB();
     const section = document.getElementById('incomingTransferSection');
     const tbody = document.getElementById('incomingTransferBody');
-    const incoming = db.custodies.filter(c =>
+
+    const transfers = db.custodies.filter(c =>
         c.status === 'pending_receiver_acceptance' &&
         c.transferData?.toUserId === currentUser.id
     );
-    if (incoming.length > 0) {
+    const newCustodies = db.custodies.filter(c =>
+        c.status === 'pending_surveyor_acceptance' &&
+        c.userId === currentUser.id
+    );
+    const all = [...transfers, ...newCustodies].sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp));
+
+    if (all.length > 0) {
         section.classList.remove('hidden');
-        tbody.innerHTML = incoming.map(c => `<tr>
-            <td>${getDeviceTypeName(c.deviceType)}</td>
-            <td>${c.serialNumber}</td>
-            <td>${c.transferData?.fromUserName || '—'}</td>
-            <td>${c.transferData?.reason || '—'}</td>
-            <td>${formatDate(c.timestamp)}</td>
-            <td>
-                <button onclick="openAcceptModal('${c.id}')" class="btn btn-primary btn-sm" style="margin-left:4px;">
-                    <i class="fa-solid fa-check"></i> accept
-                </button>
-                <button onclick="openRejectModal('${c.id}')" class="btn btn-ghost btn-sm" style="color:var(--danger);">
-                    <i class="fa-solid fa-xmark"></i> Reject
-                </button>
-            </td>
-        </tr>`).join('');
+        tbody.innerHTML = all.map(c => {
+            const isTransfer = c.status === 'pending_receiver_acceptance';
+            const typeLabel = isTransfer
+                ? '<span class="badge badge-info">Transfer</span>'
+                : '<span class="badge badge-warning">New Custody</span>';
+            const source = isTransfer
+                ? (c.transferData?.fromUserName || '—')
+                : (db.users.find(u => u.id === c.assignedBy)?.name || '—');
+            const notes = isTransfer ? (c.transferData?.reason || '—') : (c.notes || '—');
+            return `<tr>
+                <td>${typeLabel}</td>
+                <td>${getDeviceTypeName(c.deviceType)}</td>
+                <td>${c.serialNumber}</td>
+                <td>${source}</td>
+                <td style="max-width:180px;word-break:break-word;">${notes}</td>
+                <td>${formatDate(c.timestamp)}</td>
+                <td style="white-space:nowrap;">
+                    <button onclick="openAcceptModal('${c.id}')" class="btn btn-primary btn-sm" style="margin-right:4px;">
+                        <i class="fa-solid fa-check"></i> Accept
+                    </button>
+                    <button onclick="openRejectModal('${c.id}')" class="btn btn-ghost btn-sm" style="color:var(--danger);">
+                        <i class="fa-solid fa-xmark"></i> Reject
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
     } else {
         section.classList.add('hidden');
     }
@@ -881,7 +914,14 @@ window.openAcceptModal = id => {
     document.getElementById('acceptNotes').value = '';
     document.getElementById('acceptDeviceCondition').value = '';
     document.getElementById('acceptComment').value = '';
+    document.getElementById('acceptCareLevel').value = '';
     document.getElementById('acceptConfirmCheck').checked = false;
+    document.querySelectorAll('input[name="acceptSatisfied"]').forEach(r => r.checked = false);
+    const c = db.custodies.find(x => x.id === id);
+    const isTransfer = c?.status === 'pending_receiver_acceptance';
+    document.querySelector('#acceptTransferModal h3').innerHTML = isTransfer
+        ? '<i class="fa-solid fa-circle-check"></i> Accept Custody Transfer'
+        : '<i class="fa-solid fa-circle-check"></i> Accept New Custody';
     document.getElementById('acceptTransferModal').classList.remove('hidden');
 };
 window.closeAcceptModal = () => document.getElementById('acceptTransferModal').classList.add('hidden');
@@ -898,32 +938,43 @@ window.submitAcceptTransfer = () => {
     const notes = document.getElementById('acceptNotes').value.trim();
     const condition = document.getElementById('acceptDeviceCondition').value;
     const comment = document.getElementById('acceptComment').value.trim();
+    const careLevel = document.getElementById('acceptCareLevel').value.trim();
     const confirmed = document.getElementById('acceptConfirmCheck').checked;
+    const satisfiedVal = document.querySelector('input[name="acceptSatisfied"]:checked')?.value;
+    const satisfied = satisfiedVal === 'true' ? true : satisfiedVal === 'false' ? false : null;
 
-    if (!condition) { alert('Please تقييم Device Status.'); return; }
-    if (!confirmed) {
-        alert('يجب Confirm الإقرار بالReceive andالVerify from اكDoneال قطع andأكسسandارات Device.');
-        return;
+    if (!condition) { alert('Please rate the device condition.'); return; }
+    if (satisfied === null) { alert('Please indicate whether you are satisfied with the device condition.'); return; }
+    if (!confirmed) { alert('You must confirm receipt and verify that all parts and accessories are complete.'); return; }
+
+    const c = db.custodies.find(x => x.id === id);
+    let success = false;
+    if (c?.status === 'pending_receiver_acceptance') {
+        success = acceptTransferByReceiver(id, notes, condition, comment, satisfied, careLevel);
+        if (success) alert('Custody accepted successfully. Awaiting admin approval.');
+    } else {
+        success = acceptCustodyBySurveyor(id, notes, condition, comment, satisfied, careLevel);
+        if (success) alert('Custody accepted successfully and registered to your account.');
     }
-
-    if (acceptTransferByReceiver(id, notes, condition, comment)) {
+    if (success) {
         closeAcceptModal();
-        alert('Done accept الCustody بSuccess. Pending Approve المدير.');
         renderIncomingTransfers();
         renderCustodies();
         renderPendingApprovals();
     } else {
-        alert('An error occurred. تأكد from صNoحيتك.');
+        alert('An error occurred. Please check your permissions.');
     }
 };
 
 window.submitRejectTransfer = () => {
     const id = document.getElementById('rejectCustodyId').value;
     const reason = document.getElementById('rejectReason').value.trim();
-    if (!reason) { alert('Please ذكر Rejection Reason.'); return; }
-    if (rejectTransferByReceiver(id, reason)) {
+    if (!reason) { alert('Please provide a rejection reason.'); return; }
+    const c = db.custodies.find(x => x.id === id);
+    const fn = c?.status === 'pending_receiver_acceptance' ? rejectTransferByReceiver : rejectCustodyBySurveyor;
+    if (fn(id, reason)) {
         closeRejectModal();
-        alert('Done Reject الCustody.');
+        alert('Custody rejected and the responsible party has been notified.');
         renderIncomingTransfers();
         renderCustodies();
     } else {

@@ -45,7 +45,7 @@ function exportMultiSheetXLSX(sheets, filename) {
 // ---- Label maps ----
 const _xRoles       = { admin: 'مدير عام', head: 'رئيس مساحين', surveyor: 'مساح', developer: 'مطور' };
 const _xDevStatus   = { warehouse: 'مستودع', assigned: 'عهدة شخصية', maintenance: 'صيانة', needs_calibration: 'يحتاج معايرة', at_maintenance: 'عند الوكيل - صيانة', at_calibration: 'عند الوكيل - معايرة' };
-const _xCustStatus  = { pending_approval: 'بانتظار القبول', pending_head_approval: 'بانتظار رئيس المساحين', pending_admin_approval: 'بانتظار المدير', pending_receiver_acceptance: 'بانتظار المستلم', approved: 'معتمد', rejected: 'مرفوض', returned: 'مُعاد', transferred_out: 'منقول', transferred_in: 'منقول إليه' };
+const _xCustStatus  = { pending_approval: 'بانتظار القبول', pending_head_approval: 'بانتظار رئيس المساحين', pending_admin_approval: 'بانتظار المدير', pending_receiver_acceptance: 'بانتظار المستلم', pending_surveyor_acceptance: 'بانتظار تأكيد المساح', approved: 'معتمد', rejected: 'مرفوض', returned: 'مُعاد', transferred_out: 'منقول', transferred_in: 'منقول إليه' };
 const _xLeaveType   = { annual: 'سنوية', emergency: 'طارئة', sick: 'مرضية', other: 'أخرى' };
 const _xLeaveStatus = { pending: 'بانتظار', pending_head_approval: 'بانتظار رئيس المساحين', pending_admin_approval: 'بانتظار المدير', approved: 'معتمد', rejected: 'مرفوض', cancelled: 'ملغي' };
 const _xMaintType   = { maintenance: 'صيانة', calibration: 'معايرة' };

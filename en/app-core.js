@@ -881,7 +881,7 @@ async function logoutAllDevices() {
 async function clearEmployeeCustody(userId) {
     const user = db.users.find(u => u.id === userId);
     if (!user) return;
-    const activeStatuses = ['pending_approval','pending_head_approval','pending_admin_approval','approved','pending_receiver_acceptance'];
+    const activeStatuses = ['pending_approval','pending_head_approval','pending_admin_approval','approved','pending_receiver_acceptance','pending_surveyor_acceptance'];
     const activeCustodies = db.custodies.filter(c => c.userId === userId && activeStatuses.includes(c.status));
     if (activeCustodies.length === 0) {
         _showSyncToast(`No active custody for ${user.name}`, 'info');
@@ -1846,7 +1846,14 @@ function addCustody(userId, deviceType, serialNumber, receiptDate, calibrationDa
         db.users.filter(u => u.role === 'admin').forEach(a =>
             addNotification(a.id, msg, 'warning', relatedId, false, 'custody.html', 'custody_approval', true));
     if (currentUser.role === 'admin') {
-        newCustody.status = 'approved';
+        if (userId !== currentUser.id) {
+            newCustody.status = 'pending_surveyor_acceptance';
+            addNotification(userId,
+                `A custody for device (${serialNumber}) has been registered in your name. Please review and accept or reject it.`,
+                'warning', newCustody.id, false, 'custody.html', 'custody_transfer_request', true);
+        } else {
+            newCustody.status = 'approved';
+        }
     } else if (currentUser.role === 'head') {
         newCustody.status = 'pending_admin_approval';
         notifyAdmins(`طلب عهدة جديد for device (${serialNumber}) from Head Surveyor ${currentUser.name}.`, newCustody.id);
@@ -1899,7 +1906,6 @@ function approveCustody(custodyId, approverRole) {
     if (approverRole === 'admin' && currentUser.role === 'admin' &&
         (c.status === 'pending_approval' || c.status === 'pending_admin_approval' || c.status === 'pending_head_approval')) {
         if (c.transferData) {
-            // Close old sender custody records for this serial to avoid duplicates in the table
             db.custodies.forEach(cu => {
                 if (cu.serialNumber === c.serialNumber && cu.userId === c.transferData.fromUserId && cu.status === 'approved' && cu.id !== c.id) {
                     cu.status = 'transferred_out';
@@ -1908,16 +1914,23 @@ function approveCustody(custodyId, approverRole) {
             });
             const device = db.devices.find(d => d.serial === c.serialNumber);
             if (device) updateDeviceOwner(c.serialNumber, c.userId, device.calDate, c.branchId, c.deviceType, device.status === 'maintenance' ? 'needs_maintenance' : 'good');
+            c.status = 'approved';
+            addNotification(c.userId, `Custody for device (${c.serialNumber}) has been approved.`, 'success', c.id, false, 'custody.html');
+        } else if (c.userId !== c.assignedBy) {
+            c.status = 'pending_surveyor_acceptance';
+            addNotification(c.userId,
+                `Custody for device (${c.serialNumber}) has been approved and is awaiting your confirmation.`,
+                'warning', c.id, false, 'custody.html', 'custody_transfer_request', true);
         } else {
             updateDeviceOwner(c.serialNumber, c.userId, c.calibrationDate, c.branchId, c.deviceType, c.deviceCondition);
+            c.status = 'approved';
+            addNotification(c.userId, `Custody for device (${c.serialNumber}) has been approved.`, 'success', c.id, false, 'custody.html');
         }
-        c.status = 'approved';
         if (!c.approvalHistory) c.approvalHistory = [];
-        c.approvalHistory.push({ approverName: currentUser.name, approverRole: 'مدير الإدارة', timestamp: new Date().toISOString() });
+        c.approvalHistory.push({ approverName: currentUser.name, approverRole: 'Admin', timestamp: new Date().toISOString() });
         saveDB();
         _updateCustodyInSupabase(c);
-        addLog(`اعDoneاد نهائي: ${reqType} for device (${c.serialNumber}) للمandظف ${userName}`);
-        addNotification(c.userId, `Done اعDoneاد عهدة الجهاز (${c.serialNumber}) بنجاح.`, 'success', c.id, false, 'custody.html');
+        addLog(`Final approval: ${reqType} for device (${c.serialNumber}) — ${userName}`);
         return true;
     }
     return false;
@@ -1954,13 +1967,15 @@ function rejectCustody(custodyId) {
 }
 
 // Receiving surveyor accepts the transfer with notes and device condition assessment
-function acceptTransferByReceiver(custodyId, notes, deviceCondition, comment) {
+function acceptTransferByReceiver(custodyId, notes, deviceCondition, comment, satisfied, careLevel) {
     const c = db.custodies.find(x => x.id === custodyId);
     if (!c || c.status !== 'pending_receiver_acceptance') return false;
     if (c.transferData?.toUserId !== currentUser.id) return false;
     c.receiverNotes = notes || '';
     c.receiverDeviceCondition = deviceCondition || '';
     c.receiverComment = comment || '';
+    c.satisfied = satisfied ?? null;
+    c.careLevel = careLevel || '';
     c.status = 'pending_admin_approval';
     saveDB();
     _updateCustodyInSupabase(c);
@@ -1993,6 +2008,42 @@ function rejectTransferByReceiver(custodyId, reason) {
     addNotification(c.assignedBy,
         `Done Reject نقل عهدة الجهاز (${c.serialNumber}) from قِبل ${currentUser.name}. Reason: ${reason || 'لم يُذكر سبب'}`,
         'error', c.id);
+    db.custodies = db.custodies.filter(x => x.id !== custodyId);
+    saveDB();
+    if (supabaseClient && _isUUID(custodyId)) supabaseClient.from('custodies').delete().eq('id', custodyId).then(() => {});
+    return true;
+}
+
+function acceptCustodyBySurveyor(custodyId, notes, condition, comment, satisfied, careLevel) {
+    const c = db.custodies.find(x => x.id === custodyId);
+    if (!c || c.status !== 'pending_surveyor_acceptance') return false;
+    if (c.userId !== currentUser.id) return false;
+    c.receiverNotes = notes || '';
+    c.receiverDeviceCondition = condition || '';
+    c.receiverComment = comment || '';
+    c.satisfied = satisfied ?? null;
+    c.careLevel = careLevel || '';
+    c.status = 'approved';
+    updateDeviceOwner(c.serialNumber, c.userId, c.calibrationDate, c.branchId, c.deviceType, c.deviceCondition);
+    if (!c.approvalHistory) c.approvalHistory = [];
+    c.approvalHistory.push({ approverName: currentUser.name, approverRole: 'Receiving Surveyor', decision: 'accepted', timestamp: new Date().toISOString() });
+    saveDB();
+    _updateCustodyInSupabase(c);
+    addLog(`${currentUser.name} accepted custody of device (${c.serialNumber})`);
+    addNotification(c.assignedBy, `Surveyor ${currentUser.name} accepted custody of device (${c.serialNumber}).`, 'success', c.id, false, 'custody.html');
+    db.users.filter(u => u.role === 'admin').forEach(a =>
+        addNotification(a.id, `Surveyor ${currentUser.name} accepted custody of device (${c.serialNumber}).`, 'info', c.id, false, 'custody.html'));
+    return true;
+}
+
+function rejectCustodyBySurveyor(custodyId, reason) {
+    const c = db.custodies.find(x => x.id === custodyId);
+    if (!c || c.status !== 'pending_surveyor_acceptance') return false;
+    if (c.userId !== currentUser.id) return false;
+    addLog(`${currentUser.name} rejected custody of device (${c.serialNumber}) — Reason: ${reason}`);
+    addNotification(c.assignedBy, `Surveyor ${currentUser.name} rejected custody of device (${c.serialNumber}). Reason: ${reason || 'Not specified'}`, 'error', c.id, false, 'custody.html');
+    db.users.filter(u => u.role === 'admin').forEach(a =>
+        addNotification(a.id, `Surveyor ${currentUser.name} rejected custody of device (${c.serialNumber}). Reason: ${reason || 'Not specified'}`, 'error', c.id, false, 'custody.html'));
     db.custodies = db.custodies.filter(x => x.id !== custodyId);
     saveDB();
     if (supabaseClient && _isUUID(custodyId)) supabaseClient.from('custodies').delete().eq('id', custodyId).then(() => {});
