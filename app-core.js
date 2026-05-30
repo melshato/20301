@@ -358,6 +358,8 @@ const saveDB = async (skipSync = false) => {
     db._version = APP_VERSION;
     // حفظ نسخة محلية احتياطية (لتفادي فقدان البيانات عند منع RLS)
     try { localStorage.setItem('sajco_db_backup', JSON.stringify(db)); } catch (_) {}
+    // نسخة احتياطية آلية عند كل تعديل
+    _autoBackup();
     if (skipSync) return;
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try { await _syncToSupabase(); }
@@ -4389,6 +4391,64 @@ function rejectSalaryRaiseRequest(reqId, note) {
     return true;
 }
 
+// ============================================================
+// Auto Backup — نسخ احتياطي آلي كل ساعة
+// ============================================================
+const AUTO_BACKUP_KEY = 'sajco_auto_backup';
+const BACKUP_INTERVAL = 3600000; // ساعة
+
+function _autoBackup() {
+    if (!db) return;
+    try {
+        const snapshot = { timestamp: Date.now(), data: JSON.parse(JSON.stringify(db)) };
+        localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify(snapshot));
+        console.log(`✅ Auto-backup saved at ${new Date().toLocaleString('ar-EG')}`);
+    } catch (_) { /* localStorage full — تجاهل */ }
+}
+
+function getAutoBackupInfo() {
+    try {
+        const raw = localStorage.getItem(AUTO_BACKUP_KEY);
+        if (!raw) return null;
+        const snap = JSON.parse(raw);
+        return { timestamp: snap.timestamp, age: Date.now() - snap.timestamp };
+    } catch (_) { return null; }
+}
+
+function downloadAutoBackup() {
+    const raw = localStorage.getItem(AUTO_BACKUP_KEY);
+    if (!raw) { alert('لا توجد نسخة احتياطية آلية بعد'); return; }
+    try {
+        const snap = JSON.parse(raw);
+        const blob = new Blob([JSON.stringify(snap.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `sajco_backup_${new Date(snap.timestamp).toLocaleDateString('en-GB').replace(/\//g,'-')}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    } catch (_) { alert('خطأ في تحميل النسخة الاحتياطية'); }
+}
+
+function uploadAndRestore(file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const imp = JSON.parse(ev.target.result);
+            if (!imp.users || !Array.isArray(imp.users)) { alert('الملف غير صالح — يجب أن يحتوي على users'); return; }
+            if (!confirm('استيراد النسخة سيحل محل جميع البيانات الحالية. هل أنت متأكد؟')) return;
+            Object.keys(imp).forEach(k => { if (k !== '_version') db[k] = imp[k]; });
+            if (!imp.logs) db.logs = [];
+            db.logs.unshift({ id: Date.now(), user: currentUser?.name || 'system', msg: 'تم استعادة نسخة احتياطية للنظام' });
+            saveDB(true);
+            _autoBackup();
+            alert('✅ تمت استعادة النسخة الاحتياطية بنجاح — سيتم تحديث الصفحة');
+            setTimeout(() => location.reload(), 1500);
+        } catch(_) { alert('خطأ في قراءة الملف — تأكد من أنه نسخة احتياطية صالحة'); }
+    };
+    reader.readAsText(file);
+}
+
 window.addEventListener('load', () => {
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
@@ -4408,4 +4468,12 @@ window.addEventListener('load', () => {
     // Load fresh settings + full DB from Supabase
     _loadRemoteSettings();
     _loadRemoteDB();
+    // نسخة احتياطية أولية عند تحميل الصفحة
+    setTimeout(_autoBackup, 10000);
+
 });
+
+// جعل الدوال متاحة عالمياً
+window.downloadAutoBackup = downloadAutoBackup;
+window.uploadAndRestore = uploadAndRestore;
+window.getAutoBackupInfo = getAutoBackupInfo;

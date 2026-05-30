@@ -289,19 +289,24 @@
             <div id="tickerItemsList"></div>
         </div>
 
-        <!-- ====== الCopy اNoحتياطي ====== -->
+        <!-- ====== Backup ====== -->
         <div class="settings-section">
             <h3><i class="fa-solid fa-database"></i> Backup and Data</h3>
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;color:#166534;">
                 <i class="fa-solid fa-circle-info"></i>
-                Last Backup: <strong id="lastBackupInfo">No backup taken yet</strong>
+                Last Auto Backup: <strong id="lastBackupInfo">No backup taken yet</strong>
+                <br><small style="opacity:.8;">🔄 Backup is taken automatically on every database change</small>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button onclick="exportBackup()" class="btn btn-primary" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-export"></i> Export Backup
+                <button onclick="downloadAutoBackup()" class="btn btn-primary" style="font-size:.85rem;">
+                    <i class="fa-solid fa-download"></i> Download Latest Backup
                 </button>
-                <button onclick="importBackup()" class="btn btn-ghost" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-import"></i> Import Copyة احتياطية
+                <button onclick="document.getElementById('restoreFileInput').click()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-upload"></i> Restore from File
+                </button>
+                <input type="file" id="restoreFileInput" accept=".json" style="display:none" onchange="uploadAndRestore(this.files[0])">
+                <button onclick="exportBackup()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-file-export"></i> Manual Export
                 </button>
             </div>
         </div>
@@ -433,9 +438,12 @@ function initSettings() {
     slider.value = db.settings.alertDays || 30;
     document.getElementById('alertDaysVal').textContent = slider.value;
     document.getElementById('alertSoundToggle').checked = db.settings.alertSoundEnabled !== false;
-    // Backup date
-    if (db.settings.lastLocalBackup) {
-        document.getElementById('lastBackupInfo').textContent = new Date(db.settings.lastLocalBackup).toLocaleString('en-US');
+    // Backup info
+    const backupInfo = getAutoBackupInfo();
+    const el = document.getElementById('lastBackupInfo');
+    if (backupInfo) {
+        const ago = Math.round(backupInfo.age / 60000);
+        el.textContent = `${new Date(backupInfo.timestamp).toLocaleString('en-US')} (${ago} min ago)`;
     }
     // Check Supabase connection
     checkSupabaseStatus();

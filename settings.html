@@ -294,14 +294,19 @@
             <h3><i class="fa-solid fa-database"></i> النسخ الاحتياطي والبيانات</h3>
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;color:#166534;">
                 <i class="fa-solid fa-circle-info"></i>
-                آخر نسخة احتياطية: <strong id="lastBackupInfo">لم يتم أخذ نسخة بعد</strong>
+                آخر نسخة احتياطية تلقائية: <strong id="lastBackupInfo">لم يتم أخذ نسخة بعد</strong>
+                <br><small style="opacity:.8;">🔄 تُؤخذ نسخة تلقائياً عند كل تعديل في قاعدة البيانات</small>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <button onclick="exportBackup()" class="btn btn-primary" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-export"></i> تصدير نسخة احتياطية
+                <button onclick="downloadAutoBackup()" class="btn btn-primary" style="font-size:.85rem;">
+                    <i class="fa-solid fa-download"></i> تحميل آخر نسخة
                 </button>
-                <button onclick="importBackup()" class="btn btn-ghost" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-import"></i> استيراد نسخة احتياطية
+                <button onclick="document.getElementById('restoreFileInput').click()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-upload"></i> استيراد نسخة واستعادتها
+                </button>
+                <input type="file" id="restoreFileInput" accept=".json" style="display:none" onchange="uploadAndRestore(this.files[0])">
+                <button onclick="exportBackup()" class="btn btn-ghost" style="font-size:.85rem;">
+                    <i class="fa-solid fa-file-export"></i> تصدير يدوي
                 </button>
             </div>
         </div>
@@ -451,9 +456,12 @@ function initSettings() {
     slider.value = db.settings.alertDays || 30;
     document.getElementById('alertDaysVal').textContent = slider.value;
     document.getElementById('alertSoundToggle').checked = db.settings.alertSoundEnabled !== false;
-    // Backup date
-    if (db.settings.lastLocalBackup) {
-        document.getElementById('lastBackupInfo').textContent = new Date(db.settings.lastLocalBackup).toLocaleString('ar-EG');
+    // Backup info
+    const backupInfo = getAutoBackupInfo();
+    const el = document.getElementById('lastBackupInfo');
+    if (backupInfo) {
+        const ago = Math.round(backupInfo.age / 60000);
+        el.textContent = `${new Date(backupInfo.timestamp).toLocaleString('ar-EG')} (منذ ${ago} دقيقة)`;
     }
     // Check Supabase connection
     checkSupabaseStatus();
