@@ -684,12 +684,26 @@ function _checkRateLimit() {
   return true;
 }
 
+// ── تسجيل دخول تلقائي إذا كانت جلسة Supabase Auth نشطة ──
+(async () => {
+  if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session?.user) {
+    await _loadRemoteDB();
+    const user = db.users.find(u => u.email === session.user.email);
+    if (user && user.status === 'approved') {
+      localStorage.setItem('sajco_session', JSON.stringify(_safeSession(user)));
+      location.href = _getLoginDest(user.role);
+    }
+  }
+})();
+
 const doLogin = async (email, pass) => {
   if (!_checkRateLimit()) return;
   const loginBtn = document.querySelector('#loginForm [type="submit"]');
-  if (loginBtn) loginBtn.disabled = true;
+  if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = '...'; }
   try {
-    // ── Primary: Supabase Auth (establishes JWT → RLS applies) ──
+    // ── المحاولة الأولى: Supabase Auth مباشرة ──
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
       const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
       if (!authErr && authData?.session) {
@@ -706,14 +720,33 @@ const doLogin = async (email, pass) => {
         }
       }
     }
-    // ── Fallback: password check (بدون إنشاء حساب Auth تلقائي) ──
+
+    // ── Fallback: تحقق من كلمة المرور المحلية ──
     const user = db.users.find(u => u.email === email && u.password === pass);
     if (!user) { showAlert('بيانات الدخول خاطئة'); return; }
     if (user.status === 'pending') { showAlert('حسابك قيد المراجعة من قبل المدير'); return; }
+
+    // ── هجرة تلقائية: أنشئ حساب Supabase Auth في الخلفية ──
+    if (typeof supabaseClient !== 'undefined' && supabaseClient && !user.authUid) {
+      try {
+        // حاول إنشاء الحساب (يفشل صامتاً إذا كان موجوداً)
+        await supabaseClient.auth.signUp({ email, password: pass });
+        const { data: migrData } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+        if (migrData?.session?.user?.id) {
+          user.authUid = migrData.session.user.id;
+          supabaseClient.from('users').update({ auth_uid: migrData.session.user.id }).eq('id', user.id).then(() => {});
+          // من الآن يدخل عبر Supabase Auth تلقائياً
+          localStorage.setItem('sajco_session', JSON.stringify(_safeSession(user)));
+          location.href = _getLoginDest(user.role);
+          return;
+        }
+      } catch(_) { /* صامت — يكمل بالـ session المحلية */ }
+    }
+
     localStorage.setItem('sajco_session', JSON.stringify(_safeSession(user)));
     location.href = _getLoginDest(user.role);
   } finally {
-    if (loginBtn) loginBtn.disabled = false;
+    if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'دخول'; }
   }
 };
 

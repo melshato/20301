@@ -290,15 +290,28 @@
             };
 
             if (id) {
-                updateUser(id, userData); // Use the new centralized updateUser function
+                updateUser(id, userData);
             } else {
-                // Check for duplicate empId or name before adding
                 const dupEmpId = db.users.some(u => String(u.empId) === String(userData.empId));
-                if (dupEmpId) { alert(`Employee ID "${userData.empId}" مستخدم بالفعل لحساب آخر. No يمكن التكرار.`); return; }
+                if (dupEmpId) { alert(`Employee ID "${userData.empId}" is already in use. Cannot duplicate.`); return; }
                 const dupName = db.users.some(u => u.name === userData.name);
-                if (dupName) { alert(`Name "${userData.name}" مستخدم بالفعل لحساب آخر. Please Use اسم مختلف.`); return; }
+                if (dupName) { alert(`Name "${userData.name}" is already in use. Please use a different name.`); return; }
                 db.users.push(userData);
-                addLog(`Done Add New Employee: ${userData.name} By ${currentUser.name}.`);
+                addLog(`New employee added: ${userData.name} by ${currentUser.name}.`);
+
+                // Auto-create Supabase Auth account in background
+                if (supabaseClient && userData.email && userData.password) {
+                    supabaseClient.auth.signUp({ email: userData.email, password: userData.password })
+                        .then(({ data, error }) => {
+                            if (!error && data?.user?.id) {
+                                const u = db.users.find(x => x.email === userData.email);
+                                if (u) {
+                                    u.authUid = data.user.id;
+                                    supabaseClient.from('users').update({ auth_uid: data.user.id }).eq('id', u.id).then(() => {});
+                                }
+                            }
+                        }).catch(() => {});
+                }
             }
 
             saveDB();

@@ -545,6 +545,25 @@ async function _syncToSupabase() {
 const reloadDB = async () => { await _loadRemoteDB(); };
 
 // ============================================================
+// Auth State Change — خروج تلقائي عند انتهاء جلسة Supabase
+// ============================================================
+(function _initAuthListener() {
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+            // الجلسة انتهت من الخادم — أخرج تلقائياً
+            if (currentUser && !window.location.pathname.includes('index.html')) {
+                localStorage.removeItem('sajco_session');
+                window.location.href = 'index.html';
+            }
+        }
+        if (event === 'TOKEN_REFRESHED' && session) {
+            // تجديد الجلسة تلقائياً — لا يحتاج تدخل
+        }
+    });
+})();
+
+// ============================================================
 // Supabase Realtime - تحديث لحظي
 // ============================================================
 let _realtimeChannel = null;

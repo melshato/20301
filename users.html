@@ -291,21 +291,33 @@
             };
 
             if (id) {
-                updateUser(id, userData); // Use the new centralized updateUser function
+                updateUser(id, userData);
             } else {
-                // Check for duplicate empId or name before adding
                 const dupEmpId = db.users.some(u => String(u.empId) === String(userData.empId));
                 if (dupEmpId) { alert(`الرقم الوظيفي "${userData.empId}" مستخدم بالفعل لحساب آخر. لا يمكن التكرار.`); return; }
                 const dupName = db.users.some(u => u.name === userData.name);
                 if (dupName) { alert(`الاسم "${userData.name}" مستخدم بالفعل لحساب آخر. يرجى استخدام اسم مختلف.`); return; }
                 db.users.push(userData);
                 addLog(`تم إضافة موظف جديد: ${userData.name} بواسطة ${currentUser.name}.`);
+
+                // إنشاء حساب Supabase Auth تلقائياً في الخلفية
+                if (supabaseClient && userData.email && userData.password) {
+                    supabaseClient.auth.signUp({ email: userData.email, password: userData.password })
+                        .then(({ data, error }) => {
+                            if (!error && data?.user?.id) {
+                                const u = db.users.find(x => x.email === userData.email);
+                                if (u) {
+                                    u.authUid = data.user.id;
+                                    supabaseClient.from('users').update({ auth_uid: data.user.id }).eq('id', u.id).then(() => {});
+                                }
+                            }
+                        }).catch(() => {}); // صامت — لا يؤثر على تجربة المدير
+                }
             }
 
             saveDB();
             toggleUserForm();
             refreshUserTable();
-            // Refresh pending users if admin
             if (currentUser.role === 'admin') renderPendingUsers();
         };
 
