@@ -295,21 +295,33 @@
                             <label for="transferAllCheck" style="font-size:.85rem;">نقل جميع الأجهزة في عهدته</label>
                         </div>
                     </div>
-                    <div class="form-group" style="flex:1;">
+                    <div class="form-group" style="flex:1;" id="toEmpIdGroup">
                         <label class="form-label">إلى (الرقم الوظيفي للمساح الجديد)</label>
                         <input type="text" id="toEmpId" class="form-input" placeholder="ادخل الرقم الوظيفي...">
                         <div id="toUserInfo" style="font-size:.8rem;color:var(--primary);margin-top:5px;"></div>
                     </div>
+                    <div class="form-group" style="flex:1;display:flex;align-items:center;" id="toWarehouseGroup">
+                        <div style="display:none;background:#fef9c3;border:1.5px solid #ca8a04;border-radius:8px;padding:12px 16px;width:100%;text-align:center;">
+                            <i class="fa-solid fa-warehouse" style="color:#ca8a04;font-size:1.4rem;"></i>
+                            <div style="font-weight:600;color:#92400e;margin-top:4px;">سيُعاد الجهاز للمستودع</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <input type="checkbox" id="transferToWarehouseCheck" onchange="toggleWarehouseTransfer(this.checked)">
+                    <label for="transferToWarehouseCheck" style="font-size:.9rem;font-weight:600;color:#b45309;cursor:pointer;">
+                        <i class="fa-solid fa-warehouse"></i> نقل إلى المستودع (بدلاً من مساح آخر)
+                    </label>
                 </div>
                 <div class="form-group">
                     <label class="form-label">سبب النقل / ملاحظات</label>
                     <textarea id="transferReason" class="form-textarea" rows="2" placeholder="اكتب سبب النقل هنا..."></textarea>
                 </div>
-                <div class="acceptance-warning" style="margin-bottom:16px;">
+                <div class="acceptance-warning" id="transferAcceptanceWarning" style="margin-bottom:16px;">
                     <strong><i class="fa-solid fa-triangle-exclamation"></i> تنبيه للمستلم:</strong><br>
                     عند قبول العهدة سيُطلب من المستلم تأكيد استلام الجهاز وتسجيل ملاحظاته حول اكتمال الأدوات والأكسسوارات، وسيظهر في بيانات عهدته.
                 </div>
-                <button onclick="handleTransfer()" class="btn btn-primary" style="background:#2563eb;border-color:#2563eb;width:200px;">
+                <button onclick="handleTransfer()" class="btn btn-primary" id="transferSubmitBtn" style="background:#2563eb;border-color:#2563eb;width:220px;">
                     <i class="fa-solid fa-paper-plane"></i> إرسال طلب النقل
                 </button>
             </div>
@@ -731,13 +743,40 @@ document.getElementById('custodyForm').addEventListener('submit', async e => {
 });
 
 // ===== transfer =====
+window.toggleWarehouseTransfer = (checked) => {
+    const toGroup = document.getElementById('toEmpIdGroup');
+    const whGroup = document.getElementById('toWarehouseGroup');
+    const warning = document.getElementById('transferAcceptanceWarning');
+    const btn     = document.getElementById('transferSubmitBtn');
+    if (checked) {
+        toGroup.style.display = 'none';
+        whGroup.querySelector('div').style.display = '';
+        warning.style.display = 'none';
+        btn.innerHTML = '<i class="fa-solid fa-warehouse"></i> نقل إلى المستودع';
+        btn.style.background = btn.style.borderColor = '#b45309';
+    } else {
+        toGroup.style.display = '';
+        whGroup.querySelector('div').style.display = 'none';
+        warning.style.display = '';
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال طلب النقل';
+        btn.style.background = btn.style.borderColor = '#2563eb';
+    }
+};
+
 window.handleTransfer = () => {
     const from = document.getElementById('fromEmpId').value;
-    const to = document.getElementById('toEmpId').value;
     const serial = document.getElementById('transferDeviceSelect').value;
     const reason = document.getElementById('transferReason').value;
     const all = document.getElementById('transferAllCheck').checked;
-    const result = initiateTransferRequest(from, to, serial, reason, all);
+    const toWarehouse = document.getElementById('transferToWarehouseCheck').checked;
+
+    let result;
+    if (toWarehouse) {
+        result = transferCustodyToWarehouse(from, serial, reason, all);
+    } else {
+        const to = document.getElementById('toEmpId').value;
+        result = initiateTransferRequest(from, to, serial, reason, all);
+    }
     alert(result.msg);
     if (result.success) {
         document.getElementById('transferReason').value = '';
@@ -747,9 +786,10 @@ window.handleTransfer = () => {
         document.getElementById('toUserInfo').textContent = '';
         document.getElementById('transferDeviceSelect').innerHTML = '<option value="">اختر الجهاز من العهدة...</option>';
         document.getElementById('transferAllCheck').checked = false;
+        document.getElementById('transferToWarehouseCheck').checked = false;
+        toggleWarehouseTransfer(false);
         renderCustodies();
         renderPendingApprovals();
-        // إغلاق القسم بعد الإرسال
         toggleSection('transfer');
     }
 };

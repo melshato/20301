@@ -2196,6 +2196,36 @@ function initiateTransferRequest(fromEmpId, toEmpId, serialNumber, reason, trans
     return { success: true, msg: 'تم إرسال طلب النقل للموافقة' };
 }
 
+function transferCustodyToWarehouse(fromEmpId, serialNumber, reason, transferAll = false) {
+    const fromUser = db.users.find(u => u.empId === fromEmpId);
+    if (!fromUser) return { success: false, msg: 'الرقم الوظيفي غير صحيح' };
+    let devicesToTransfer = transferAll ? db.devices.filter(d => d.ownerId === fromUser.id) : [];
+    if (!transferAll) {
+        const device = db.devices.find(d => d.serial === serialNumber && d.ownerId === fromUser.id);
+        if (device) devicesToTransfer = [device];
+    }
+    if (devicesToTransfer.length === 0) return { success: false, msg: 'لا توجد أجهزة مطابقة في عهدة هذا الموظف' };
+    devicesToTransfer.forEach(device => {
+        db.custodies.forEach(c => {
+            if (c.serialNumber === device.serial && c.userId === fromUser.id && c.status === 'approved') {
+                c.status = 'transferred_out';
+                _updateCustodyInSupabase(c);
+            }
+        });
+        device.status = 'warehouse';
+        device.ownerId = null;
+        if (supabaseClient && _isUUID(device.id)) {
+            supabaseClient.from('devices').update({ status: 'warehouse', owner_id: null }).eq('id', device.id).then(() => {});
+        }
+        addLog(`نقل عهدة الجهاز (${device.serial}) من ${fromUser.name} إلى المستودع. السبب: ${reason || '—'}`);
+        addNotification(fromUser.id,
+            `تم نقل الجهاز (${getDeviceTypeName(device.type)} — ${device.serial}) من عهدتك إلى المستودع. السبب: ${reason || '—'}`,
+            'warning', null, false, 'custody.html');
+    });
+    saveDB();
+    return { success: true, msg: `تم نقل ${devicesToTransfer.length} جهاز إلى المستودع بنجاح` };
+}
+
 function updateDeviceOwner(serialNumber, userId, calibrationDate, branchId, deviceType, deviceCondition) {
     const idx = db.devices.findIndex(d => d.serial === serialNumber);
     let mappedStatus = 'assigned';

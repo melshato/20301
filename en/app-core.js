@@ -2054,7 +2054,37 @@ function initiateTransferRequest(fromEmpId, toEmpId, serialNumber, reason, trans
             'warning', rec.id, false, 'custody.html', 'custody_transfer_request', true);
     });
     saveDB();
-    return { success: true, msg: 'Done Send طلب النقل للApprove' };
+    return { success: true, msg: 'Transfer request sent for approval' };
+}
+
+function transferCustodyToWarehouse(fromEmpId, serialNumber, reason, transferAll = false) {
+    const fromUser = db.users.find(u => u.empId === fromEmpId);
+    if (!fromUser) return { success: false, msg: 'Employee ID not found' };
+    let devicesToTransfer = transferAll ? db.devices.filter(d => d.ownerId === fromUser.id) : [];
+    if (!transferAll) {
+        const device = db.devices.find(d => d.serial === serialNumber && d.ownerId === fromUser.id);
+        if (device) devicesToTransfer = [device];
+    }
+    if (devicesToTransfer.length === 0) return { success: false, msg: 'No matching devices found in this employee\'s custody' };
+    devicesToTransfer.forEach(device => {
+        db.custodies.forEach(c => {
+            if (c.serialNumber === device.serial && c.userId === fromUser.id && c.status === 'approved') {
+                c.status = 'transferred_out';
+                _updateCustodyInSupabase(c);
+            }
+        });
+        device.status = 'warehouse';
+        device.ownerId = null;
+        if (supabaseClient && _isUUID(device.id)) {
+            supabaseClient.from('devices').update({ status: 'warehouse', owner_id: null }).eq('id', device.id).then(() => {});
+        }
+        addLog(`Transferred device (${device.serial}) from ${fromUser.name} to Warehouse. Reason: ${reason || '—'}`);
+        addNotification(fromUser.id,
+            `Device (${getDeviceTypeName(device.type)} — ${device.serial}) has been transferred from your custody to the Warehouse. Reason: ${reason || '—'}`,
+            'warning', null, false, 'custody.html');
+    });
+    saveDB();
+    return { success: true, msg: `${devicesToTransfer.length} device(s) successfully transferred to Warehouse` };
 }
 
 function updateDeviceOwner(serialNumber, userId, calibrationDate, branchId, deviceType, deviceCondition) {
