@@ -2289,9 +2289,28 @@ function updateDeviceOwner(serialNumber, userId, calibrationDate, branchId, devi
     let mappedStatus = 'assigned';
     if (deviceCondition === 'needs_maintenance') mappedStatus = 'maintenance';
     if (deviceCondition === 'needs_calibration') mappedStatus = 'needs_calibration';
-    const deviceData = { serial: serialNumber, type: deviceType || 'غير محدد', ownerId: userId, branch: branchId, calDate: calibrationDate, status: mappedStatus };
-    if (idx !== -1) db.devices[idx] = { ...db.devices[idx], ...deviceData };
-    else db.devices.push({ id: _safeUUID(), ...deviceData });
+
+    // إذا لم يُمرَّر branchId، نستخدم فرع المالك كبديل
+    const owner = db.users.find(u => u.id === userId);
+    const resolvedBranch = branchId || owner?.branch || owner?.responsibleBranch || null;
+
+    const deviceData = { serial: serialNumber, type: deviceType || 'غير محدد', ownerId: userId, branch: resolvedBranch, calDate: calibrationDate, status: mappedStatus };
+    if (idx !== -1) {
+        db.devices[idx] = { ...db.devices[idx], ...deviceData };
+        // مزامنة مع Supabase لتحديث owner_id و branch_id
+        if (supabaseClient && _isUUID(db.devices[idx].id)) {
+            supabaseClient.from('devices').update({
+                owner_id:  _isUUID(userId)          ? userId          : null,
+                branch_id: _isUUID(resolvedBranch)  ? resolvedBranch  : null,
+                status:    mappedStatus,
+                cal_date:  calibrationDate || null,
+            }).eq('id', db.devices[idx].id).then(({ error }) => {
+                if (error) console.warn('updateDeviceOwner sync:', error.message);
+            });
+        }
+    } else {
+        db.devices.push({ id: _safeUUID(), ...deviceData });
+    }
 }
 
 // ============================================================
