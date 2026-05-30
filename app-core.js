@@ -549,28 +549,52 @@ async function _syncToSupabase() {
         notes: c.notes || null,
     }));
 
-    const ops = [
-        userRows.length       ? supabaseClient.from('users').upsert(userRows, { onConflict: 'emp_id' })                             : null,
-        branchRows.length     ? supabaseClient.from('branches').upsert(branchRows, { onConflict: 'serial_number' })                  : null,
+    // تجديد الجلسة قبل المزامنة لتجنب 401
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            // محاولة تجديد الجلسة
+            await supabaseClient.auth.refreshSession().catch(() => {});
+        }
+    } catch (_) {}
 
-        empIdRows.length      ? supabaseClient.from('allowed_employee_ids').upsert(empIdRows, { onConflict: 'emp_id' })              : null,
-        workerRows.length     ? supabaseClient.from('workers').upsert(workerRows, { onConflict: 'id' })                              : null,
-        workerLeaveRows.length? supabaseClient.from('worker_leave_requests').upsert(workerLeaveRows, { onConflict: 'id' })           : null,
-        projectRows.length    ? supabaseClient.from('projects').upsert(projectRows, { onConflict: 'id' })                            : null,
-        pcrRows.length        ? supabaseClient.from('profile_change_requests').upsert(pcrRows, { onConflict: 'id' })                 : null,
-        srrRows.length        ? supabaseClient.from('salary_raise_requests').upsert(srrRows, { onConflict: 'id' })                   : null,
-        deviceRows.length     ? supabaseClient.from('devices').upsert(deviceRows, { onConflict: 'serial' })                          : null,
-        custodyRows.length    ? supabaseClient.from('custodies').upsert(custodyRows, { onConflict: 'id' })                           : null,
-        leaveRows.length      ? supabaseClient.from('leave_requests').upsert(leaveRows, { onConflict: 'id' })                        : null,
-        maintRows.length      ? supabaseClient.from('maintenance_requests').upsert(maintRows, { onConflict: 'id' })                  : null,
-        certRows.length       ? supabaseClient.from('calibration_certificates').upsert(certRows, { onConflict: 'id' })               : null,
+    // المرحلة الأولى: مزامنة المستخدمين والفروع أولاً (جداول FK-parent)
+    const phase1 = [
+        userRows.length   ? supabaseClient.from('users').upsert(userRows, { onConflict: 'emp_id' })                        : null,
+        branchRows.length ? supabaseClient.from('branches').upsert(branchRows, { onConflict: 'serial_number' })             : null,
+        empIdRows.length  ? supabaseClient.from('allowed_employee_ids').upsert(empIdRows, { onConflict: 'emp_id' })         : null,
+    ].filter(Boolean);
+
+    const phase1Results = await Promise.allSettled(phase1);
+    phase1Results.forEach((r, i) => {
+        if (r.status === 'rejected') console.warn('sync phase1[' + i + ']:', r.reason);
+        else if (r.value?.error) console.warn('sync phase1[' + i + ']:', r.value.error.message);
+    });
+
+    // تحقق إذا نجح sync المستخدمين — إذا فشل لا نُزامن العهدات (FK)
+    const usersOk = !phase1Results[0] ||
+        (phase1Results[0].status === 'fulfilled' && !phase1Results[0].value?.error);
+
+    // المرحلة الثانية: بقية الجداول (FK-children)
+    const phase2 = [
+        workerRows.length       ? supabaseClient.from('workers').upsert(workerRows, { onConflict: 'id' })                             : null,
+        workerLeaveRows.length  ? supabaseClient.from('worker_leave_requests').upsert(workerLeaveRows, { onConflict: 'id' })           : null,
+        projectRows.length      ? supabaseClient.from('projects').upsert(projectRows, { onConflict: 'id' })                            : null,
+        pcrRows.length          ? supabaseClient.from('profile_change_requests').upsert(pcrRows, { onConflict: 'id' })                 : null,
+        srrRows.length          ? supabaseClient.from('salary_raise_requests').upsert(srrRows, { onConflict: 'id' })                   : null,
+        deviceRows.length       ? supabaseClient.from('devices').upsert(deviceRows, { onConflict: 'serial' })                          : null,
+        // العهدات تعتمد على FK للمستخدمين — لا تُزامَن إلا إذا نجح المستخدمون
+        (usersOk && custodyRows.length) ? supabaseClient.from('custodies').upsert(custodyRows, { onConflict: 'id' })                   : null,
+        leaveRows.length        ? supabaseClient.from('leave_requests').upsert(leaveRows, { onConflict: 'id' })                        : null,
+        maintRows.length        ? supabaseClient.from('maintenance_requests').upsert(maintRows, { onConflict: 'id' })                  : null,
+        certRows.length         ? supabaseClient.from('calibration_certificates').upsert(certRows, { onConflict: 'id' })               : null,
         supabaseClient.from('settings').upsert({ key: 'newsTicker', value: JSON.stringify(db.newsTicker || []) }, { onConflict: 'key' }),
     ].filter(Boolean);
 
-    const results = await Promise.allSettled(ops);
-    results.forEach((r, i) => {
-        if (r.status === 'rejected') console.warn('sync batch[' + i + ']:', r.reason);
-        else if (r.value?.error) console.warn('sync batch[' + i + ']:', r.value.error.message);
+    const phase2Results = await Promise.allSettled(phase2);
+    phase2Results.forEach((r, i) => {
+        if (r.status === 'rejected') console.warn('sync phase2[' + i + ']:', r.reason);
+        else if (r.value?.error) console.warn('sync phase2[' + i + ']:', r.value.error.message);
     });
 }
 
