@@ -291,7 +291,6 @@ function getStatusBadgeHtml(status) {
 }
 
 function renderProjects() {
-    reloadDB();
     let projects = getVisibleProjects();
     if (currentTab === 'active') projects = projects.filter(p => p.status === 'active');
     else if (currentTab === 'completed') projects = projects.filter(p => p.status === 'completed');
@@ -585,7 +584,8 @@ document.getElementById('pageSubtitle').textContent = isHead
     : 'All Projects عبر branches';
 
 setInterval(renderProjects, 30000);
-window.onload = () => { renderSidebar(); renderProjects(); };
+window.refreshPage = renderProjects;
+window.onload = async () => { renderSidebar(); await _loadRemoteDB(); renderProjects(); initRealtime(); };
 </script>
 </body>
 </html>

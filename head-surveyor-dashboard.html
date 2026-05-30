@@ -295,7 +295,6 @@ function scrollToPending() {
 }
 
 function loadHeadSurveyorDashboard() {
-    reloadDB();
     const myBranch = currentUser.responsibleBranch;
     const branch = db.branches.find(b => b.id === myBranch);
     const branchName = branch ? branch.name : 'غير محدد';

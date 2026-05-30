@@ -402,7 +402,6 @@ function buildActionButtons(d) {
 
 // ===== Refresh table =====
 function refreshTable() {
-    reloadDB();
     const filtered = getFiltered();
     const tbody = document.getElementById('deviceTableBody');
     const today = new Date(); today.setHours(0,0,0,0);
@@ -616,15 +615,18 @@ if (isAdmin) document.getElementById('branchFilter').onchange = refreshTable;
 // Auto-refresh every 30 seconds
 setInterval(refreshTable, 30000);
 
-window.onload = () => {
+window.refreshPage = refreshTable;
+window.onload = async () => {
     renderSidebar();
     populateDeviceTypes();
+    await _loadRemoteDB();
     if (isAdmin) {
         document.getElementById('addTypeBtn').style.display = 'flex';
         populateOwners();
         populateBranchesSelects();
     }
     refreshTable();
+    initRealtime();
 };
 </script>
 </body>

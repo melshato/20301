@@ -397,7 +397,6 @@ function buildActionButtons(d) {
 
 // ===== Refresh table =====
 function refreshTable() {
-    reloadDB();
     const filtered = getFiltered();
     const tbody = document.getElementById('deviceTableBody');
     const today = new Date(); today.setHours(0,0,0,0);

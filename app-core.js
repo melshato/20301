@@ -1235,12 +1235,15 @@ function sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes
     }
 
     if (supabaseClient) {
-        supabaseClient.from('maintenance_requests').insert({
+        supabaseClient.from('maintenance_requests').upsert({
             id: req.id, serial_number: serial, device_type: deviceType,
             request_type: requestType, status: req.status,
-            requested_by: currentUser.id, requested_by_name: currentUser.name,
-            branch_id: req.branchId, notes
-        }).then(({ error }) => { if (error) console.warn('mr insert:', error.message); });
+            requested_by: _isUUID(currentUser.id) ? currentUser.id : null,
+            requested_by_name: currentUser.name,
+            branch_id: _isUUID(req.branchId) ? req.branchId : null,
+            notes,
+            timestamp: req.timestamp
+        }, { onConflict: 'id' }).then(({ error }) => { if (error) console.warn('mr upsert:', error.message); });
     }
 
     saveDB();

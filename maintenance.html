@@ -277,7 +277,6 @@ let _currentSendDeviceId = null;
 // تحديث الصفحة
 // ============================================================
 function refreshMaintenancePage() {
-    reloadDB();
     const isAdmin = currentUser.role === 'admin';
     const myBranch = currentUser.responsibleBranch;
 
@@ -675,7 +674,14 @@ function showToast(msg, type = 'success') {
 // تحديث تلقائي كل 30 ثانية
 setInterval(() => refreshMaintenancePage(), 30000);
 
-window.onload = () => { renderSidebar(); refreshMaintenancePage(); };
+window.refreshPage = refreshMaintenancePage;
+
+window.onload = async () => {
+    renderSidebar();
+    await _loadRemoteDB();
+    refreshMaintenancePage();
+    initRealtime();
+};
 </script>
 </body>
 </html>

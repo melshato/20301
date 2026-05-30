@@ -577,7 +577,6 @@ window.printLatestApproved = () => {
 };
 
 function renderAll() {
-    reloadDB();
     renderSidebar();
     renderUserHeader();
     renderPendingApprovals();
@@ -592,7 +591,13 @@ window.refreshPage = renderAll;
 window.onNewNotification = (n) => {
     if (n.actionType === 'leave_approval' || n.actionType === 'leave_departure') renderAll();
 };
-window.addEventListener('load', () => { if (currentUser) renderAll(); });
+window.addEventListener('load', async () => {
+    if (!currentUser) return;
+    renderSidebar();
+    await _loadRemoteDB();
+    renderAll();
+    initRealtime();
+});
 </script>
 </body>
 </html>

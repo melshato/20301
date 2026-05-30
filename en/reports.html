@@ -223,7 +223,6 @@ function switchReport(name) {
 }
 
 function renderCurrentReport() {
-    reloadDB();
     const fns = { devices:renderDevicesReport, surveyors:renderSurveyorsReport, projects:renderProjectsReport, leaves:renderLeavesReport, maintenance:renderMaintenanceReport };
     (fns[currentReport] || renderDevicesReport)();
 }
