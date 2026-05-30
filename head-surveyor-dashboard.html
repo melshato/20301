@@ -1028,13 +1028,38 @@ window.confirmPwrReset = async () => {
     }
 };
 
-window.onload = () => {
+// إحصاءات الفرع من Supabase مباشرة
+async function refreshBranchStats() {
+    if (!supabaseClient || !currentUser?.responsibleBranch) return;
+    try {
+        const { data, error } = await supabaseClient.rpc('get_branch_stats', {
+            p_branch_id: currentUser.responsibleBranch
+        });
+        if (error || !data) return;
+        const _set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.innerText = val; };
+        _set('headCountUsers',    data.branch_users);
+        _set('headCountCustody',  data.branch_custodies);
+        _set('headCountPending',  data.branch_pending);
+        _set('headCountDevices',  data.branch_devices);
+        _set('headCountLeave',    data.branch_leaves);
+        _set('headCountWorkers',  data.branch_workers);
+        _set('headCountProjects', data.branch_projects);
+        _set('headCountExpiring', data.branch_expiring);
+    } catch(_) {}
+}
+
+window.onload = async () => {
     renderSidebar();
     loadHeadSurveyorDashboard();
+    refreshBranchStats();
     renderSrrHeadPanel();
     renderPcrHeadList();
     renderPwrHeadList();
     renderNewsTicker();
+    await _loadRemoteDB();
+    loadHeadSurveyorDashboard();
+    refreshBranchStats();
+    initRealtime();
 };
 </script>
 </body>

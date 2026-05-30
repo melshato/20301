@@ -133,14 +133,25 @@
             </div>
         </div>
 
-        <!-- قسم الOKات -->
+        <!-- Approval Section -->
         <div id="approvalSection" class="card hidden" style="border-left: 4px solid #f6ad55;background:#fffbeb;margin-bottom:16px;">
-            <h3><i class="fa-solid fa-user-check"></i> Requests Pending Approval</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-user-check"></i> Requests Pending Approval</h3>
+                <div style="display:flex;gap:8px;">
+                    <button id="selectAllBtn" onclick="toggleSelectAll()" class="btn btn-ghost" style="font-size:.85rem;padding:6px 12px;">
+                        <i class="fa-solid fa-check-double"></i> Select All
+                    </button>
+                    <button id="bulkApproveBtn" onclick="bulkApprove()" class="btn btn-primary hidden" style="font-size:.85rem;padding:6px 14px;">
+                        <i class="fa-solid fa-circle-check"></i> Bulk Approve (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
+            </div>
             <div class="table-container">
                 <table id="pendingCustodyTable">
                     <thead><tr>
-                        <th>Type Request</th><th>the Surveyor</th><th>Device</th>
-                        <th>Note</th><th>Date Request</th><th>Status</th><th>Branch</th><th>Actions</th>
+                        <th style="width:36px;"><input type="checkbox" id="masterCheckbox" onchange="onMasterCheck(this)" style="width:16px;height:16px;cursor:pointer;"></th>
+                        <th>Type</th><th>Surveyor</th><th>Device</th>
+                        <th>Note</th><th>Date</th><th>Status</th><th>Branch</th><th>Actions</th>
                     </tr></thead>
                     <tbody id="pendingCustodyTableBody"></tbody>
                 </table>
@@ -188,7 +199,19 @@
                         </div>
                         <div class="form-group" style="flex:1;">
                             <label class="form-label">Device Serial Number</label>
-                            <input type="text" id="serialNumber" class="form-input" required>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <input type="text" id="serialNumber" class="form-input" required style="flex:1;">
+                                <button type="button" onclick="startQRScan()" class="btn btn-ghost" title="Scan with camera" style="padding:10px 12px;flex-shrink:0;">
+                                    <i class="fa-solid fa-qrcode" style="font-size:1.1rem;color:var(--primary);"></i>
+                                </button>
+                            </div>
+                            <div id="qrScanOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+                                <p style="color:#fff;font-size:1rem;margin:0;">Point the camera at the barcode or serial number</p>
+                                <video id="qrVideo" style="width:min(90vw,420px);border-radius:16px;border:3px solid var(--primary);"></video>
+                                <button onclick="stopQRScan()" class="btn btn-ghost" style="color:#fff;border-color:#fff;">
+                                    <i class="fa-solid fa-xmark"></i> Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="form-row">
@@ -856,6 +879,7 @@ async function renderPendingApprovals() {
             let notes = req.notes || '—';
             if (req.transferData) notes = `from: ${req.transferData.fromUserName} → ${req.transferData.toUserName}. ${req.transferData.reason || ''}`;
             return `<tr>
+                <td><input type="checkbox" class="custody-cb" data-id="${req.id}" onchange="_updateBulkBar()" style="width:16px;height:16px;cursor:pointer;"></td>
                 <td><span class="badge badge-info">${reqType}</span></td>
                 <td>${user ? user.name : '—'}</td>
                 <td>${getDeviceTypeName(req.deviceType)} (S/N: ${req.serialNumber})</td>
@@ -909,6 +933,85 @@ window.onNewNotification = (n) => {
 
 // ===== onload =====
 window.onload = () => { init(); };
+
+// ═══════════════════════════════════════════════
+// QR / Barcode Scanner
+// ═══════════════════════════════════════════════
+let _qrStream = null;
+async function startQRScan() {
+    const overlay = document.getElementById('qrScanOverlay');
+    const video   = document.getElementById('qrVideo');
+    overlay.style.display = 'flex';
+    if (!('BarcodeDetector' in window)) {
+        overlay.style.display = 'none';
+        const val = prompt('Camera not supported — enter serial number manually:');
+        if (val) document.getElementById('serialNumber').value = val.trim();
+        return;
+    }
+    try {
+        _qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = _qrStream;
+        video.play();
+        const detector = new BarcodeDetector({ formats: ['qr_code','code_128','code_39','ean_13','ean_8','data_matrix'] });
+        const scan = async () => {
+            if (!_qrStream) return;
+            try {
+                const codes = await detector.detect(video);
+                if (codes.length > 0) {
+                    document.getElementById('serialNumber').value = codes[0].rawValue.trim();
+                    stopQRScan();
+                    return;
+                }
+            } catch(_) {}
+            requestAnimationFrame(scan);
+        };
+        video.onloadedmetadata = () => requestAnimationFrame(scan);
+    } catch(e) { overlay.style.display = 'none'; alert('Cannot access camera — please allow camera permission.'); }
+}
+function stopQRScan() {
+    if (_qrStream) { _qrStream.getTracks().forEach(t => t.stop()); _qrStream = null; }
+    document.getElementById('qrScanOverlay').style.display = 'none';
+    document.getElementById('qrVideo').srcObject = null;
+}
+
+// ═══════════════════════════════════════════════
+// Bulk Approve
+// ═══════════════════════════════════════════════
+function _getCheckedCustodyIds() {
+    return [...document.querySelectorAll('.custody-cb:checked')].map(cb => cb.dataset.id);
+}
+function _updateBulkBar() {
+    const ids = _getCheckedCustodyIds();
+    const btn = document.getElementById('bulkApproveBtn');
+    const master = document.getElementById('masterCheckbox');
+    document.getElementById('selectedCount').textContent = ids.length;
+    btn?.classList.toggle('hidden', ids.length === 0);
+    if (master) {
+        const all = document.querySelectorAll('.custody-cb');
+        master.indeterminate = ids.length > 0 && ids.length < all.length;
+        master.checked = ids.length > 0 && ids.length === all.length;
+    }
+}
+function onMasterCheck(master) {
+    document.querySelectorAll('.custody-cb').forEach(cb => cb.checked = master.checked);
+    _updateBulkBar();
+}
+function toggleSelectAll() {
+    const all = document.querySelectorAll('.custody-cb');
+    const anyUnchecked = [...all].some(cb => !cb.checked);
+    all.forEach(cb => cb.checked = anyUnchecked);
+    _updateBulkBar();
+}
+function bulkApprove() {
+    const ids = _getCheckedCustodyIds();
+    if (ids.length === 0) return;
+    if (!confirm(`Approve ${ids.length} request(s) at once?`)) return;
+    let approved = 0, failed = 0;
+    ids.forEach(id => { approveCustody(id, currentUser.role) ? approved++ : failed++; });
+    alert(`Approved: ${approved}${failed ? ` — Failed: ${failed}` : ''}`);
+    renderPendingApprovals();
+    renderCustodies();
+}
 </script>
 </body>
 </html>

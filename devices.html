@@ -32,9 +32,14 @@
     <main class="main">
         <div class="flex-between" style="margin-bottom:16px">
             <h2 id="pageTitle">إدارة الأجهزة</h2>
-            <button onclick="exportDevicesXLSX()" class="btn btn-ghost">
-                <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير إلى Excel
-            </button>
+            <div style="display:flex;gap:8px;">
+                <button onclick="exportDevicesXLSX()" class="btn btn-ghost">
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> تصدير Excel
+                </button>
+                <button onclick="window.print()" class="btn-print no-print">
+                    <i class="fa-solid fa-print"></i> PDF
+                </button>
+            </div>
         </div>
 
         <!-- Branch isolation notice for non-admin -->

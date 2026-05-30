@@ -1,6 +1,60 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 
 /* ============================================================
+   PRINT / PDF STYLES
+   ============================================================ */
+@media print {
+    /* إخفاء عناصر التنقل والتفاعل */
+    .sidebar, .action-btn-group, .action-toggle-btn,
+    .btn, button, .notif-badge, .live-notif-toast,
+    .designer-credit, .lang-toggle-wrap, #toasts,
+    .collapsible-section:not(.open), .hidden,
+    input, select, textarea, form,
+    [onclick], .no-print { display: none !important; }
+
+    /* إعادة ضبط التخطيط للطباعة */
+    * { box-shadow: none !important; animation: none !important; }
+    body, .main { background: #fff !important; color: #000 !important; font-family: Arial, sans-serif; }
+    .main { margin: 0 !important; padding: 10px !important; width: 100% !important; }
+    #appShell { display: block !important; }
+
+    /* الجداول */
+    table { border-collapse: collapse !important; width: 100% !important; font-size: 11px; }
+    th, td { border: 1px solid #999 !important; padding: 5px 8px !important; text-align: right; }
+    thead { background: #1e3a5f !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr:nth-child(even) { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* الكروت */
+    .card { border: 1px solid #ccc !important; margin-bottom: 12px !important; padding: 12px !important; page-break-inside: avoid; }
+
+    /* ترويسة الطباعة */
+    .print-header { display: block !important; text-align: center; margin-bottom: 16px; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; }
+    .print-header h1 { font-size: 18px; color: #1e3a5f; margin: 4px 0; }
+    .print-header p  { font-size: 11px; color: #555; margin: 2px 0; }
+
+    /* فواصل الصفحة */
+    .page-break { page-break-before: always; }
+    @page { margin: 1.5cm; size: A4 landscape; }
+}
+
+/* زر الطباعة — مخفي عند الطباعة */
+.btn-print {
+    background: #fff;
+    color: #1e3a5f;
+    border: 2px solid #1e3a5f;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .2s;
+}
+.btn-print:hover { background: #1e3a5f; color: #fff; }
+
+/* ============================================================
    THEME SYSTEM — Apple Light / Apple Dark / Classic Green
    ============================================================ */
 
