@@ -369,8 +369,8 @@
             <div class="table-container">
                 <table id="custodyTable">
                     <thead><tr>
-                        <th>Device Type</th><th>Serial Number</th><th>Pickup Date</th>
-                        <th>Branch</th><th>Calibration Date</th><th>Status</th>
+                        <th>Device Type</th><th>Serial Number</th><th>Surveyor (Owner)</th>
+                        <th>Pickup Date</th><th>Branch</th><th>Calibration Date</th><th>Status</th>
                         <th>Received From</th><th>Notes</th><th>Satisfaction</th><th>Care Level</th><th>Actions</th>
                     </tr></thead>
                     <tbody id="custodyTableBody"></tbody>
@@ -773,9 +773,10 @@ async function renderCustodies() {
         }
     }
 
-    const colspan = showReceiverInfo ? 14 : 11;
+    const colspan = showReceiverInfo ? 15 : 12;
     tbody.innerHTML = custodies.map(c => {
-        const branch = db.branches.find(b => b.id === c.branchId);
+        const branch  = db.branches.find(b => b.id === c.branchId);
+        const owner   = db.users.find(u => u.id === c.userId);
         const receiverCols = showReceiverInfo ? `
             <td>${c.receiverNotes || '—'}</td>
             <td>${c.receiverDeviceCondition || '—'}</td>
@@ -783,7 +784,8 @@ async function renderCustodies() {
         ` : '';
         return `<tr>
             <td>${getDeviceTypeName(c.deviceType)}</td>
-            <td>${c.serialNumber}</td>
+            <td><strong>${c.serialNumber}</strong></td>
+            <td><span style="font-weight:600;color:var(--primary);">${owner ? owner.name : '—'}</span>${owner?.empId ? `<br><small style="color:var(--text-muted);">${owner.empId}</small>` : ''}</td>
             <td>${formatDate(c.receiptDate)}</td>
             <td>${branch ? branch.name : '—'}</td>
             <td>${formatDate(c.calibrationDate)}</td>
@@ -799,7 +801,7 @@ async function renderCustodies() {
                 </button>` : ''}
             </td>
         </tr>`;
-    }).join('') || `<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--text-muted);">None سجNoت Custody.</td></tr>`;
+    }).join('') || `<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--text-muted);">No custody records found.</td></tr>`;
 }
 
 // ===== incoming transfers (for surveyor) =====

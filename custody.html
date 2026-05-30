@@ -370,8 +370,8 @@
             <div class="table-container">
                 <table id="custodyTable">
                     <thead><tr>
-                        <th>نوع الجهاز</th><th>الرقم التسلسلي</th><th>تاريخ الاستلام</th>
-                        <th>الفرع</th><th>تاريخ المعايرة</th><th>الحالة</th>
+                        <th>نوع الجهاز</th><th>الرقم التسلسلي</th><th>المساح (المالك)</th>
+                        <th>تاريخ الاستلام</th><th>الفرع</th><th>تاريخ المعايرة</th><th>الحالة</th>
                         <th>مستلم من</th><th>ملاحظات</th><th>الرضا</th><th>الاهتمام</th><th>الإجراءات</th>
                     </tr></thead>
                     <tbody id="custodyTableBody"></tbody>
@@ -787,9 +787,10 @@ async function renderCustodies() {
         }
     }
 
-    const colspan = showReceiverInfo ? 14 : 11;
+    const colspan = showReceiverInfo ? 15 : 12;
     tbody.innerHTML = custodies.map(c => {
-        const branch = db.branches.find(b => b.id === c.branchId);
+        const branch  = db.branches.find(b => b.id === c.branchId);
+        const owner   = db.users.find(u => u.id === c.userId);
         const receiverCols = showReceiverInfo ? `
             <td>${c.receiverNotes || '—'}</td>
             <td>${c.receiverDeviceCondition || '—'}</td>
@@ -797,7 +798,8 @@ async function renderCustodies() {
         ` : '';
         return `<tr>
             <td>${getDeviceTypeName(c.deviceType)}</td>
-            <td>${c.serialNumber}</td>
+            <td><strong>${c.serialNumber}</strong></td>
+            <td><span style="font-weight:600;color:var(--primary);">${owner ? owner.name : '—'}</span>${owner?.empId ? `<br><small style="color:var(--text-muted);">${owner.empId}</small>` : ''}</td>
             <td>${formatDate(c.receiptDate)}</td>
             <td>${branch ? branch.name : '—'}</td>
             <td>${formatDate(c.calibrationDate)}</td>
