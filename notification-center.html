@@ -117,6 +117,28 @@
             font-weight: 600;
         }
 
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal-box {
+            background: #fff; border-radius: 16px; padding: 24px;
+            max-width: 520px; width: 93%; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,.15);
+        }
+        .acceptance-warning {
+            background: #fef2f2; border: 1px solid #fecaca; border-right: 4px solid #ef4444;
+            padding: 12px 14px; border-radius: 10px; margin-bottom: 16px;
+            font-size: .82rem; color: #991b1b;
+        }
+        .acceptance-confirm-row {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+            padding: 12px 14px; margin-top: 14px; font-size: .85rem; line-height: 1.6;
+        }
+        .acceptance-confirm-row input[type="checkbox"] { margin-top: 3px; transform: scale(1.1); }
+
         .realtime-dot {
             width: 8px;
             height: 8px;
@@ -176,6 +198,83 @@
 </div>
 
 <div class="toast-wrap" id="toasts"></div>
+
+<!-- مودال قبول العهدة -->
+<div id="acceptCustodyModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> قبول العهدة</h3>
+        <input type="hidden" id="acceptCustodyId">
+        <input type="hidden" id="acceptNotifId">
+
+        <div class="acceptance-warning">
+            <strong><i class="fa-solid fa-triangle-exclamation"></i> تنبيه عند الاستلام:</strong><br>
+            يرجى التحقق بدقة من أن <strong>جميع قطع وأكسسوارات الجهاز مكتملة</strong> قبل تأكيد الاستلام.
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">تقييم حالة الجهاز <span style="color:#ef4444;">*</span></label>
+            <select id="acceptDeviceCondition" class="form-select">
+                <option value="">اختر التقييم...</option>
+                <option value="ممتاز">ممتاز — مكتمل ويعمل بكفاءة تامة</option>
+                <option value="جيد">جيد — مكتمل مع بعض الخدوش</option>
+                <option value="مقبول">مقبول — ناقص بعض الملحقات</option>
+                <option value="يحتاج صيانة">يحتاج صيانة — به عطل أو خلل</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">هل أنت راضٍ عن حالة الجهاز؟ <span style="color:#ef4444;">*</span></label>
+            <div style="display:flex;gap:20px;margin-top:6px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="radio" name="acceptSatisfied" value="true"> نعم
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="radio" name="acceptSatisfied" value="false"> لا
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">ملاحظات على الجهاز المستلم</label>
+            <textarea id="acceptNotes" class="form-textarea" rows="3" placeholder="اذكر أي نقص في الأدوات أو الأكسسوارات..."></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">مدى اهتمامك بالجهاز (وصف مختصر)</label>
+            <input type="text" id="acceptCareLevel" class="form-input" placeholder="مثال: أحرص على نظافته وصيانته الدورية">
+        </div>
+        <div class="form-group">
+            <label class="form-label">تعليق إضافي (اختياري)</label>
+            <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="أي تعليق إضافي..."></textarea>
+        </div>
+
+        <div class="acceptance-confirm-row">
+            <input type="checkbox" id="acceptConfirmCheck">
+            <label for="acceptConfirmCheck">
+                أُقر وأؤكد أنني تحققت من أن جميع قطع وأكسسوارات الجهاز كاملة وهو في عهدتي الآن، وأتحمل المسؤولية الكاملة عن سلامته.
+            </label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:18px;">
+            <button onclick="submitAcceptCustody()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> تأكيد الاستلام</button>
+            <button onclick="closeAcceptCustodyModal()" class="btn btn-ghost" style="flex:1;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال رفض العهدة -->
+<div id="rejectCustodyModal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:420px;">
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> رفض العهدة</h3>
+        <input type="hidden" id="rejectCustodyId">
+        <input type="hidden" id="rejectNotifId">
+        <div class="form-group">
+            <label class="form-label">سبب الرفض <span style="color:#ef4444;">*</span></label>
+            <textarea id="rejectReason" class="form-textarea" rows="3" placeholder="أدخل سبب الرفض..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+            <button onclick="submitRejectCustody()" class="btn btn-ghost" style="flex:1;color:#ef4444;border-color:#ef4444;"><i class="fa-solid fa-xmark"></i> تأكيد الرفض</button>
+            <button onclick="closeRejectCustodyModal()" class="btn btn-ghost" style="flex:1;">إلغاء</button>
+        </div>
+    </div>
+</div>
 
 <script>
 checkAuth();
@@ -264,6 +363,14 @@ function _renderNotifItem(n) {
 
 function _buildActionButtons(n) {
     if (!n.requiresAction || n.read) return '';
+
+    if (n.actionType === 'custody_transfer_request' && n.relatedId && currentUser.role === 'surveyor') {
+        const c = db.custodies.find(x => x.id === n.relatedId);
+        if (!c || c.status !== 'pending_surveyor_acceptance' || c.userId !== currentUser.id) return '';
+        return `
+            <button class="btn-approve" onclick="openAcceptCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> قبول العهدة</button>
+            <button class="btn-reject" onclick="openRejectCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>`;
+    }
 
     if (n.actionType === 'custody_approval' && n.relatedId) {
         const c = db.custodies.find(x => x.id === n.relatedId);
@@ -386,6 +493,71 @@ window.doRejectCustody = (relatedId, notifId) => {
         showToast('تم رفض طلب العهدة', 'success');
     } else {
         showToast('لا يمكن الرفض — تأكد من صلاحيتك', 'error');
+    }
+};
+
+// ── قبول/رفض العهدة من المساح (custody_transfer_request) ──
+window.openAcceptCustodyModal = (custodyId, notifId) => {
+    document.getElementById('acceptCustodyId').value = custodyId;
+    document.getElementById('acceptNotifId').value = notifId;
+    document.getElementById('acceptDeviceCondition').value = '';
+    document.getElementById('acceptNotes').value = '';
+    document.getElementById('acceptCareLevel').value = '';
+    document.getElementById('acceptComment').value = '';
+    document.getElementById('acceptConfirmCheck').checked = false;
+    document.querySelectorAll('#acceptCustodyModal input[name="acceptSatisfied"]').forEach(r => r.checked = false);
+    document.getElementById('acceptCustodyModal').classList.remove('hidden');
+};
+window.closeAcceptCustodyModal = () => {
+    document.getElementById('acceptCustodyModal').classList.add('hidden');
+};
+window.submitAcceptCustody = () => {
+    const id = document.getElementById('acceptCustodyId').value;
+    const notifId = document.getElementById('acceptNotifId').value;
+    const condition = document.getElementById('acceptDeviceCondition').value;
+    const notes = document.getElementById('acceptNotes').value.trim();
+    const careLevel = document.getElementById('acceptCareLevel').value.trim();
+    const comment = document.getElementById('acceptComment').value.trim();
+    const confirmed = document.getElementById('acceptConfirmCheck').checked;
+    const satisfiedVal = document.querySelector('#acceptCustodyModal input[name="acceptSatisfied"]:checked')?.value;
+    const satisfied = satisfiedVal === 'true' ? true : satisfiedVal === 'false' ? false : null;
+
+    if (!condition) { showToast('يرجى تقييم حالة الجهاز.', 'error'); return; }
+    if (satisfied === null) { showToast('يرجى تحديد مدى رضاك عن حالة الجهاز.', 'error'); return; }
+    if (!confirmed) { showToast('يجب تأكيد الإقرار بالاستلام.', 'error'); return; }
+
+    if (acceptCustodyBySurveyor(id, notes, condition, comment, satisfied, careLevel)) {
+        markNotificationAsRead(notifId);
+        closeAcceptCustodyModal();
+        renderNotificationCenter();
+        showToast('تم قبول العهدة بنجاح وتسجيلها في عهدتك.', 'success');
+    } else {
+        showToast('حدث خطأ. تأكد من صلاحيتك.', 'error');
+    }
+};
+
+window.openRejectCustodyModal = (custodyId, notifId) => {
+    document.getElementById('rejectCustodyId').value = custodyId;
+    document.getElementById('rejectNotifId').value = notifId;
+    document.getElementById('rejectReason').value = '';
+    document.getElementById('rejectCustodyModal').classList.remove('hidden');
+};
+window.closeRejectCustodyModal = () => {
+    document.getElementById('rejectCustodyModal').classList.add('hidden');
+};
+window.submitRejectCustody = () => {
+    const id = document.getElementById('rejectCustodyId').value;
+    const notifId = document.getElementById('rejectNotifId').value;
+    const reason = document.getElementById('rejectReason').value.trim();
+    if (!reason) { showToast('يجب كتابة سبب الرفض.', 'error'); return; }
+
+    if (rejectCustodyBySurveyor(id, reason)) {
+        markNotificationAsRead(notifId);
+        closeRejectCustodyModal();
+        renderNotificationCenter();
+        showToast('تم رفض العهدة وإبلاغ المسؤول.', 'success');
+    } else {
+        showToast('حدث خطأ. تأكد من صلاحيتك.', 'error');
     }
 };
 
