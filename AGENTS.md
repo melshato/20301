@@ -39,12 +39,11 @@ When a custody is transferred, TWO records exist for the same serial:
 The dedup keeps whichever comes first (usually `approved`), DELETING the `pending_receiver_acceptance` record. This causes accept/reject buttons to vanish.
 
 ### Fix
-Exempt pending-acceptance statuses from dedup:
+Exempt all pending statuses from dedup (any status starting with `pending_` can coexist with an `approved` record during transfer):
 
 ```javascript
 if (_terminalStatuses.includes(c.status)) return true;
-if (c.status === 'pending_receiver_acceptance' ||
-    c.status === 'pending_surveyor_acceptance') return true;
+if (c.status.startsWith('pending_')) return true;
 ```
 
 ### Files affected
