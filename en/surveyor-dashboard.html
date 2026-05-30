@@ -157,6 +157,15 @@
                     <div id="custodyStatusCards" style="display:flex;flex-direction:column;gap:10px;"></div>
                 </div>
             </div>
+
+            <!-- My devices list directly on overview -->
+            <div style="margin-top:20px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <h4 style="font-size:.95rem;"><i class="fa-solid fa-list" style="color:var(--primary);margin-right:6px;"></i>My Devices List</h4>
+                    <span id="overviewDeviceCount" style="font-size:.82rem;color:var(--text-muted);"></span>
+                </div>
+                <div id="overviewDevicesList"></div>
+            </div>
         </div>
 
         <!-- tab Devices -->
@@ -493,7 +502,35 @@ async function loadSurveyorDashboard() {
             </div>
         </div>`).join('');
 
-    // إشعارات
+    // Device list in overview
+    const overviewList = document.getElementById('overviewDevicesList');
+    const overviewCount = document.getElementById('overviewDeviceCount');
+    if (myDevices.length === 0) {
+        overviewList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.88rem;">No devices in your custody.</div>';
+        overviewCount.textContent = '';
+    } else {
+        overviewCount.textContent = `(${myDevices.length} device${myDevices.length > 1 ? 's' : ''})`;
+        overviewList.innerHTML = myDevices.map(d => {
+            const diff = d.calDate ? Math.ceil((new Date(d.calDate) - new Date()) / 86400000) : null;
+            const calStatus = diff === null ? '<span style="color:#94a3b8;font-size:.75rem;">Not set</span>'
+                : diff <= 0 ? '<span style="color:#ef4444;font-weight:700;font-size:.75rem;">Expired!</span>'
+                : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;font-size:.75rem;">${diff} days left</span>`
+                : `<span style="color:#16a34a;font-size:.75rem;">${diff} days left</span>`;
+            return `
+                <div class="device-row" style="padding:10px 14px;">
+                    <div style="width:36px;height:36px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#16a34a;flex-shrink:0;">
+                        <i class="fa-solid fa-microchip" style="font-size:.85rem;"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:.85rem;">${getDeviceTypeName(d.type)}</div>
+                        <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${d.serial} · ${getDeviceStatusBadge(d.status)}</div>
+                    </div>
+                    <div style="text-align:right;font-size:.75rem;white-space:nowrap;">${calStatus}</div>
+                </div>`;
+        }).join('');
+    }
+
+    // Notifications
     const unread = db.notifications.filter(n => n.userId === currentUser.id && !n.read);
     if (unread.length > 0) {
         const items = unread.slice(0, 5).map(n => `
