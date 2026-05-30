@@ -3036,6 +3036,7 @@ async function _loadRemoteDB() {
         // ── Branches ───────────────────────────────────────────────
         if (branchesRes.data && branchesRes.data.length > 0) {
             // Replace local branches entirely from Supabase (authoritative source)
+            console.log('Supabase branches data received:', branchesRes.data.length, 'items');
             db.branches = branchesRes.data.map(row => _normalizeBranch({
                 id:           row.id,
                 nameAr:       row.name_ar || row.name,
@@ -3043,6 +3044,9 @@ async function _loadRemoteDB() {
                 serialNumber: row.serial_number || 0,
             }));
             changed = true;
+        }
+        else if (branchesRes.error) {
+            console.error('Error fetching branches from Supabase:', branchesRes.error);
         }
 
         // ── Devices ────────────────────────────────────────────────
@@ -3070,11 +3074,14 @@ async function _loadRemoteDB() {
 
         // ── Allowed Employee IDs ───────────────────────────────────
         if (empIdsRes.data) {
+            // إذا كانت البيانات قادمة من Supabase فارغة، لا تمسح القائمة المحلية الافتراضية
+            if (empIdsRes.data.length > 0 || db.allowedEmployeeIds.length === 0) {
             db.allowedEmployeeIds = empIdsRes.data.map(row => ({
                 empId: String(row.emp_id),
                 name: row.name || ''
             }));
             changed = true;
+            }
         }
 
         // ── Custodies ─────────────────────────────────────────────

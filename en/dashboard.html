@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
@@ -555,14 +555,16 @@
             const alertLimit = new Date();
             alertLimit.setDate(today.getDate() + (db.settings.alertDays || 30));
 
-            const expiringDevices = db.devices.filter(d => {
+            const allAlertDevices = db.devices.filter(d => {
                 const targetDate = d.calDate || d.nextCalibrationDate;
                 if (!targetDate) return false;
                 const nextDate = new Date(targetDate);
                 return nextDate <= alertLimit;
             });
 
-            document.getElementById('countAlerts').innerText = expiringDevices.length;
+            const expiredNow = allAlertDevices.filter(d => new Date(d.calDate || d.nextCalibrationDate) <= today).length;
+            document.getElementById('countAlerts').innerText = expiredNow;
+            if (expiredNow > 0) document.getElementById('countAlerts').style.color = '#dc2626';
 
             const alertsContainer = document.getElementById('urgentAlerts');
             
@@ -608,14 +610,14 @@
 
             const combinedAlerts = registrationAlertHtml + custodyAlertHtml + missingHeadAlertHtml;
 
-            if (expiringDevices.length > 0) {
+            if (expiredNow > 0) {
                 const expiringAlertHtml = `
                     <div class="alert-banner">
                         <i class="fa-solid fa-triangle-exclamation fa-2xl"></i>
                         <div>
                             <strong style="display: block; margin-bottom: 5px;">Calibration Alerts Urgent</strong>
                             <span>Devices nextة تتطلب attention immediately:</span>
-                            <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">${expiringDevices.map(d => {
+                            <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">${allAlertDevices.filter(d => new Date(d.calDate || d.nextCalibrationDate) <= today).map(d => {
                                 const targetDate = d.calDate || d.nextCalibrationDate;
                                 const nextDate = new Date(targetDate);
                                 const isExpired = nextDate <= today;
@@ -1186,6 +1188,7 @@
         const _branchPalette = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316','#ec4899'];
 
         function renderBranchCharts() {
+            console.log('renderBranchCharts called. db.branches.length:', db.branches.length);
             const panel = document.getElementById('adminBranchCharts');
             if (!db.branches.length) { panel.style.display = 'none'; return; }
             panel.style.display = 'block';

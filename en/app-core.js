@@ -462,8 +462,9 @@ async function _syncToSupabase() {
         timestamp: r.timestamp || new Date().toISOString(),
     }));
 
+    const isAdmin = currentUser && currentUser.role === 'admin';
     const ops = [
-        userRows.length        ? supabaseClient.from('users').upsert(userRows, { onConflict: 'emp_id' })                          : null,
+        (userRows.length && isAdmin) ? supabaseClient.from('users').upsert(userRows, { onConflict: 'emp_id' })                      : null,
         branchRows.length      ? supabaseClient.from('branches').upsert(branchRows, { onConflict: 'serial_number' })               : null,
         empIdRows.length       ? supabaseClient.from('allowed_employee_ids').upsert(empIdRows, { onConflict: 'emp_id' })           : null,
         workerRows.length      ? supabaseClient.from('workers').upsert(workerRows, { onConflict: 'id' })                          : null,
@@ -2890,6 +2891,7 @@ async function _loadRemoteDB() {
         // ── Branches ───────────────────────────────────────────────
         if (branchesRes.data && branchesRes.data.length > 0) {
             // Replace local branches entirely from Supabase (authoritative source)
+            console.log('Supabase branches data received:', branchesRes.data.length, 'items');
             db.branches = branchesRes.data.map(row => _normalizeBranch({
                 id:           row.id,
                 nameAr:       row.name_ar || row.name,
@@ -2897,6 +2899,9 @@ async function _loadRemoteDB() {
                 serialNumber: row.serial_number || 0,
             }));
             changed = true;
+        }
+        else if (branchesRes.error) {
+            console.error('Error fetching branches from Supabase:', branchesRes.error);
         }
 
         // ── Devices ────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -618,14 +618,18 @@
             const alertLimit = new Date();
             alertLimit.setDate(today.getDate() + (db.settings.alertDays || 30));
 
-            const expiringDevices = db.devices.filter(d => {
+            // الأجهزة التي انتهت فعلياً أو ستنتهي قريباً
+            const allAlertDevices = db.devices.filter(d => {
                 const targetDate = d.calDate || d.nextCalibrationDate;
                 if (!targetDate) return false;
                 const nextDate = new Date(targetDate);
                 return nextDate <= alertLimit;
             });
 
-            document.getElementById('countAlerts').innerText = expiringDevices.length;
+            // الأجهزة المنتهية فعلياً فقط للرقم الرئيسي
+            const expiredNow = allAlertDevices.filter(d => new Date(d.calDate || d.nextCalibrationDate) <= today).length;
+            document.getElementById('countAlerts').innerText = expiredNow;
+            if (expiredNow > 0) document.getElementById('countAlerts').style.color = '#dc2626';
 
             const alertsContainer = document.getElementById('urgentAlerts');
             
@@ -671,14 +675,14 @@
 
             const combinedAlerts = registrationAlertHtml + custodyAlertHtml + missingHeadAlertHtml;
 
-            if (expiringDevices.length > 0) {
+            if (expiredNow > 0) {
                 const expiringAlertHtml = `
                     <div class="alert-banner">
                         <i class="fa-solid fa-triangle-exclamation fa-2xl"></i>
                         <div>
                             <strong style="display: block; margin-bottom: 5px;">تنبيهات المعايرة العاجلة</strong>
                             <span>الأجهزة التالية تتطلب اهتماماً فورياً:</span>
-                            <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">${expiringDevices.map(d => {
+                            <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">${allAlertDevices.filter(d => new Date(d.calDate || d.nextCalibrationDate) <= today).map(d => {
                                 const targetDate = d.calDate || d.nextCalibrationDate;
                                 const nextDate = new Date(targetDate);
                                 const isExpired = nextDate <= today;
@@ -1230,6 +1234,7 @@
 
         function renderBranchCharts() {
             const panel = document.getElementById('adminBranchCharts');
+            if (currentUser.role !== 'admin') { panel.style.display = 'none'; return; }
             if (!db.branches.length) { panel.style.display = 'none'; return; }
             panel.style.display = 'block';
 
