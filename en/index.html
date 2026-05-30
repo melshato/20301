@@ -659,7 +659,7 @@ const doLogin = async (email, pass) => {
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
       const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
       if (!authErr && authData?.session) {
-        const user = db.users.find(u => u.email === email);
+        const user = db.users.find(u => u.email?.toLowerCase() === email);
         if (user) {
           if (user.status === 'pending') { await supabaseClient.auth.signOut(); showAlert('Your account is under review by the manager'); return; }
           if (!user.authUid) {
@@ -697,7 +697,7 @@ const doLogin = async (email, pass) => {
 document.getElementById('loginForm').onsubmit = e => {
   e.preventDefault();
   document.getElementById('authAlert').innerHTML = '';
-  const email = document.getElementById('loginEmail').value.trim();
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass = document.getElementById('loginPassword').value;
   doLogin(email, pass).catch(err => { console.error(err); showAlert('An error occurred, please try again'); });
 };

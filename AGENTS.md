@@ -98,6 +98,34 @@ if (c.status.startsWith('pending_')) return true;
 - If Supabase RLS blocks → data is in localStorage only
 - `_loadRemoteDB()` fetches from Supabase and merges → preserves local ID when matched by empId
 
+## Known Issue: Maintenance/Calibration Buttons Reappear After Submitting Request
+
+### Root Cause
+When a surveyor submits a maintenance or calibration request via `sendMaintenanceRequest()`:
+- Device status changes from `assigned` → `maintenance`/`needs_calibration`
+- A request record is created with `status: 'pending'`
+
+In `buildActionButtons()` (`devices.html`) and `refreshMaintenancePage()` (`maintenance.html`), the conditions only checked `!atAgent` (i.e., not `at_maintenance`/`at_calibration`) but NOT `maintenance`/`needs_calibration`. So the request buttons kept appearing even after submission.
+
+Additionally, `sendMaintenanceRequest()` had no duplicate check — clicking the button again created another pending request.
+
+### Fix
+1. Added `hasPendingMaintenanceRequest(deviceId, serial)` helper in `app-core.js` (returns true if a `pending` request exists for that device)
+2. Added duplicate prevention in `sendMaintenanceRequest()` — returns error if a pending request already exists
+3. In `buildActionButtons()` → check `hasPendingMaintenanceRequest()` before showing request buttons; show `الطلب قيد المراجعة` badge instead
+4. In `maintenance.html` waiting table → same check, same badge for non-admin
+5. In `surveyor-dashboard.html` `renderMyDevices()` → same check, disabled buttons + badge
+6. Mirrored all fixes in `en/` files
+
+### Files affected
+- `app-core.js` → new `hasPendingMaintenanceRequest()` + guard in `sendMaintenanceRequest()` (~line 1222–1233)
+- `devices.html` → `buildActionButtons()` (~line 392–406)
+- `en/devices.html` → same
+- `surveyor-dashboard.html` → `renderMyDevices()` (~line 657–668)
+- `en/surveyor-dashboard.html` → same
+- `maintenance.html` → `refreshMaintenancePage()` (~line 327–338) + `reqSend()` error handling
+- `en/maintenance.html` → same
+
 ## Key Variables & Storage Keys
 
 | Key | Purpose |

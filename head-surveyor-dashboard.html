@@ -69,6 +69,9 @@
         <!-- طلبات بانتظار موافقتك -->
         <div id="pendingSection"></div>
 
+        <!-- طلبات نقل العمال بانتظار موافقتك -->
+        <div id="headWorkerTransfers"></div>
+
         <!-- تنبيهات المعايرة -->
         <div id="calibrationAlerts"></div>
 
@@ -547,7 +550,72 @@ function loadHeadSurveyorDashboard() {
     }
 
     renderHeadLeavePanel();
+    renderHeadWorkerTransfers();
 }
+
+function renderHeadWorkerTransfers() {
+    const myBranch = currentUser.responsibleBranch;
+    const pending = (db.workerTransferRequests || []).filter(r =>
+        r.status === 'pending_head' && r.branchId === myBranch
+    );
+    const container = document.getElementById('headWorkerTransfers');
+    if (pending.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = `
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-right:4px solid #d97706;border-radius:12px;padding:16px;margin-bottom:20px;">
+            <h3 style="color:#92400e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-people-arrows"></i> طلبات نقل عمال بانتظار موافقتك (${pending.length})
+            </h3>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                ${pending.map(r => {
+                    const w = db.workers.find(x => x.id === r.workerId);
+                    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border:1px solid #fde68a;border-radius:10px;">
+                        <div style="width:36px;height:36px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;color:#92400e;flex-shrink:0;">
+                            <i class="fa-solid fa-helmet-safety" style="font-size:.85rem;"></i>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || '—'}</div>
+                            <div style="font-size:.72rem;color:var(--text-muted);">
+                                من ${r.fromSurveyorName || '—'} ← إلى ${r.toSurveyorName || '—'}
+                                ${r.reason ? `· سبب: ${r.reason}` : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-shrink:0;">
+                            <button onclick="doHeadApproveWorkerTransfer('${r.id}')" class="btn-approve" style="font-size:.78rem;padding:5px 12px;">
+                                <i class="fa-solid fa-check"></i> اعتماد
+                            </button>
+                            <button onclick="doHeadRejectWorkerTransfer('${r.id}')" class="btn-reject" style="font-size:.78rem;padding:5px 12px;">
+                                <i class="fa-solid fa-xmark"></i> رفض
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>`;
+}
+
+window.doHeadApproveWorkerTransfer = (reqId) => {
+    if (!confirm('اعتماد نقل العامل بشكل نهائي؟')) return;
+    if (approveWorkerTransferRequest(reqId)) {
+        showToast('تم اعتماد نقل العامل ✓', 'success');
+        loadHeadSurveyorDashboard();
+    } else {
+        showToast('لا يمكن الاعتماد حالياً', 'error');
+    }
+};
+
+window.doHeadRejectWorkerTransfer = (reqId) => {
+    const reason = prompt('سبب رفض نقل العامل:');
+    if (reason === null) return;
+    if (rejectWorkerTransferRequest(reqId, reason)) {
+        showToast('تم رفض نقل العامل', 'success');
+        loadHeadSurveyorDashboard();
+    } else {
+        showToast('لا يمكن الرفض حالياً', 'error');
+    }
+};
 
 // ============================================================
 // أزرار الموافقة والرفض

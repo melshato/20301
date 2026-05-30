@@ -207,6 +207,8 @@
                     <div style="text-align:center;padding:30px;color:var(--text-muted);">جاري التحميل...</div>
                 </div>
             </div>
+            <!-- طلبات نقل العمال -->
+            <div id="workerTransferRequests" style="margin-top:16px;"></div>
         </div>
 
         <!-- تبويب زيادة الراتب -->
@@ -637,6 +639,48 @@ async function loadSurveyorDashboard() {
         badge.textContent = repliedMsgs.length;
         badge.style.display = 'inline';
     }
+
+    renderSurveyorWorkerTransfers();
+}
+
+function renderSurveyorWorkerTransfers() {
+    const incoming = (db.workerTransferRequests || []).filter(r =>
+        r.status === 'pending_receiver' && r.toSurveyorId === currentUser.id
+    );
+    const container = document.getElementById('workerTransferRequests');
+    if (incoming.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = `
+        <div class="card" style="border-right:4px solid #d97706;">
+            <h3 style="margin-bottom:14px;color:#92400e;">
+                <i class="fa-solid fa-people-arrows"></i> طلبات نقل عمال إليك (${incoming.length})
+            </h3>
+            ${incoming.map(r => {
+                const w = db.workers.find(x => x.id === r.workerId);
+                return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin-bottom:8px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;color:#92400e;flex-shrink:0;">
+                        <i class="fa-solid fa-helmet-safety" style="font-size:.85rem;"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || '—'}</div>
+                        <div style="font-size:.72rem;color:var(--text-muted);">
+                            من: ${r.fromSurveyorName || '—'}
+                            ${r.reason ? `· سبب: ${r.reason}` : ''}
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button onclick="doApproveWorkerTransfer('${r.id}')" class="btn btn-primary btn-sm" style="padding:5px 12px;font-size:.78rem;">
+                            <i class="fa-solid fa-check"></i> قبول النقل
+                        </button>
+                        <button onclick="doRejectWorkerTransfer('${r.id}')" class="btn btn-ghost btn-sm" style="padding:5px 12px;font-size:.78rem;color:#ef4444;border-color:#ef4444;">
+                            <i class="fa-solid fa-xmark"></i> رفض
+                        </button>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>`;
 }
 
 function renderMyDevices() {
@@ -694,6 +738,27 @@ window.handleSendToMaintenance = (deviceId, serial, type) => {
         renderMyDevices();
     } else {
         showToast(result.msg || 'حدث خطأ', 'error');
+    }
+};
+
+window.doApproveWorkerTransfer = (reqId) => {
+    if (!confirm('هل أنت متأكد من قبول طلب نقل العامل؟')) return;
+    if (approveWorkerTransferRequest(reqId)) {
+        showToast('تم قبول نقل العامل ✓ وإرسال لرئيس المساحين', 'success');
+        loadSurveyorDashboard();
+    } else {
+        showToast('لا يمكن القبول حالياً', 'error');
+    }
+};
+
+window.doRejectWorkerTransfer = (reqId) => {
+    const reason = prompt('سبب رفض نقل العامل:');
+    if (reason === null) return;
+    if (rejectWorkerTransferRequest(reqId, reason)) {
+        showToast('تم رفض نقل العامل', 'success');
+        loadSurveyorDashboard();
+    } else {
+        showToast('لا يمكن الرفض حالياً', 'error');
     }
 };
 
