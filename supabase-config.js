@@ -4,9 +4,13 @@
  * لا يوجد أي مفتاح مكشوف في الكود
  */
 
+// ملاحظة أمنية: مفتاح anon في Supabase مُصمَّم ليكون عاماً في كود الواجهة.
+// الأمان الحقيقي يأتي من سياسات RLS في Supabase، وليس من إخفاء المفتاح.
+// يُفضَّل حقن المفاتيح عبر window.__env (Vercel ENV) في بيئة الإنتاج.
+const _env = window.__env || {};
 const SUPABASE_CONFIG = {
-    url: (window.__env && window.__env.SUPABASE_URL) || 'https://uspvvoieirvqcoahdoec.supabase.co',
-    anonKey: (window.__env && window.__env.SUPABASE_ANON_KEY) || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzcHZ2b2llaXJ2cWNvYWhkb2VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzODk2NjgsImV4cCI6MjA5NDk2NTY2OH0.Q55ods5h5MQgGJhN9J9C1k73wfF8kNuAUPWjegS_D5k',
+    url:     _env.SUPABASE_URL      || 'https://uspvvoieirvqcoahdoec.supabase.co',
+    anonKey: _env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzcHZ2b2llaXJ2cWNvYWhkb2VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzODk2NjgsImV4cCI6MjA5NDk2NTY2OH0.Q55ods5h5MQgGJhN9J9C1k73wfF8kNuAUPWjegS_D5k',
     serviceKey: ''
 };
 

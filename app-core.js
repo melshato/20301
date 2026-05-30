@@ -173,8 +173,8 @@ function _normalizeBranch(b) {
 
 const defaultDB = {
     users: [
-        { id: 'admin_1', name: 'محمد اقطيط', email: 'admin@sajco.com', password: 'admin123', role: 'admin', status: 'approved', empId: '1', substituteId: null, rating: null },
-        { id: 'dev_1', name: 'محمود', email: 'mahmoud@sajco.com', password: 'dev123', role: 'admin', status: 'approved', empId: '999', substituteId: null, rating: null }
+        { id: 'admin_1', name: 'محمد اقطيط', email: 'admin@sajco.com', role: 'admin', status: 'approved', empId: '1', substituteId: null, rating: null },
+        { id: 'dev_1', name: 'محمود', email: 'mahmoud@sajco.com', role: 'admin', status: 'approved', empId: '999', substituteId: null, rating: null }
     ],
     devices: [], logs: [], branches: initialBranches,
     settings: { logo: null, appImage: null, alertDays: 30, alertSoundEnabled: true, deletedDefaultBranches: [], customDeviceTypes: [] },
@@ -305,8 +305,9 @@ window._submitForceChangePw = function() {
     if (user) {
         user.password = newPw;
         user.mustChangePassword = false;
-        currentUser = { ...currentUser, password: newPw, mustChangePassword: false };
-        localStorage.setItem('sajco_session', JSON.stringify(currentUser));
+        currentUser = { ...currentUser, mustChangePassword: false };
+        const { password: _pw, ...safeSession } = currentUser;
+        localStorage.setItem('sajco_session', JSON.stringify(safeSession));
         saveDB(true);
         addLog(`قام ${user.name} بتغيير كلمة مروره`);
         document.getElementById('forceChangePwOverlay').remove();
@@ -348,7 +349,6 @@ async function _syncToSupabase() {
             join_date:             u.joinDate     || null,
             substitute_id:         _isUUID(u.substituteId) ? u.substituteId : null,
             rating:                u.rating       ?? null,
-            password:              u.password     || null,
             must_change_password:  u.mustChangePassword || false,
             auth_uid:              u.authUid      || null,
         };
@@ -578,11 +578,15 @@ function initRealtime() {
 }
 
 // Shared handler: apply one settings row to db + re-render UI
+// مفاتيح الإعدادات المسموح بها فقط — يمنع تلوث db.settings عبر Realtime
+const _ALLOWED_SETTING_KEYS = new Set(['newsTicker','logo','appImage','alertDays','alertSoundEnabled','customDeviceTypes']);
+
 function _applySettingsRow(row) {
     if (!row || !row.key) return;
+    if (!_ALLOWED_SETTING_KEYS.has(row.key)) return; // رفض أي مفتاح غير معروف
     try {
         const parsed = JSON.parse(row.value);
-        if (parsed === null || parsed === undefined) return; // never overwrite with null
+        if (parsed === null || parsed === undefined) return;
         if (row.key === 'newsTicker') {
             if (Array.isArray(parsed)) {
                 db.newsTicker = parsed;
@@ -604,6 +608,13 @@ function _initLoginRealtime() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' },
             (payload) => { _applySettingsRow(payload.new); })
         .subscribe();
+}
+
+// يقبل روابط HTTP/HTTPS النسبية والمطلقة فقط — يرفض javascript: وdata: وغيرها
+function _isSafeUrl(url) {
+    if (!url) return false;
+    if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) return true;
+    try { return ['http:', 'https:'].includes(new URL(url).protocol); } catch { return false; }
 }
 
 function _fromSnakeNotif(row) {
@@ -660,7 +671,7 @@ function _showLiveNotifToast(notif) {
     row.appendChild(iconWrap);
     row.appendChild(textWrap);
 
-    if (notif.actionUrl) {
+    if (notif.actionUrl && _isSafeUrl(notif.actionUrl)) {
         const link = document.createElement('a');
         link.href = notif.actionUrl;
         link.style.cssText = `color:${color};font-size:.75rem;font-weight:600;white-space:nowrap;`;

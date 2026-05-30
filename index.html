@@ -644,14 +644,34 @@ const toast = (msg, type = 'success') => {
 const showAlert = (msg, type = 'error') => {
   const colors = { error: ['#fee2e2','#991b1b'], success: ['#dcfce7','#166534'], warning: ['#fffbeb','#92400e'] };
   const [bg, color] = colors[type] || colors.error;
-  document.getElementById('authAlert').innerHTML =
-    `<div style="background:${bg};color:${color};padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:.9rem;font-weight:500;">${msg}</div>`;
+  const div = document.createElement('div');
+  div.style.cssText = `background:${bg};color:${color};padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:.9rem;font-weight:500;`;
+  div.textContent = msg; // textContent يمنع XSS
+  const container = document.getElementById('authAlert');
+  container.innerHTML = '';
+  container.appendChild(div);
+};
+
+// يحذف كلمة المرور وأي بيانات حساسة قبل التخزين في localStorage
+const _safeSession = (user) => {
+  const { password, passwordHash, authUid, ...safe } = user;
+  return { ...safe, loginTime: Date.now() };
 };
 
 // ===== Login =====
 const _getLoginDest = role => role === 'surveyor' ? 'surveyor-dashboard.html' : role === 'head' ? 'head-surveyor-dashboard.html' : 'dashboard.html';
 
+// Rate-limit بسيط — 5 محاولات / دقيقة
+const _loginAttempts = { count: 0, resetAt: 0 };
+function _checkRateLimit() {
+  const now = Date.now();
+  if (now > _loginAttempts.resetAt) { _loginAttempts.count = 0; _loginAttempts.resetAt = now + 60000; }
+  if (++_loginAttempts.count > 5) { showAlert('محاولات كثيرة — انتظر دقيقة ثم أعد المحاولة', 'warning'); return false; }
+  return true;
+}
+
 const doLogin = async (email, pass) => {
+  if (!_checkRateLimit()) return;
   const loginBtn = document.querySelector('#loginForm [type="submit"]');
   if (loginBtn) loginBtn.disabled = true;
   try {
@@ -666,28 +686,17 @@ const doLogin = async (email, pass) => {
             user.authUid = authData.session.user.id;
             supabaseClient.from('users').update({ auth_uid: authData.session.user.id }).eq('id', user.id).then(() => {});
           }
-          localStorage.setItem('sajco_session', JSON.stringify({ ...user, loginTime: Date.now() }));
+          localStorage.setItem('sajco_session', JSON.stringify(_safeSession(user)));
           location.href = _getLoginDest(user.role);
           return;
         }
       }
     }
-    // ── Fallback: password check + auto-migrate to Supabase Auth ──
-    // Note: requires "Disable email confirmations" in Supabase Auth settings for auto-migration to work
+    // ── Fallback: password check (بدون إنشاء حساب Auth تلقائي) ──
     const user = db.users.find(u => u.email === email && u.password === pass);
     if (!user) { showAlert('بيانات الدخول خاطئة'); return; }
     if (user.status === 'pending') { showAlert('حسابك قيد المراجعة من قبل المدير'); return; }
-    if (typeof supabaseClient !== 'undefined' && supabaseClient && !user.authUid) {
-      try {
-        await supabaseClient.auth.signUp({ email, password: pass });
-        const { data: authData2 } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-        if (authData2?.session?.user?.id) {
-          user.authUid = authData2.session.user.id;
-          supabaseClient.from('users').update({ auth_uid: authData2.session.user.id }).eq('id', user.id).then(() => {});
-        }
-      } catch(e) { console.warn('auth migration:', e); }
-    }
-    localStorage.setItem('sajco_session', JSON.stringify({ ...user, loginTime: Date.now() }));
+    localStorage.setItem('sajco_session', JSON.stringify(_safeSession(user)));
     location.href = _getLoginDest(user.role);
   } finally {
     if (loginBtn) loginBtn.disabled = false;
