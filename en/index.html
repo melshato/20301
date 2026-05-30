@@ -674,7 +674,7 @@ const doLogin = async (email, pass) => {
     }
     // ── Fallback: password check + auto-migrate to Supabase Auth ──
     // Note: requires "Disable email confirmations" in Supabase Auth settings
-    const user = db.users.find(u => u.email === email && u.password === pass);
+    const user = db.users.find(u => u.email?.toLowerCase() === email && u.password === pass);
     if (!user) { showAlert('Invalid login credentials'); return; }
     if (user.status === 'pending') { showAlert('Your account is under review by the manager'); return; }
     if (typeof supabaseClient !== 'undefined' && supabaseClient && !user.authUid) {
