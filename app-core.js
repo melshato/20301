@@ -852,6 +852,7 @@ function renderSidebar() {
             ${isAdmin ? `<a href="branches.html" class="nav-item ${_isActive('branches')}"><i class="fa-solid fa-building-flag"></i> ${t('nav_branches')}</a>` : ''}
             ${isAdmin ? `<a href="employee-ids.html" class="nav-item ${_isActive('employee-ids')}"><i class="fa-solid fa-id-card"></i> ${t('nav_emp_ids')}</a>` : ''}
             ${!isSurveyor ? `<a href="employee-rating.html" class="nav-item ${_isActive('employee-rating')}"><i class="fa-solid fa-star"></i> ${t('nav_ratings')}</a>` : ''}
+            ${!isSurveyor ? `<a href="employee-profile.html" class="nav-item ${_isActive('employee-profile')}"><i class="fa-solid fa-id-card"></i> ${currentLang==='ar'?'ملف الموظف':'Employee Profile'}</a>` : ''}
             <a href="custody.html" class="nav-item ${_isActive('custody')}"><i class="fa-solid fa-box-archive"></i> ${t('nav_custody')}</a>
             <a href="leave-request.html" class="nav-item ${_isActive('leave-request')}"><i class="fa-solid fa-calendar-minus"></i> ${t('nav_leave')}</a>
             <a href="workers.html" class="nav-item ${_isActive('workers')}"><i class="fa-solid fa-helmet-safety"></i> ${t('nav_workers')}</a>
