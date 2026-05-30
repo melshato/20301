@@ -22,8 +22,11 @@
                     <h2 style="font-size: 1.5rem; font-weight: 700">إدارة الموظفين والمساحين</h2>
                     <p style="color: var(--text-muted)">إدارة بيانات الفريق والتحكم في صلاحيات الوصول.</p>
                 </div>
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; flex-wrap:wrap;">
                     <button onclick="exportUsersXLSX()" class="btn btn-ghost"><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> تصدير إلى Excel</button>
+                    <button onclick="openPromoteModal()" class="btn btn-ghost" style="color:#7c3aed;border-color:#7c3aed;">
+                        <i class="fa-solid fa-user-shield"></i> ترقية مساح لرئيس مساحين
+                    </button>
                     <button id="addEmployeeBtn" onclick="toggleUserForm()" class="btn btn-primary">
                         <i class="fa-solid fa-user-plus"></i> إضافة موظف جديد
                     </button>
@@ -139,6 +142,39 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- مودال ترقية مساح إلى رئيس مساحين -->
+    <div id="promoteModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;">
+        <div class="card" style="max-width:500px;width:93%;max-height:90vh;overflow-y:auto;">
+            <h3 style="margin-bottom:18px;color:#7c3aed;"><i class="fa-solid fa-user-shield"></i> ترقية مساح إلى رئيس مساحين</h3>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">بحث بالرقم الوظيفي أو الاسم</label>
+                <input type="text" id="promoteSearch" class="form-input" placeholder="اكتب للبحث..."
+                    oninput="filterPromoteList(this.value)">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">اختر الموظف <span style="color:var(--danger)">*</span></label>
+                <select id="promoteUserId" class="form-select" size="6" style="height:auto;"></select>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">الفرع المسؤول عنه <span style="color:var(--danger)">*</span></label>
+                <select id="promoteBranch" class="form-select">
+                    <option value="">اختر الفرع...</option>
+                </select>
+            </div>
+            <div style="background:#faf5ff;border:1px solid #d8b4fe;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85rem;color:#6b21a8;">
+                <i class="fa-solid fa-circle-info"></i>
+                سيُغيَّر دور الموظف فوراً إلى <strong>رئيس مساحين</strong> ويحتفظ بجميع بياناته وعهدته الحالية.<br>
+                سيحتاج الموظف إلى <strong>تسجيل الخروج وإعادة الدخول</strong> لتفعيل الصلاحيات الجديدة.
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button onclick="submitPromote()" class="btn btn-primary" style="flex:1;background:#7c3aed;border-color:#7c3aed;">
+                    <i class="fa-solid fa-crown"></i> ترقية الآن
+                </button>
+                <button onclick="closePromoteModal()" class="btn btn-ghost" style="flex:1;">إلغاء</button>
+            </div>
+        </div>
     </div>
 
     <div class="designer-credit">
@@ -504,6 +540,75 @@
             populateBranches();
             renderPendingUsers();
             refreshUserTable();
+        };
+
+        // ===== مودال الترقية =====
+        let _allSurveyors = [];
+
+        window.openPromoteModal = () => {
+            _allSurveyors = db.users.filter(u => u.role === 'surveyor' && u.status === 'approved');
+            renderPromoteList(_allSurveyors);
+            // تعبئة الفروع
+            const sel = document.getElementById('promoteBranch');
+            sel.innerHTML = '<option value="">اختر الفرع...</option>' +
+                db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            document.getElementById('promoteSearch').value = '';
+            document.getElementById('promoteModal').classList.remove('hidden');
+        };
+
+        window.closePromoteModal = () => {
+            document.getElementById('promoteModal').classList.add('hidden');
+        };
+
+        window.filterPromoteList = (val) => {
+            const q = val.toLowerCase();
+            const filtered = _allSurveyors.filter(u =>
+                u.name.toLowerCase().includes(q) || String(u.empId).includes(q)
+            );
+            renderPromoteList(filtered);
+        };
+
+        function renderPromoteList(list) {
+            const sel = document.getElementById('promoteUserId');
+            sel.innerHTML = list.length
+                ? list.map(u => `<option value="${u.id}">${u.name} — رقم: ${u.empId} — ${db.branches.find(b=>b.id===u.branch)?.name||'—'}</option>`).join('')
+                : '<option value="" disabled>لا توجد نتائج</option>';
+        }
+
+        window.submitPromote = async () => {
+            const userId   = document.getElementById('promoteUserId').value;
+            const branchId = document.getElementById('promoteBranch').value;
+            if (!userId)   { alert('يرجى اختيار موظف.'); return; }
+            if (!branchId) { alert('يرجى اختيار الفرع المسؤول عنه.'); return; }
+
+            const user = db.users.find(u => u.id === userId);
+            if (!user) { alert('الموظف غير موجود.'); return; }
+            if (!confirm(`هل تريد ترقية "${user.name}" إلى رئيس مساحين مسؤول عن فرع "${db.branches.find(b=>b.id===branchId)?.name}"؟`)) return;
+
+            // تحديث محلي
+            user.role = 'head';
+            user.responsibleBranch = branchId;
+            user.status = 'approved';
+
+            // مزامنة مباشرة مع Supabase (bypass full sync)
+            if (supabaseClient && _isUUID(user.id)) {
+                const { error } = await supabaseClient.from('users').update({
+                    role: 'head',
+                    responsible_branch_id: _isUUID(branchId) ? branchId : null,
+                    status: 'approved',
+                }).eq('id', user.id);
+                if (error) console.warn('promote sync:', error.message);
+            }
+
+            saveDB(true);
+            addLog(`ترقية ${user.name} من مساح إلى رئيس مساحين — فرع: ${db.branches.find(b=>b.id===branchId)?.name}`);
+            addNotification(user.id,
+                `تمت ترقيتك إلى رئيس مساحين. يرجى تسجيل الخروج وإعادة الدخول لتفعيل الصلاحيات الجديدة.`,
+                'success', null, false, 'dashboard.html');
+
+            closePromoteModal();
+            refreshUserTable();
+            alert(`تمت ترقية ${user.name} بنجاح. يحتاج الموظف لتسجيل الخروج وإعادة الدخول لتفعيل صلاحياته.`);
         };
 
         window.onload = async () => {
