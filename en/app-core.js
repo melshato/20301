@@ -2147,6 +2147,8 @@ function _normalizeAllowedEmpId(entry) {
 function isEmployeeIdAllowed(empId) {
     const defaultIds = ['1', '999'];
     if (defaultIds.includes(empId)) return true;
+    // If the list is empty, allow registration for any ID (as per initial setup guide)
+    if (!db.allowedEmployeeIds || db.allowedEmployeeIds.length === 0) return true;
     return db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === empId);
 }
 
@@ -2921,15 +2923,12 @@ async function _loadRemoteDB() {
         }
 
         // ── Allowed Employee IDs ───────────────────────────────────
-        if (empIdsRes.data && empIdsRes.data.length > 0) {
-            if (!db.allowedEmployeeIds) db.allowedEmployeeIds = [];
-            empIdsRes.data.forEach(row => {
-                const exists = db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === row.emp_id);
-                if (!exists) {
-                    db.allowedEmployeeIds.push({ empId: row.emp_id, name: row.name || '' });
-                    changed = true;
-                }
-            });
+        if (empIdsRes.data) { // Check if data exists, even if empty, to allow clearing local state
+            db.allowedEmployeeIds = empIdsRes.data.map(row => ({
+                empId: String(row.emp_id),
+                name: row.name || ''
+            }));
+            changed = true;
         }
 
         // ── Custodies ─────────────────────────────────────────────

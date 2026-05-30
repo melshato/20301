@@ -195,7 +195,6 @@
     }
 
     function renderEmployeeIds() {
-        reloadDB();
         const searchText = searchEmpIdInput.value.trim().toLowerCase();
         const allEntries = db.allowedEmployeeIds.map(e => _normalizeAllowedEmpId(e));
         const filtered = allEntries.filter(e =>
@@ -294,9 +293,13 @@
     newEmpIdInput.addEventListener('keypress', e => { if (e.key === 'Enter') addNewEmployeeId(); });
     document.getElementById('newEmpName').addEventListener('keypress', e => { if (e.key === 'Enter') addNewEmployeeId(); });
 
-    window.onload = () => {
+    window.refreshPage = renderEmployeeIds;
+
+    window.onload = async () => {
         renderSidebar();
+        await _loadRemoteDB();
         renderEmployeeIds();
+        initRealtime();
     };
 </script>
 </body>
