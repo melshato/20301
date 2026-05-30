@@ -321,9 +321,24 @@
                 <div class="form-row">
                     <div class="form-group" style="flex:1;">
                         <label class="form-label">Device in Warehouse</label>
+                        <div style="display:flex;gap:8px;margin-bottom:8px;">
+                            <input type="text" id="warehouseSearch" class="form-input"
+                                placeholder="Search by serial number or type..."
+                                oninput="filterWarehouseDevices(this.value)"
+                                style="flex:1;">
+                            <button type="button" onclick="filterWarehouseDevices(document.getElementById('warehouseSearch').value)"
+                                class="btn btn-ghost" style="padding:8px 14px;flex-shrink:0;">
+                                <i class="fa-solid fa-magnifying-glass" style="color:var(--primary);"></i>
+                            </button>
+                            <button type="button" onclick="document.getElementById('warehouseSearch').value='';filterWarehouseDevices('')"
+                                class="btn btn-ghost" title="Clear" style="padding:8px 12px;flex-shrink:0;color:var(--text-muted);">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                         <select id="warehouseDeviceSelect" class="form-select">
                             <option value="">Select Device...</option>
                         </select>
+                        <div id="warehouseCount" style="font-size:.8rem;color:var(--text-muted);margin-top:4px;"></div>
                     </div>
                     <div class="form-group" style="flex:1;">
                         <label class="form-label">Receiving Employee (Search by Employee ID)</label>
@@ -484,14 +499,40 @@ async function init() {
 }
 
 // ===== warehouse assignment =====
+let _allWarehouseDevices = [];
+
 function populateWarehouseDevices() {
-    const select = document.getElementById('warehouseDeviceSelect');
     const activeCustodySerials = new Set(
         (db.custodies || []).filter(c => c.status === 'approved').map(c => c.serialNumber)
     );
-    const devices = (db.devices || []).filter(d => d.status === 'warehouse' && !activeCustodySerials.has(d.serial));
+    _allWarehouseDevices = (db.devices || []).filter(d =>
+        d.status === 'warehouse' && !activeCustodySerials.has(d.serial)
+    );
+    filterWarehouseDevices(document.getElementById('warehouseSearch')?.value || '');
+}
+
+function filterWarehouseDevices(query) {
+    const q = (query || '').trim().toLowerCase();
+    const select = document.getElementById('warehouseDeviceSelect');
+    const countEl = document.getElementById('warehouseCount');
+    const filtered = q
+        ? _allWarehouseDevices.filter(d =>
+            d.serial?.toLowerCase().includes(q) ||
+            getDeviceTypeName(d.type)?.toLowerCase().includes(q)
+          )
+        : _allWarehouseDevices;
+
     select.innerHTML = '<option value="">Select Device...</option>' +
-        devices.map(d => `<option value="${d.id}">${getDeviceTypeName(d.type)} — ${d.serial}</option>`).join('');
+        filtered.map(d =>
+            `<option value="${d.id}">${getDeviceTypeName(d.type)} — ${d.serial}</option>`
+        ).join('');
+
+    if (countEl) {
+        countEl.textContent = filtered.length > 0
+            ? `${filtered.length} device(s) available${q ? ' matching search' : ''}`
+            : (q ? 'No devices match your search' : 'No devices in warehouse');
+        countEl.style.color = filtered.length === 0 ? 'var(--danger)' : 'var(--text-muted)';
+    }
 }
 
 function populateWhTargetUsers() {
