@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الموظفين والمساحين | ساجكو</title>
@@ -222,7 +223,7 @@
                             `<button onclick="approveUserAction('${u.id}')" class="btn btn-primary" style="padding: 5px 10px;"><i class="fa-solid fa-check"></i></button>` : ''
                         }
                         ${currentUser.role === 'admin' ? `<button onclick="editUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px;"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
-                        ${currentUser.role === 'admin' && u.id !== 'admin_1' ? `<button onclick="deleteUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);"><i class="fa-solid fa-user-xmark"></i></button>` : ''}
+                        ${currentUser.role === 'admin' && u.id !== 'admin_1' ? `<button onclick="handleDeleteUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);"><i class="fa-solid fa-user-xmark"></i></button>` : ''}
                         ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role !== 'admin' ? `<button onclick="clearEmployeeCustody('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#f59e0b;" title="مسح العهدة — إعادة أجهزة الموظف للمستودع"><i class="fa-solid fa-box-open"></i></button>` : ''}
                         ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role === 'surveyor' ? `<button onclick="clearSurveyorWorkers('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#8b5cf6;" title="مسح العمال — فك ارتباط عمال المساح"><i class="fa-solid fa-users-slash"></i></button>` : ''}
                     </td>
@@ -329,17 +330,22 @@
             document.getElementById('uEmail').value = u.email;
             document.getElementById('uPass').value = u.password;
             document.getElementById('uRole').value = u.role;
+            // إظهار حقول رئيس المساحين إذا كان الدور head
+            const isHead = u.role === 'head';
+            document.getElementById('responsibleBranchGroup').classList.toggle('hidden', !isHead);
+            document.getElementById('substituteGroup').classList.toggle('hidden', !isHead);
+            document.getElementById('uResponsibleBranch').required = isHead;
             document.getElementById('uResponsibleBranch').value = u.responsibleBranch || '';
             document.getElementById('uBranch').value = u.branch || '';
-            populateSubstitutes(u.id, u.substituteId); // Populate and select substitute
+            populateSubstitutes(u.id, u.substituteId);
             document.getElementById('formTitle').innerText = 'تعديل بيانات الموظف';
             document.getElementById('userFormContainer').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.deleteUser = (id) => {
+        window.handleDeleteUser = (id) => {
             if (confirm('هل أنت متأكد من حذف هذا الموظف؟ سيتم نقل جميع أجهزته إلى المستودع.')) {
-                if (deleteUser(id)) { // Use the new centralized deleteUser function
+                if (deleteUser(id)) {
                     alert('تم حذف الموظف بنجاح.');
                 } else {
                     alert('فشل حذف الموظف. قد لا تملك الصلاحية أو أن الحساب هو حساب المدير الأساسي.');

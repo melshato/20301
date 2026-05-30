@@ -1,6 +1,7 @@
-Ôªø<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Branch Management | SAJCO</title>
@@ -42,8 +43,8 @@
                             <input id="bNameEn" class="form-input" placeholder="e.g. Riyadh Branch" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">ÿßÿ≥ŸÖ ÿßŸÑŸÅÿ±ÿπ (ÿπÿ±ÿ®Ÿä)</label>
-                            <input id="bNameAr" class="form-input" placeholder="ŸÖÿ´ÿßŸÑ: ŸÅÿ±ÿπ ÿßŸÑÿ±Ÿäÿßÿ∂">
+                            <label class="form-label">«”„ «·›—⁄ (⁄—»Ì)</label>
+                            <input id="bNameAr" class="form-input" placeholder="„À«·: ›—⁄ «·—Ì«÷">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Responsible Head Surveyor</label>
@@ -125,9 +126,9 @@
                 const head = db.users.find(u => u.responsibleBranch === b.id);
                 return `
                     <tr>
-                        <td><span style="font-weight:700;color:var(--primary)">${b.serialNumber || '‚Äî'}</span></td>
+                        <td><span style="font-weight:700;color:var(--primary)">${b.serialNumber || 'ó'}</span></td>
                         <td><strong>${b.nameEn || b.name}</strong></td>
-                        <td style="color:var(--text-muted)">${b.nameAr || '‚Äî'}</td>
+                        <td style="color:var(--text-muted)">${b.nameAr || 'ó'}</td>
                         <td>${head ? head.name : '<span style="color:var(--text-muted)">Not assigned</span>'}</td>
                         <td>
                             <button onclick="editBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px;" title="Edit Branch"><i class="fa-solid fa-pen-to-square"></i></button>

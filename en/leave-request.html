@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Requests | SAJCO</title>
@@ -257,8 +258,8 @@ function showAlert(msg, type='error') {
         `<div style="background:${bg};color:${color};padding:10px 14px;border-radius:10px;font-weight:600;">${msg}</div>`;
 }
 
-const getBranchLabel = id => { const b = db.branches.find(b => b.id === id); return b ? b.name : 'ØºÙŠØ± Ù…Set'; };
-const getLeaveTypeLabel = v => ({ annual:'Annual', emergency:'Emergency', sick:'Sick', unpaid:'Unpaid', other:'Other' }[v] || v || 'â€”');
+const getBranchLabel = id => { const b = db.branches.find(b => b.id === id); return b ? b.name : 'ÛíÑ ãSet'; };
+const getLeaveTypeLabel = v => ({ annual:'Annual', emergency:'Emergency', sick:'Sick', unpaid:'Unpaid', other:'Other' }[v] || v || '—');
 const isLeavePending = s => s === 'pending_head_approval' || s === 'pending_admin_approval';
 const calcDays = (s, e) => { if (!s || !e) return 0; const d = Math.floor((new Date(e)-new Date(s))/86400000)+1; return d > 0 ? d : 0; };
 
@@ -268,7 +269,7 @@ function renderUserHeader() {
     document.getElementById('requesterEmpId').value = currentUser.empId || '';
     document.getElementById('requesterBranch').value = getBranchLabel(currentUser.branch);
     const head = db.users.find(u => u.role==='head' && u.responsibleBranch===currentUser.branch && u.status==='approved');
-    document.getElementById('requesterHead').value = head ? head.name : 'ØºÙŠØ± Ù…Ø¹ÙŠÙ†';
+    document.getElementById('requesterHead').value = head ? head.name : 'ÛíÑ ãÚíä';
 }
 
 // ===== Pending approvals with approved-days input =====
@@ -291,7 +292,7 @@ function renderPendingApprovals() {
         <div class="request-card">
             <div class="request-head">
                 <div>
-                    <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">${user?user.name:'â€”'} - ${getLeaveTypeLabel(req.leaveType)}</div>
+                    <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">${user?user.name:'—'} - ${getLeaveTypeLabel(req.leaveType)}</div>
                     <div style="color:var(--text-muted);font-size:.85rem;">${formatDate(req.timestamp)}</div>
                 </div>
                 ${getLeaveStatusBadge(req.status)}
@@ -299,15 +300,15 @@ function renderPendingApprovals() {
             <div class="request-meta">
                 <div class="meta-box"><div class="meta-label">Departure Date</div><div class="meta-value">${formatDate(req.startDate)}</div></div>
                 <div class="meta-box"><div class="meta-label">Date Return</div><div class="meta-value">${formatDate(req.endDate)}</div></div>
-                <div class="meta-box"><div class="meta-label">Required Days</div><div class="meta-value">${req.daysRequested||'â€”'}</div></div>
-                <div class="meta-box"><div class="meta-label">Reason</div><div class="meta-value">${req.reason||'â€”'}</div></div>
+                <div class="meta-box"><div class="meta-label">Required Days</div><div class="meta-value">${req.daysRequested||'—'}</div></div>
+                <div class="meta-box"><div class="meta-label">Reason</div><div class="meta-value">${req.reason||'—'}</div></div>
             </div>
             <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <div style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:8px 12px;">
                     <label style="font-size:.85rem;font-weight:600;white-space:nowrap;">Approved Days:</label>
                     <input type="number" id="appDays_${req.id}" class="approve-days-input" value="${defaultDays}" min="1" max="${req.daysRequested*2}">
                 </div>
-                ${req.attachmentUrl ? `<a href="${req.attachmentUrl}" target="_blank" class="btn btn-ghost"><i class="fa-solid fa-link"></i> Ø§Ù„Ù…Ø±ÙÙ‚</a>` : ''}
+                ${req.attachmentUrl ? `<a href="${req.attachmentUrl}" target="_blank" class="btn btn-ghost"><i class="fa-solid fa-link"></i> ÇáãÑİŞ</a>` : ''}
                 <button class="btn btn-primary" onclick="approveLeave('${req.id}')"><i class="fa-solid fa-check"></i> Approve</button>
                 <button class="btn btn-ghost" style="color:#b91c1c;" onclick="rejectLeave('${req.id}')"><i class="fa-solid fa-xmark"></i> Reject</button>
             </div>
@@ -340,24 +341,24 @@ function renderDepartureSection() {
         <div class="departure-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
                 <div>
-                    <div style="font-size:1rem;font-weight:800;">${user?user.name:'â€”'} â€” ${getLeaveTypeLabel(req.leaveType)}</div>
+                    <div style="font-size:1rem;font-weight:800;">${user?user.name:'—'} — ${getLeaveTypeLabel(req.leaveType)}</div>
                     <div style="font-size:.85rem;color:var(--text-muted);margin-top:4px;">
-                        <i class="fa-solid fa-calendar"></i> Departure expectedØ©: <strong>${formatDate(req.startDate)}</strong>
+                        <i class="fa-solid fa-calendar"></i> Departure expectedÉ: <strong>${formatDate(req.startDate)}</strong>
                         &nbsp;|&nbsp;
-                        <i class="fa-solid fa-calendar-check"></i> Return expectedØ©: <strong>${formatDate(req.endDate)}</strong>
+                        <i class="fa-solid fa-calendar-check"></i> Return expectedÉ: <strong>${formatDate(req.endDate)}</strong>
                         &nbsp;|&nbsp;
                         Approved Days: <strong>${finalDays}</strong>
                     </div>
-                    ${req.isDeparted ? `<div style="color:#16a34a;font-size:.85rem;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> ØºØ§Ø¯Ø± Ø¨Date: <strong>${formatDate(req.actualDepartureDate)}</strong></div>` : ''}
+                    ${req.isDeparted ? `<div style="color:#16a34a;font-size:.85rem;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> ÛÇÏÑ ÈDate: <strong>${formatDate(req.actualDepartureDate)}</strong></div>` : ''}
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     ${!req.isDeparted ? `
                         <button class="btn-departed" onclick="openDepartureModal('${req.id}','depart')">
-                            <i class="fa-solid fa-plane-departure"></i> ØºØ§Ø¯Ø±
+                            <i class="fa-solid fa-plane-departure"></i> ÛÇÏÑ
                         </button>
                     ` : `
                         <button class="btn-returned" onclick="openDepartureModal('${req.id}','return')">
-                            <i class="fa-solid fa-plane-arrival"></i> Ø±Ø¬Ø¹ from Ø§Ù„Leave
+                            <i class="fa-solid fa-plane-arrival"></i> ÑÌÚ from ÇáLeave
                         </button>
                     `}
                 </div>
@@ -383,16 +384,16 @@ function renderMyRequests() {
         return;
     }
     body.innerHTML = rows.map(req => {
-        const finalDays = req.approvedDaysFinal || req.approvedDaysByHead || 'â€”';
+        const finalDays = req.approvedDaysFinal || req.approvedDaysByHead || '—';
         const departureTxt = req.actualDepartureDate
             ? `<span style="color:#16a34a;font-size:.8rem;"><i class="fa-solid fa-plane-departure"></i> ${formatDate(req.actualDepartureDate)}</span>`
-            : (req.status==='approved' ? '<span style="color:#d97706;font-size:.8rem;">Pending Ø§Ù„Confirm</span>' : 'â€”');
+            : (req.status==='approved' ? '<span style="color:#d97706;font-size:.8rem;">Pending ÇáConfirm</span>' : '—');
         return `<tr>
             <td>${getLeaveTypeLabel(req.leaveType)}</td>
             <td>${formatDate(req.startDate)}</td>
             <td>${formatDate(req.endDate)}</td>
-            <td><strong>${req.daysRequested||'â€”'}</strong></td>
-            <td style="color:${finalDays!=='â€”'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
+            <td><strong>${req.daysRequested||'—'}</strong></td>
+            <td style="color:${finalDays!=='—'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
             <td>${getLeaveStatusBadge(req.status)}</td>
             <td>${departureTxt}</td>
             <td class="no-print"><button class="btn btn-ghost" style="padding:5px 8px;font-size:.8rem;" onclick="printLeave('${req.id}')"><i class="fa-solid fa-print"></i></button></td>
@@ -401,19 +402,19 @@ function renderMyRequests() {
 }
 
 window.approveLeave = (id) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Approval Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„LeaveØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ from Approval Úáì ØáÈ ÇáLeave¿')) return;
     const role = isAdmin ? 'admin' : 'head';
     const daysInput = document.getElementById(`appDays_${id}`);
     const approvedDays = daysInput ? Number(daysInput.value) : null;
     const ok = approveLeaveRequest(id, role, approvedDays);
-    if (ok) { toast('DoneØª Approval Ø¨Success', 'success'); renderAll(); }
-    else { toast('ØªØ¹Ø°Ø± Approval Ø¹Ù„Ù‰ Ù‡Ø°Ø§ Request', 'error'); }
+    if (ok) { toast('DoneÊ Approval ÈSuccess', 'success'); renderAll(); }
+    else { toast('ÊÚĞÑ Approval Úáì åĞÇ Request', 'error'); }
 };
 
 window.rejectLeave = (id) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Reject Ø·Ù„Ø¨ Ø§Ù„LeaveØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ from Reject ØáÈ ÇáLeave¿')) return;
     if (rejectLeaveRequest(id)) { toast('Done Reject Request', 'success'); renderAll(); }
-    else { toast('ØªØ¹Ø°Ø± Reject Ù‡Ø°Ø§ Request', 'error'); }
+    else { toast('ÊÚĞÑ Reject åĞÇ Request', 'error'); }
 };
 
 // ===== Departure Modal =====
@@ -425,11 +426,11 @@ window.openDepartureModal = (leaveId, action) => {
     document.getElementById('departureAction').value = action;
     if (action === 'depart') {
         document.getElementById('departureModalTitle').textContent = 'Confirm Departure Employee';
-        document.getElementById('departureModalDesc').textContent = `Ø£ÙƒØ¯ Departure ${user?user.name:''} andEnter Actual Departure Date.`;
+        document.getElementById('departureModalDesc').textContent = `ÃßÏ Departure ${user?user.name:''} andEnter Actual Departure Date.`;
         document.getElementById('actualDepartureDate').value = req.startDate || new Date().toISOString().split('T')[0];
     } else {
-        document.getElementById('departureModalTitle').textContent = 'Confirm Return Employee from Ø§Ù„Leave';
-        document.getElementById('departureModalDesc').textContent = `Ø£ÙƒØ¯ Return ${user?user.name:''} from Ø§Ù„Leave andEnter Date Return Ø§Ù„ÙØ¹Ù„ÙŠ.`;
+        document.getElementById('departureModalTitle').textContent = 'Confirm Return Employee from ÇáLeave';
+        document.getElementById('departureModalDesc').textContent = `ÃßÏ Return ${user?user.name:''} from ÇáLeave andEnter Date Return ÇáİÚáí.`;
         document.getElementById('actualDepartureDate').value = req.endDate || new Date().toISOString().split('T')[0];
     }
     document.getElementById('departureModal').style.display = 'flex';
@@ -450,19 +451,19 @@ window.confirmDepartureAction = () => {
             const user = req ? db.users.find(u => u.id === req.userId) : null;
             document.getElementById('custodyBlockBody').innerHTML =
                 `<div style="font-weight:700;margin-bottom:8px;">${user?.name || ''}</div>` +
-                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> Departure blocked â€” the employee has active custody of the following devices:</div>` +
+                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> Departure blocked — the employee has active custody of the following devices:</div>` +
                 `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.85rem;font-weight:600;">${window._departureBlockedByCustody}</div>` +
                 `<div style="margin-top:10px;font-size:.82rem;color:var(--text-muted);">Devices must be returned or custody transferred before registering departure.</div>`;
             document.getElementById('custodyBlockModal').style.display = 'flex';
             renderAll();
             return;
         }
-        if (ok) toast('Done Register Departure Ø¨Success', 'success');
+        if (ok) toast('Done Register Departure ÈSuccess', 'success');
     } else {
         ok = markLeaveReturned(leaveId, dateVal);
-        if (ok) toast('Done ØªØ³Ø¬ÙŠÙ„ Return Ø¨Success', 'success');
+        if (ok) toast('Done ÊÓÌíá Return ÈSuccess', 'success');
     }
-    if (!ok) toast('ØªØ¹Ø°Ø±Øª Operation', 'error');
+    if (!ok) toast('ÊÚĞÑÊ Operation', 'error');
     closeDepartureModal();
     renderAll();
 };
@@ -480,9 +481,9 @@ document.getElementById('leaveForm').addEventListener('submit', e => {
     const daysRequested = Number(document.getElementById('daysRequested').value);
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    if (!startDate) { showAlert('ÙŠØ¬Ø¨ Ø¥Ø¯Ø®Ø§Ù„ Departure Date expected', 'error'); return; }
-    if (!endDate)   { showAlert('ÙŠØ¬Ø¨ Ø¥Ø¯Ø®Ø§Ù„ Date Return expected', 'error'); return; }
-    if (calcDays(startDate, endDate) <= 0) { showAlert('Ø§Ù„ØªandØ§Ø±ÙŠØ® ØºÙŠØ± ØµØ­ÙŠØ­Ø©', 'error'); return; }
+    if (!startDate) { showAlert('íÌÈ ÅÏÎÇá Departure Date expected', 'error'); return; }
+    if (!endDate)   { showAlert('íÌÈ ÅÏÎÇá Date Return expected', 'error'); return; }
+    if (calcDays(startDate, endDate) <= 0) { showAlert('ÇáÊandÇÑíÎ ÛíÑ ÕÍíÍÉ', 'error'); return; }
 
     const result = addLeaveRequest({
         userId: currentUser.id,
@@ -493,9 +494,9 @@ document.getElementById('leaveForm').addEventListener('submit', e => {
         signatureImageUrl: document.getElementById('signatureImageUrl').value.trim(),
         notes: document.getElementById('notes').value.trim()
     });
-    if (!result.success) { showAlert(result.msg||'ØªØ¹Ø°Ø± Send Request', 'error'); return; }
-    showAlert('Done Send Ø·Ù„Ø¨ Ø§Ù„Leave Ø¨Success', 'success');
-    toast('Done Send Request andPending Ø§Ù„OKØ§Øª', 'success');
+    if (!result.success) { showAlert(result.msg||'ÊÚĞÑ Send Request', 'error'); return; }
+    showAlert('Done Send ØáÈ ÇáLeave ÈSuccess', 'success');
+    toast('Done Send Request andPending ÇáOKÇÊ', 'success');
     e.target.reset();
     renderAll();
 });
@@ -521,13 +522,14 @@ function buildPrintHtml(req) {
     const admin = db.users.find(u=>u.role==='admin' && u.status==='approved');
     const history = (req.approvalHistory||[]).map(item=>`
         <div style="margin-bottom:8px;padding:8px;border:1px solid #ddd;border-radius:6px;">
-            <strong>${item.approverRole||item.approverName||'â€”'}</strong>:
-            ${item.decision==='approved'?'Approve':item.decision==='rejected'?'Reject':item.decision==='departed'?'Departure':item.decision==='returned'?'Return':'â€”'}
+            <strong>${item.approverRole||item.approverName||'—'}</strong>:
+            ${item.decision==='approved'?'Approve':item.decision==='rejected'?'Reject':item.decision==='departed'?'Departure':item.decision==='returned'?'Return':'—'}
             ${item.approvedDays?` (${item.approvedDays} day)`:''}
-            â€” ${formatDate(item.timestamp)}
+            — ${formatDate(item.timestamp)}
         </div>
     `).join('');
-    return `<html lang="en" dir="ltr"><head><meta charset="UTF-8"><style>
+    return `<html lang="en" dir="ltr"><head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg"><meta charset="UTF-8"><style>
         body{font-family:Arial,sans-serif;direction:ltr;padding:28px;color:#111;}
         .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
         .box{border:1px solid #ddd;border-radius:8px;padding:10px 12px;}
@@ -536,32 +538,32 @@ function buildPrintHtml(req) {
         @media print{body{padding:0;}}
     </style></head><body>
     <h2 style="text-align:center;margin-bottom:20px;">Arabian Peninsula Contracting Co. - SAJCO</h2>
-    <h3 style="text-align:center;margin-bottom:20px;">form Ø·Ù„Ø¨ Leave</h3>
+    <h3 style="text-align:center;margin-bottom:20px;">form ØáÈ Leave</h3>
     <div class="grid">
-        <div class="box"><div class="label">Employee Name</div><div class="val">${user?user.name:'â€”'}</div></div>
-        <div class="box"><div class="label">Employee ID</div><div class="val">${user?user.empId:'â€”'}</div></div>
+        <div class="box"><div class="label">Employee Name</div><div class="val">${user?user.name:'—'}</div></div>
+        <div class="box"><div class="label">Employee ID</div><div class="val">${user?user.empId:'—'}</div></div>
         <div class="box"><div class="label">Branch</div><div class="val">${getBranchLabel(req.branchId)}</div></div>
         <div class="box"><div class="label">Leave Type</div><div class="val">${getLeaveTypeLabel(req.leaveType)}</div></div>
         <div class="box"><div class="label">Departure Date expected</div><div class="val">${formatDate(req.startDate)}</div></div>
         <div class="box"><div class="label">Date Return expected</div><div class="val">${formatDate(req.endDate)}</div></div>
-        <div class="box"><div class="label">Required Days</div><div class="val">${req.daysRequested||'â€”'}</div></div>
-        <div class="box"><div class="label">Approved Days</div><div class="val">${req.approvedDaysFinal||req.approvedDaysByHead||'â€”'}</div></div>
-        <div class="box"><div class="label">Actual Departure Date</div><div class="val">${req.actualDepartureDate?formatDate(req.actualDepartureDate):'â€”'}</div></div>
-        <div class="box"><div class="label">Date Return Ø§Ù„ÙØ¹Ù„ÙŠ</div><div class="val">${req.actualReturnDate?formatDate(req.actualReturnDate):'â€”'}</div></div>
+        <div class="box"><div class="label">Required Days</div><div class="val">${req.daysRequested||'—'}</div></div>
+        <div class="box"><div class="label">Approved Days</div><div class="val">${req.approvedDaysFinal||req.approvedDaysByHead||'—'}</div></div>
+        <div class="box"><div class="label">Actual Departure Date</div><div class="val">${req.actualDepartureDate?formatDate(req.actualDepartureDate):'—'}</div></div>
+        <div class="box"><div class="label">Date Return ÇáİÚáí</div><div class="val">${req.actualReturnDate?formatDate(req.actualReturnDate):'—'}</div></div>
     </div>
-    <div class="box" style="margin-top:12px;"><div class="label">Reason</div><div class="val">${req.reason||'â€”'}</div></div>
-    <h4 style="margin:16px 0 8px;">Ø³Ø¬Ù„ Ø§Ù„OKØ§Øª</h4>
-    ${history || '<div class="box">None Ø³Ø¬Ù„ until now.</div>'}
+    <div class="box" style="margin-top:12px;"><div class="label">Reason</div><div class="val">${req.reason||'—'}</div></div>
+    <h4 style="margin:16px 0 8px;">ÓÌá ÇáOKÇÊ</h4>
+    ${history || '<div class="box">None ÓÌá until now.</div>'}
     <div class="grid" style="margin-top:24px;">
-        <div class="box" style="min-height:100px;"><div class="label">ØªandÙ‚ÙŠØ¹ Head Surveyor</div><div class="val">${head?head.name:'â€”'}</div></div>
-        <div class="box" style="min-height:100px;"><div class="label">ØªandÙ‚ÙŠØ¹ General Manager</div><div class="val">${admin?admin.name:'Mohamed Aqtatit'}</div></div>
+        <div class="box" style="min-height:100px;"><div class="label">ÊandŞíÚ Head Surveyor</div><div class="val">${head?head.name:'—'}</div></div>
+        <div class="box" style="min-height:100px;"><div class="label">ÊandŞíÚ General Manager</div><div class="val">${admin?admin.name:'Mohamed Aqtatit'}</div></div>
     </div>
     </body></html>`;
 }
 
 window.printLeave = (id) => {
     const req = (db.leaveRequests||[]).find(r=>r.id===id);
-    if (!req) { toast('Request ØºÙŠØ± Ù…andØ¬andØ¯','error'); return; }
+    if (!req) { toast('Request ÛíÑ ãandÌandÏ','error'); return; }
     const win = window.open('','_blank','width=900,height=700');
     win.document.open();
     win.document.write(buildPrintHtml(req));
@@ -572,7 +574,7 @@ window.printLeave = (id) => {
 window.printLatestApproved = () => {
     const latest = (db.leaveRequests||[]).filter(r=>r.userId===currentUser.id&&(r.status==='approved'||r.status==='completed'))
         .sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))[0];
-    if (!latest) { toast('None Ø·Ù„Ø¨ Approved Ù„Ù„Print','warning'); return; }
+    if (!latest) { toast('None ØáÈ Approved ááPrint','warning'); return; }
     window.printLeave(latest.id);
 };
 
@@ -586,7 +588,7 @@ function renderAll() {
 
 setInterval(renderAll, 30000);
 
-// Realtime hooks â€” fires instantly when custodies/leave_requests tables change
+// Realtime hooks — fires instantly when custodies/leave_requests tables change
 window.refreshPage = renderAll;
 window.onNewNotification = (n) => {
     if (n.actionType === 'leave_approval' || n.actionType === 'leave_departure') renderAll();

@@ -1,6 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worker Management | SAJCO</title>
@@ -72,7 +73,7 @@
         <!-- Statistics -->
         <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;" id="workerStats"></div>
 
-        <!-- Search (Head Surveyor + مدير) -->
+        <!-- Search (Head Surveyor + ����) -->
         <div id="searchSection" style="display:none;margin-bottom:20px;" class="card">
             <h4 style="margin-bottom:12px;"><i class="fa-solid fa-magnifying-glass" style="color:var(--primary);"></i> Search for Worker</h4>
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
@@ -88,7 +89,7 @@
             <div id="searchResult"></div>
         </div>
 
-        <!-- Add New Worker (Surveyor + رئيس) -->
+        <!-- Add New Worker (Surveyor + ����) -->
         <div id="addWorkerAccordion" class="section-accordion" style="display:none;">
             <div class="section-accordion-header" onclick="toggleAddWorker()" id="addWorkerBtn">
                 <span><i class="fa-solid fa-plus" style="color:var(--primary);margin-left:8px;"></i> Add New Worker</span>
@@ -119,7 +120,7 @@
                             <input type="date" id="wDob" class="form-input"></div>
                         <div class="form-group"><label class="form-label">Project</label>
                             <select id="wProject" class="form-select">
-                                <option value="">— Select Project —</option>
+                                <option value="">� Select Project �</option>
                             </select>
                         </div>
                     </div>
@@ -168,7 +169,7 @@
             <div id="workerLeaveList"></div>
         </div>
 
-        <!-- مandدال طلب Leave -->
+        <!-- �and��� ��� Leave -->
         <div id="leaveModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
                 <h4 style="margin-bottom:4px;"><i class="fa-solid fa-calendar-plus" style="color:#d97706;"></i> Worker Leave Request</h4>
@@ -190,18 +191,18 @@
             </div>
         </div>
 
-        <!-- مandدال Details الWorker -->
+        <!-- �and��� Details ��Worker -->
         <div id="workerDetailModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:520px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                     <h4 style="margin:0;"><i class="fa-solid fa-id-card" style="color:var(--primary);"></i> Worker Details</h4>
-                    <button onclick="document.getElementById('workerDetailModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">✕</button>
+                    <button onclick="document.getElementById('workerDetailModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">?</button>
                 </div>
                 <div id="workerDetailContent"></div>
             </div>
         </div>
 
-        <!-- مandدال Reject Leave -->
+        <!-- �and��� Reject Leave -->
         <div id="wlrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:24px;max-width:360px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
                 <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> Rejection Reason</h4>
@@ -214,15 +215,15 @@
             </div>
         </div>
 
-        <!-- مandدال Salary Raise Request الWorker -->
+        <!-- �and��� Salary Raise Request ��Worker -->
         <div id="workerRaiseModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:560px;width:95%;box-shadow:0 16px 48px rgba(0,0,0,.25);max-height:92vh;overflow-y:auto;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <h4 style="margin:0;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> Salary Raise Request Worker</h4>
-                    <button onclick="document.getElementById('workerRaiseModal').style.display='none'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#64748b;">✕</button>
+                    <button onclick="document.getElementById('workerRaiseModal').style.display='none'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#64748b;">?</button>
                 </div>
 
-                <!-- بيانات تلقائية -->
+                <!-- ������ ������� -->
                 <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.84rem;color:#166534;">
                     <div style="font-weight:700;margin-bottom:6px;"><i class="fa-solid fa-circle-info"></i> Auto-filled Data</div>
                     <div id="workerRaiseAutoInfo" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;"></div>
@@ -251,7 +252,7 @@
                 <div class="form-group">
                     <label class="form-label">Reason for Raise Request <span style="color:#ef4444;">*</span></label>
                     <select id="wrReason" class="form-select">
-                        <option value="">— Select Reason —</option>
+                        <option value="">� Select Reason �</option>
                         <option value="Outstanding Performance">Outstanding Performance</option>
                         <option value="Increased Responsibilities">Increased Responsibilities</option>
                         <option value="Long Service Without Raise">Long Service Without Raise</option>
@@ -292,12 +293,12 @@
             <div id="surveyorWorkerCountBody"></div>
         </div>
 
-        <!-- مandدال Transfer Worker -->
+        <!-- �and��� Transfer Worker -->
         <div id="transferModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:420px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <h4 style="margin:0;"><i class="fa-solid fa-people-arrows" style="color:#7c3aed;"></i> Transfer Worker to Another Surveyor</h4>
-                    <button onclick="document.getElementById('transferModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;">✕</button>
+                    <button onclick="document.getElementById('transferModal').style.display='none'" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748b;">?</button>
                 </div>
                 <p id="transferWorkerName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;font-weight:600;"></p>
                 <div class="form-group">
@@ -327,23 +328,23 @@ let _filteredWorkers = [];
 
 const WLR_STATUS_LABEL = {
     pending_head:  'Pending Head Surveyor',
-    pending_admin: 'Pending المدير',
+    pending_admin: 'Pending ������',
     approved:      'Approved',
     rejected:      'Rejected',
     departed:      'On Leave',
-    returned:      'عاد'
+    returned:      '���'
 };
 
-// ─── Init ────────────────────────────────────────────────
+// ??? Init ????????????????????????????????????????????????
 function init() {
     const isSurveyor = currentUser.role === 'surveyor';
     const isHead     = currentUser.role === 'head';
     const isAdmin    = currentUser.role === 'admin';
 
     document.getElementById('workersSubtitle').textContent =
-        isSurveyor ? 'Worker Management التابعين لك — Add andتتبع Leave andRegister Departure'
-      : isHead     ? 'جميع Workers your branch — Search andمتابعة Leave andمتابعة Projects'
-      :              'Comprehensive overview of Workers جميع branches';
+        isSurveyor ? 'Worker Management �������� �� � Add and���� Leave andRegister Departure'
+      : isHead     ? '���� Workers your branch � Search and������ Leave and������ Projects'
+      :              'Comprehensive overview of Workers ���� branches';
 
     if (!isSurveyor) document.getElementById('searchSection').style.display = 'block';
     if (!isAdmin)    document.getElementById('addWorkerAccordion').style.display = 'block';
@@ -360,11 +361,11 @@ function populateProjects() {
     const branchId = currentUser.branch || currentUser.responsibleBranch;
     const projs = (db.projects || []).filter(p =>
         p.status === 'active' && (!branchId || p.branchId === branchId));
-    sel.innerHTML = '<option value="">— Select Project —</option>' +
+    sel.innerHTML = '<option value="">� Select Project �</option>' +
         projs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
 }
 
-// ─── Stats ───────────────────────────────────────────────
+// ??? Stats ???????????????????????????????????????????????
 function renderStats() {
     const branchId = currentUser.branch || currentUser.responsibleBranch;
     const myWorkers = getVisibleWorkers();
@@ -375,7 +376,7 @@ function renderStats() {
 
     const cards = [
         { icon:'fa-users',           bg:'#eff6ff', color:'#1e40af', label:'Total Workers',   val:total },
-        { icon:'fa-circle-check',    bg:'#f0fdf4', color:'#166534', label:'Availableandن',          val:available },
+        { icon:'fa-circle-check',    bg:'#f0fdf4', color:'#166534', label:'Availableand�',          val:available },
         { icon:'fa-plane-departure', bg:'#fef3c7', color:'#92400e', label:'On Leave',        val:onLeave },
         { icon:'fa-calendar-check',  bg:'#f5f3ff', color:'#6d28d9', label:'Leave Approved', val:approvedL },
     ];
@@ -392,7 +393,7 @@ function renderStats() {
         </div>`).join('');
 }
 
-// ─── Table ───────────────────────────────────────────────
+// ??? Table ???????????????????????????????????????????????
 function getVisibleWorkers() {
     const isSurveyor = currentUser.role === 'surveyor';
     const isHead     = currentUser.role === 'head';
@@ -468,7 +469,7 @@ function renderTableBody() {
                     <i class="fa-solid fa-eye"></i>
                 </button>
                 ${(isSurveyor || isHead) && w.status === 'available' && !hasActiveLeave ? `
-                <button onclick="openLeaveModal('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#d97706;border-color:#d97706;" title="طلب Leave">
+                <button onclick="openLeaveModal('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#d97706;border-color:#d97706;" title="��� Leave">
                     <i class="fa-solid fa-calendar-plus"></i> Leave
                 </button>` : ''}
                 ${isSurveyor && w.status === 'approved_leave' ? `
@@ -476,7 +477,7 @@ function renderTableBody() {
                     <i class="fa-solid fa-plane-departure"></i> Departure
                 </button>` : ''}
                 ${isSurveyor && w.status === 'on_leave' ? `
-                <button onclick="doRegisterReturn('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#166534;border-color:#166534;" title="تسجيل Return">
+                <button onclick="doRegisterReturn('${w.id}')" class="btn btn-primary" style="font-size:.75rem;padding:4px 10px;background:#166534;border-color:#166534;" title="����� Return">
                     <i class="fa-solid fa-plane-arrival"></i> Return
                 </button>` : ''}
                 ${isSurveyor ? `
@@ -484,7 +485,7 @@ function renderTableBody() {
                     <i class="fa-solid fa-hand-holding-dollar"></i>
                 </button>` : ''}
                 ${(isHead || isAdmin) ? `
-                <button onclick="openTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" title="نقل لSurveyor آخر">
+                <button onclick="openTransferModal('${w.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" title="��� �Surveyor ���">
                     <i class="fa-solid fa-people-arrows"></i>
                 </button>` : ''}
                 ${isSurveyor ? `
@@ -496,19 +497,19 @@ function renderTableBody() {
         return `<tr>
             <td style="color:var(--text-muted);">${i+1}</td>
             <td style="font-weight:600;">${w.name}</td>
-            <td style="font-family:monospace;font-size:.82rem;">${w.residenceId || '—'}</td>
-            <td>${w.nationality || '—'}</td>
-            <td dir="ltr" style="text-align:right;">${w.phone || '—'}</td>
+            <td style="font-family:monospace;font-size:.82rem;">${w.residenceId || '�'}</td>
+            <td>${w.nationality || '�'}</td>
+            <td dir="ltr" style="text-align:right;">${w.phone || '�'}</td>
             <td>${getWorkerAge(w.dob)}</td>
             <td><span class="wstatus ${statusClass[w.status] || ''}">${statusLabel[w.status] || w.status}</span></td>
-            <td style="font-size:.8rem;">${proj ? proj.name : '—'}</td>
-            ${!isSurveyor ? `<td style="font-size:.82rem;">${surveyor?.name || '—'}</td>` : ''}
+            <td style="font-size:.8rem;">${proj ? proj.name : '�'}</td>
+            ${!isSurveyor ? `<td style="font-size:.82rem;">${surveyor?.name || '�'}</td>` : ''}
             <td>${actions}</td>
         </tr>`;
     }).join('');
 }
 
-// ─── Add Worker ──────────────────────────────────────────
+// ??? Add Worker ??????????????????????????????????????????
 function toggleAddWorker() {
     const body    = document.getElementById('addWorkerBody');
     const chevron = document.getElementById('addWorkerChevron');
@@ -528,8 +529,8 @@ window.submitAddWorker = () => {
         dob:         document.getElementById('wDob').value,
         projectId:   document.getElementById('wProject').value,
     };
-    if (!data.name)        { alert('Please إدخال اسم الWorker'); return; }
-    if (!data.residenceId) { alert('Please إدخال Residence ID'); return; }
+    if (!data.name)        { alert('Please ����� ��� ��Worker'); return; }
+    if (!data.residenceId) { alert('Please ����� Residence ID'); return; }
 
     const w = addWorker(data);
     if (w) {
@@ -537,11 +538,11 @@ window.submitAddWorker = () => {
         document.getElementById('wProject').value = '';
         toggleAddWorker();
         init();
-        _showSyncToast('Done Add الWorker بSuccess ✓', 'success');
+        _showSyncToast('Done Add ��Worker �Success ?', 'success');
     }
 };
 
-// ─── Worker Detail Modal ─────────────────────────────────
+// ??? Worker Detail Modal ?????????????????????????????????
 window.showWorkerDetail = (id) => {
     const w = db.workers.find(x => x.id === id);
     if (!w) return;
@@ -553,16 +554,16 @@ window.showWorkerDetail = (id) => {
 
     const fields = [
         { label:'Full Name',      val: w.name },
-        { label:'Residence ID',       val: w.residenceId || '—' },
-        { label:'Employee ID',     val: w.empId || '—' },
-        { label:'Nationality',           val: w.nationality || '—' },
-        { label:'Phone Number',        val: w.phone || '—' },
-        { label:'Email', val: w.email || '—' },
-        { label:'Date of Birth',     val: w.dob ? new Date(w.dob).toLocaleDateString('en-US') : '—' },
+        { label:'Residence ID',       val: w.residenceId || '�' },
+        { label:'Employee ID',     val: w.empId || '�' },
+        { label:'Nationality',           val: w.nationality || '�' },
+        { label:'Phone Number',        val: w.phone || '�' },
+        { label:'Email', val: w.email || '�' },
+        { label:'Date of Birth',     val: w.dob ? new Date(w.dob).toLocaleDateString('en-US') : '�' },
         { label:'Age',             val: getWorkerAge(w.dob) },
-        { label:'Branch',             val: branch?.name || '—' },
-        { label:'Project',           val: proj?.name || '—' },
-        { label:'Responsible Surveyor',    val: surveyor?.name || '—' },
+        { label:'Branch',             val: branch?.name || '�' },
+        { label:'Project',           val: proj?.name || '�' },
+        { label:'Responsible Surveyor',    val: surveyor?.name || '�' },
         { label:'Date Add',     val: new Date(w.addedAt).toLocaleDateString('en-US') },
     ];
 
@@ -579,7 +580,7 @@ window.showWorkerDetail = (id) => {
         <h4 style="margin-bottom:10px;font-size:.9rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> Leave History</h4>
         ${leaveHistory.map(r => `
             <div style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-                <span>${r.startDate} → ${r.endDate} (${r.daysRequested} day)</span>
+                <span>${r.startDate} ? ${r.endDate} (${r.daysRequested} day)</span>
                 <span class="wlr-sb wlr-status-${r.status}">${WLR_STATUS_LABEL[r.status] || r.status}</span>
             </div>`).join('')}`;
     }
@@ -588,11 +589,11 @@ window.showWorkerDetail = (id) => {
     document.getElementById('workerDetailModal').style.display = 'flex';
 };
 
-// ─── Leave Modal ─────────────────────────────────────────
+// ??? Leave Modal ?????????????????????????????????????????
 window.openLeaveModal = (workerId) => {
     _leaveWorkerId = workerId;
     const w = db.workers.find(x => x.id === workerId);
-    document.getElementById('leaveModalWorkerName').textContent = `الWorker: ${w?.name || ''}`;
+    document.getElementById('leaveModalWorkerName').textContent = `��Worker: ${w?.name || ''}`;
     document.getElementById('leaveStart').value = '';
     document.getElementById('leaveEnd').value   = '';
     document.getElementById('leaveReason').value = '';
@@ -608,8 +609,8 @@ window.calcLeaveDays = () => {
         const days = Math.floor((new Date(e) - new Date(s)) / 86400000) + 1;
         el.style.display = 'block';
         el.innerHTML = days > 0
-            ? `<i class="fa-solid fa-calendar-days"></i> مدة الLeave: <strong>${days} day</strong>`
-            : `<span style="color:#dc2626;">Date Return يجب أن يكandن بعد Start Date</span>`;
+            ? `<i class="fa-solid fa-calendar-days"></i> ��� ��Leave: <strong>${days} day</strong>`
+            : `<span style="color:#dc2626;">Date Return ��� �� ��and� ��� Start Date</span>`;
     } else { el.style.display = 'none'; }
 };
 
@@ -617,25 +618,25 @@ window.submitLeaveModal = () => {
     const s = document.getElementById('leaveStart').value;
     const e = document.getElementById('leaveEnd').value;
     const r = document.getElementById('leaveReason').value.trim();
-    if (!s || !e) { alert('Please تحديد Start Date andالنهاية'); return; }
+    if (!s || !e) { alert('Please ����� Start Date and�������'); return; }
     if (submitWorkerLeaveRequest(_leaveWorkerId, s, e, r)) {
         document.getElementById('leaveModal').style.display = 'none';
         renderLeaveRequests();
         renderStats();
         renderTableBody();
-        _showSyncToast('Done Send طلب الLeave بSuccess', 'success');
+        _showSyncToast('Done Send ��� ��Leave �Success', 'success');
     }
 };
 
-// ─── Departure / Return ──────────────────────────────────
+// ??? Departure / Return ??????????????????????????????????
 window.doRegisterDeparture = (workerId) => {
     const req = db.workerLeaveRequests.find(r =>
         r.workerId === workerId && r.status === 'approved');
-    if (!req) { alert('None طلب Leave Approved لهذا الWorker'); return; }
-    if (!confirm(`Confirm Register Departure الWorker ${req.workerName}؟`)) return;
+    if (!req) { alert('None ��� Leave Approved ���� ��Worker'); return; }
+    if (!confirm(`Confirm Register Departure ��Worker ${req.workerName}�`)) return;
     if (registerWorkerDeparture(req.id)) {
         init();
-        _showSyncToast('Done Register Departure ✓', 'success');
+        _showSyncToast('Done Register Departure ?', 'success');
     }
 };
 
@@ -643,21 +644,21 @@ window.doRegisterReturn = (workerId) => {
     const req = db.workerLeaveRequests.find(r =>
         r.workerId === workerId && r.status === 'departed');
     if (!req) return;
-    if (!confirm(`Confirm تسجيل Return الWorker ${req.workerName}؟`)) return;
+    if (!confirm(`Confirm ����� Return ��Worker ${req.workerName}�`)) return;
     if (registerWorkerReturn(req.id)) {
         init();
-        _showSyncToast('Done تسجيل Return ✓', 'success');
+        _showSyncToast('Done ����� Return ?', 'success');
     }
 };
 
 window.doDeleteWorker = (id) => {
     const w = db.workers.find(x => x.id === id);
     if (!w) return;
-    if (!confirm(`Delete الWorker "${w.name}" نهائياً؟`)) return;
-    if (deleteWorker(id)) { init(); _showSyncToast('Done الDelete', 'info'); }
+    if (!confirm(`Delete ��Worker "${w.name}" �������`)) return;
+    if (deleteWorker(id)) { init(); _showSyncToast('Done ��Delete', 'info'); }
 };
 
-// ─── Leave Requests List ─────────────────────────────────
+// ??? Leave Requests List ?????????????????????????????????
 function renderLeaveRequests() {
     const el = document.getElementById('workerLeaveList');
     const isSurveyor = currentUser.role === 'surveyor';
@@ -687,10 +688,10 @@ function renderLeaveRequests() {
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
                 <div>
                     <span style="font-weight:700;font-size:.9rem;">${r.workerName}</span>
-                    <span style="color:var(--text-muted);font-size:.78rem;margin-right:8px;">(${r.workerResidenceId || r.workerEmpId || '—'})</span>
-                    ${!isSurveyor ? `<span style="font-size:.78rem;color:var(--text-muted);"> — the Surveyor: ${r.surveyorName}</span>` : ''}
+                    <span style="color:var(--text-muted);font-size:.78rem;margin-right:8px;">(${r.workerResidenceId || r.workerEmpId || '�'})</span>
+                    ${!isSurveyor ? `<span style="font-size:.78rem;color:var(--text-muted);"> � the Surveyor: ${r.surveyorName}</span>` : ''}
                     <div style="font-size:.8rem;color:var(--text-muted);margin-top:3px;">
-                        <i class="fa-regular fa-calendar"></i> ${r.startDate} → ${r.endDate}
+                        <i class="fa-regular fa-calendar"></i> ${r.startDate} ? ${r.endDate}
                         &nbsp;|&nbsp; <strong>${r.daysRequested} day</strong>
                         ${r.reason ? `&nbsp;|&nbsp; ${r.reason}` : ''}
                     </div>
@@ -698,13 +699,13 @@ function renderLeaveRequests() {
                 <span class="wlr-sb wlr-status-${r.status}">${WLR_STATUS_LABEL[r.status] || r.status}</span>
             </div>
             ${r.rejectionNote ? `<div style="font-size:.78rem;color:#991b1b;margin-top:6px;"><i class="fa-solid fa-circle-xmark"></i> Rejection Reason: ${r.rejectionNote}</div>` : ''}
-            ${r.departureDate ? `<div style="font-size:.78rem;color:#92400e;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> غادر: ${r.departureDate}</div>` : ''}
-            ${r.returnDate    ? `<div style="font-size:.78rem;color:#166534;margin-top:4px;"><i class="fa-solid fa-plane-arrival"></i> عاد: ${r.returnDate}</div>` : ''}
+            ${r.departureDate ? `<div style="font-size:.78rem;color:#92400e;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> ����: ${r.departureDate}</div>` : ''}
+            ${r.returnDate    ? `<div style="font-size:.78rem;color:#166534;margin-top:4px;"><i class="fa-solid fa-plane-arrival"></i> ���: ${r.returnDate}</div>` : ''}
             ${(canApproveHead || canApproveAdmin || canDepart || canReturn) ? `
             <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
                 ${canApproveHead || canApproveAdmin ? `
                 <button onclick="doApproveWlr('${r.id}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;">
-                    <i class="fa-solid fa-check"></i> ${canApproveAdmin ? 'اعDoneاد andApprove' : 'Approve andSend for Admin'}
+                    <i class="fa-solid fa-check"></i> ${canApproveAdmin ? '��Done�� andApprove' : 'Approve andSend for Admin'}
                 </button>
                 <button onclick="openWlrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.8rem;padding:5px 14px;color:#dc2626;border-color:#dc2626;">
                     <i class="fa-solid fa-times"></i> Reject
@@ -715,7 +716,7 @@ function renderLeaveRequests() {
                 </button>` : ''}
                 ${canReturn ? `
                 <button onclick="doRegisterReturn('${r.workerId}')" class="btn btn-primary" style="font-size:.8rem;padding:5px 14px;background:#166534;border-color:#166534;">
-                    <i class="fa-solid fa-plane-arrival"></i> تسجيل Return
+                    <i class="fa-solid fa-plane-arrival"></i> ����� Return
                 </button>` : ''}
             </div>` : ''}
         </div>`;
@@ -725,7 +726,7 @@ function renderLeaveRequests() {
 window.doApproveWlr = (id) => {
     if (approveWorkerLeaveRequest(id)) {
         renderLeaveRequests(); renderStats(); renderTableBody();
-        _showSyncToast('Doneت Approval ✓', 'success');
+        _showSyncToast('Done� Approval ?', 'success');
     }
 };
 
@@ -740,14 +741,14 @@ window.confirmWlrReject = () => {
     if (rejectWorkerLeaveRequest(_wlrRejectId, note)) {
         document.getElementById('wlrRejectModal').style.display = 'none';
         renderLeaveRequests(); renderStats();
-        _showSyncToast('Done الReject', 'info');
+        _showSyncToast('Done ��Reject', 'info');
     }
 };
 
-// ─── Search ──────────────────────────────────────────────
+// ??? Search ??????????????????????????????????????????????
 window.searchWorker = () => {
     const q = document.getElementById('workerSearchInput').value.trim();
-    if (!q) { alert('Please إدخال Residence ID or Employee ID'); return; }
+    if (!q) { alert('Please ����� Residence ID or Employee ID'); return; }
 
     const w = db.workers.find(x =>
         x.residenceId === q || String(x.empId) === q);
@@ -755,7 +756,7 @@ window.searchWorker = () => {
 
     if (!w) {
         el.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;margin-top:12px;font-size:.88rem;">
-            <i class="fa-solid fa-circle-xmark"></i> None Worker بهذا Number</div>`;
+            <i class="fa-solid fa-circle-xmark"></i> None Worker ���� Number</div>`;
         return;
     }
 
@@ -777,16 +778,16 @@ window.searchWorker = () => {
             </div>
             <div class="search-result-row">
                 ${[
-                    ['Residence ID', w.residenceId || '—'],
-                    ['Employee ID', w.empId || '—'],
-                    ['Nationality', w.nationality || '—'],
-                    ['Phone Number', w.phone || '—'],
-                    ['Email', w.email || '—'],
-                    ['Date of Birth', w.dob ? new Date(w.dob).toLocaleDateString('en-US') : '—'],
+                    ['Residence ID', w.residenceId || '�'],
+                    ['Employee ID', w.empId || '�'],
+                    ['Nationality', w.nationality || '�'],
+                    ['Phone Number', w.phone || '�'],
+                    ['Email', w.email || '�'],
+                    ['Date of Birth', w.dob ? new Date(w.dob).toLocaleDateString('en-US') : '�'],
                     ['Age', getWorkerAge(w.dob)],
-                    ['Branch', branch?.name || '—'],
-                    ['Project', proj?.name || '—'],
-                    ['Responsible Surveyor', surveyor?.name || '—'],
+                    ['Branch', branch?.name || '�'],
+                    ['Project', proj?.name || '�'],
+                    ['Responsible Surveyor', surveyor?.name || '�'],
                 ].map(([l,v]) => `
                     <div class="search-result-field">
                         <div class="lbl">${l}</div>
@@ -803,7 +804,7 @@ window.clearSearch = () => {
 
 window.refreshPage = () => { init(); };
 
-// ─── Worker Salary Raise ────────────────────────────────
+// ??? Worker Salary Raise ????????????????????????????????
 let _raiseWorkerId = null;
 
 window.openWorkerRaiseModal = (workerId) => {
@@ -813,11 +814,11 @@ window.openWorkerRaiseModal = (workerId) => {
     const branch = db.branches.find(b => b.id === w.branchId);
     document.getElementById('workerRaiseAutoInfo').innerHTML = `
         <span><strong>Name:</strong> ${w.name}</span>
-        <span><strong>Residence ID:</strong> ${w.residenceId || '—'}</span>
-        <span><strong>Nationality:</strong> ${w.nationality || '—'}</span>
-        <span><strong>Branch:</strong> ${branch?.name || '—'}</span>
+        <span><strong>Residence ID:</strong> ${w.residenceId || '�'}</span>
+        <span><strong>Nationality:</strong> ${w.nationality || '�'}</span>
+        <span><strong>Branch:</strong> ${branch?.name || '�'}</span>
         <span><strong>Responsible Surveyor:</strong> ${w.surveyorName || currentUser.name}</span>
-        <span><strong>رقم جandاله:</strong> ${w.phone || '—'}</span>`;
+        <span><strong>��� �and���:</strong> ${w.phone || '�'}</span>`;
     ['wrCurrentSalary','wrRaiseAmount','wrRaisePct','wrLastRaise','wrAchievements','wrNotes'].forEach(id => {
         document.getElementById(id).value = '';
     });
@@ -831,7 +832,7 @@ window.submitWorkerRaiseRequest = () => {
     const currentSalary = document.getElementById('wrCurrentSalary').value.trim();
     const reason        = document.getElementById('wrReason').value;
     if (!currentSalary) { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">Current Salary Required</div>`; return; }
-    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">سبب Request Required</div>`; return; }
+    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.84rem;">��� Request Required</div>`; return; }
 
     const result = submitSalaryRaiseRequest('worker', _raiseWorkerId, {
         currentSalary,
@@ -844,11 +845,11 @@ window.submitWorkerRaiseRequest = () => {
     });
     if (result) {
         document.getElementById('workerRaiseModal').style.display = 'none';
-        _showSyncToast('Done Send Salary Raise Request لHead Surveyor ✓', 'success');
+        _showSyncToast('Done Send Salary Raise Request �Head Surveyor ?', 'success');
     }
 };
 
-// ─── Transfer Worker ─────────────────────────────────────
+// ??? Transfer Worker ?????????????????????????????????????
 let _transferWorkerId = null;
 
 window.openTransferModal = (workerId) => {
@@ -862,25 +863,25 @@ window.openTransferModal = (workerId) => {
         (!branchId || u.branch === branchId) &&
         u.id !== w.surveyorId
     );
-    document.getElementById('transferWorkerName').textContent = `الWorker: ${w.name}`;
+    document.getElementById('transferWorkerName').textContent = `��Worker: ${w.name}`;
     document.getElementById('transferTargetSurveyor').innerHTML =
-        '<option value="">— Select the Surveyor —</option>' +
-        surveyors.map(s => `<option value="${s.id}">${s.name} (${s.empId || '—'})</option>`).join('');
+        '<option value="">� Select the Surveyor �</option>' +
+        surveyors.map(s => `<option value="${s.id}">${s.name} (${s.empId || '�'})</option>`).join('');
     document.getElementById('transferModal').style.display = 'flex';
 };
 
 window.submitTransfer = () => {
     const targetId = document.getElementById('transferTargetSurveyor').value;
-    if (!targetId) { alert('Please اختيار Surveyor'); return; }
+    if (!targetId) { alert('Please ������ Surveyor'); return; }
     if (transferWorker(_transferWorkerId, targetId)) {
         document.getElementById('transferModal').style.display = 'none';
         init();
         renderSurveyorWorkerCount();
-        _showSyncToast('Done Transfer Worker بSuccess ✓', 'success');
+        _showSyncToast('Done Transfer Worker �Success ?', 'success');
     }
 };
 
-// ─── Surveyor Worker Count ───────────────────────────────
+// ??? Surveyor Worker Count ???????????????????????????????
 function renderSurveyorWorkerCount() {
     const card = document.getElementById('surveyorWorkerCountCard');
     if (!card) return;
@@ -906,11 +907,11 @@ function renderSurveyorWorkerCount() {
 
     const body = document.getElementById('surveyorWorkerCountBody');
     if (!rows.length) {
-        body.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">None Surveyors يطابقandن الFilter.</p>';
+        body.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">None Surveyors �����and� ��Filter.</p>';
         return;
     }
 
-    const branch = (id) => (db.branches.find(b => b.id === id) || {}).name || '—';
+    const branch = (id) => (db.branches.find(b => b.id === id) || {}).name || '�';
 
     body.innerHTML = `
     <table class="worker-table">
@@ -920,7 +921,7 @@ function renderSurveyorWorkerCount() {
             <th>Employee ID</th>
             ${isAdmin ? '<th>Branch</th>' : ''}
             <th style="text-align:center;">Total Workers</th>
-            <th style="text-align:center;">Availableandن</th>
+            <th style="text-align:center;">Availableand�</th>
             <th style="text-align:center;">On Leave</th>
             <th>Action</th>
         </tr></thead>
@@ -929,7 +930,7 @@ function renderSurveyorWorkerCount() {
         <tr>
             <td style="color:var(--text-muted);">${i + 1}</td>
             <td style="font-weight:600;">${s.name}</td>
-            <td style="font-family:monospace;font-size:.82rem;">${s.empId || '—'}</td>
+            <td style="font-family:monospace;font-size:.82rem;">${s.empId || '�'}</td>
             ${isAdmin ? `<td style="font-size:.82rem;">${branch(s.branch)}</td>` : ''}
             <td style="text-align:center;">
                 <span style="background:#ede9fe;color:#6d28d9;font-weight:800;padding:2px 12px;border-radius:20px;">${s.total}</span>
@@ -939,7 +940,7 @@ function renderSurveyorWorkerCount() {
             <td>
                 ${s.total > 0 ? `
                 <button onclick="filterBySurveyor('${s.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;">
-                    <i class="fa-solid fa-eye"></i> View Workersه
+                    <i class="fa-solid fa-eye"></i> View Workers�
                 </button>` : ''}
             </td>
         </tr>`).join('')}

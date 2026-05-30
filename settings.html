@@ -1,9 +1,10 @@
-๏ปฟ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ุงูุฅุนุฏุงุฏุงุช | ุณุงุฌูู</title>
+    <title>วแลฺฯวฯวส | ำวฬ฿ๆ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -64,84 +65,84 @@
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
         <header style="margin-bottom:32px;">
-            <h2 style="font-size:1.5rem;font-weight:700">ุงูุฅุนุฏุงุฏุงุช</h2>
-            <p style="color:var(--text-muted)" id="settingsSubtitle">ุจูุงูุงุช ุญุณุงุจู ูุฅุนุฏุงุฏุงุช ุงููุธุงู….</p>
+            <h2 style="font-size:1.5rem;font-weight:700">วแลฺฯวฯวส</h2>
+            <p style="color:var(--text-muted)" id="settingsSubtitle">ศํวไวส อำวศํ ๆลฺฯวฯวส วแไูวใ.</p>
         </header>
 
-        <!-- ====== ุจูุงูุงุช ุญุณุงุจู ูุทูุจุงุช ุงูุชุนุฏูู (ุฌู…ูุน ุงูุฃุฏูุงุฑ) ====== -->
+        <!-- ====== ศํวไวส อำวศํ ๆุแศวส วแสฺฯํแ (ฬใํฺ วแรฯๆวั) ====== -->
         <div class="settings-section" style="border-right:4px solid var(--primary);">
-            <h3><i class="fa-solid fa-user-gear" style="color:var(--primary)"></i> ุจูุงูุงุช ุญุณุงุจู ูุทูุจุงุช ุงูุชุนุฏูู</h3>
+            <h3><i class="fa-solid fa-user-gear" style="color:var(--primary)"></i> ศํวไวส อำวศํ ๆุแศวส วแสฺฯํแ</h3>
 
-            <!-- ู…ุนููู…ุงุช ุงูุญุณุงุจ ุงูุญุงููุฉ -->
+            <!-- ใฺแๆใวส วแอำวศ วแอวแํษ -->
             <div id="profileInfoDisplay" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"></div>
 
-            <!-- ุฃุฒุฑุงุฑ ุงูุชุจููุจ -->
+            <!-- ราัวั วแสศๆํศ -->
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-                <button class="pcr-tab active" id="pcrTab_phone"    onclick="showPcrTab('phone')"><i class="fa-solid fa-phone"></i> ุชุนุฏูู ุงููุงุชู</button>
-                <button class="pcr-tab"        id="pcrTab_email"    onclick="showPcrTab('email')"><i class="fa-solid fa-envelope"></i> ุชุนุฏูู ุงูุจุฑูุฏ</button>
-                <button class="pcr-tab"        id="pcrTab_password" onclick="showPcrTab('password')"><i class="fa-solid fa-lock"></i> ุชุบููุฑ ููู…ุฉ ุงูู…ุฑูุฑ</button>
+                <button class="pcr-tab active" id="pcrTab_phone"    onclick="showPcrTab('phone')"><i class="fa-solid fa-phone"></i> สฺฯํแ วแๅวสÝ</button>
+                <button class="pcr-tab"        id="pcrTab_email"    onclick="showPcrTab('email')"><i class="fa-solid fa-envelope"></i> สฺฯํแ วแศัํฯ</button>
+                <button class="pcr-tab"        id="pcrTab_password" onclick="showPcrTab('password')"><i class="fa-solid fa-lock"></i> สÛํํั ฿แใษ วแใัๆั</button>
             </div>
 
-            <!-- ุชุจููุจ ุงููุงุชู -->
+            <!-- สศๆํศ วแๅวสÝ -->
             <div class="pcr-panel active" id="pcrPanel_phone">
-                <div class="form-group"><label class="form-label">ุฑูู… ุงููุงุชู ุงูุฌุฏูุฏ</label>
+                <div class="form-group"><label class="form-label">ัÞใ วแๅวสÝ วแฬฯํฯ</label>
                 <input type="tel" id="pcr_phone" class="form-input" placeholder="05xxxxxxxx"></div>
-                <button onclick="submitPcr('phone')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> ุญูุธ ุงูุชุบููุฑุงุช</button>
+                <button onclick="submitPcr('phone')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> อÝู วแสÛํํัวส</button>
                 <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_phone"></p>
             </div>
 
-            <!-- ุชุจููุจ ุงูุจุฑูุฏ -->
+            <!-- สศๆํศ วแศัํฯ -->
             <div class="pcr-panel" id="pcrPanel_email">
-                <div class="form-group"><label class="form-label">ุงูุจุฑูุฏ ุงูุฅููุชุฑููู ุงูุฌุฏูุฏ</label>
+                <div class="form-group"><label class="form-label">วแศัํฯ วแลแ฿สัๆไํ วแฬฯํฯ</label>
                 <input type="email" id="pcr_email" class="form-input" placeholder="example@email.com"></div>
-                <button onclick="submitPcr('email')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> ุญูุธ ุงูุชุบููุฑุงุช</button>
+                <button onclick="submitPcr('email')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> อÝู วแสÛํํัวส</button>
                 <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_email"></p>
             </div>
 
-            <!-- ุชุจููุจ ููู…ุฉ ุงูู…ุฑูุฑ -->
+            <!-- สศๆํศ ฿แใษ วแใัๆั -->
             <div class="pcr-panel" id="pcrPanel_password">
                 <div class="form-row">
-                    <div class="form-group"><label class="form-label">ููู…ุฉ ุงูู…ุฑูุฑ ุงูุฌุฏูุฏุฉ</label>
-                    <input type="password" id="pcr_password" class="form-input" placeholder="6 ุฃุญุฑู ุนูู ุงูุฃูู"></div>
-                    <div class="form-group"><label class="form-label">ุชุฃููุฏ ููู…ุฉ ุงูู…ุฑูุฑ</label>
-                    <input type="password" id="pcr_password_confirm" class="form-input" placeholder="ุฃุนุฏ ูุชุงุจุชูุง"></div>
+                    <div class="form-group"><label class="form-label">฿แใษ วแใัๆั วแฬฯํฯษ</label>
+                    <input type="password" id="pcr_password" class="form-input" placeholder="6 รอัÝ ฺแ์ วแรÞแ"></div>
+                    <div class="form-group"><label class="form-label">สร฿ํฯ ฿แใษ วแใัๆั</label>
+                    <input type="password" id="pcr_password_confirm" class="form-input" placeholder="รฺฯ ฿สวศสๅว"></div>
                 </div>
-                <button onclick="submitPcr('password')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> ุญูุธ ุงูุชุบููุฑุงุช</button>
+                <button onclick="submitPcr('password')" class="btn btn-primary" style="font-size:.9rem;"><i class="fa-solid fa-floppy-disk"></i> อÝู วแสÛํํัวส</button>
                 <p style="font-size:.8rem;color:var(--text-muted);margin-top:8px;" id="pcrFlowHint_password"></p>
             </div>
 
             <div id="pcrSubmitResult" style="margin-top:10px;"></div>
 
-            <!-- ุณุฌู ุทูุจุงุชู -->
+            <!-- ำฬแ ุแศวสํ -->
             <hr style="border-color:var(--border);margin:20px 0;">
-            <h4 style="margin-bottom:12px;font-size:.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> ุทูุจุงุชู ุงูุณุงุจูุฉ</h4>
+            <h4 style="margin-bottom:12px;font-size:.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> ุแศวสํ วแำวศÞษ</h4>
             <div id="myPcrList"></div>
         </div>
 
-        <!-- ====== ุญุงูุฉ ุงูุงุชุตุงู ุจู€ Supabase ====== -->
+        <!-- ====== อวแษ วแวสีวแ ศÜ Supabase ====== -->
         <div id="adminOnlySections">
         <div class="settings-section" style="border-right:4px solid var(--primary);">
-            <h3><i class="fa-solid fa-cloud" style="color:var(--primary)"></i> ุญุงูุฉ ุงูุงุชุตุงู ุจู€ Supabase</h3>
+            <h3><i class="fa-solid fa-cloud" style="color:var(--primary)"></i> อวแษ วแวสีวแ ศÜ Supabase</h3>
             <div id="supabaseStatus" style="padding:14px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;">
                 <div id="statusDot" style="width:12px;height:12px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></div>
-                <div id="statusText" style="font-weight:500;">ุฌุงุฑู ุงูุชุญูู ู…ู ุงูุงุชุตุงู...</div>
+                <div id="statusText" style="font-weight:500;">ฬวัํ วแสอÞÞ ใไ วแวสีวแ...</div>
             </div>
             <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
                 <button onclick="testConnection()" class="btn btn-ghost" style="font-size:.85rem;">
-                    <i class="fa-solid fa-rotate"></i> ุงุฎุชุจุงุฑ ุงูุงุชุตุงู
+                    <i class="fa-solid fa-rotate"></i> วฮสศวั วแวสีวแ
                 </button>
                 <button onclick="syncNow()" class="btn btn-primary" style="font-size:.85rem;" id="syncBtn">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> ู…ุฒุงู…ูุฉ ุงูุจูุงูุงุช ุงูุขู
+                    <i class="fa-solid fa-cloud-arrow-up"></i> ใาวใไษ วแศํวไวส วแยไ
                 </button>
                 <button onclick="loadFromSupabase()" class="btn btn-ghost" style="font-size:.85rem;">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> ุชุญู…ูู ู…ู Supabase
+                    <i class="fa-solid fa-cloud-arrow-down"></i> สอใํแ ใไ Supabase
                 </button>
             </div>
         </div>
 
-        <!-- ====== ุดุนุงุฑ ุงููุธุงู… ====== -->
+        <!-- ====== ิฺวั วแไูวใ ====== -->
         <div class="settings-section">
-            <h3><i class="fa-solid fa-image"></i> ุดุนุงุฑ ุงููุธุงู… (Logo)</h3>
+            <h3><i class="fa-solid fa-image"></i> ิฺวั วแไูวใ (Logo)</h3>
             <div class="image-upload-card">
                 <div class="image-preview-box" id="logoPreviewBox">
                     <img id="logoPreviewImg" src="" alt="Logo" style="display:none;">
@@ -150,50 +151,50 @@
                 <div style="flex:1;">
                     <div class="upload-btn-group">
                         <label class="btn btn-primary" style="cursor:pointer;font-size:.85rem;margin:0;">
-                            <i class="fa-solid fa-upload"></i> ุฑูุน ุดุนุงุฑ ุฌุฏูุฏ
+                            <i class="fa-solid fa-upload"></i> ัÝฺ ิฺวั ฬฯํฯ
                             <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
                         </label>
-                        <button onclick="resetLogo()" class="btn btn-ghost" style="font-size:.85rem;">ุงุณุชุนุงุฏุฉ ุงูุงูุชุฑุงุถู</button>
-                        <button onclick="previewCurrentLogo()" class="btn btn-ghost" style="font-size:.85rem;" id="logoPreviewBtn" title="ู…ุนุงููุฉ ุงูุดุนุงุฑ ุงูุญุงูู">
-                            <i class="fa-solid fa-eye"></i> ู…ุนุงููุฉ
+                        <button onclick="resetLogo()" class="btn btn-ghost" style="font-size:.85rem;">วำสฺวฯษ วแวÝสัวึํ</button>
+                        <button onclick="previewCurrentLogo()" class="btn btn-ghost" style="font-size:.85rem;" id="logoPreviewBtn" title="ใฺวํไษ วแิฺวั วแอวแํ">
+                            <i class="fa-solid fa-eye"></i> ใฺวํไษ
                         </button>
                         <span id="logoUploadStatus" class="upload-status" style="display:none;"></span>
                     </div>
                     <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">
-                        ููุถู ุตูุฑุฉ PNG ุจุฎูููุฉ ุดูุงูุฉ ูู…ูุงุณุงุช ู…ุฑุจุนุฉ. ุณูุชู… ุฑูุนูุง ุนูู Supabase Storage ุชููุงุฆูุงู.
+                        ํÝึแ ีๆัษ PNG ศฮแÝํษ ิÝวÝษ ๆใÞวำวส ใัศฺษ. ำํสใ ัÝฺๅว ฺแ์ Supabase Storage สแÞวฦํว๐.
                     </div>
                 </div>
             </div>
 
             <hr class="settings-divider">
 
-            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">ุฃู ุงุณุชุฎุฏู… ุฑุงุจุท ู…ุจุงุดุฑ</div>
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">รๆ วำสฮฯใ ัวศุ ใศวิั</div>
             <div class="url-input-row">
                 <input type="url" id="logoGoogleUrl" class="form-input" placeholder="https://..." style="flex:1;font-size:.9rem;">
                 <button onclick="applyLogoFromUrl()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
-                    <i class="fa-solid fa-link"></i> ุชุทุจูู
+                    <i class="fa-solid fa-link"></i> สุศํÞ
                 </button>
             </div>
 
             <hr class="settings-divider">
 
-            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">ุงุฎุชูุงุฑ ู…ู Supabase Storage</div>
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">วฮสํวั ใไ Supabase Storage</div>
             <div class="storage-select-row">
                 <select id="logoFromStorageSelect" class="form-select" style="flex:1;font-size:.9rem;">
-                    <option value="">-- ุงุฎุชุฑ ุดุนุงุฑุงู ู…ู Storage --</option>
+                    <option value="">-- วฮสั ิฺวัว๐ ใไ Storage --</option>
                 </select>
                 <button onclick="applyLogoFromStorage()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
-                    <i class="fa-solid fa-check"></i> ุงุณุชุฎุฏุงู…
+                    <i class="fa-solid fa-check"></i> วำสฮฯวใ
                 </button>
                 <button onclick="loadStorageFiles('assets','brand','logoFromStorageSelect')" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
-                    <i class="fa-solid fa-rotate"></i> ุชุญุฏูุซ
+                    <i class="fa-solid fa-rotate"></i> สอฯํห
                 </button>
             </div>
         </div>
 
-        <!-- ====== ุตูุฑุฉ ูุงุฌูุฉ ุงููุธุงู… ====== -->
+        <!-- ====== ีๆัษ ๆวฬๅษ วแไูวใ ====== -->
         <div class="settings-section">
-            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> ุตูุฑุฉ ูุงุฌูุฉ ุงููุธุงู…</h3>
+            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> ีๆัษ ๆวฬๅษ วแไูวใ</h3>
             <div class="image-upload-card">
                 <div class="image-preview-box" id="appImagePreviewBox" style="width:100px;height:100px;">
                     <img id="appImagePreviewImg" src="" alt="App Image" style="display:none;">
@@ -202,106 +203,106 @@
                 <div style="flex:1;">
                     <div class="upload-btn-group">
                         <label class="btn btn-primary" style="cursor:pointer;font-size:.85rem;margin:0;">
-                            <i class="fa-solid fa-upload"></i> ุฑูุน ุตูุฑุฉ ุฌุฏูุฏุฉ
+                            <i class="fa-solid fa-upload"></i> ัÝฺ ีๆัษ ฬฯํฯษ
                             <input type="file" id="appImageFileInput" accept="image/*" style="display:none;" onchange="handleAppImageUpload(event)">
                         </label>
                         <button onclick="resetAppImage()" class="btn btn-ghost" style="font-size:.85rem;color:var(--danger);">
-                            <i class="fa-solid fa-trash"></i> ุญุฐู
+                            <i class="fa-solid fa-trash"></i> อะÝ
                         </button>
                         <span id="appImageUploadStatus" class="upload-status" style="display:none;"></span>
                     </div>
                     <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">
-                        ุชุธูุฑ ูู ุตูุญุฉ ุงูุฏุฎูู ููุนูุงู…ุฉ ู…ุงุฆูุฉ. ุณูุชู… ุฑูุนูุง ุนูู Supabase Storage.
+                        สูๅั Ýํ ีÝอษ วแฯฮๆแ ๆ฿ฺแวใษ ใวฦํษ. ำํสใ ัÝฺๅว ฺแ์ Supabase Storage.
                     </div>
                 </div>
             </div>
 
             <hr class="settings-divider">
 
-            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">ุฃู ุงุณุชุฎุฏู… ุฑุงุจุท ู…ุจุงุดุฑ</div>
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">รๆ วำสฮฯใ ัวศุ ใศวิั</div>
             <div class="url-input-row">
                 <input type="url" id="appImageGoogleUrl" class="form-input" placeholder="https://..." style="flex:1;font-size:.9rem;">
                 <button onclick="applyAppImageFromUrl()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
-                    <i class="fa-solid fa-link"></i> ุชุทุจูู
+                    <i class="fa-solid fa-link"></i> สุศํÞ
                 </button>
             </div>
 
             <hr class="settings-divider">
 
-            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">ุงุฎุชูุงุฑ ู…ู Supabase Storage</div>
+            <div style="font-size:.9rem;font-weight:600;margin-bottom:10px;">วฮสํวั ใไ Supabase Storage</div>
             <div class="storage-select-row">
                 <select id="appImageFromStorageSelect" class="form-select" style="flex:1;font-size:.9rem;">
-                    <option value="">-- ุงุฎุชุฑ ุตูุฑุฉ ู…ู Storage --</option>
+                    <option value="">-- วฮสั ีๆัษ ใไ Storage --</option>
                 </select>
                 <button onclick="applyAppImageFromStorage()" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
-                    <i class="fa-solid fa-check"></i> ุงุณุชุฎุฏุงู…
+                    <i class="fa-solid fa-check"></i> วำสฮฯวใ
                 </button>
                 <button onclick="loadStorageFiles('assets','brand','appImageFromStorageSelect')" class="btn btn-ghost" style="font-size:.85rem;white-space:nowrap;">
-                    <i class="fa-solid fa-rotate"></i> ุชุญุฏูุซ
+                    <i class="fa-solid fa-rotate"></i> สอฯํห
                 </button>
             </div>
         </div>
 
-        <!-- ====== ุฅุนุฏุงุฏุงุช ุงูุชูุจููุงุช ====== -->
+        <!-- ====== ลฺฯวฯวส วแสไศํๅวส ====== -->
         <div class="settings-section">
-            <h3><i class="fa-solid fa-bell"></i> ุฅุนุฏุงุฏุงุช ุงูุชูุจููุงุช</h3>
+            <h3><i class="fa-solid fa-bell"></i> ลฺฯวฯวส วแสไศํๅวส</h3>
             <div style="margin-bottom:20px;">
-                <label class="form-label">ู…ุฏุฉ ุงูุชูุจูู ุงูู…ุณุจู ููู…ุนุงูุฑุฉ</label>
+                <label class="form-label">ใฯษ วแสไศํๅ วแใำศÞ แแใฺวํัษ</label>
                 <div class="alert-days-control">
                     <input type="range" id="alertDaysSlider" min="7" max="90" value="30" oninput="document.getElementById('alertDaysVal').textContent=this.value">
                     <span style="font-weight:700;min-width:80px;" id="alertDaysVal">30</span>
-                    <span style="color:var(--text-muted);">ููู…</span>
+                    <span style="color:var(--text-muted);">ํๆใ</span>
                 </div>
             </div>
             <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
                 <input type="checkbox" id="alertSoundToggle" style="width:18px;height:18px;cursor:pointer;accent-color:var(--primary);">
-                <label for="alertSoundToggle" class="form-label" style="margin:0;cursor:pointer;">ุชูุนูู ุตูุช ุงูุชูุจูู ููุฃุฌูุฒุฉ ู…ูุชููุฉ ุงูู…ุนุงูุฑุฉ</label>
+                <label for="alertSoundToggle" class="form-label" style="margin:0;cursor:pointer;">สÝฺํแ ีๆส วแสไศํๅ แแรฬๅาษ ใไสๅํษ วแใฺวํัษ</label>
             </div>
             <button onclick="saveAlertSettings()" class="btn btn-primary" style="margin-top:16px;font-size:.9rem;">
-                <i class="fa-solid fa-save"></i> ุญูุธ ุฅุนุฏุงุฏุงุช ุงูุชูุจููุงุช
+                <i class="fa-solid fa-save"></i> อÝู ลฺฯวฯวส วแสไศํๅวส
             </button>
         </div>
 
-        <!-- ====== ุดุฑูุท ุงูุฃุฎุจุงุฑ ====== -->
+        <!-- ====== ิัํุ วแรฮศวั ====== -->
         <div class="settings-section">
-            <h3><i class="fa-solid fa-newspaper" style="color:#dc2626;"></i> ุดุฑูุท ุงูุฃุฎุจุงุฑ ุงูุนุงุฌู</h3>
-            <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">ุงูุฃุฎุจุงุฑ ูุงูุชุญุฐูุฑุงุช ุงูุชู ุชุธูุฑ ูุฌู…ูุน ุงูู…ูุธููู ูู ุดุฑูุท ู…ุชุญุฑู ุฃุนูู ูู ุตูุญุฉ.</p>
+            <h3><i class="fa-solid fa-newspaper" style="color:#dc2626;"></i> ิัํุ วแรฮศวั วแฺวฬแ</h3>
+            <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">วแรฮศวั ๆวแสอะํัวส วแสํ สูๅั แฬใํฺ วแใๆูÝํไ Ýํ ิัํุ ใสอั฿ รฺแ์ ฿แ ีÝอษ.</p>
 
-            <!-- ุฅุถุงูุฉ ุฎุจุฑ ุฌุฏูุฏ -->
+            <!-- ลึวÝษ ฮศั ฬฯํฯ -->
             <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end;">
                 <div style="flex:1;min-width:220px;">
-                    <label class="form-label">ูุต ุงูุฎุจุฑ ุฃู ุงูุชุญุฐูุฑ</label>
-                    <input type="text" id="newTickerText" class="form-input" placeholder="ุงูุชุจ ุงูุฎุจุฑ ููุง..." style="font-size:.9rem;">
+                    <label class="form-label">ไี วแฮศั รๆ วแสอะํั</label>
+                    <input type="text" id="newTickerText" class="form-input" placeholder="ว฿สศ วแฮศั ๅไว..." style="font-size:.9rem;">
                 </div>
                 <div style="min-width:130px;">
-                    <label class="form-label">ุงูููุน</label>
+                    <label class="form-label">วแไๆฺ</label>
                     <select id="newTickerType" class="form-select" style="font-size:.9rem;">
-                        <option value="news">ุฎุจุฑ</option>
-                        <option value="warning">ุชุญุฐูุฑ</option>
+                        <option value="news">ฮศั</option>
+                        <option value="warning">สอะํั</option>
                     </select>
                 </div>
                 <button onclick="addTickerNews()" class="btn btn-primary" style="font-size:.85rem;">
-                    <i class="fa-solid fa-plus"></i> ุฅุถุงูุฉ
+                    <i class="fa-solid fa-plus"></i> ลึวÝษ
                 </button>
             </div>
 
-            <!-- ูุงุฆู…ุฉ ุงูุฃุฎุจุงุฑ ุงูุญุงููุฉ -->
+            <!-- Þวฦใษ วแรฮศวั วแอวแํษ -->
             <div id="tickerItemsList"></div>
         </div>
 
-        <!-- ====== ุงููุณุฎ ุงูุงุญุชูุงุทู ====== -->
+        <!-- ====== วแไำฮ วแวอสํวุํ ====== -->
         <div class="settings-section">
-            <h3><i class="fa-solid fa-database"></i> ุงููุณุฎ ุงูุงุญุชูุงุทู ูุงูุจูุงูุงุช</h3>
+            <h3><i class="fa-solid fa-database"></i> วแไำฮ วแวอสํวุํ ๆวแศํวไวส</h3>
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;color:#166534;">
                 <i class="fa-solid fa-circle-info"></i>
-                ุขุฎุฑ ูุณุฎุฉ ุงุญุชูุงุทูุฉ: <strong id="lastBackupInfo">ูู… ูุชู… ุฃุฎุฐ ูุณุฎุฉ ุจุนุฏ</strong>
+                ยฮั ไำฮษ วอสํวุํษ: <strong id="lastBackupInfo">แใ ํสใ รฮะ ไำฮษ ศฺฯ</strong>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 <button onclick="exportBackup()" class="btn btn-primary" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-export"></i> ุชุตุฏูุฑ ูุณุฎุฉ ุงุญุชูุงุทูุฉ
+                    <i class="fa-solid fa-file-export"></i> สีฯํั ไำฮษ วอสํวุํษ
                 </button>
                 <button onclick="importBackup()" class="btn btn-ghost" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-import"></i> ุงุณุชูุฑุงุฏ ูุณุฎุฉ ุงุญุชูุงุทูุฉ
+                    <i class="fa-solid fa-file-import"></i> วำสํัวฯ ไำฮษ วอสํวุํษ
                 </button>
             </div>
         </div>
@@ -310,12 +311,12 @@
 </div>
 
 <div id="logoPreviewModal" onclick="this.classList.remove('open')">
-    <img id="logoPreviewModalImg" src="" alt="ู…ุนุงููุฉ ุงูุดุนุงุฑ" onclick="event.stopPropagation()">
+    <img id="logoPreviewModalImg" src="" alt="ใฺวํไษ วแิฺวั" onclick="event.stopPropagation()">
 </div>
 
 <div class="designer-credit">
-    <div><i class="fa-solid fa-code" style="color:var(--primary);margin-left:6px;"></i>ุชู… ุชุตู…ูู… ุงูู…ููุน ุจูุงุณุทุฉ <strong>ู…ุญู…ูุฏ ุงูุดุทูุฑู</strong></div>
-    <div style="font-size:.75rem;border-top:1px solid var(--border);margin-top:6px;padding-top:4px;">ุจุฅุดุฑุงู ุงูู…ููุฏุณ <strong>ู…ุญู…ุฏ ููุณู ุงูุทูุท</strong></div>
+    <div><i class="fa-solid fa-code" style="color:var(--primary);margin-left:6px;"></i>สใ สีใํใ วแใๆÞฺ ศๆวำุษ <strong>ใอใๆฯ วแิุๆั์</strong></div>
+    <div style="font-size:.75rem;border-top:1px solid var(--border);margin-top:6px;padding-top:4px;">ศลิัวÝ วแใๅไฯำ <strong>ใอใฯ ํๆำÝ วÞุํุ</strong></div>
 </div>
 
 <script>
@@ -327,12 +328,12 @@ if (currentUser.role !== 'admin') {
 // Update subtitle based on role
 const _settingsSub = document.getElementById('settingsSubtitle');
 if (_settingsSub && currentUser.role !== 'admin') {
-    _settingsSub.textContent = 'ุชุนุฏูู ุจูุงูุงุช ุญุณุงุจู ุงูุดุฎุตูุฉ โ€” ุงูุจุฑูุฏ ุงูุฅููุชุฑููู ูููู…ุฉ ุงูู…ุฑูุฑ ูุฑูู… ุงููุงุชู.';
+    _settingsSub.textContent = 'สฺฯํแ ศํวไวส อำวศ฿ วแิฮีํษ — วแศัํฯ วแลแ฿สัๆไํ ๆ฿แใษ วแใัๆั ๆัÞใ วแๅวสÝ.';
 }
 
-// โ”€โ”€ Profile Change Request Section โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
-const _pcrTypeLabel = { phone: 'ุฑูู… ุงููุงุชู', email: 'ุงูุจุฑูุฏ ุงูุฅููุชุฑููู', password: 'ููู…ุฉ ุงูู…ุฑูุฑ' };
-const _pcrStatusLabel = { pending_head: 'ุจุงูุชุธุงุฑ ุฑุฆูุณ ุงูู…ุณุงุญูู', pending_admin: 'ุจุงูุชุธุงุฑ ุงูู…ุฏูุฑ', approved: 'ุชู…ุช ุงูู…ูุงููุฉ', rejected: 'ู…ุฑููุถ' };
+// ?? Profile Change Request Section ??????????????????????
+const _pcrTypeLabel = { phone: 'ัÞใ วแๅวสÝ', email: 'วแศัํฯ วแลแ฿สัๆไํ', password: '฿แใษ วแใัๆั' };
+const _pcrStatusLabel = { pending_head: 'ศวไสูวั ัฦํำ วแใำวอํไ', pending_admin: 'ศวไสูวั วแใฯํั', approved: 'สใส วแใๆวÝÞษ', rejected: 'ใัÝๆึ' };
 
 window.showPcrTab = (type) => {
     ['phone','email','password'].forEach(t => {
@@ -345,10 +346,10 @@ function initProfileSection() {
     // Current info display
     const el = document.getElementById('profileInfoDisplay');
     const infoItems = [
-        { icon: 'fa-user', label: 'ุงูุงุณู…', value: currentUser.name },
-        { icon: 'fa-id-badge', label: 'ุงูุฑูู… ุงููุธููู', value: currentUser.empId },
-        { icon: 'fa-phone', label: 'ุงููุงุชู', value: currentUser.phone || 'โ€”' },
-        { icon: 'fa-envelope', label: 'ุงูุจุฑูุฏ', value: currentUser.email || 'โ€”' },
+        { icon: 'fa-user', label: 'วแวำใ', value: currentUser.name },
+        { icon: 'fa-id-badge', label: 'วแัÞใ วแๆูํÝํ', value: currentUser.empId },
+        { icon: 'fa-phone', label: 'วแๅวสÝ', value: currentUser.phone || '—' },
+        { icon: 'fa-envelope', label: 'วแศัํฯ', value: currentUser.email || '—' },
     ];
     el.innerHTML = infoItems.map(i => `
         <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;border:1px solid var(--border);padding:10px 12px;">
@@ -360,7 +361,7 @@ function initProfileSection() {
         </div>`).join('');
 
     // Flow hints
-    const flowHint = 'ุงูุชุนุฏููุงุช ุชูุทุจูู‘ู ู…ุจุงุดุฑุฉ ุนูู ุญุณุงุจู.';
+    const flowHint = 'วแสฺฯํแวส ส๕ุศ๓๘Þ ใศวิัษ ฺแ์ อำวศ฿.';
     ['phone','email','password'].forEach(t => {
         const h = document.getElementById('pcrFlowHint_' + t);
         if (h) h.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> ${flowHint}`;
@@ -374,19 +375,19 @@ function renderMyPcrList() {
     const reqs = (db.profileChangeRequests || []).filter(r => r.userId === currentUser.id)
         .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 10);
     if (!reqs.length) {
-        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">ูุง ุชูุฌุฏ ุทูุจุงุช ุณุงุจูุฉ.</p>';
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0;">แว สๆฬฯ ุแศวส ำวศÞษ.</p>';
         return;
     }
     el.innerHTML = reqs.map(r => `
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;background:#f8fafc;">
             <div>
                 <span style="font-weight:600;font-size:.88rem;">${_pcrTypeLabel[r.type] || r.type}</span>
-                ${r.type !== 'password' ? `<span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">โ ${r.newValueDisplay}</span>` : ''}
+                ${r.type !== 'password' ? `<span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">? ${r.newValueDisplay}</span>` : ''}
                 <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
             </div>
             <div>
                 <span class="pcr-sb ${r.status}">${_pcrStatusLabel[r.status] || r.status}</span>
-                ${r.rejectionNote ? `<div style="font-size:.75rem;color:#991b1b;margin-top:3px;">ุงูุณุจุจ: ${r.rejectionNote}</div>` : ''}
+                ${r.rejectionNote ? `<div style="font-size:.75rem;color:#991b1b;margin-top:3px;">วแำศศ: ${r.rejectionNote}</div>` : ''}
             </div>
         </div>`).join('');
 }
@@ -397,10 +398,10 @@ window.submitPcr = (type) => {
     const cfm = type === 'password' ? document.getElementById('pcr_password_confirm').value.trim() : null;
     const res = document.getElementById('pcrSubmitResult');
 
-    if (!val) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">ูุฑุฌู ุฅุฏุฎุงู ุงูููู…ุฉ ุงูุฌุฏูุฏุฉ</div>`; return; }
+    if (!val) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">ํัฬ์ ลฯฮวแ วแÞํใษ วแฬฯํฯษ</div>`; return; }
     if (type === 'password') {
-        if (val !== cfm) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">ููู…ุชุง ุงูู…ุฑูุฑ ุบูุฑ ู…ุชุทุงุจูุชูู</div>`; return; }
-        if (val.length < 6) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">ููู…ุฉ ุงูู…ุฑูุฑ ูุฌุจ ุฃู ุชููู 6 ุฃุญุฑู ุนูู ุงูุฃูู</div>`; return; }
+        if (val !== cfm) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">฿แใสว วแใัๆั Ûํั ใสุวศÞสํไ</div>`; return; }
+        if (val.length < 6) { res.innerHTML = `<div style="color:#dc2626;font-size:.85rem;">฿แใษ วแใัๆั ํฬศ รไ ส฿ๆไ 6 รอัÝ ฺแ์ วแรÞแ</div>`; return; }
     }
 
     // All roles: apply directly to own profile
@@ -421,9 +422,9 @@ window.submitPcr = (type) => {
     currentUser = { ...currentUser };
     localStorage.setItem('sajco_session', JSON.stringify(currentUser));
     saveDB(true);
-    addLog(`ุนุฏู‘ู ${currentUser.name} ุจูุงูุงุช ุญุณุงุจู: ${_pcrTypeLabel[type]}`);
+    addLog(`ฺฯ๘แ ${currentUser.name} ศํวไวส อำวศๅ: ${_pcrTypeLabel[type]}`);
 
-    res.innerHTML = `<div style="color:#166534;background:#dcfce7;border-radius:8px;padding:8px 14px;font-size:.88rem;"><i class="fa-solid fa-circle-check"></i> ุชู… ุงูุชุนุฏูู ุจูุฌุงุญ</div>`;
+    res.innerHTML = `<div style="color:#166534;background:#dcfce7;border-radius:8px;padding:8px 14px;font-size:.88rem;"><i class="fa-solid fa-circle-check"></i> สใ วแสฺฯํแ ศไฬวอ</div>`;
     document.getElementById('pcr_' + (type === 'password' ? 'password' : type)).value = '';
     if (type === 'password') document.getElementById('pcr_password_confirm').value = '';
     initProfileSection();
@@ -470,44 +471,44 @@ async function checkSupabaseStatus() {
     const text = document.getElementById('statusText');
     if (!supabaseClient) {
         dot.style.background = '#ef4444';
-        text.textContent = 'โ ุบูุฑ ู…ุชุตู - ุชุฃูุฏ ู…ู ูุฌูุฏ window.__env ูู HTML';
+        text.textContent = '? Ûํั ใสีแ - สร฿ฯ ใไ ๆฬๆฯ window.__env Ýํ HTML';
         return false;
     }
     try {
         const { error } = await supabaseClient.from('settings').select('key').limit(1);
         if (error) throw error;
         dot.style.background = '#16a34a';
-        text.textContent = `โ… ู…ุชุตู ุจู€ Supabase ุจูุฌุงุญ (${new Date().toLocaleTimeString('ar-EG')})`;
+        text.textContent = `? ใสีแ ศÜ Supabase ศไฬวอ (${new Date().toLocaleTimeString('ar-EG')})`;
         return true;
     } catch (e) {
         dot.style.background = '#ef4444';
-        text.textContent = `โ ุฎุทุฃ ูู ุงูุงุชุตุงู: ${e.message}`;
+        text.textContent = `? ฮุร Ýํ วแวสีวแ: ${e.message}`;
         return false;
     }
 }
 
 window.testConnection = async () => {
-    document.getElementById('statusText').textContent = 'ุฌุงุฑู ุงูุงุฎุชุจุงุฑ...';
+    document.getElementById('statusText').textContent = 'ฬวัํ วแวฮสศวั...';
     document.getElementById('statusDot').style.background = '#f59e0b';
     await checkSupabaseStatus();
 };
 
 window.syncNow = async () => {
     const btn = document.getElementById('syncBtn');
-    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ุฌุงุฑู ุงูู…ุฒุงู…ูุฉ...';
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ฬวัํ วแใาวใไษ...';
     try {
         await _syncToSupabase();
-        showSettingsToast('โ… ุชู…ุช ุงูู…ุฒุงู…ูุฉ ุจูุฌุงุญ');
+        showSettingsToast('? สใส วแใาวใไษ ศไฬวอ');
     } catch(e) {
-        showSettingsToast('โ ูุดูุช ุงูู…ุฒุงู…ูุฉ: ' + e.message, 'error');
+        showSettingsToast('? Ýิแส วแใาวใไษ: ' + e.message, 'error');
     } finally {
-        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ู…ุฒุงู…ูุฉ ุงูุจูุงูุงุช ุงูุขู';
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ใาวใไษ วแศํวไวส วแยไ';
     }
 };
 
 window.loadFromSupabase = async () => {
-    if (!supabaseClient) { showSettingsToast('Supabase ุบูุฑ ู…ุชุตู', 'error'); return; }
-    if (!confirm('ุชุญู…ูู ุงูุจูุงูุงุช ู…ู Supabase ุณูุณุชุจุฏู ุงูุจูุงูุงุช ุงูู…ุญููุฉ. ูู ุฃูุช ู…ุชุฃูุฏุ')) return;
+    if (!supabaseClient) { showSettingsToast('Supabase Ûํั ใสีแ', 'error'); return; }
+    if (!confirm('สอใํแ วแศํวไวส ใไ Supabase ำํำสศฯแ วแศํวไวส วแใอแํษ. ๅแ รไส ใสร฿ฯฟ')) return;
     try {
         const tables = ['users','devices','custodies','notifications','branches','allowed_employee_ids','settings','calibration_certificates'];
         for (const t of tables) {
@@ -530,10 +531,10 @@ window.loadFromSupabase = async () => {
             }
         }
         saveDB(true);
-        showSettingsToast('โ… ุชู… ุชุญู…ูู ุงูุจูุงูุงุช ู…ู Supabase');
+        showSettingsToast('? สใ สอใํแ วแศํวไวส ใไ Supabase');
         setTimeout(() => location.reload(), 1500);
     } catch(e) {
-        showSettingsToast('โ ูุดู ุงูุชุญู…ูู: ' + e.message, 'error');
+        showSettingsToast('? Ýิแ วแสอใํแ: ' + e.message, 'error');
     }
 };
 
@@ -570,21 +571,21 @@ window.handleLogoUpload = async (e) => {
     if (!file) return;
     const status = document.getElementById('logoUploadStatus');
     status.style.display = 'inline-block'; status.className = 'upload-status uploading';
-    status.textContent = 'ุฌุงุฑู ุงูุฑูุน...';
+    status.textContent = 'ฬวัํ วแัÝฺ...';
     try {
         const url = await _uploadToStorage(file, 'brand/logo');
         _applyLogo(url);
-        status.className = 'upload-status success'; status.textContent = 'โ“ ุชู… ุงูุฑูุน ุจูุฌุงุญ';
+        status.className = 'upload-status success'; status.textContent = '? สใ วแัÝฺ ศไฬวอ';
     } catch(err) {
-        status.className = 'upload-status error'; status.textContent = 'โ— ' + (err.message || 'ูุดู');
+        status.className = 'upload-status error'; status.textContent = '? ' + (err.message || 'Ýิแ');
     }
 };
 
 window.applyLogoFromUrl = () => {
     const url = document.getElementById('logoGoogleUrl').value.trim();
-    if (!url) { showSettingsToast('ุฃุฏุฎู ุฑุงุจุทุงู ุตุญูุญุงู', 'error'); return; }
+    if (!url) { showSettingsToast('รฯฮแ ัวศุว๐ ีอํอว๐', 'error'); return; }
     _applyLogo(url);
-    showSettingsToast('ุชู… ุชุทุจูู ุงูุดุนุงุฑ ู…ู ุงูุฑุงุจุท');
+    showSettingsToast('สใ สุศํÞ วแิฺวั ใไ วแัวศุ');
 };
 
 window.applyLogoFromStorage = async () => {
@@ -592,14 +593,14 @@ window.applyLogoFromStorage = async () => {
     if (!path) return;
     const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
     _applyLogo(data.publicUrl);
-    showSettingsToast('ุชู… ุงุฎุชูุงุฑ ุงูุดุนุงุฑ ู…ู Storage');
+    showSettingsToast('สใ วฮสํวั วแิฺวั ใไ Storage');
 };
 
 window.resetLogo = () => {
-    if (!confirm('ุงุณุชุนุงุฏุฉ ุงูุดุนุงุฑ ุงูุงูุชุฑุงุถูุ')) return;
+    if (!confirm('วำสฺวฯษ วแิฺวั วแวÝสัวึํฟ')) return;
     db.settings.logo = null;
     saveDB();
-    addLog('ุชู… ุงุณุชุนุงุฏุฉ ุงูุดุนุงุฑ ุงูุงูุชุฑุงุถู');
+    addLog('สใ วำสฺวฯษ วแิฺวั วแวÝสัวึํ');
     location.reload();
 };
 
@@ -607,7 +608,7 @@ async function _applyLogo(url) {
     db.settings.logo = url;
     saveDB(true);
     await _syncSettingsToSupabase();
-    addLog('ุชู… ุชุญุฏูุซ ุดุนุงุฑ ุงููุธุงู…');
+    addLog('สใ สอฯํห ิฺวั วแไูวใ');
     const img = document.getElementById('logoPreviewImg');
     img.src = url; img.style.display = 'block';
     document.getElementById('logoPlaceholderIcon').style.display = 'none';
@@ -622,21 +623,21 @@ window.handleAppImageUpload = async (e) => {
     if (!file) return;
     const status = document.getElementById('appImageUploadStatus');
     status.style.display = 'inline-block'; status.className = 'upload-status uploading';
-    status.textContent = 'ุฌุงุฑู ุงูุฑูุน...';
+    status.textContent = 'ฬวัํ วแัÝฺ...';
     try {
         const url = await _uploadToStorage(file, 'brand/app-image');
         _applyAppImage(url);
-        status.className = 'upload-status success'; status.textContent = 'โ“ ุชู… ุงูุฑูุน ุจูุฌุงุญ';
+        status.className = 'upload-status success'; status.textContent = '? สใ วแัÝฺ ศไฬวอ';
     } catch(err) {
-        status.className = 'upload-status error'; status.textContent = 'โ— ' + (err.message || 'ูุดู');
+        status.className = 'upload-status error'; status.textContent = '? ' + (err.message || 'Ýิแ');
     }
 };
 
 window.applyAppImageFromUrl = () => {
     const url = document.getElementById('appImageGoogleUrl').value.trim();
-    if (!url) { showSettingsToast('ุฃุฏุฎู ุฑุงุจุทุงู ุตุญูุญุงู', 'error'); return; }
+    if (!url) { showSettingsToast('รฯฮแ ัวศุว๐ ีอํอว๐', 'error'); return; }
     _applyAppImage(url);
-    showSettingsToast('ุชู… ุชุทุจูู ุงูุตูุฑุฉ ู…ู ุงูุฑุงุจุท');
+    showSettingsToast('สใ สุศํÞ วแีๆัษ ใไ วแัวศุ');
 };
 
 window.applyAppImageFromStorage = async () => {
@@ -644,14 +645,14 @@ window.applyAppImageFromStorage = async () => {
     if (!path) return;
     const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
     _applyAppImage(data.publicUrl);
-    showSettingsToast('ุชู… ุงุฎุชูุงุฑ ุงูุตูุฑุฉ ู…ู Storage');
+    showSettingsToast('สใ วฮสํวั วแีๆัษ ใไ Storage');
 };
 
 window.resetAppImage = () => {
-    if (!confirm('ุญุฐู ุตูุฑุฉ ุงููุงุฌูุฉุ')) return;
+    if (!confirm('อะÝ ีๆัษ วแๆวฬๅษฟ')) return;
     db.settings.appImage = null;
     saveDB();
-    addLog('ุชู… ุญุฐู ุตูุฑุฉ ูุงุฌูุฉ ุงููุธุงู…');
+    addLog('สใ อะÝ ีๆัษ ๆวฬๅษ วแไูวใ');
     location.reload();
 };
 
@@ -659,7 +660,7 @@ async function _applyAppImage(url) {
     db.settings.appImage = url;
     saveDB(true);
     await _syncSettingsToSupabase();
-    addLog('ุชู… ุชุญุฏูุซ ุตูุฑุฉ ูุงุฌูุฉ ุงููุธุงู…');
+    addLog('สใ สอฯํห ีๆัษ ๆวฬๅษ วแไูวใ');
     const img = document.getElementById('appImagePreviewImg');
     img.src = url; img.style.display = 'block';
     document.getElementById('appImagePlaceholderIcon').style.display = 'none';
@@ -675,7 +676,7 @@ async function loadStorageFiles(bucket, folder, selectId) {
     if (error || !data) return;
     const select = document.getElementById(selectId);
     const prev = select.value;
-    select.innerHTML = '<option value="">-- ุงุฎุชุฑ ู…ู Storage --</option>' +
+    select.innerHTML = '<option value="">-- วฮสั ใไ Storage --</option>' +
         data.filter(f => f.name && !f.name.startsWith('.')).map(f => {
             const path = `${folder}/${f.name}`;
             return `<option value="${path}">${f.name}</option>`;
@@ -690,8 +691,8 @@ window.saveAlertSettings = () => {
     db.settings.alertDays = parseInt(document.getElementById('alertDaysSlider').value) || 30;
     db.settings.alertSoundEnabled = document.getElementById('alertSoundToggle').checked;
     saveDB();
-    addLog('ุชู… ุชุญุฏูุซ ุฅุนุฏุงุฏุงุช ุงูุชูุจููุงุช');
-    showSettingsToast('โ… ุชู… ุญูุธ ุฅุนุฏุงุฏุงุช ุงูุชูุจููุงุช');
+    addLog('สใ สอฯํห ลฺฯวฯวส วแสไศํๅวส');
+    showSettingsToast('? สใ อÝู ลฺฯวฯวส วแสไศํๅวส');
 };
 
 // ============================================================
@@ -708,7 +709,7 @@ window.exportBackup = () => {
     URL.revokeObjectURL(url);
     db.settings.lastLocalBackup = new Date().toISOString();
     saveDB();
-    addLog('ุชู… ุชุตุฏูุฑ ูุณุฎุฉ ุงุญุชูุงุทูุฉ');
+    addLog('สใ สีฯํั ไำฮษ วอสํวุํษ');
     document.getElementById('lastBackupInfo').textContent = new Date().toLocaleString('ar-EG');
 };
 
@@ -722,14 +723,14 @@ window.importBackup = () => {
             try {
                 const imp = JSON.parse(ev.target.result);
                 if (imp.users && Array.isArray(imp.users)) {
-                    if (confirm('ุชุญุฐูุฑ: ุงูุงุณุชูุฑุงุฏ ุณูู…ุณุญ ุฌู…ูุน ุงูุจูุงูุงุช ุงูุญุงููุฉ. ูู ุฃูุช ู…ุชุฃูุฏุ')) {
+                    if (confirm('สอะํั: วแวำสํัวฯ ำํใำอ ฬใํฺ วแศํวไวส วแอวแํษ. ๅแ รไส ใสร฿ฯฟ')) {
                         if (!imp.logs) imp.logs = [];
-                        imp.logs.unshift({ id: Date.now(), user: currentUser.name, msg: 'ุชู… ุงุณุชุนุงุฏุฉ ูุณุฎุฉ ุงุญุชูุงุทูุฉ ูููุธุงู…' });
+                        imp.logs.unshift({ id: Date.now(), user: currentUser.name, msg: 'สใ วำสฺวฯษ ไำฮษ วอสํวุํษ แแไูวใ' });
                         localStorage.setItem(DB_KEY, JSON.stringify(imp));
                         location.reload();
                     }
-                } else { showSettingsToast('ุงูู…ูู ุงูู…ุฎุชุงุฑ ุบูุฑ ุตุงูุญ', 'error'); }
-            } catch(e) { showSettingsToast('ุฎุทุฃ ูู ูุฑุงุกุฉ ุงูู…ูู', 'error'); }
+                } else { showSettingsToast('วแใแÝ วแใฮสวั Ûํั ีวแอ', 'error'); }
+            } catch(e) { showSettingsToast('ฮุร Ýํ Þัวมษ วแใแÝ', 'error'); }
         };
         reader.readAsText(file);
     };
@@ -741,7 +742,7 @@ window.importBackup = () => {
 // ============================================================
 window.previewCurrentLogo = () => {
     const src = db.settings.logo || document.getElementById('logoPreviewImg').src;
-    if (!src || src === window.location.href) { showSettingsToast('ูุง ููุฌุฏ ุดุนุงุฑ ูุนุฑุถู', 'warning'); return; }
+    if (!src || src === window.location.href) { showSettingsToast('แว ํๆฬฯ ิฺวั แฺัึๅ', 'warning'); return; }
     document.getElementById('logoPreviewModalImg').src = src;
     document.getElementById('logoPreviewModal').classList.add('open');
 };
@@ -755,7 +756,7 @@ function _fileToDataUrl(file) {
 
 async function _uploadToStorage(file, basePath) {
     if (!supabaseClient) {
-        // No Supabase โ€” fall back to base64 (local only)
+        // No Supabase — fall back to base64 (local only)
         return _fileToDataUrl(file);
     }
     const ext = file.name.split('.').pop().toLowerCase() || 'png';
@@ -808,20 +809,20 @@ function renderTickerList() {
     if (!el) return;
     const items = db.newsTicker || [];
     if (!items.length) {
-        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:16px;">ูุง ุชูุฌุฏ ุฃุฎุจุงุฑ ู…ุถุงูุฉ ุจุนุฏ.</p>';
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:16px;">แว สๆฬฯ รฮศวั ใึวÝษ ศฺฯ.</p>';
         return;
     }
     el.innerHTML = items.map((t, i) => `
         <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid ${t.type==='warning'?'#fde68a':'#e2e8f0'};background:${t.type==='warning'?'#fffbeb':'#f8fafc'};margin-bottom:8px;flex-wrap:wrap;">
             <span style="font-size:.8rem;padding:2px 8px;border-radius:20px;font-weight:700;background:${t.type==='warning'?'#fef3c7':'#dbeafe'};color:${t.type==='warning'?'#92400e':'#1e40af'};">
-                ${t.type==='warning'?'โ  ุชุญุฐูุฑ':'โ— ุฎุจุฑ'}
+                ${t.type==='warning'?'? สอะํั':'? ฮศั'}
             </span>
             <span style="flex:1;font-size:.9rem;${!t.active?'opacity:.45;text-decoration:line-through;':''}">${t.text}</span>
             <div style="display:flex;gap:6px;">
-                <button onclick="toggleTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="${t.active?'ุฅููุงู':'ุชูุนูู'}">
+                <button onclick="toggleTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="${t.active?'ลํÞวÝ':'สÝฺํแ'}">
                     <i class="fa-solid ${t.active?'fa-eye-slash':'fa-eye'}"></i>
                 </button>
-                <button onclick="deleteTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#ef4444;" title="ุญุฐู">
+                <button onclick="deleteTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#ef4444;" title="อะÝ">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
@@ -832,12 +833,12 @@ function renderTickerList() {
 window.addTickerNews = () => {
     const text = document.getElementById('newTickerText').value.trim();
     const type = document.getElementById('newTickerType').value;
-    if (!text) { showSettingsToast('ุฃุฏุฎู ูุต ุงูุฎุจุฑ', 'warning'); return; }
+    if (!text) { showSettingsToast('รฯฮแ ไี วแฮศั', 'warning'); return; }
     addTickerItem(text, type);
     document.getElementById('newTickerText').value = '';
     renderTickerList();
     renderNewsTicker();
-    showSettingsToast('โ… ุชู… ุฅุถุงูุฉ ุงูุฎุจุฑ ุจูุฌุงุญ');
+    showSettingsToast('? สใ ลึวÝษ วแฮศั ศไฬวอ');
 };
 
 window.toggleTicker = (id) => {
@@ -847,11 +848,11 @@ window.toggleTicker = (id) => {
 };
 
 window.deleteTicker = (id) => {
-    if (!confirm('ุญุฐู ูุฐุง ุงูุฎุจุฑุ')) return;
+    if (!confirm('อะÝ ๅะว วแฮศัฟ')) return;
     removeTickerItem(id);
     renderTickerList();
     renderNewsTicker();
-    showSettingsToast('ุชู… ุงูุญุฐู');
+    showSettingsToast('สใ วแอะÝ');
 };
 
 window.onload = () => {

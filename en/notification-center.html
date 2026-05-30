@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notification Center | SAJCO</title>
@@ -164,7 +165,7 @@
                     Notification Center
                     <span class="notif-count-bubble" id="unreadCountBubble" style="display:none;">0</span>
                 </h2>
-                <p style="color:var(--text-muted);margin-top:4px;">Real-time updates â€” navigate directly to any service from a notification</p>
+                <p style="color:var(--text-muted);margin-top:4px;">Real-time updates — navigate directly to any service from a notification</p>
             </div>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                 <span class="realtime-indicator">
@@ -215,10 +216,10 @@
             <label class="form-label">Device Condition Assessment <span style="color:#ef4444;">*</span></label>
             <select id="acceptDeviceCondition" class="form-select">
                 <option value="">Select assessment...</option>
-                <option value="Ù…Ù…ØªØ§Ø²">Excellent â€” complete and fully functional</option>
-                <option value="Ø¬ÙŠØ¯">Good â€” complete with minor scratches</option>
-                <option value="Ù…Ù‚Ø¨ÙˆÙ„">Acceptable â€” missing some accessories</option>
-                <option value="ÙŠØ­ØªØ§Ø¬ ØµÙŠØ§Ù†Ø©">Needs Maintenance â€” has defect or malfunction</option>
+                <option value="ããÊÇÒ">Excellent — complete and fully functional</option>
+                <option value="ÌíÏ">Good — complete with minor scratches</option>
+                <option value="ãÞÈæá">Acceptable — missing some accessories</option>
+                <option value="íÍÊÇÌ ÕíÇäÉ">Needs Maintenance — has defect or malfunction</option>
             </select>
         </div>
         <div class="form-group">
@@ -483,7 +484,7 @@ window.doApproveCustody = (relatedId, notifId) => {
         renderNotificationCenter();
         showToast('Custody request approved successfully', 'success');
     } else {
-        showToast('Cannot approve â€” check your permissions', 'error');
+        showToast('Cannot approve — check your permissions', 'error');
     }
 };
 
@@ -494,11 +495,11 @@ window.doRejectCustody = (relatedId, notifId) => {
         renderNotificationCenter();
         showToast('Custody request rejected', 'success');
     } else {
-        showToast('Cannot reject â€” check your permissions', 'error');
+        showToast('Cannot reject — check your permissions', 'error');
     }
 };
 
-// â”€â”€ Accept / Reject custody by surveyor (custody_transfer_request) â”€â”€
+// ?? Accept / Reject custody by surveyor (custody_transfer_request) ??
 window.openAcceptCustodyModal = (custodyId, notifId) => {
     document.getElementById('acceptCustodyId').value = custodyId;
     document.getElementById('acceptNotifId').value = notifId;
@@ -570,7 +571,7 @@ window.doApproveLeave = (relatedId, notifId) => {
         renderNotificationCenter();
         showToast('Leave request approved', 'success');
     } else {
-        showToast('Cannot approve â€” check your permissions', 'error');
+        showToast('Cannot approve — check your permissions', 'error');
     }
 };
 
@@ -581,7 +582,7 @@ window.doRejectLeave = (relatedId, notifId) => {
         renderNotificationCenter();
         showToast('Leave request rejected', 'success');
     } else {
-        showToast('Cannot reject â€” check your permissions', 'error');
+        showToast('Cannot reject — check your permissions', 'error');
     }
 };
 
@@ -592,7 +593,7 @@ window.doApproveWorkerTransfer = (relatedId, notifId) => {
         renderNotificationCenter();
         showToast('Worker transfer approved', 'success');
     } else {
-        showToast('Cannot approve â€” check your permissions', 'error');
+        showToast('Cannot approve — check your permissions', 'error');
     }
 };
 
@@ -611,7 +612,7 @@ window.doApproveMR = (relatedId, notifId) => {
     if (approveMaintenanceRequest(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('Request approved â€” device sent to vendor', 'success');
+        showToast('Request approved — device sent to vendor', 'success');
     } else {
         showToast('An error occurred. Check your permissions.', 'error');
     }

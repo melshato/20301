@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard the Surveyor | SAJCO</title>
@@ -67,7 +68,7 @@
 <div id="appShell">
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
-        <!-- Ø´Ø±ÙŠØ· News -->
+        <!-- ÔÑíØ News -->
         <div class="news-ticker hidden-ticker" id="newsTicker">
             <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-right:6px;"></i> News</span>
             <div class="ticker-wrapper">
@@ -81,7 +82,7 @@
             <p style="color:var(--text-muted)">Your profile, custody tracking, and ability to contact management.</p>
         </header>
 
-        <!-- tabØ§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© -->
+        <!-- tabÇÊ ÇáÑÆíÓíÉ -->
         <div class="tabs-header" style="margin-bottom:24px;">
             <button class="tab-btn active" onclick="switchTab('overview',this)">
                 <i class="fa-solid fa-house"></i> Overview
@@ -117,21 +118,21 @@
                     <div class="stat-icon" style="background:#fdf2f2;color:#991b1b;"><i class="fa-solid fa-calendar-check"></i></div>
                     <div>
                         <div style="font-size:.82rem;color:var(--text-muted)">Years of Service</div>
-                        <div id="serviceTime" style="font-size:1.5rem;font-weight:800;">â€”</div>
+                        <div id="serviceTime" style="font-size:1.5rem;font-weight:800;">—</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-building-user"></i></div>
                     <div>
                         <div style="font-size:.82rem;color:var(--text-muted)">Branch andHead Surveyor</div>
-                        <div id="branchHeadInfo" style="font-size:.92rem;font-weight:700;line-height:1.3;">â€”</div>
+                        <div id="branchHeadInfo" style="font-size:.92rem;font-weight:700;line-height:1.3;">—</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa-solid fa-star"></i></div>
                     <div>
                         <div style="font-size:.82rem;color:var(--text-muted)">My Rating</div>
-                        <div id="myRatingStars" style="margin-top:4px;font-size:1.1rem;">â€”</div>
+                        <div id="myRatingStars" style="margin-top:4px;font-size:1.1rem;">—</div>
                         <div id="myRatingNote" style="font-size:.72rem;color:var(--text-muted);margin-top:2px;"></div>
                     </div>
                 </div>
@@ -212,14 +213,14 @@
 
         <!-- tab Salary Raise -->
         <div class="tab-content" id="tab-raise">
-            <!-- form Ø·Ù„Ø¨ Salary Raise -->
+            <!-- form ØáÈ Salary Raise -->
             <div class="card" style="margin-bottom:20px;">
                 <h3 style="margin-bottom:4px;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> Salary Raise Request</h3>
-                <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:18px;">Request is sent to Head Surveyor for approval â€” after approval it is forwarded to upper management for necessary action</p>
+                <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:18px;">Request is sent to Head Surveyor for approval — after approval it is forwarded to upper management for necessary action</p>
 
-                <!-- Ø¨ÙŠØ§Ù†Ø§Øª ØªÙ„Ù‚Ø§Ø¦ÙŠØ© -->
+                <!-- ÈíÇäÇÊ ÊáŞÇÆíÉ -->
                 <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:.84rem;color:#166534;">
-                    <div style="font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> Your Data â€” Auto-Filled</div>
+                    <div style="font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> Your Data — Auto-Filled</div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px 20px;" id="selfRaiseAutoInfo"></div>
                 </div>
 
@@ -246,7 +247,7 @@
                 <div class="form-group">
                     <label class="form-label">Reason for Raise Request <span style="color:#ef4444;">*</span></label>
                     <select id="srReason" class="form-select">
-                        <option value="">â€” Select Reason â€”</option>
+                        <option value="">— Select Reason —</option>
                         <option value="Outstanding Performance">Outstanding Performance</option>
                         <option value="Increased Responsibilities">Increased Responsibilities</option>
                         <option value="Long Service Without Raise">Long Service Without Raise</option>
@@ -269,25 +270,25 @@
                 </button>
             </div>
 
-            <!-- Ø³Ø¬Ù„ My Requests -->
+            <!-- ÓÌá My Requests -->
             <div class="card">
                 <h3 style="margin-bottom:14px;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i> My Salary Raise Requests History</h3>
                 <div id="myRaiseHistory"><p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:20px;">No previous requests.</p></div>
             </div>
         </div>
 
-        <!-- tab Ø§Ù„Messages Ø§Ù„Ø®Ø§ØµØ© -->
+        <!-- tab ÇáMessages ÇáÎÇÕÉ -->
         <div class="tab-content" id="tab-messages">
-            <!-- Note Ø§Ù„Ø®ØµandØµÙŠØ© -->
+            <!-- Note ÇáÎÕandÕíÉ -->
             <div class="message-privacy-notice">
                 <i class="fa-solid fa-shield-halved fa-lg"></i>
                 <div>
-                    <strong>Direct Message to General Admin â€” Strictly Confidential</strong><br>
+                    <strong>Direct Message to General Admin — Strictly Confidential</strong><br>
                     <span style="font-size:.8rem;">These messages will not be seen by the Head Surveyor or anyone else. They go directly to the General Admin only.</span>
                 </div>
             </div>
 
-            <!-- form Ø§Ù„Message -->
+            <!-- form ÇáMessage -->
             <div class="card">
                 <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary)"></i> Send New Message to General Admin</h3>
                 <form id="directMsgForm" onsubmit="handleSendMessage(event)">
@@ -347,7 +348,7 @@ function switchTab(tab, btn) {
 }
 
 function calculateService(joinDate) {
-    if (!joinDate) return 'Ø¬Ø¯ÙŠØ¯';
+    if (!joinDate) return 'ÌÏíÏ';
     const start = new Date(joinDate);
     const end = new Date();
     let years = end.getFullYear() - start.getFullYear();
@@ -358,7 +359,7 @@ function calculateService(joinDate) {
 
 async function loadSurveyorDashboard() {
     await _loadRemoteDB();
-    document.getElementById('userGreeting').innerText = `Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ ${currentUser.name} (Ø±Ù‚Ù…: ${currentUser.empId})`;
+    document.getElementById('userGreeting').innerText = `ãÑÍÈÇğ¡ ${currentUser.name} (ÑŞã: ${currentUser.empId})`;
     const myDevices = db.devices.filter(d => d.ownerId === currentUser.id);
     document.getElementById('myDeviceCount').innerText = myDevices.length;
     document.getElementById('serviceTime').innerText = calculateService(currentUser.joinDate);
@@ -377,13 +378,13 @@ async function loadSurveyorDashboard() {
         starsEl.innerHTML = starsHtml;
         noteEl.textContent = `${myRating} from 5`;
         const ratingRec = getUserRating(currentUser.id);
-        if (ratingRec?.notes) noteEl.textContent += ` â€” ${ratingRec.notes}`;
+        if (ratingRec?.notes) noteEl.textContent += ` — ${ratingRec.notes}`;
     } else {
-        starsEl.innerHTML = '<span style="color:#94a3b8;font-size:.88rem;">Ù„Ù… ÙŠDone ØªÙ‚ÙŠÙŠÙ…Ùƒ Ø¨Ø¹Ø¯</span>';
+        starsEl.innerHTML = '<span style="color:#94a3b8;font-size:.88rem;">áã íDone ÊŞííãß ÈÚÏ</span>';
         noteEl.textContent = '';
     }
 
-    // Ø¹Ù‡Ø¯ Pending
+    // ÚåÏ Pending
     const pending = db.custodies.filter(c => {
         if (!['pending_head_approval', 'pending_admin_approval', 'pending_approval'].includes(c.status)) return false;
         const u = db.users.find(x => x.id === c.userId);
@@ -393,11 +394,11 @@ async function loadSurveyorDashboard() {
         document.getElementById('pendingAlert').innerHTML = `
             <div class="pending-banner">
                 <i class="fa-solid fa-clock-rotate-left fa-xl"></i>
-                <div><strong>Ø¹Ù‡Ø¯ Pending</strong><br>Ù„Ø¯ÙŠÙƒ ${pending.length} Requests Pending Approval.</div>
+                <div><strong>ÚåÏ Pending</strong><br>áÏíß ${pending.length} Requests Pending Approval.</div>
             </div>`;
     } else document.getElementById('pendingAlert').innerHTML = '';
 
-    // Pending custody â€” match by empId (stable) not UUID
+    // Pending custody — match by empId (stable) not UUID
     const currentEmpId = String(currentUser.empId);
     const pendingAccept = db.custodies.filter(c => {
         if (!['pending_surveyor_acceptance', 'pending_receiver_acceptance'].includes(c.status)) return false;
@@ -420,7 +421,7 @@ async function loadSurveyorDashboard() {
                 </div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-weight:600;font-size:.85rem;">${getDeviceTypeName(c.deviceType)}</div>
-                    <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${c.serialNumber} Â· ${fromLabel}</div>
+                    <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${c.serialNumber} · ${fromLabel}</div>
                     ${isTransfer ? `<div style="font-size:.7rem;color:#0369a1;margin-top:2px;"><i class="fa-solid fa-right-left"></i> Transfer</div>` : ''}
                 </div>
                 <div style="display:flex;gap:6px;flex-shrink:0;">
@@ -448,17 +449,17 @@ async function loadSurveyorDashboard() {
     if (expiring.length > 0) {
         const list = expiring.map(d => {
             const diff = Math.ceil((new Date(d.calDate) - today) / 86400000);
-            const statusText = diff <= 0 ? '<span style="color:red;font-weight:700;">Completed!</span>' : `Ù…ØªØ¨Ù‚ÙŠ ${diff} day`;
+            const statusText = diff <= 0 ? '<span style="color:red;font-weight:700;">Completed!</span>' : `ãÊÈŞí ${diff} day`;
             return `<li>${getDeviceTypeName(d.type)} (S/N: ${d.serial}) - ${statusText}</li>`;
         }).join('');
         document.getElementById('calibrationAlerts').innerHTML = `
             <div class="alert-banner">
                 <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-                <div><strong>ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Calibration Urgent</strong><ul style="margin-top:6px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
+                <div><strong>ÊäÈíåÇÊ Calibration Urgent</strong><ul style="margin-top:6px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
             </div>`;
     } else document.getElementById('calibrationAlerts').innerHTML = '';
 
-    // Project Ø§Ù„Ù…Ø³Ø¬Ù„ Ø¹Ù„ÙŠÙ‡
+    // Project ÇáãÓÌá Úáíå
     const myProject = getSurveyorProject ? getSurveyorProject(currentUser.id) : null;
     const projCard = document.getElementById('myProjectCard');
     if (myProject) {
@@ -466,17 +467,17 @@ async function loadSurveyorDashboard() {
         const pct = Math.min(100, completion);
         const endDate = myProject.endDate ? new Date(myProject.endDate) : null;
         const daysLeft = endDate ? Math.ceil((endDate - new Date()) / 86400000) : null;
-        const daysLabel = daysLeft === null ? '<span style="color:#94a3b8;">ØºÙŠØ± Ù…Set</span>'
-            : daysLeft < 0 ? `<span style="color:#ef4444;font-weight:700;">ØªØ£Ø®Ø± ${Math.abs(daysLeft)} day</span>`
-            : `<span style="color:#064e3b;">Ù…ØªØ¨Ù‚ÙŠ ${daysLeft} day</span>`;
+        const daysLabel = daysLeft === null ? '<span style="color:#94a3b8;">ÛíÑ ãSet</span>'
+            : daysLeft < 0 ? `<span style="color:#ef4444;font-weight:700;">ÊÃÎÑ ${Math.abs(daysLeft)} day</span>`
+            : `<span style="color:#064e3b;">ãÊÈŞí ${daysLeft} day</span>`;
         projCard.innerHTML = `
             <div class="card" style="padding:20px;border-left: 4px solid #6366f1;display:flex;flex-wrap:wrap;gap:20px;align-items:center;">
                 <div style="flex:1;min-width:180px;">
-                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><i class="fa-solid fa-diagram-project" style="color:#6366f1;"></i> Ù…Ø´Ø±andØ¹ÙŠ current</div>
+                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><i class="fa-solid fa-diagram-project" style="color:#6366f1;"></i> ãÔÑandÚí current</div>
                     <div style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:8px;">${myProject.name}</div>
                     ${myProject.description ? `<div style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px;">${myProject.description}</div>` : ''}
                     <div style="display:flex;gap:16px;font-size:.78rem;color:#64748b;flex-wrap:wrap;">
-                        <span><i class="fa-solid fa-calendar-days" style="color:#6366f1;"></i> Ø§Ù†ØªÙ‡Ø§Ø¡ Ù…ØªandÙ‚Ø¹: ${myProject.endDate || 'ØºÙŠØ± Ù…Set'}</span>
+                        <span><i class="fa-solid fa-calendar-days" style="color:#6366f1;"></i> ÇäÊåÇÁ ãÊandŞÚ: ${myProject.endDate || 'ÛíÑ ãSet'}</span>
                         <span>${daysLabel}</span>
                     </div>
                 </div>
@@ -497,7 +498,7 @@ async function loadSurveyorDashboard() {
         projCard.innerHTML = '';
     }
 
-    // Ø§Ù„Ù…Ù„Ø®Øµ
+    // ÇáãáÎÕ
     const tsCount = myDevices.filter(d => d.type.includes('station') || d.type === 'total_station').length;
     const alCount = myDevices.filter(d => d.type.includes('level') || d.type === 'auto_level').length;
     const gpsCount = myDevices.filter(d => d.type.toLowerCase().includes('gps')).length;
@@ -505,7 +506,7 @@ async function loadSurveyorDashboard() {
     document.getElementById('countAL').innerText = alCount;
     document.getElementById('countGPS').innerText = gpsCount;
 
-    // Donut chart â€” my devices
+    // Donut chart — my devices
     const ctxDonut = document.getElementById('myDeviceDonut').getContext('2d');
     if (window._myDeviceChart) window._myDeviceChart.destroy();
     window._myDeviceChart = new Chart(ctxDonut, {
@@ -603,7 +604,7 @@ async function loadSurveyorDashboard() {
                     </div>
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:600;font-size:.85rem;">${getDeviceTypeName(d.type)}</div>
-                        <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${d.serial} Â· ${getDeviceStatusBadge(d.status)}</div>
+                        <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${d.serial} · ${getDeviceStatusBadge(d.status)}</div>
                     </div>
                     <div style="text-align:right;font-size:.75rem;white-space:nowrap;">${calStatus}</div>
                 </div>`;
@@ -621,14 +622,14 @@ async function loadSurveyorDashboard() {
         document.getElementById('surveyorNotifications').innerHTML = `
             <div style="background:#f0fdf4;border:1px solid #86efac;border-left: 4px solid #16a34a;padding:16px;border-radius:12px;margin-bottom:20px;color:#166534;">
                 <div style="font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                    <span><i class="fa-solid fa-bell"></i> Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© (${unread.length})</span>
+                    <span><i class="fa-solid fa-bell"></i> ÅÔÚÇÑÇÊ ÌÏíÏÉ (${unread.length})</span>
                     <a href="notification-center.html" style="font-size:.78rem;color:#16a34a;font-weight:600;">View All</a>
                 </div>
                 <ul style="margin:0;padding-right:16px;list-style:disc;">${items}</ul>
             </div>`;
     } else document.getElementById('surveyorNotifications').innerHTML = '';
 
-    // Ø´Ø§Ø±Ø© Messages the Reply from Ø§Ù„Ù…Ø¯ÙŠØ±
+    // ÔÇÑÉ Messages the Reply from ÇáãÏíÑ
     const repliedMsgs = (db.directMessages || []).filter(m => m.senderId === currentUser.id && m.status === 'replied' && !m.isRead);
     if (repliedMsgs.length > 0) {
         const badge = document.getElementById('msgTabBadge');
@@ -660,10 +661,10 @@ function renderSurveyorWorkerTransfers() {
                         <i class="fa-solid fa-helmet-safety" style="font-size:.85rem;"></i>
                     </div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || 'â€”'}</div>
+                        <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || '—'}</div>
                         <div style="font-size:.72rem;color:var(--text-muted);">
-                            From: ${r.fromSurveyorName || 'â€”'}
-                            ${r.reason ? `Â· Reason: ${r.reason}` : ''}
+                            From: ${r.fromSurveyorName || '—'}
+                            ${r.reason ? `· Reason: ${r.reason}` : ''}
                         </div>
                     </div>
                     <div style="display:flex;gap:6px;flex-shrink:0;">
@@ -683,16 +684,16 @@ function renderMyDevices() {
     const myDevices = db.devices.filter(d => d.ownerId === currentUser.id);
     const list = document.getElementById('myDevicesList');
     if (myDevices.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);">None Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø¹Ù‡Ø¯ØªÙƒ currently.</div>';
+        list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);">None ÃÌåÒÉ İí ÚåÏÊß currently.</div>';
         return;
     }
     const today = new Date(); today.setHours(0,0,0,0);
     list.innerHTML = myDevices.map(d => {
         const diff = d.calDate ? Math.ceil((new Date(d.calDate) - today) / 86400000) : null;
-        const calStatus = diff === null ? '<span style="color:#94a3b8;">ØºÙŠØ± Ù…Set</span>'
+        const calStatus = diff === null ? '<span style="color:#94a3b8;">ÛíÑ ãSet</span>'
             : diff <= 0 ? '<span style="color:#ef4444;font-weight:700;">Completed!</span>'
-            : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;">Ù…ØªØ¨Ù‚ÙŠ ${diff} day</span>`
-            : `<span style="color:#16a34a;">Ù…ØªØ¨Ù‚ÙŠ ${diff} day</span>`;
+            : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;">ãÊÈŞí ${diff} day</span>`
+            : `<span style="color:#16a34a;">ãÊÈŞí ${diff} day</span>`;
 
         const hasPendingReq = hasPendingMaintenanceRequest(d.id, d.serial);
         const canSendMaint = d.status === 'assigned' && !hasPendingReq;
@@ -726,11 +727,11 @@ function renderMyDevices() {
 }
 
 window.handleSendToMaintenance = (deviceId, serial, type) => {
-    const notes = prompt(`Notes Ø·Ù„Ø¨ ${type === 'maintenance' ? 'Maintenance' : 'Calibration'} Ù„Ù„Ø¬Ù‡Ø§Ø² (${serial}) (Optional):`);
+    const notes = prompt(`Notes ØáÈ ${type === 'maintenance' ? 'Maintenance' : 'Calibration'} ááÌåÇÒ (${serial}) (Optional):`);
     if (notes === null) return;
     const result = sendMaintenanceRequest(deviceId, serial, db.devices.find(d=>d.id===deviceId)?.type, type, notes);
     if (result.success) {
-        showToast(`Done Send Ø·Ù„Ø¨ ${type === 'maintenance' ? 'Maintenance' : 'Calibration'} Ø¨Success andPending Approval`, 'success');
+        showToast(`Done Send ØáÈ ${type === 'maintenance' ? 'Maintenance' : 'Calibration'} ÈSuccess andPending Approval`, 'success');
         renderMyDevices();
     } else {
         showToast(result.msg || 'An error occurred', 'error');
@@ -740,7 +741,7 @@ window.handleSendToMaintenance = (deviceId, serial, type) => {
 window.doApproveWorkerTransfer = (reqId) => {
     if (!confirm('Are you sure you want to accept the worker transfer request?')) return;
     if (approveWorkerTransferRequest(reqId)) {
-        showToast('Worker transfer accepted âœ“ sent to head surveyor', 'success');
+        showToast('Worker transfer accepted ? sent to head surveyor', 'success');
         loadSurveyorDashboard();
     } else {
         showToast('Cannot accept at this time', 'error');
@@ -759,7 +760,7 @@ window.doRejectWorkerTransfer = (reqId) => {
 };
 
 // ============================================================
-// Messages Ø®Ø§ØµØ© for Admin General
+// Messages ÎÇÕÉ for Admin General
 // ============================================================
 document.getElementById('msgBody').addEventListener('input', function() {
     document.getElementById('charCount').textContent = `${this.value.length} / 2000`;
@@ -774,13 +775,13 @@ window.handleSendMessage = (e) => {
     alertEl.innerHTML = '';
 
     if (body.length < 20) {
-        alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.85rem;">Ø§Ù„Message Ù‚ØµÙŠØ±Ø© Ø¬Ø¯Ø§Ù‹ - Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰ 20 Ø­Ø±Ù</div>`;
+        alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.85rem;">ÇáMessage ŞÕíÑÉ ÌÏÇğ - ÇáÍÏ ÇáÃÏäì 20 ÍÑİ</div>`;
         return;
     }
 
     const result = sendDirectMessage(subject, body, type);
     if (result.success) {
-        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> Done Send Ø±Ø³Ø§Ù„ØªÙƒ Ø¨Success andØ³ØªØµÙ„ for Admin General Direct.</div>`;
+        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> Done Send ÑÓÇáÊß ÈSuccess andÓÊÕá for Admin General Direct.</div>`;
         document.getElementById('directMsgForm').reset();
         document.getElementById('charCount').textContent = '0 / 2000';
         renderMyMessages();
@@ -809,7 +810,7 @@ function renderMyMessages() {
                 <span style="flex:1;"></span>
                 <span style="font-size:.75rem;color:var(--text-muted);">${_formatRelTime(m.timestamp)}</span>
                 <span class="badge ${m.status === 'replied' ? 'badge-success' : 'badge-warning'}" style="font-size:.7rem;">
-                    ${m.status === 'replied' ? 'Done the Reply' : m.status === 'read' ? 'Ù…Ù‚Ø±andØ¡Ø©' : 'Pending'}
+                    ${m.status === 'replied' ? 'Done the Reply' : m.status === 'read' ? 'ãŞÑandÁÉ' : 'Pending'}
                 </span>
             </div>
             <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px;">${m.body}</p>
@@ -841,7 +842,7 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3500);
 }
 
-// â”€â”€ Salary Raise â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ?? Salary Raise ????????????????????????????????????????
 function initSelfRaiseTab() {
     const branch = db.branches.find(b => b.id === currentUser.branch);
     const head   = db.users.find(u => u.role === 'head' && u.responsibleBranch === currentUser.branch);
@@ -850,12 +851,12 @@ function initSelfRaiseTab() {
     document.getElementById('selfRaiseAutoInfo').innerHTML = `
         <span><strong>Name:</strong> ${currentUser.name}</span>
         <span><strong>Employee ID:</strong> ${currentUser.empId}</span>
-        <span><strong>Ø§Ù„Ù…Ø³Ù…Ù‰ Ø§Ù„job:</strong> Surveyor</span>
-        <span><strong>Branch:</strong> ${branch?.name || 'â€”'}</span>
-        <span><strong>Head Surveyor:</strong> ${head?.name || 'â€”'}</span>
-        <span><strong>Join Date:</strong> ${currentUser.joinDate || 'â€”'}</span>
+        <span><strong>ÇáãÓãì Çájob:</strong> Surveyor</span>
+        <span><strong>Branch:</strong> ${branch?.name || '—'}</span>
+        <span><strong>Head Surveyor:</strong> ${head?.name || '—'}</span>
+        <span><strong>Join Date:</strong> ${currentUser.joinDate || '—'}</span>
         <span><strong>Years of Service:</strong> ${svc}</span>
-        <span><strong>Rating:</strong> ${rating ? rating + ' / 5' : 'Ù„Ù… ÙŠÙÙ‚ÙŠÙÙ‘Ù…'}</span>`;
+        <span><strong>Rating:</strong> ${rating ? rating + ' / 5' : 'áã íõŞíóøã'}</span>`;
     renderMyRaiseHistory();
 }
 
@@ -864,7 +865,7 @@ window.submitSelfRaiseRequest = () => {
     const currentSalary = document.getElementById('srCurrentSalary').value.trim();
     const reason        = document.getElementById('srReason').value;
     if (!currentSalary) { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">Current Salary Required</div>`; return; }
-    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">Ø³Ø¨Ø¨ Request Required</div>`; return; }
+    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">ÓÈÈ Request Required</div>`; return; }
 
     const result = submitSalaryRaiseRequest('employee', currentUser.id, {
         currentSalary,
@@ -876,7 +877,7 @@ window.submitSelfRaiseRequest = () => {
         notes:                document.getElementById('srNotes').value.trim()
     });
     if (result) {
-        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> Done Send Ø·Ù„Ø¨Ùƒ Ù„Head Surveyor Ø¨Success. Ø³ÙŠDone Ø¥Ø´Ø¹Ø§Ø±Ùƒ Ø¨Ø§Ù„Ù†ØªÙŠØ¬Ø©.</div>`;
+        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> Done Send ØáÈß áHead Surveyor ÈSuccess. ÓíDone ÅÔÚÇÑß ÈÇáäÊíÌÉ.</div>`;
         ['srCurrentSalary','srRaiseAmount','srRaisePct','srLastRaise','srAchievements','srNotes'].forEach(id => { document.getElementById(id).value = ''; });
         document.getElementById('srReason').value = '';
         renderMyRaiseHistory();
@@ -899,28 +900,28 @@ function renderMyRaiseHistory() {
     };
     container.innerHTML = reqs.map(r => {
         const s = statusCfg[r.status] || statusCfg.pending_head;
-        const targetLabel = r.targetType === 'employee' ? 'Ø·Ù„Ø¨ SalaryÙŠ' : `Ø·Ù„Ø¨ Worker: ${r.targetName}`;
+        const targetLabel = r.targetType === 'employee' ? 'ØáÈ Salaryí' : `ØáÈ Worker: ${r.targetName}`;
         return `<div style="border:1px solid ${s.border};background:${s.bg};border-radius:12px;padding:14px 18px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
                 <div>
                     <div style="font-weight:700;font-size:.9rem;">${targetLabel}</div>
                     <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">
-                        Current Salary: <strong>${r.currentSalary ? r.currentSalary + ' SAR' : 'â€”'}</strong>
-                        ${r.requestedRaiseAmount ? ` | Ø²ÙŠØ§Ø¯Ø© RequiredØ©: <strong>${r.requestedRaiseAmount} SAR</strong>` : ''}
-                        ${r.raisePercentage ? ` | Ù†Ø³Ø¨Ø©: <strong>${r.raisePercentage}%</strong>` : ''}
+                        Current Salary: <strong>${r.currentSalary ? r.currentSalary + ' SAR' : '—'}</strong>
+                        ${r.requestedRaiseAmount ? ` | ÒíÇÏÉ RequiredÉ: <strong>${r.requestedRaiseAmount} SAR</strong>` : ''}
+                        ${r.raisePercentage ? ` | äÓÈÉ: <strong>${r.raisePercentage}%</strong>` : ''}
                     </div>
-                    <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">Reason: ${r.reason || 'â€”'}</div>
+                    <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">Reason: ${r.reason || '—'}</div>
                 </div>
                 <span style="background:${s.bg};color:${s.color};border:1px solid ${s.border};font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap;">${s.label}</span>
             </div>
-            ${r.status === 'approved' ? `<div style="margin-top:10px;font-size:.8rem;background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;"><i class="fa-solid fa-circle-check"></i> <strong>approved ${r.approvedBy}</strong> â€” Done Ø±ÙØ¹ Request Ù„Ù„Management Ø§Ù„Ø¹Ù„ÙŠØ§ to take Actions necessary</div>` : ''}
+            ${r.status === 'approved' ? `<div style="margin-top:10px;font-size:.8rem;background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;"><i class="fa-solid fa-circle-check"></i> <strong>approved ${r.approvedBy}</strong> — Done ÑİÚ Request ááManagement ÇáÚáíÇ to take Actions necessary</div>` : ''}
             ${r.status === 'rejected' && r.rejectionNote ? `<div style="margin-top:8px;font-size:.8rem;color:#991b1b;">Rejection Reason: ${r.rejectionNote}</div>` : ''}
             <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px;">${new Date(r.timestamp).toLocaleDateString('en-US')}</div>
         </div>`;
     }).join('');
 }
 
-// Ø§Ù†ØªÙ‚Ø§Ù„ Direct Ù„Ù„tab from URL hash
+// ÇäÊŞÇá Direct áátab from URL hash
 if (window.location.hash === '#messages') {
     setTimeout(() => {
         document.querySelector('.tab-btn:nth-child(4)').click();
@@ -934,7 +935,7 @@ window.onload = () => {
     initRealtime();
 };
 
-// â”€â”€ Accept / Reject custody modals â”€â”€
+// ?? Accept / Reject custody modals ??
 window.openAcceptCustodyModal = (custodyId) => {
     document.getElementById('acceptCustodyId').value = custodyId;
     document.getElementById('acceptDeviceCondition').value = '';
@@ -1031,10 +1032,10 @@ function showToast(msg, type = 'success') {
             <label class="form-label">Device Condition Assessment <span style="color:#ef4444;">*</span></label>
             <select id="acceptDeviceCondition" class="form-select">
                 <option value="">Select assessment...</option>
-                <option value="Ù…Ù…ØªØ§Ø²">Excellent â€” complete and fully functional</option>
-                <option value="Ø¬ÙŠØ¯">Good â€” complete with minor scratches</option>
-                <option value="Ù…Ù‚Ø¨ÙˆÙ„">Acceptable â€” missing some accessories</option>
-                <option value="ÙŠØ­ØªØ§Ø¬ ØµÙŠØ§Ù†Ø©">Needs Maintenance â€” has defect or malfunction</option>
+                <option value="ããÊÇÒ">Excellent — complete and fully functional</option>
+                <option value="ÌíÏ">Good — complete with minor scratches</option>
+                <option value="ãŞÈæá">Acceptable — missing some accessories</option>
+                <option value="íÍÊÇÌ ÕíÇäÉ">Needs Maintenance — has defect or malfunction</option>
             </select>
         </div>
         <div class="form-group">

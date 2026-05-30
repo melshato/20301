@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Ratings - SAJCO</title>
@@ -143,7 +144,7 @@
                     </div>
                     <div id="searchResult" style="font-size:.78rem;margin-top:5px;min-height:1rem;"></div>
                 </div>
-                <!-- Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„fromØ³Ø¯Ù„Ø© -->
+                <!-- ÇáŞÇÆãÉ ÇáfromÓÏáÉ -->
                 <div class="form-group" style="flex:2;min-width:200px;">
                     <label class="form-label"><i class="fa-solid fa-list" style="color:var(--primary);margin-left:4px;"></i> or Select from List</label>
                     <select id="employeeSelect" class="form-select" onchange="onDropdownChange()">
@@ -177,7 +178,7 @@
                     <div style="display:flex;align-items:center;gap:12px;">
                         <div>
                             <div style="font-size:.8rem;color:var(--text-muted);">Weighted Score</div>
-                            <div id="liveScore" style="font-size:1.4rem;font-weight:800;color:var(--primary);">â€”</div>
+                            <div id="liveScore" style="font-size:1.4rem;font-weight:800;color:var(--primary);">—</div>
                         </div>
                         <div class="total-score-ring" id="scoreRing" style="--pct:0%;">
                             <span class="score-text" id="scoreRingText">0</span>
@@ -220,21 +221,21 @@ let selectedRating = 0;
 let selectedEmployeeId = null;
 
 const QUESTIONS = [
-    { id: 'q1', label: 'Work Quality andØ§Ù„Ø¯Ù‚Ø©', icon: 'fa-star-half-stroke' },
-    { id: 'q2', label: 'Ø§NoÙ„ØªØ²Ø§Ù… Ø¨Ø§Ù„Ù…andØ§Ø¹ÙŠØ¯ andØ§Ù„Attendance', icon: 'fa-clock' },
-    { id: 'q3', label: 'Teamwork Ù…Ø¹ Ø§Ù„ÙØ±ÙŠÙ‚', icon: 'fa-people-group' },
+    { id: 'q1', label: 'Work Quality andÇáÏŞÉ', icon: 'fa-star-half-stroke' },
+    { id: 'q2', label: 'ÇNoáÊÒÇã ÈÇáãandÇÚíÏ andÇáAttendance', icon: 'fa-clock' },
+    { id: 'q3', label: 'Teamwork ãÚ ÇáİÑíŞ', icon: 'fa-people-group' },
     { id: 'q4', label: 'Initiative & Creativity', icon: 'fa-lightbulb' },
-    { id: 'q5', label: 'Ø§Ù„Ù…Ø¹Ø±ÙØ© Ø§Ù„ØªÙ‚Ù†ÙŠØ© andØ§Ù„Ù…Ù‡Ø§Ø±Ø§Øª', icon: 'fa-code' },
-    { id: 'q6', label: 'Care Level Ø¨Devices andØ§Ù„Ø­ÙØ§Ø¸ Ø¹Ù„ÙŠÙ‡Ø§', icon: 'fa-gears', highlight: true }
+    { id: 'q5', label: 'ÇáãÚÑİÉ ÇáÊŞäíÉ andÇáãåÇÑÇÊ', icon: 'fa-code' },
+    { id: 'q6', label: 'Care Level ÈDevices andÇáÍİÇÙ ÚáíåÇ', icon: 'fa-gears', highlight: true }
 ];
 
 const SCORE_OPTIONS = [
     { value: '', label: 'Select...' },
-    { value: '5', label: 'Ù…Ù…ØªØ§Ø² (5)' },
-    { value: '4', label: 'Ø¬ÙŠØ¯ Ø¬Ø¯Ø§Ù‹ (4)' },
-    { value: '3', label: 'Ø¬ÙŠØ¯ (3)' },
-    { value: '2', label: 'Ù…accept (2)' },
-    { value: '1', label: 'Ø¶Ø¹ÙŠÙ (1)' }
+    { value: '5', label: 'ããÊÇÒ (5)' },
+    { value: '4', label: 'ÌíÏ ÌÏÇğ (4)' },
+    { value: '3', label: 'ÌíÏ (3)' },
+    { value: '2', label: 'ãaccept (2)' },
+    { value: '1', label: 'ÖÚíİ (1)' }
 ];
 
 function getWeights() {
@@ -264,11 +265,11 @@ function updateTotalWeight() {
 
 function saveWeights() {
     const total = QUESTIONS.reduce((s, q) => s + Number(document.getElementById('w_' + q.id)?.value || 0), 0);
-    if (total !== 100) { alert(`total Ø§Ù„weights = ${total}% â€” ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒandÙ† 100%`); return; }
+    if (total !== 100) { alert(`total Çáweights = ${total}% — íÌÈ Ãä íßandä 100%`); return; }
     db.ratingWeights = {};
     QUESTIONS.forEach(q => { db.ratingWeights[q.id] = Number(document.getElementById('w_' + q.id).value); });
     saveDB(true);
-    alert('Done Save Weights Ø¨Success!');
+    alert('Done Save Weights ÈSuccess!');
     if (selectedEmployeeId) loadEmployeeRating();
 }
 
@@ -290,7 +291,7 @@ function renderQuestionCards() {
                     ${i+1}. ${q.label}
                 </label>
                 <span class="question-weight-badge" style="${q.highlight?'background:#f5f3ff;border-color:#c4b5fd;color:#7c3aed;':''}">
-                    andØ²Ù†: ${w[q.id]||0}%
+                    andÒä: ${w[q.id]||0}%
                 </span>
             </div>
             <select class="form-select" id="${q.id}" onchange="calcLiveScore()">
@@ -317,7 +318,7 @@ function calcLiveScore() {
         totalScore += (val / 5) * (w[q.id] || 0);
     });
     const rounded = Math.round(totalScore);
-    document.getElementById('liveScore').textContent = allFilled ? rounded + '/100' : 'â€”';
+    document.getElementById('liveScore').textContent = allFilled ? rounded + '/100' : '—';
     const ring = document.getElementById('scoreRing');
     const ringText = document.getElementById('scoreRingText');
     if (ring && allFilled) {
@@ -358,7 +359,7 @@ function searchByEmpId() {
         loadEmployeeRating();
         resultEl.innerHTML = `<span style="color:#15803d;"><i class="fa-solid fa-circle-check"></i> ${match.name}</span>`;
     } else {
-        resultEl.innerHTML = `<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> None Ù…employee Ø¨Ù‡Ø°Ø§ Number</span>`;
+        resultEl.innerHTML = `<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> None ãemployee ÈåĞÇ Number</span>`;
         document.getElementById('employeeSelect').value = '';
         document.getElementById('ratingForm').classList.add('hidden');
         document.getElementById('currentRating').classList.add('hidden');
@@ -410,7 +411,7 @@ function loadEmployeeRating() {
 
 function updateStarsDisplay() {
     const stars = document.querySelectorAll('#ratingStars i');
-    const ratingText = ['','Ø¶Ø¹ÙŠÙ','Ù…accept','Ø¬ÙŠØ¯','Ø¬ÙŠØ¯ Ø¬Ø¯Ø§Ù‹','Ù…Ù…ØªØ§Ø²'];
+    const ratingText = ['','ÖÚíİ','ãaccept','ÌíÏ','ÌíÏ ÌÏÇğ','ããÊÇÒ'];
     stars.forEach((star, i) => {
         star.classList.toggle('fa-solid', i < selectedRating);
         star.classList.toggle('fa-regular', i >= selectedRating);
@@ -425,8 +426,8 @@ document.getElementById('ratingStars').addEventListener('click', e => {
 });
 
 function saveRating() {
-    if (!selectedEmployeeId) { alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ù…employee'); return; }
-    if (selectedRating === 0) { alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± ØªÙ‚ÙŠÙŠÙ… Ø¨stars'); return; }
+    if (!selectedEmployeeId) { alert('ÇáÑÌÇÁ ÇÎÊíÇÑ ãemployee'); return; }
+    if (selectedRating === 0) { alert('ÇáÑÌÇÁ ÇÎÊíÇÑ ÊŞííã Èstars'); return; }
 
     const answers = {};
     let allFilled = true;
@@ -434,7 +435,7 @@ function saveRating() {
         answers[q.id] = document.getElementById(q.id).value;
         if (!answers[q.id]) allFilled = false;
     });
-    if (!allFilled) { alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ù„Ø¥Ø¬Ø§Ø¨Ø© Ø¹Ù„Ù‰ Ø¬Ù…ÙŠØ¹ Rating Criteria'); return; }
+    if (!allFilled) { alert('ÇáÑÌÇÁ ÇáÅÌÇÈÉ Úáì ÌãíÚ Rating Criteria'); return; }
 
     // Calculate weighted score
     const w = getWeights();
@@ -460,7 +461,7 @@ function saveRating() {
 }
 
 function cancelRating() {
-    if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Cancel RatingØŸ')) {
+    if (confirm('åá ÃäÊ ãÊÃßÏ from Cancel Rating¿')) {
         document.getElementById('employeeSelect').value = '';
         document.getElementById('empIdSearch').value = '';
         document.getElementById('searchResult').textContent = '';
@@ -479,7 +480,7 @@ function displayCurrentRating(rating) {
                 <div>
                     <div style="font-size:.85rem;color:var(--text-muted);">Rating General: ${stars}</div>
                     <div style="font-size:.8rem;color:var(--text-muted);margin-top:4px;">
-                        By: ${rating.ratedByName} â€” ${new Date(rating.timestamp).toLocaleDateString('en-US')}
+                        By: ${rating.ratedByName} — ${new Date(rating.timestamp).toLocaleDateString('en-US')}
                     </div>
                 </div>
                 ${rating.weightedScore !== undefined ? `
@@ -496,7 +497,7 @@ function displayCurrentRating(rating) {
     if (rating.answers) {
         QUESTIONS.forEach(q => {
             const val = Number(rating.answers[q.id] || 0);
-            const labels = ['','Ø¶Ø¹ÙŠÙ','Ù…accept','Ø¬ÙŠØ¯','Ø¬ÙŠØ¯ Ø¬Ø¯Ø§Ù‹','Ù…Ù…ØªØ§Ø²'];
+            const labels = ['','ÖÚíİ','ãaccept','ÌíÏ','ÌíÏ ÌÏÇğ','ããÊÇÒ'];
             const contribution = Math.round((val/5)*(w[q.id]||0));
             html += `
                 <div style="margin-bottom:12px;">
@@ -506,7 +507,7 @@ function displayCurrentRating(rating) {
                             ${q.label}
                             <span style="color:var(--text-muted);font-size:.75rem;">(${w[q.id]||0}%)</span>
                         </span>
-                        <span style="font-weight:700;color:var(--primary);">${labels[val]||'â€”'} (+${contribution})</span>
+                        <span style="font-weight:700;color:var(--primary);">${labels[val]||'—'} (+${contribution})</span>
                     </div>
                     <div class="score-bar-wrap">
                         <div class="score-bar-fill" style="width:${val/5*100}%;background:${q.highlight?'linear-gradient(90deg,#7c3aed,#a78bfa)':'linear-gradient(90deg,#2563eb,#7c3aed)'};"></div>

@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Logs | SAJCO</title>
@@ -74,22 +75,22 @@
                     <td><strong>${l.user}</strong></td>
                     <td>${l.msg}</td>
                 </tr>
-            `).join('') || '<tr><td colspan="3" style="text-align:center">None Ø³Ø¬NoØª currently</td></tr>';
+            `).join('') || '<tr><td colspan="3" style="text-align:center">None ÓÌNoÊ currently</td></tr>';
         }
 
         if (currentUser && currentUser.role === 'admin') {
             document.getElementById('adminActions').innerHTML = `
                 <button onclick="clearLogs()" class="btn btn-danger btn-sm">
-                    <i class="fa-solid fa-trash-can"></i> Clear Ø§Ù„Ø³Ø¬Ù„ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„
+                    <i class="fa-solid fa-trash-can"></i> Clear ÇáÓÌá ÈÇáßÇãá
                 </button>
             `;
         }
 
         window.clearLogs = () => {
-            if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Clear Ø¬Ù…ÙŠØ¹ Ø³Ø¬NoØª Ø§Ù„Ø¹Ù…Ù„ÙŠØ§ØªØŸ No ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù† Ù‡Ø°Ø§ Action.')) {
+            if (confirm('åá ÃäÊ ãÊÃßÏ from Clear ÌãíÚ ÓÌNoÊ ÇáÚãáíÇÊ¿ No íãßä ÇáÊÑÇÌÚ Úä åĞÇ Action.')) {
                 db.logs = [];
                 saveDB();
-                addLog('Ù‚Ø§Ù… Ø§Ù„Ù…Ø¯ÙŠØ± Ø¨Clear Activity Logs Ø¨Ø§Ù„ÙƒØ§Ù…Ù„');
+                addLog('ŞÇã ÇáãÏíÑ ÈClear Activity Logs ÈÇáßÇãá');
                 refreshLogs();
             }
         };

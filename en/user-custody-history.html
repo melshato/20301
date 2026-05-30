@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Custody History - SAJCO</title>
@@ -75,10 +76,10 @@
 
         searchEmpIdInput.addEventListener('input', () => {
             const empId = searchEmpIdInput.value.trim();
-            document.getElementById('exportBtn').classList.add('hidden'); // Hide Ø§Ù„Ø²Ø± Ø¹Ù†Ø¯ ØªØºÙŠÙŠØ± Ø§Ù„Ù…Ø¯Ø®NoØª
+            document.getElementById('exportBtn').classList.add('hidden'); // Hide ÇáÒÑ ÚäÏ ÊÛííÑ ÇáãÏÎNoÊ
             const user = db.users.find(u => u.empId === empId);
             if (user) {
-                searchedUserInfoDiv.textContent = `Employee: ${user.name} (${user.role === 'admin' ? 'Ù…Ø¯ÙŠØ±' : user.role === 'head' ? 'Head Surveyor' : 'Surveyor'})`;
+                searchedUserInfoDiv.textContent = `Employee: ${user.name} (${user.role === 'admin' ? 'ãÏíÑ' : user.role === 'head' ? 'Head Surveyor' : 'Surveyor'})`;
             } else {
                 searchedUserInfoDiv.textContent = '';
             }
@@ -88,14 +89,14 @@
             const empId = searchEmpIdInput.value.trim();
             const exportBtn = document.getElementById('exportBtn');
             if (!empId) {
-                alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Employee ID.');
+                alert('ÇáÑÌÇÁ ÅÏÎÇá Employee ID.');
                 return;
             }
 
             const targetUser = db.users.find(u => u.empId === empId);
             if (!targetUser) {
-                alert('Ù„Ù… ÙŠDone Ø§Ù„Ø¹Ø«andØ± Ø¹Ù„Ù‰ Ù…employee Ø¨Ù‡Ø°Ø§ Employee ID.');
-                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Ù„Ù… ÙŠDone Ø§Ù„Ø¹Ø«andØ± Ø¹Ù„Ù‰ Ù…employee Ø¨Ù‡Ø°Ø§ Employee ID.</td></tr>';
+                alert('áã íDone ÇáÚËandÑ Úáì ãemployee ÈåÐÇ Employee ID.');
+                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">áã íDone ÇáÚËandÑ Úáì ãemployee ÈåÐÇ Employee ID.</td></tr>';
                 exportBtn.classList.add('hidden');
                 return;
             }
@@ -103,29 +104,29 @@
             lastSearchResults = [];
 
             db.custodies.forEach(c => {
-                if (c.status === 'approved') { // only Ø§Ù„Ø³Ø¬NoØª ApprovaldØ©
-                    // Ø­Ø§Ù„Ø©: Device Ø¯Ø®Ù„ Custody Ù‡Ø°Ø§ Employee
+                if (c.status === 'approved') { // only ÇáÓÌNoÊ ApprovaldÉ
+                    // ÍÇáÉ: Device ÏÎá Custody åÐÇ Employee
                     if (c.userId === targetUser.id) {
                         lastSearchResults.push({
                             timestamp: c.timestamp,
                             serialNumber: c.serialNumber,
                             deviceType: c.deviceType,
-                            action: c.transferData ? `Ù†Ù‚Ù„ Ø¥Ù„ÙŠÙ‡ from ${c.transferData.fromUserName}` : 'Receive Custody Ø¬Ø¯ÙŠØ¯Ø©',
-                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'Ø§Ù„Ù†Ø¸Ø§Ù…',
+                            action: c.transferData ? `äÞá Åáíå from ${c.transferData.fromUserName}` : 'Receive Custody ÌÏíÏÉ',
+                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'ÇáäÙÇã',
                             branchId: c.branchId,
                             notes: c.notes || (c.transferData ? c.transferData.reason : ''),
                             approvalHistory: c.approvalHistory || []
                         });
                     }
-                    // Ø­Ø§Ù„Ø©: Device Ø®Ø±Ø¬ from Custody Ù‡Ø°Ø§ Employee (Ø¹Ø¨Ø± Ù†Ù‚Ù„)
+                    // ÍÇáÉ: Device ÎÑÌ from Custody åÐÇ Employee (ÚÈÑ äÞá)
                     if (c.transferData && c.transferData.fromUserId === targetUser.id) {
                         lastSearchResults.push({
                             timestamp: c.timestamp,
                             serialNumber: c.serialNumber,
                             deviceType: c.deviceType,
-                            action: `Ù†Ù‚Ù„ fromÙ‡ to ${db.users.find(u => u.id === c.userId)?.name || 'ØºÙŠØ± Ù…Ø¹Ø±andÙ'}`,
-                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'Ø§Ù„Ù†Ø¸Ø§Ù…',
-                            branchId: c.branchId, // Branch Ø¹Ù†Ø¯ Ø§Ù„Ù†Ù‚Ù„
+                            action: `äÞá fromå to ${db.users.find(u => u.id === c.userId)?.name || 'ÛíÑ ãÚÑandÝ'}`,
+                            byUser: db.users.find(u => u.id === c.assignedBy)?.name || 'ÇáäÙÇã',
+                            branchId: c.branchId, // Branch ÚäÏ ÇáäÞá
                             notes: c.notes || c.transferData.reason,
                             approvalHistory: c.approvalHistory || []
                         });
@@ -136,7 +137,7 @@
             lastSearchResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             _lastSearchUserName = targetUser.name;
 
-            // Ø¥Ø¸Ù‡Ø§Ø± Ø§Ù„Ø²Ø± only ÙÙŠ Ø­Ø§Ù„ andØ¬andØ¯ Ù†ØªØ§Ø¦Ø¬
+            // ÅÙåÇÑ ÇáÒÑ only Ýí ÍÇá andÌandÏ äÊÇÆÌ
             if (lastSearchResults.length > 0) {
                 exportBtn.classList.remove('hidden');
             } else {
@@ -150,7 +151,7 @@
             userCustodyHistoryTableBody.innerHTML = '';
 
             if (records.length === 0) {
-                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">None Ø³Ø¬NoØª Custody Ù„Ù‡Ø°Ø§ Employee.</td></tr>';
+                userCustodyHistoryTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">None ÓÌNoÊ Custody áåÐÇ Employee.</td></tr>';
                 return;
             }
 
@@ -161,15 +162,15 @@
                 row.insertCell().textContent = `${getDeviceTypeName(record.deviceType)} (S/N: ${record.serialNumber})`;
                 row.insertCell().textContent = record.action;
                 row.insertCell().textContent = record.byUser;
-                row.insertCell().textContent = branch ? branch.name : 'â€”';
-                row.insertCell().textContent = record.notes || 'â€”';
+                row.insertCell().textContent = branch ? branch.name : '—';
+                row.insertCell().textContent = record.notes || '—';
                 
                 const historyCell = row.insertCell();
                 historyCell.innerHTML = record.approvalHistory && record.approvalHistory.length > 0 
                     ? record.approvalHistory.map(h => `<div style="font-size:0.75rem; border-bottom:1px solid #eee; margin-bottom:4px; padding-bottom:4px;">
                         <i class="fa-solid fa-check-double" style="color:var(--primary)"></i> <strong>${h.approverRole}:</strong> ${h.approverName}<br>
                         <small style="color:var(--text-muted)">${new Date(h.timestamp).toLocaleString('en-US')}</small></div>`).join('')
-                    : '<span style="color:var(--text-muted)">â€”</span>';
+                    : '<span style="color:var(--text-muted)">—</span>';
             });
         }
 

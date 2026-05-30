@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Device Management | SAJCO</title>
@@ -115,8 +116,8 @@
                         <option value="assigned">Personal Custody</option>
                         <option value="maintenance">Under Maintenance</option>
                         <option value="needs_calibration">Needs Calibration</option>
-                        <option value="at_maintenance">At Vendor â€” Maintenance</option>
-                        <option value="at_calibration">At Vendor â€” Calibration</option>
+                        <option value="at_maintenance">At Vendor — Maintenance</option>
+                        <option value="at_calibration">At Vendor — Calibration</option>
                     </select>
                 </div>
                 <div class="form-group" id="branchFilterGroup" style="flex:1;min-width:160px;">
@@ -201,7 +202,7 @@
                 <input type="date" id="newCalDate" class="form-input required-date-input apple-date-input" required>
                 <small class="required-label-red" style="margin-top:4px;display:block;">
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    A new Calibration Date must be entered â€” it must be in the future
+                    A new Calibration Date must be entered — it must be in the future
                 </small>
             </div>
 
@@ -232,7 +233,7 @@ if (!isAdmin) {
     // Remove warehouse status option from filter for non-admin
     const warehouseOpt = document.querySelector('#statusFilter .admin-only-opt');
     if (warehouseOpt) warehouseOpt.remove();
-    // Hide branch filter â€” non-admin is locked to their branch
+    // Hide branch filter — non-admin is locked to their branch
     document.getElementById('branchFilterGroup').style.display = 'none';
 }
 
@@ -245,19 +246,19 @@ if (isHead) {
     notice.style.display = 'flex';
     const myBranch = db.branches.find(b => b.id === currentUser.responsibleBranch);
     document.getElementById('branchNoticeText').textContent =
-        `Ø£Ù†Øª ØªØ±Ù‰ Ø£Ø¬Ù‡Ø²Ø© your branch only${myBranch ? ' (' + myBranch.name + ')' : ''}. Warehouse Ù…Ø®ØµØµ for Admin General.`;
+        `ÃäÊ ÊÑì ÃÌåÒÉ your branch only${myBranch ? ' (' + myBranch.name + ')' : ''}. Warehouse ãÎÕÕ for Admin General.`;
 }
 
 if (currentUser.role === 'surveyor') {
     const notice = document.getElementById('branchNotice');
     notice.style.display = 'flex';
-    document.getElementById('branchNoticeText').textContent = 'Ø£Ù†Øª ØªØ±Ù‰ Ø£Ø¬Ù‡Ø²ØªÙƒ Ø§Ù„Ø´Ø®ØµÙŠØ© only.';
+    document.getElementById('branchNoticeText').textContent = 'ÃäÊ ÊÑì ÃÌåÒÊß ÇáÔÎÕíÉ only.';
 }
 
 const statusLabels = {
     warehouse: 'Warehouse', assigned: 'Personal Custody', maintenance: 'Maintenance',
-    needs_calibration: 'Needs Calibration', at_maintenance: 'At Vendor â€” Maintenance',
-    at_calibration: 'At Vendor â€” Calibration'
+    needs_calibration: 'Needs Calibration', at_maintenance: 'At Vendor — Maintenance',
+    at_calibration: 'At Vendor — Calibration'
 };
 
 // ===== Device type select population =====
@@ -285,10 +286,10 @@ function renderCustomTypesList() {
     if (!list) return;
     const custom = db.settings.customDeviceTypes || [];
     if (custom.length === 0) {
-        list.innerHTML = '<div style="font-size:.8rem;color:#6b7280;padding:2px 0;">None types Ù…Ø®ØµØµØ© yet.</div>';
+        list.innerHTML = '<div style="font-size:.8rem;color:#6b7280;padding:2px 0;">None types ãÎÕÕÉ yet.</div>';
         return;
     }
-    list.innerHTML = '<div style="font-size:.8rem;color:#374151;margin-bottom:6px;font-weight:600;">Ø§Ù„types Ø§Ù„Ù…Ø®ØµØµØ© current:</div>' +
+    list.innerHTML = '<div style="font-size:.8rem;color:#374151;margin-bottom:6px;font-weight:600;">Çátypes ÇáãÎÕÕÉ current:</div>' +
         custom.map(t => `
             <div style="display:flex;align-items:center;gap:6px;margin:3px 0;background:#fff;padding:5px 8px;border-radius:6px;border:1px solid #dbeafe;">
                 <span style="flex:1;font-size:.85rem;color:#1f2937;">${t.label}</span>
@@ -313,7 +314,7 @@ function saveNewDeviceType() {
 window.deleteCustomType = value => {
     const t = (db.settings.customDeviceTypes || []).find(x => x.value === value);
     if (!t) return;
-    if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Type "${t.label}"ØŸ`)) {
+    if (confirm(`åá ÃäÊ ãÊÃßÏ from Delete Type "${t.label}"¿`)) {
         removeCustomDeviceType(value);
         populateDeviceTypes();
         renderCustomTypesList();
@@ -378,10 +379,10 @@ function buildActionButtons(d) {
                  </button>`;
     } else if (sendable && isAdmin) {
         // Admin direct send
-        btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-send-maint" title="Send Ù„Ù„Maintenance">
+        btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-send-maint" title="Send ááMaintenance">
                     <i class="fa-solid fa-screwdriver-wrench"></i> Maintenance
                  </button>
-                 <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-send-calib" title="Send Ù„Ù„Calibration">
+                 <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-send-calib" title="Send ááCalibration">
                     <i class="fa-solid fa-ruler-combined"></i> Calibration
                  </button>`;
     } else if (!atAgent && !isAdmin && (isHead || currentUser.role === 'surveyor')) {
@@ -400,7 +401,7 @@ function buildActionButtons(d) {
         }
     }
 
-    return btns || '<span style="color:var(--text-muted);font-size:.8rem;">â€”</span>';
+    return btns || '<span style="color:var(--text-muted);font-size:.8rem;">—</span>';
 }
 
 // ===== Refresh table =====
@@ -420,18 +421,18 @@ function refreshTable() {
             <td><strong>${d.serial}</strong></td>
             <td>${getDeviceTypeName(d.type)}</td>
             <td>${owner ? owner.name : '<span style="color:var(--text-muted)">Warehouse</span>'}</td>
-            <td>${branch ? branch.name : 'â€”'}</td>
+            <td>${branch ? branch.name : '—'}</td>
             <td style="color:${calExpired ? '#dc2626' : calWarning ? '#d97706' : 'inherit'};">
                 ${formatDate(d.calDate)}
                 ${calExpired ? ' <span class="badge badge-danger" style="font-size:.7rem;">Completed</span>' : ''}
-                ${calWarning && !calExpired ? ' <span class="badge badge-warning" style="font-size:.7rem;">Ù‚Ø±ÙŠØ¨Ø§Ù‹</span>' : ''}
+                ${calWarning && !calExpired ? ' <span class="badge badge-warning" style="font-size:.7rem;">ŞÑíÈÇğ</span>' : ''}
             </td>
             <td>${getDeviceStatusBadge(d.status)}</td>
             <td><div class="action-btns">${buildActionButtons(d)}</div></td>
         </tr>`;
-    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">None Ø£Ø¬Ù‡Ø²Ø© Ù…Ø·Ø§Ø¨Ù‚Ø©.</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted);">None ÃÌåÒÉ ãØÇÈŞÉ.</td></tr>';
 
-    document.getElementById('tableFooter').textContent = `Total: ${filtered.length} Ø¬Ù‡Ø§Ø²`;
+    document.getElementById('tableFooter').textContent = `Total: ${filtered.length} ÌåÇÒ`;
 }
 
 // ===== Add/Edit form (admin only) =====
@@ -474,9 +475,9 @@ window.editDevice = id => {
 window.handleDeleteDevice = id => {
     const d = db.devices.find(x => x.id === id);
     if (!d) return;
-    if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Device "${d.serial}"ØŸ`)) {
+    if (confirm(`åá ÃäÊ ãÊÃßÏ from Delete Device "${d.serial}"¿`)) {
         if (deleteDevice(id)) { refreshTable(); }
-        else { alert('ÙØ´Ù„ Ø§Ù„Delete.'); }
+        else { alert('İÔá ÇáDelete.'); }
     }
 };
 
@@ -488,7 +489,7 @@ window.openSendModal = (deviceId, serial, deviceType, defaultType = 'maintenance
     document.getElementById('sendType').value       = defaultType;
     document.getElementById('sendNotes').value      = '';
     document.getElementById('sendModalDesc').textContent =
-        `Device: ${serial} â€” ${getDeviceTypeName(deviceType)}`;
+        `Device: ${serial} — ${getDeviceTypeName(deviceType)}`;
 
     const modeNote = document.getElementById('sendModeNote');
     const btnLabel = document.getElementById('confirmSendBtn');
@@ -499,7 +500,7 @@ window.openSendModal = (deviceId, serial, deviceType, defaultType = 'maintenance
     } else {
         modeNote.style.display = 'block';
         btnLabel.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Request';
-        document.getElementById('sendModalTitle').textContent = 'Ø·Ù„Ø¨ Send Device to Vendor';
+        document.getElementById('sendModalTitle').textContent = 'ØáÈ Send Device to Vendor';
     }
     document.getElementById('sendModal').style.display = 'flex';
 };
@@ -531,8 +532,8 @@ window.confirmSend = () => {
     refreshTable();
 
     const msg = isAdmin
-        ? `Done Send Device ${serial} Ù„Ù„vendor.`
-        : `Done Send Ø·Ù„Ø¨ ${requestType === 'maintenance' ? 'Maintenance' : 'Calibration'} Ù„Ù„Ø¬Ù‡Ø§Ø² ${serial}. Pending Approve General Manager.`;
+        ? `Done Send Device ${serial} áávendor.`
+        : `Done Send ØáÈ ${requestType === 'maintenance' ? 'Maintenance' : 'Calibration'} ááÌåÇÒ ${serial}. Pending Approve General Manager.`;
     showToast(msg, isAdmin ? 'success' : 'info');
 };
 
@@ -544,7 +545,7 @@ window.openReturnModal = (deviceId) => {
     document.getElementById('returnNotes').value    = '';
     document.getElementById('newCalDate').value     = '';
     document.getElementById('returnModalDesc').textContent =
-        `Device: ${d.serial} â€” ${getDeviceTypeName(d.type)} (${statusLabels[d.status] || d.status})`;
+        `Device: ${d.serial} — ${getDeviceTypeName(d.type)} (${statusLabels[d.status] || d.status})`;
     // Set min date to tomorrow
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     document.getElementById('newCalDate').min = tomorrow.toISOString().split('T')[0];
@@ -562,12 +563,12 @@ window.confirmReturn = () => {
 
     if (!newCalDate) {
         document.getElementById('newCalDate').focus();
-        alert('ÙŠØ¬Ø¨ Ø¥Ø¯Ø®Ø§Ù„ Calibration Date new.');
+        alert('íÌÈ ÅÏÎÇá Calibration Date new.');
         return;
     }
     const today = new Date(); today.setHours(0,0,0,0);
     if (new Date(newCalDate) <= today) {
-        alert('ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒandÙ† Calibration Date ÙÙŠ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„.');
+        alert('íÌÈ Ãä íßandä Calibration Date İí ÇáãÓÊŞÈá.');
         return;
     }
 
@@ -593,12 +594,12 @@ function showToast(msg, type = 'success') {
 // ===== Export =====
 window.exportToExcel = () => {
     const filtered = getFiltered();
-    if (filtered.length === 0) { alert('None Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„Export.'); return; }
-    let csv = 'ï»¿';
+    if (filtered.length === 0) { alert('None ÈíÇäÇÊ ááExport.'); return; }
+    let csv = '?';
     csv += 'Serial Number,Type,Owner,Branch,Calibration Date,Status\n';
     filtered.forEach(d => {
         const owner  = db.users.find(u => u.id === d.ownerId)?.name || 'Warehouse';
-        const branch = db.branches.find(b => b.id === d.branch)?.name || 'â€”';
+        const branch = db.branches.find(b => b.id === d.branch)?.name || '—';
         const label  = statusLabels[d.status] || d.status;
         csv += `"${d.serial}","${getDeviceTypeName(d.type)}","${owner}","${branch}","${formatDate(d.calDate)}","${label}"\n`;
     });
@@ -609,7 +610,7 @@ window.exportToExcel = () => {
     link.download = `Devices_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    addLog('Done Export Ø¨ÙŠØ§Ù†Ø§Øª Devices to Excel');
+    addLog('Done Export ÈíÇäÇÊ Devices to Excel');
 };
 
 document.getElementById('devSearch').oninput   = refreshTable;

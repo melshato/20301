@@ -1,9 +1,10 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ù…Ø±ÙƒØ² Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª | Ø³Ø§Ø¬ÙƒÙˆ</title>
+    <title>ãÑßÒ ÇáÅÔÚÇÑÇÊ | ÓÇÌßæ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -161,34 +162,34 @@
             <div>
                 <h2 style="font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:10px;">
                     <i class="fa-solid fa-bell" style="color:var(--primary)"></i>
-                    Ù…Ø±ÙƒØ² Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª
+                    ãÑßÒ ÇáÅÔÚÇÑÇÊ
                     <span class="notif-count-bubble" id="unreadCountBubble" style="display:none;">0</span>
                 </h2>
-                <p style="color:var(--text-muted);margin-top:4px;">ØªØ­Ø¯ÙŠØ« Ù„Ø­Ø¸ÙŠ â€” Ù…Ù† Ø£ÙŠ Ø¥Ø´Ø¹Ø§Ø± ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ù„Ø§Ù†ØªÙ‚Ø§Ù„ Ù…Ø¨Ø§Ø´Ø±Ø© Ù„Ù„Ø®Ø¯Ù…Ø©</p>
+                <p style="color:var(--text-muted);margin-top:4px;">ÊÍÏíË áÍÙí — ãä Ãí ÅÔÚÇÑ íãßäß ÇáÇäÊŞÇá ãÈÇÔÑÉ ááÎÏãÉ</p>
             </div>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                 <span class="realtime-indicator">
                     <span class="realtime-dot"></span>
-                    Ù…Ø¨Ø§Ø´Ø±
+                    ãÈÇÔÑ
                 </span>
                 <button onclick="handleMarkAllRead()" class="btn btn-ghost btn-sm">
-                    <i class="fa-solid fa-check-double"></i> ØªØ­Ø¯ÙŠØ¯ Ø§Ù„ÙƒÙ„ ÙƒÙ…Ù‚Ø±ÙˆØ¡
+                    <i class="fa-solid fa-check-double"></i> ÊÍÏíÏ Çáßá ßãŞÑæÁ
                 </button>
                 <button onclick="exportNotificationsXLSX()" class="btn btn-ghost btn-sm">
-                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> ØªØµØ¯ÙŠØ± Excel
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> ÊÕÏíÑ Excel
                 </button>
-                <button onclick="if(confirm('Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„Ù…Ù‚Ø±ÙˆØ¡Ø©ØŸ')) clearReadNotifications()" class="btn btn-ghost btn-sm" style="color:#ef4444;">
-                    <i class="fa-solid fa-trash-can"></i> Ø­Ø°Ù Ø§Ù„Ù…Ù‚Ø±ÙˆØ¡Ø©
+                <button onclick="if(confirm('ÍĞİ ÌãíÚ ÇáÅÔÚÇÑÇÊ ÇáãŞÑæÁÉ¿')) clearReadNotifications()" class="btn btn-ghost btn-sm" style="color:#ef4444;">
+                    <i class="fa-solid fa-trash-can"></i> ÍĞİ ÇáãŞÑæÁÉ
                 </button>
             </div>
         </div>
 
         <div class="notif-filter-tabs" style="margin-bottom:20px;">
-            <button class="filter-tab active" onclick="setFilter('all',this)">Ø§Ù„ÙƒÙ„</button>
-            <button class="filter-tab" onclick="setFilter('unread',this)">ØºÙŠØ± Ù…Ù‚Ø±ÙˆØ¡Ø©</button>
-            <button class="filter-tab" onclick="setFilter('requires_action',this)">ØªØ­ØªØ§Ø¬ Ø¥Ø¬Ø±Ø§Ø¡</button>
-            <button class="filter-tab" onclick="setFilter('warning',this)">ØªØ­Ø°ÙŠØ±Ø§Øª</button>
-            <button class="filter-tab" onclick="setFilter('success',this)">Ù†Ø¬Ø§Ø­</button>
+            <button class="filter-tab active" onclick="setFilter('all',this)">Çáßá</button>
+            <button class="filter-tab" onclick="setFilter('unread',this)">ÛíÑ ãŞÑæÁÉ</button>
+            <button class="filter-tab" onclick="setFilter('requires_action',this)">ÊÍÊÇÌ ÅÌÑÇÁ</button>
+            <button class="filter-tab" onclick="setFilter('warning',this)">ÊÍĞíÑÇÊ</button>
+            <button class="filter-tab" onclick="setFilter('success',this)">äÌÇÍ</button>
         </div>
 
         <div class="card" style="padding:0;overflow:hidden;">
@@ -199,79 +200,79 @@
 
 <div class="toast-wrap" id="toasts"></div>
 
-<!-- Ù…ÙˆØ¯Ø§Ù„ Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø© -->
+<!-- ãæÏÇá ŞÈæá ÇáÚåÏÉ -->
 <div id="acceptCustodyModal" class="modal-overlay hidden">
     <div class="modal-box">
-        <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø©</h3>
+        <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> ŞÈæá ÇáÚåÏÉ</h3>
         <input type="hidden" id="acceptCustodyId">
         <input type="hidden" id="acceptNotifId">
 
         <div class="acceptance-warning">
-            <strong><i class="fa-solid fa-triangle-exclamation"></i> ØªÙ†Ø¨ÙŠÙ‡ Ø¹Ù†Ø¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…:</strong><br>
-            ÙŠØ±Ø¬Ù‰ Ø§Ù„ØªØ­Ù‚Ù‚ Ø¨Ø¯Ù‚Ø© Ù…Ù† Ø£Ù† <strong>Ø¬Ù…ÙŠØ¹ Ù‚Ø·Ø¹ ÙˆØ£ÙƒØ³Ø³ÙˆØ§Ø±Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Ø² Ù…ÙƒØªÙ…Ù„Ø©</strong> Ù‚Ø¨Ù„ ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù….
+            <strong><i class="fa-solid fa-triangle-exclamation"></i> ÊäÈíå ÚäÏ ÇáÇÓÊáÇã:</strong><br>
+            íÑÌì ÇáÊÍŞŞ ÈÏŞÉ ãä Ãä <strong>ÌãíÚ ŞØÚ æÃßÓÓæÇÑÇÊ ÇáÌåÇÒ ãßÊãáÉ</strong> ŞÈá ÊÃßíÏ ÇáÇÓÊáÇã.
         </div>
 
         <div class="form-group">
-            <label class="form-label">ØªÙ‚ÙŠÙŠÙ… Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø² <span style="color:#ef4444;">*</span></label>
+            <label class="form-label">ÊŞííã ÍÇáÉ ÇáÌåÇÒ <span style="color:#ef4444;">*</span></label>
             <select id="acceptDeviceCondition" class="form-select">
-                <option value="">Ø§Ø®ØªØ± Ø§Ù„ØªÙ‚ÙŠÙŠÙ…...</option>
-                <option value="Ù…Ù…ØªØ§Ø²">Ù…Ù…ØªØ§Ø² â€” Ù…ÙƒØªÙ…Ù„ ÙˆÙŠØ¹Ù…Ù„ Ø¨ÙƒÙØ§Ø¡Ø© ØªØ§Ù…Ø©</option>
-                <option value="Ø¬ÙŠØ¯">Ø¬ÙŠØ¯ â€” Ù…ÙƒØªÙ…Ù„ Ù…Ø¹ Ø¨Ø¹Ø¶ Ø§Ù„Ø®Ø¯ÙˆØ´</option>
-                <option value="Ù…Ù‚Ø¨ÙˆÙ„">Ù…Ù‚Ø¨ÙˆÙ„ â€” Ù†Ø§Ù‚Øµ Ø¨Ø¹Ø¶ Ø§Ù„Ù…Ù„Ø­Ù‚Ø§Øª</option>
-                <option value="ÙŠØ­ØªØ§Ø¬ ØµÙŠØ§Ù†Ø©">ÙŠØ­ØªØ§Ø¬ ØµÙŠØ§Ù†Ø© â€” Ø¨Ù‡ Ø¹Ø·Ù„ Ø£Ùˆ Ø®Ù„Ù„</option>
+                <option value="">ÇÎÊÑ ÇáÊŞííã...</option>
+                <option value="ããÊÇÒ">ããÊÇÒ — ãßÊãá æíÚãá ÈßİÇÁÉ ÊÇãÉ</option>
+                <option value="ÌíÏ">ÌíÏ — ãßÊãá ãÚ ÈÚÖ ÇáÎÏæÔ</option>
+                <option value="ãŞÈæá">ãŞÈæá — äÇŞÕ ÈÚÖ ÇáãáÍŞÇÊ</option>
+                <option value="íÍÊÇÌ ÕíÇäÉ">íÍÊÇÌ ÕíÇäÉ — Èå ÚØá Ãæ Îáá</option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">Ù‡Ù„ Ø£Ù†Øª Ø±Ø§Ø¶Ù Ø¹Ù† Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø²ØŸ <span style="color:#ef4444;">*</span></label>
+            <label class="form-label">åá ÃäÊ ÑÇÖò Úä ÍÇáÉ ÇáÌåÇÒ¿ <span style="color:#ef4444;">*</span></label>
             <div style="display:flex;gap:20px;margin-top:6px;">
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-                    <input type="radio" name="acceptSatisfied" value="true"> Ù†Ø¹Ù…
+                    <input type="radio" name="acceptSatisfied" value="true"> äÚã
                 </label>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-                    <input type="radio" name="acceptSatisfied" value="false"> Ù„Ø§
+                    <input type="radio" name="acceptSatisfied" value="false"> áÇ
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø¹Ù„Ù‰ Ø§Ù„Ø¬Ù‡Ø§Ø² Ø§Ù„Ù…Ø³ØªÙ„Ù…</label>
-            <textarea id="acceptNotes" class="form-textarea" rows="3" placeholder="Ø§Ø°ÙƒØ± Ø£ÙŠ Ù†Ù‚Øµ ÙÙŠ Ø§Ù„Ø£Ø¯ÙˆØ§Øª Ø£Ùˆ Ø§Ù„Ø£ÙƒØ³Ø³ÙˆØ§Ø±Ø§Øª..."></textarea>
+            <label class="form-label">ãáÇÍÙÇÊ Úáì ÇáÌåÇÒ ÇáãÓÊáã</label>
+            <textarea id="acceptNotes" class="form-textarea" rows="3" placeholder="ÇĞßÑ Ãí äŞÕ İí ÇáÃÏæÇÊ Ãæ ÇáÃßÓÓæÇÑÇÊ..."></textarea>
         </div>
         <div class="form-group">
-            <label class="form-label">Ù…Ø¯Ù‰ Ø§Ù‡ØªÙ…Ø§Ù…Ùƒ Ø¨Ø§Ù„Ø¬Ù‡Ø§Ø² (ÙˆØµÙ Ù…Ø®ØªØµØ±)</label>
-            <input type="text" id="acceptCareLevel" class="form-input" placeholder="Ù…Ø«Ø§Ù„: Ø£Ø­Ø±Øµ Ø¹Ù„Ù‰ Ù†Ø¸Ø§ÙØªÙ‡ ÙˆØµÙŠØ§Ù†ØªÙ‡ Ø§Ù„Ø¯ÙˆØ±ÙŠØ©">
+            <label class="form-label">ãÏì ÇåÊãÇãß ÈÇáÌåÇÒ (æÕİ ãÎÊÕÑ)</label>
+            <input type="text" id="acceptCareLevel" class="form-input" placeholder="ãËÇá: ÃÍÑÕ Úáì äÙÇİÊå æÕíÇäÊå ÇáÏæÑíÉ">
         </div>
         <div class="form-group">
-            <label class="form-label">ØªØ¹Ù„ÙŠÙ‚ Ø¥Ø¶Ø§ÙÙŠ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
-            <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="Ø£ÙŠ ØªØ¹Ù„ÙŠÙ‚ Ø¥Ø¶Ø§ÙÙŠ..."></textarea>
+            <label class="form-label">ÊÚáíŞ ÅÖÇİí (ÇÎÊíÇÑí)</label>
+            <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="Ãí ÊÚáíŞ ÅÖÇİí..."></textarea>
         </div>
 
         <div class="acceptance-confirm-row">
             <input type="checkbox" id="acceptConfirmCheck">
             <label for="acceptConfirmCheck">
-                Ø£ÙÙ‚Ø± ÙˆØ£Ø¤ÙƒØ¯ Ø£Ù†Ù†ÙŠ ØªØ­Ù‚Ù‚Øª Ù…Ù† Ø£Ù† Ø¬Ù…ÙŠØ¹ Ù‚Ø·Ø¹ ÙˆØ£ÙƒØ³Ø³ÙˆØ§Ø±Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Ø² ÙƒØ§Ù…Ù„Ø© ÙˆÙ‡Ùˆ ÙÙŠ Ø¹Ù‡Ø¯ØªÙŠ Ø§Ù„Ø¢Ù†ØŒ ÙˆØ£ØªØ­Ù…Ù„ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ© Ø§Ù„ÙƒØ§Ù…Ù„Ø© Ø¹Ù† Ø³Ù„Ø§Ù…ØªÙ‡.
+                ÃõŞÑ æÃÄßÏ Ãääí ÊÍŞŞÊ ãä Ãä ÌãíÚ ŞØÚ æÃßÓÓæÇÑÇÊ ÇáÌåÇÒ ßÇãáÉ æåæ İí ÚåÏÊí ÇáÂä¡ æÃÊÍãá ÇáãÓÄæáíÉ ÇáßÇãáÉ Úä ÓáÇãÊå.
             </label>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:18px;">
-            <button onclick="submitAcceptCustody()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…</button>
-            <button onclick="closeAcceptCustodyModal()" class="btn btn-ghost" style="flex:1;">Ø¥Ù„ØºØ§Ø¡</button>
+            <button onclick="submitAcceptCustody()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> ÊÃßíÏ ÇáÇÓÊáÇã</button>
+            <button onclick="closeAcceptCustodyModal()" class="btn btn-ghost" style="flex:1;">ÅáÛÇÁ</button>
         </div>
     </div>
 </div>
 
-<!-- Ù…ÙˆØ¯Ø§Ù„ Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø© -->
+<!-- ãæÏÇá ÑİÖ ÇáÚåÏÉ -->
 <div id="rejectCustodyModal" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:420px;">
-        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø©</h3>
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> ÑİÖ ÇáÚåÏÉ</h3>
         <input type="hidden" id="rejectCustodyId">
         <input type="hidden" id="rejectNotifId">
         <div class="form-group">
-            <label class="form-label">Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶ <span style="color:#ef4444;">*</span></label>
-            <textarea id="rejectReason" class="form-textarea" rows="3" placeholder="Ø£Ø¯Ø®Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶..."></textarea>
+            <label class="form-label">ÓÈÈ ÇáÑİÖ <span style="color:#ef4444;">*</span></label>
+            <textarea id="rejectReason" class="form-textarea" rows="3" placeholder="ÃÏÎá ÓÈÈ ÇáÑİÖ..."></textarea>
         </div>
         <div style="display:flex;gap:10px;margin-top:16px;">
-            <button onclick="submitRejectCustody()" class="btn btn-ghost" style="flex:1;color:#ef4444;border-color:#ef4444;"><i class="fa-solid fa-xmark"></i> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø±ÙØ¶</button>
-            <button onclick="closeRejectCustodyModal()" class="btn btn-ghost" style="flex:1;">Ø¥Ù„ØºØ§Ø¡</button>
+            <button onclick="submitRejectCustody()" class="btn btn-ghost" style="flex:1;color:#ef4444;border-color:#ef4444;"><i class="fa-solid fa-xmark"></i> ÊÃßíÏ ÇáÑİÖ</button>
+            <button onclick="closeRejectCustodyModal()" class="btn btn-ghost" style="flex:1;">ÅáÛÇÁ</button>
         </div>
     </div>
 </div>
@@ -313,7 +314,7 @@ function renderNotificationCenter() {
         list.innerHTML = `
             <div class="empty-state">
                 <i class="fa-solid fa-bell-slash"></i>
-                <p>Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ù‚Ø³Ù…</p>
+                <p>áÇ ÊæÌÏ ÅÔÚÇÑÇÊ İí åĞÇ ÇáŞÓã</p>
             </div>`;
         return;
     }
@@ -332,7 +333,7 @@ function _renderNotifItem(n) {
     const ic = icons[n.type] || icons.general;
     const actionBtns = _buildActionButtons(n);
     const serviceLink = n.actionUrl
-        ? `<a href="${n.actionUrl}" class="btn-view-service" onclick="markNotificationAsRead('${n.id}')"><i class="fa-solid fa-arrow-left"></i> Ø¹Ø±Ø¶</a>`
+        ? `<a href="${n.actionUrl}" class="btn-view-service" onclick="markNotificationAsRead('${n.id}')"><i class="fa-solid fa-arrow-left"></i> ÚÑÖ</a>`
         : '';
     const timeStr = _formatRelativeTime(n.timestamp);
 
@@ -345,8 +346,8 @@ function _renderNotifItem(n) {
                 <div class="notif-message">${n.message}</div>
                 <div class="notif-time">
                     <i class="fa-regular fa-clock"></i> ${timeStr}
-                    ${n.isSubstituteNotif ? '<span class="badge badge-info" style="margin-right:6px;font-size:.65rem;padding:2px 7px;">Ø¨Ø¯ÙŠÙ„</span>' : ''}
-                    ${n.requiresAction && !n.read ? '<span style="color:#ef4444;font-size:.72rem;font-weight:700;margin-right:6px;"><i class="fa-solid fa-circle-exclamation"></i> ÙŠØ­ØªØ§Ø¬ Ø¥Ø¬Ø±Ø§Ø¡</span>' : ''}
+                    ${n.isSubstituteNotif ? '<span class="badge badge-info" style="margin-right:6px;font-size:.65rem;padding:2px 7px;">ÈÏíá</span>' : ''}
+                    ${n.requiresAction && !n.read ? '<span style="color:#ef4444;font-size:.72rem;font-weight:700;margin-right:6px;"><i class="fa-solid fa-circle-exclamation"></i> íÍÊÇÌ ÅÌÑÇÁ</span>' : ''}
                 </div>
                 ${actionBtns
                     ? `<div class="notif-action-btns">${actionBtns}${serviceLink}</div>`
@@ -354,8 +355,8 @@ function _renderNotifItem(n) {
             </div>
             <div class="notif-actions">
                 ${!n.read
-                    ? `<button class="notif-mark-read" onclick="handleMarkRead('${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø±Ø§Ø¡Ø©</button>`
-                    : '<span style="font-size:.72rem;color:#94a3b8;">Ù…Ù‚Ø±ÙˆØ¡</span>'}
+                    ? `<button class="notif-mark-read" onclick="handleMarkRead('${n.id}')"><i class="fa-solid fa-check"></i> ŞÑÇÁÉ</button>`
+                    : '<span style="font-size:.72rem;color:#94a3b8;">ãŞÑæÁ</span>'}
                 <button class="notif-delete" onclick="handleDelete('${n.id}')"><i class="fa-regular fa-trash-can"></i></button>
             </div>
         </div>`;
@@ -370,8 +371,8 @@ function _buildActionButtons(n) {
         const u = db.users.find(x => x.id === c.userId);
         if (!u || String(u.empId) !== String(currentUser.empId)) return '';
         return `
-            <button class="btn-approve" onclick="openAcceptCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø©</button>
-            <button class="btn-reject" onclick="openRejectCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>`;
+            <button class="btn-approve" onclick="openAcceptCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ŞÈæá ÇáÚåÏÉ</button>
+            <button class="btn-reject" onclick="openRejectCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>`;
     }
 
     if (n.actionType === 'custody_approval' && n.relatedId) {
@@ -382,8 +383,8 @@ function _buildActionButtons(n) {
             (currentUser.role === 'head' && c.status === 'pending_head_approval' && c.branchId === currentUser.responsibleBranch);
         if (!canApprove) return '';
         return `
-            <button class="btn-approve" onclick="doApproveCustody('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„</button>
-            <button class="btn-reject" onclick="doRejectCustody('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>`;
+            <button class="btn-approve" onclick="doApproveCustody('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ŞÈæá</button>
+            <button class="btn-reject" onclick="doRejectCustody('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>`;
     }
 
     if (n.actionType === 'leave_approval' && n.relatedId) {
@@ -394,8 +395,8 @@ function _buildActionButtons(n) {
             (currentUser.role === 'head' && lr.status === 'pending_head_approval' && lr.branchId === currentUser.responsibleBranch);
         if (!canApprove) return '';
         return `
-            <button class="btn-approve" onclick="doApproveLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„</button>
-            <button class="btn-reject" onclick="doRejectLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>`;
+            <button class="btn-approve" onclick="doApproveLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ŞÈæá</button>
+            <button class="btn-reject" onclick="doRejectLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>`;
     }
 
     if (n.actionType === 'worker_transfer' && n.relatedId) {
@@ -407,28 +408,28 @@ function _buildActionButtons(n) {
             (currentUser.role === 'admin' && ['pending_receiver','pending_head','pending_admin'].includes(req.status));
         if (!canApprove) return '';
         return `
-            <button class="btn-approve" onclick="doApproveWorkerTransfer('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ù†Ù‚Ù„</button>
-            <button class="btn-reject" onclick="doRejectWorkerTransfer('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>`;
+            <button class="btn-approve" onclick="doApproveWorkerTransfer('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ŞÈæá ÇáäŞá</button>
+            <button class="btn-reject" onclick="doRejectWorkerTransfer('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>`;
     }
 
     if (n.actionType === 'maintenance_request' && n.relatedId && currentUser.role === 'admin') {
         const mr = db.maintenanceRequests?.find(x => x.id === n.relatedId);
         if (!mr || mr.status !== 'pending') return '';
         return `
-            <button class="btn-approve" onclick="doApproveMR('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ§Ù„Ø¥Ø±Ø³Ø§Ù„ Ù„Ù„ÙˆÙƒÙŠÙ„</button>
-            <button class="btn-reject" onclick="doRejectMR('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>`;
+            <button class="btn-approve" onclick="doApproveMR('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ÇáãæÇİŞÉ æÇáÅÑÓÇá ááæßíá</button>
+            <button class="btn-reject" onclick="doRejectMR('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>`;
     }
 
     if (n.actionType === 'user_approval' && n.relatedId && currentUser.role === 'admin') {
         const u = db.users.find(x => x.id === n.relatedId);
         if (!u || u.status !== 'pending') return '';
         return `
-            <button class="btn-approve" onclick="doApproveUser('${n.relatedId}','${n.id}')"><i class="fa-solid fa-user-check"></i> Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø­Ø³Ø§Ø¨</button>
-            <button class="btn-reject" onclick="doRejectUser('${n.relatedId}','${n.id}')"><i class="fa-solid fa-user-xmark"></i> Ø±ÙØ¶</button>`;
+            <button class="btn-approve" onclick="doApproveUser('${n.relatedId}','${n.id}')"><i class="fa-solid fa-user-check"></i> ŞÈæá ÇáÍÓÇÈ</button>
+            <button class="btn-reject" onclick="doRejectUser('${n.relatedId}','${n.id}')"><i class="fa-solid fa-user-xmark"></i> ÑİÖ</button>`;
     }
 
     if (n.actionType === 'direct_message' && currentUser.role === 'admin') {
-        return `<span style="font-size:.75rem;color:#64748b;">Ø§Ø¶ØºØ· "Ø¹Ø±Ø¶" Ù„Ù„Ø±Ø¯ Ø¹Ù„Ù‰ Ø§Ù„Ø±Ø³Ø§Ù„Ø©</span>`;
+        return `<span style="font-size:.75rem;color:#64748b;">ÇÖÛØ "ÚÑÖ" ááÑÏ Úáì ÇáÑÓÇáÉ</span>`;
     }
 
     return '';
@@ -439,10 +440,10 @@ function _formatRelativeTime(timestamp) {
     const m = Math.floor(diff / 60000);
     const h = Math.floor(diff / 3600000);
     const d = Math.floor(diff / 86400000);
-    if (m < 1) return 'Ø§Ù„Ø¢Ù†';
-    if (m < 60) return `Ù…Ù†Ø° ${m} Ø¯Ù‚ÙŠÙ‚Ø©`;
-    if (h < 24) return `Ù…Ù†Ø° ${h} Ø³Ø§Ø¹Ø©`;
-    if (d < 7) return `Ù…Ù†Ø° ${d} ÙŠÙˆÙ…`;
+    if (m < 1) return 'ÇáÂä';
+    if (m < 60) return `ãäĞ ${m} ÏŞíŞÉ`;
+    if (h < 24) return `ãäĞ ${h} ÓÇÚÉ`;
+    if (d < 7) return `ãäĞ ${d} íæã`;
     return new Date(timestamp).toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric' });
 }
 
@@ -454,11 +455,11 @@ window.handleMarkRead = (id) => {
 window.handleMarkAllRead = () => {
     markAllNotificationsAsRead();
     renderNotificationCenter();
-    showToast('ØªÙ… ØªØ­Ø¯ÙŠØ¯ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ÙƒÙ…Ù‚Ø±ÙˆØ¡Ø©', 'success');
+    showToast('Êã ÊÍÏíÏ ÌãíÚ ÇáÅÔÚÇÑÇÊ ßãŞÑæÁÉ', 'success');
 };
 
 window.handleDelete = (id) => {
-    if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±ØŸ')) {
+    if (confirm('åá ÃäÊ ãÊÃßÏ ãä ÍĞİ åĞÇ ÇáÅÔÚÇÑ¿')) {
         deleteNotification(id);
         renderNotificationCenter();
     }
@@ -472,33 +473,33 @@ window.clearReadNotifications = () => {
         saveDB(true);
         _updateNotificationBadge();
         renderNotificationCenter();
-        showToast(`ØªÙ… Ø­Ø°Ù ${count} Ø¥Ø´Ø¹Ø§Ø± Ù…Ù‚Ø±ÙˆØ¡`, 'success');
+        showToast(`Êã ÍĞİ ${count} ÅÔÚÇÑ ãŞÑæÁ`, 'success');
     }
 };
 
 window.doApproveCustody = (relatedId, notifId) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©ØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÇáãæÇİŞÉ Úáì ØáÈ ÇáÚåÏÉ¿')) return;
     if (approveCustody(relatedId, currentUser.role)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
+        showToast('ÊãÊ ÇáãæÇİŞÉ Úáì ØáÈ ÇáÚåÏÉ ÈäÌÇÍ', 'success');
     } else {
-        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© â€” ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ', 'error');
+        showToast('áÇ íãßä ÇáãæÇİŞÉ — ÊÃßÏ ãä ÕáÇÍíÊß', 'error');
     }
 };
 
 window.doRejectCustody = (relatedId, notifId) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©ØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÑİÖ ØáÈ ÇáÚåÏÉ¿')) return;
     if (rejectCustody(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©', 'success');
+        showToast('Êã ÑİÖ ØáÈ ÇáÚåÏÉ', 'success');
     } else {
-        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶ â€” ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ', 'error');
+        showToast('áÇ íãßä ÇáÑİÖ — ÊÃßÏ ãä ÕáÇÍíÊß', 'error');
     }
 };
 
-// â”€â”€ Ù‚Ø¨ÙˆÙ„/Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ù…Ù† Ø§Ù„Ù…Ø³Ø§Ø­ (custody_transfer_request) â”€â”€
+// ?? ŞÈæá/ÑİÖ ÇáÚåÏÉ ãä ÇáãÓÇÍ (custody_transfer_request) ??
 window.openAcceptCustodyModal = (custodyId, notifId) => {
     document.getElementById('acceptCustodyId').value = custodyId;
     document.getElementById('acceptNotifId').value = notifId;
@@ -524,17 +525,17 @@ window.submitAcceptCustody = () => {
     const satisfiedVal = document.querySelector('#acceptCustodyModal input[name="acceptSatisfied"]:checked')?.value;
     const satisfied = satisfiedVal === 'true' ? true : satisfiedVal === 'false' ? false : null;
 
-    if (!condition) { showToast('ÙŠØ±Ø¬Ù‰ ØªÙ‚ÙŠÙŠÙ… Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø².', 'error'); return; }
-    if (satisfied === null) { showToast('ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ù…Ø¯Ù‰ Ø±Ø¶Ø§Ùƒ Ø¹Ù† Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø².', 'error'); return; }
-    if (!confirmed) { showToast('ÙŠØ¬Ø¨ ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø¥Ù‚Ø±Ø§Ø± Ø¨Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù….', 'error'); return; }
+    if (!condition) { showToast('íÑÌì ÊŞííã ÍÇáÉ ÇáÌåÇÒ.', 'error'); return; }
+    if (satisfied === null) { showToast('íÑÌì ÊÍÏíÏ ãÏì ÑÖÇß Úä ÍÇáÉ ÇáÌåÇÒ.', 'error'); return; }
+    if (!confirmed) { showToast('íÌÈ ÊÃßíÏ ÇáÅŞÑÇÑ ÈÇáÇÓÊáÇã.', 'error'); return; }
 
     if (acceptCustodyBySurveyor(id, notes, condition, comment, satisfied, careLevel)) {
         markNotificationAsRead(notifId);
         closeAcceptCustodyModal();
         renderNotificationCenter();
-        showToast('ØªÙ… Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ø¨Ù†Ø¬Ø§Ø­ ÙˆØªØ³Ø¬ÙŠÙ„Ù‡Ø§ ÙÙŠ Ø¹Ù‡Ø¯ØªÙƒ.', 'success');
+        showToast('Êã ŞÈæá ÇáÚåÏÉ ÈäÌÇÍ æÊÓÌíáåÇ İí ÚåÏÊß.', 'success');
     } else {
-        showToast('Ø­Ø¯Ø« Ø®Ø·Ø£. ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ.', 'error');
+        showToast('ÍÏË ÎØÃ. ÊÃßÏ ãä ÕáÇÍíÊß.', 'error');
     }
 };
 
@@ -551,97 +552,97 @@ window.submitRejectCustody = () => {
     const id = document.getElementById('rejectCustodyId').value;
     const notifId = document.getElementById('rejectNotifId').value;
     const reason = document.getElementById('rejectReason').value.trim();
-    if (!reason) { showToast('ÙŠØ¬Ø¨ ÙƒØªØ§Ø¨Ø© Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶.', 'error'); return; }
+    if (!reason) { showToast('íÌÈ ßÊÇÈÉ ÓÈÈ ÇáÑİÖ.', 'error'); return; }
 
     if (rejectCustodyBySurveyor(id, reason)) {
         markNotificationAsRead(notifId);
         closeRejectCustodyModal();
         renderNotificationCenter();
-        showToast('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø© ÙˆØ¥Ø¨Ù„Ø§Øº Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„.', 'success');
+        showToast('Êã ÑİÖ ÇáÚåÏÉ æÅÈáÇÛ ÇáãÓÄæá.', 'success');
     } else {
-        showToast('Ø­Ø¯Ø« Ø®Ø·Ø£. ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ.', 'error');
+        showToast('ÍÏË ÎØÃ. ÊÃßÏ ãä ÕáÇÍíÊß.', 'error');
     }
 };
 
 window.doApproveLeave = (relatedId, notifId) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÇáãæÇİŞÉ Úáì ØáÈ ÇáÅÌÇÒÉ¿')) return;
     if (approveLeaveRequest(relatedId, currentUser.role)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©', 'success');
+        showToast('ÊãÊ ÇáãæÇİŞÉ Úáì ØáÈ ÇáÅÌÇÒÉ', 'success');
     } else {
-        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© â€” ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ', 'error');
+        showToast('áÇ íãßä ÇáãæÇİŞÉ — ÊÃßÏ ãä ÕáÇÍíÊß', 'error');
     }
 };
 
 window.doRejectLeave = (relatedId, notifId) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÑİÖ ØáÈ ÇáÅÌÇÒÉ¿')) return;
     if (rejectLeaveRequest(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©', 'success');
+        showToast('Êã ÑİÖ ØáÈ ÇáÅÌÇÒÉ', 'success');
     } else {
-        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶ â€” ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ', 'error');
+        showToast('áÇ íãßä ÇáÑİÖ — ÊÃßÏ ãä ÕáÇÍíÊß', 'error');
     }
 };
 
 window.doApproveWorkerTransfer = (relatedId, notifId) => {
-    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„ØŸ')) return;
+    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÇáãæÇİŞÉ Úáì ØáÈ äŞá ÇáÚÇãá¿')) return;
     if (approveWorkerTransferRequest(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ù†Ù‚Ù„', 'success');
+        showToast('ÊãÊ ÇáãæÇİŞÉ Úáì ØáÈ ÇáäŞá', 'success');
     } else {
-        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© â€” ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ', 'error');
+        showToast('áÇ íãßä ÇáãæÇİŞÉ — ÊÃßÏ ãä ÕáÇÍíÊß', 'error');
     }
 };
 
 window.doRejectWorkerTransfer = (relatedId, notifId) => {
-    const reason = prompt('Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ):');
+    const reason = prompt('ÓÈÈ ÇáÑİÖ (ÇÎÊíÇÑí):');
     if (reason === null) return;
     if (rejectWorkerTransferRequest(relatedId, reason)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ù†Ù‚Ù„', 'success');
+        showToast('Êã ÑİÖ ØáÈ ÇáäŞá', 'success');
     }
 };
 
 window.doApproveMR = (relatedId, notifId) => {
-    if (!confirm('Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„ØµÙŠØ§Ù†Ø©/Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø© ÙˆØ¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø¬Ù‡Ø§Ø² Ù„Ù„ÙˆÙƒÙŠÙ„ØŸ')) return;
+    if (!confirm('ÇáãæÇİŞÉ Úáì ØáÈ ÇáÕíÇäÉ/ÇáãÚÇíÑÉ æÅÑÓÇá ÇáÌåÇÒ ááæßíá¿')) return;
     if (approveMaintenanceRequest(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø¬Ù‡Ø§Ø² Ù„Ù„ÙˆÙƒÙŠÙ„', 'success');
+        showToast('ÊãÊ ÇáãæÇİŞÉ æÅÑÓÇá ÇáÌåÇÒ ááæßíá', 'success');
     } else {
-        showToast('Ø­Ø¯Ø« Ø®Ø·Ø£. ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ.', 'error');
+        showToast('ÍÏË ÎØÃ. ÊÃßÏ ãä ÕáÇÍíÊß.', 'error');
     }
 };
 
 window.doRejectMR = (relatedId, notifId) => {
-    const reason = prompt('Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ):');
+    const reason = prompt('ÓÈÈ ÇáÑİÖ (ÇÎÊíÇÑí):');
     if (reason === null) return;
     if (rejectMaintenanceRequest(relatedId, reason)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„ØµÙŠØ§Ù†Ø©/Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©', 'success');
+        showToast('Êã ÑİÖ ØáÈ ÇáÕíÇäÉ/ÇáãÚÇíÑÉ', 'success');
     }
 };
 
 window.doApproveUser = (relatedId, notifId) => {
-    if (!confirm('Ù‚Ø¨ÙˆÙ„ Ø­Ø³Ø§Ø¨ Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†ØŸ')) return;
+    if (!confirm('ŞÈæá ÍÓÇÈ ÑÆíÓ ÇáãÓÇÍíä¿')) return;
     if (approveUser(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø³Ø§Ø¨', 'success');
+        showToast('ÊãÊ ÇáãæÇİŞÉ Úáì ÇáÍÓÇÈ', 'success');
     }
 };
 
 window.doRejectUser = (relatedId, notifId) => {
-    if (!confirm('Ø±ÙØ¶ ÙˆØ­Ø°Ù Ø§Ù„Ø­Ø³Ø§Ø¨ØŸ')) return;
+    if (!confirm('ÑİÖ æÍĞİ ÇáÍÓÇÈ¿')) return;
     if (rejectUser(relatedId)) {
         markNotificationAsRead(notifId);
         renderNotificationCenter();
-        showToast('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø­Ø³Ø§Ø¨ ÙˆØ­Ø°ÙÙ‡', 'success');
+        showToast('Êã ÑİÖ ÇáÍÓÇÈ æÍĞİå', 'success');
     }
 };
 

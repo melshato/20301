@@ -1,6 +1,7 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employees & Surveyors | SAJCO</title>
@@ -78,7 +79,7 @@
                 </form>
             </div>
 
-            <!-- Ù‚Ø³Ù… Requests Ø§Ù„ØªØ³Ø¬ÙŠÙ„ Pending (ÙŠØ¸Ù‡Ø± for Admin only) -->
+            <!-- ÞÓã Requests ÇáÊÓÌíá Pending (íÙåÑ for Admin only) -->
             <div id="pendingUsersSection" class="card hidden" style="border-left: 4px solid #f6e05e; background: #fffaf0;">
                 <h3 style="color: #975a16; margin-bottom: 15px;"><i class="fa-solid fa-user-clock"></i> Pending Registration Requests</h3>
                 <div class="table-container">
@@ -97,7 +98,7 @@
                 </div>
             </div>
 
-            <!-- table EmployeeÙŠÙ† -->
+            <!-- table Employeeíä -->
             <div class="card">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
                     <div class="form-group">
@@ -161,7 +162,7 @@
         }
 
         function calculateService(joinDate) {
-            if (!joinDate) return 'â€”';
+            if (!joinDate) return '—';
             const start = new Date(joinDate);
             const end = new Date();
             let years = end.getFullYear() - start.getFullYear();
@@ -207,13 +208,13 @@
                     <td><strong>${u.name}</strong></td>
                     <td>${u.empId}</td>
                     <td>${renderStars(rating)}</td>
-                    <td>${u.phone || 'â€”'}</td>
-                    <td>${u.project || 'â€”'}</td>
-                    <td>${db.branches.find(b => b.id === u.branch)?.name || 'â€”'}</td>
+                    <td>${u.phone || '—'}</td>
+                    <td>${u.project || '—'}</td>
+                    <td>${db.branches.find(b => b.id === u.branch)?.name || '—'}</td>
                     <td>${u.email}</td>
                     <td><span class="badge badge-info">${roleLabels[u.role] || u.role}</span></td>
                     <td>${formatDate(u.joinDate)}</td>
-                    <td>${getBranchName(u.responsibleBranch) || 'â€”'}</td>
+                    <td>${getBranchName(u.responsibleBranch) || '—'}</td>
                     <td><span class="badge badge-success">${calculateService(u.joinDate)}</span></td>
                     <td><span class="badge ${u.status === 'approved' ? 'badge-success' : 'badge-warning'}">${u.status === 'approved' ? 'Active' : 'Pending'}</span></td>
                     <td>
@@ -222,8 +223,8 @@
                         }
                         ${currentUser.role === 'admin' ? `<button onclick="editUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px;"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
                         ${currentUser.role === 'admin' && u.id !== 'admin_1' ? `<button onclick="deleteUser('${u.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);"><i class="fa-solid fa-user-xmark"></i></button>` : ''}
-                        ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role !== 'admin' ? `<button onclick="clearEmployeeCustody('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#f59e0b;" title="Clear Custody â€” return devices to warehouse"><i class="fa-solid fa-box-open"></i></button>` : ''}
-                        ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role === 'surveyor' ? `<button onclick="clearSurveyorWorkers('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#8b5cf6;" title="Clear Workers â€” unassign surveyor's workers"><i class="fa-solid fa-users-slash"></i></button>` : ''}
+                        ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role !== 'admin' ? `<button onclick="clearEmployeeCustody('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#f59e0b;" title="Clear Custody — return devices to warehouse"><i class="fa-solid fa-box-open"></i></button>` : ''}
+                        ${(currentUser.role === 'admin' || currentUser.role === 'head') && u.role === 'surveyor' ? `<button onclick="clearSurveyorWorkers('${u.id}')" class="btn btn-ghost" style="padding:5px 10px;color:#8b5cf6;" title="Clear Workers — unassign surveyor's workers"><i class="fa-solid fa-users-slash"></i></button>` : ''}
                     </td>
                 </tr>
             `}).join('');
@@ -243,10 +244,10 @@
                     const ename = e.name || '';
                     return `
                     <tr style="opacity:0.75;background:var(--surface);">
-                        <td><span style="color:var(--text-muted);">${ename || 'â€”'}</span></td>
+                        <td><span style="color:var(--text-muted);">${ename || '—'}</span></td>
                         <td>${eid}</td>
-                        <td>â€”</td><td>â€”</td><td>â€”</td><td>â€”</td><td>â€”</td>
-                        <td>â€”</td><td>â€”</td><td>â€”</td><td>â€”</td>
+                        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+                        <td>—</td><td>—</td><td>—</td><td>—</td>
                         <td><span class="badge" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">Not Registered</span></td>
                         <td>
                             <button onclick="prefillAddForm('${eid}','${ename.replace(/'/g,"\\'")}'')" class="btn btn-primary" style="padding:5px 10px;font-size:.8rem;" title="Add Employee">
@@ -332,17 +333,17 @@
             document.getElementById('uResponsibleBranch').value = u.responsibleBranch || '';
             document.getElementById('uBranch').value = u.branch || '';
             populateSubstitutes(u.id, u.substituteId); // Populate and select substitute
-            document.getElementById('formTitle').innerText = 'Edit Ø¨ÙŠØ§Ù†Ø§Øª Employee';
+            document.getElementById('formTitle').innerText = 'Edit ÈíÇäÇÊ Employee';
             document.getElementById('userFormContainer').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.deleteUser = (id) => {
-            if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Ù‡Ø°Ø§ EmployeeØŸ Ø³ÙŠDone Ù†Ù‚Ù„ Ø¬Ù…ÙŠØ¹ Ø£Ø¬Ù‡Ø²ØªÙ‡ to Warehouse.')) {
+            if (confirm('åá ÃäÊ ãÊÃßÏ from Delete åÐÇ Employee¿ ÓíDone äÞá ÌãíÚ ÃÌåÒÊå to Warehouse.')) {
                 if (deleteUser(id)) { // Use the new centralized deleteUser function
-                    alert('Done Delete Employee Ø¨Success.');
+                    alert('Done Delete Employee ÈSuccess.');
                 } else {
-                    alert('ÙØ´Ù„ Delete Employee. Ù‚Ø¯ No DoneÙ„Ùƒ Permission or Ø£Ù† Ø§Ù„Ø­Ø³Ø§Ø¨ Ù‡and Ø­Ø³Ø§Ø¨ Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ.');
+                    alert('ÝÔá Delete Employee. ÞÏ No Doneáß Permission or Ãä ÇáÍÓÇÈ åand ÍÓÇÈ ÇáãÏíÑ ÇáÃÓÇÓí.');
                 }
                 refreshUserTable();
             }
@@ -365,7 +366,7 @@
                 document.getElementById('uResponsibleBranch')
             ];
             
-            // Filter Ù‚Ø§Ø¦Ù…Ø© branches Ø§Ù„AvailableØ© ÙÙŠ Ø§Ù„Ù‚andØ§Ø¦Ù… Ø§Ù„fromØ³Ø¯Ù„Ø© Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ ØµNoØ­ÙŠØ© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+            // Filter ÞÇÆãÉ branches ÇáAvailableÉ Ýí ÇáÞandÇÆã ÇáfromÓÏáÉ ÈäÇÁð Úáì ÕNoÍíÉ ÇáãÓÊÎÏã
             const availableBranches = currentUser.role === 'head' 
                 ? db.branches.filter(b => b.id === currentUser.responsibleBranch)
                 : db.branches;
@@ -377,7 +378,7 @@
                 if (s.id === 'uResponsibleBranch') placeholder = 'Select Responsible Branch...';
                 s.innerHTML = `<option value="">${placeholder}</option>${options}`;
                 
-                // ØªØ¹ÙŠÙŠÙ† Branch automatically Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Head Surveyor
+                // ÊÚííä Branch automatically ÅÐÇ ßÇä ÇáãÓÊÎÏã Head Surveyor
                 if (currentUser.role === 'head' && availableBranches.length === 1) {
                     s.value = availableBranches[0].id;
                 }
@@ -394,7 +395,7 @@
                 (u.role === 'head' || u.role === 'admin') && u.id !== headId
             );
             select.innerHTML = '<option value="">No Substitute</option>' + 
-                availableSubstitutes.map(u => `<option value="${u.id}">${u.name} (${u.role === 'admin' ? 'Ù…Ø¯ÙŠØ±' : 'Head Surveyor'})</option>`).join('');
+                availableSubstitutes.map(u => `<option value="${u.id}">${u.name} (${u.role === 'admin' ? 'ãÏíÑ' : 'Head Surveyor'})</option>`).join('');
             
             if (currentSubstituteId) {
                 select.value = currentSubstituteId;
@@ -406,8 +407,8 @@
             const headId = document.getElementById('editUserId').value;
             const substituteId = document.getElementById('uSubstitute').value;
 
-            if (!headId) { alert('Please Ø§Ø®ØªÙŠØ§Ø± Head Surveyor orNoÙ‹.'); return; }
-            if (!substituteId) { alert('Please Ø§Ø®ØªÙŠØ§Ø± OK Ø¨Ø¯ÙŠÙ„.'); return; }
+            if (!headId) { alert('Please ÇÎÊíÇÑ Head Surveyor orNoð.'); return; }
+            if (!substituteId) { alert('Please ÇÎÊíÇÑ OK ÈÏíá.'); return; }
 
             const result = assignSubstitute(headId, substituteId);
             alert(result.msg);
@@ -419,7 +420,7 @@
         // NEW: Remove Substitute Action
         window.removeSubstituteAction = () => {
             const headId = document.getElementById('editUserId').value;
-            if (!headId) { alert('Please Ø§Ø®ØªÙŠØ§Ø± Head Surveyor orNoÙ‹.'); return; }
+            if (!headId) { alert('Please ÇÎÊíÇÑ Head Surveyor orNoð.'); return; }
 
             const result = removeSubstitute(headId);
             alert(result.msg);
@@ -444,7 +445,7 @@
                         <td>${u.name}</td>
                         <td>${u.empId}</td>
                         <td>${u.email}</td>
-                        <td>${db.branches.find(b => b.id === u.responsibleBranch)?.name || 'â€”'}</td>
+                        <td>${db.branches.find(b => b.id === u.responsibleBranch)?.name || '—'}</td>
                         <td>${formatDate(u.joinDate)}</td>
                         <td>
                             <button onclick="approveUserAction('${u.id}')" class="btn btn-primary btn-sm">Approve</button>
@@ -454,14 +455,14 @@
                 `).join('');
             } else {
                 section.classList.add('hidden');
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">None Requests ØªØ³Ø¬ÙŠÙ„ Pending currently.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">None Requests ÊÓÌíá Pending currently.</td></tr>';
             }
         }
 
         window.approveUserAction = (id) => {
-            if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Approval Ø¹Ù„Ù‰ ØªØ³Ø¬ÙŠÙ„ Head Surveyor Ù‡Ø°Ø§ØŸ')) {
+            if (confirm('åá ÃäÊ ãÊÃßÏ from Approval Úáì ÊÓÌíá Head Surveyor åÐÇ¿')) {
                 if (approveUser(id)) {
-                    alert('DoneØª Approval Ø¨Success.');
+                    alert('DoneÊ Approval ÈSuccess.');
                     renderPendingUsers();
                     refreshUserTable(); // Update main user table
                 }
@@ -469,9 +470,9 @@
         };
 
         window.rejectUserAction = (id) => {
-            if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Reject ØªØ³Ø¬ÙŠÙ„ Head Surveyor Ù‡Ø°Ø§ØŸ Ø³ÙŠDone Delete Ø§Ù„Ø­Ø³Ø§Ø¨.')) {
+            if (confirm('åá ÃäÊ ãÊÃßÏ from Reject ÊÓÌíá Head Surveyor åÐÇ¿ ÓíDone Delete ÇáÍÓÇÈ.')) {
                 if (rejectUser(id)) {
-                    alert('Done Ø§Ù„Reject andDelete Ø§Ù„Ø­Ø³Ø§Ø¨ Ø¨Success.');
+                    alert('Done ÇáReject andDelete ÇáÍÓÇÈ ÈSuccess.');
                     renderPendingUsers();
                 }
             }
@@ -481,7 +482,7 @@
             const text = document.getElementById('userSearch').value.toLowerCase();
             const branch = document.getElementById('branchFilter').value;
             const roleLabels = { admin: 'System Admin', head: 'Head Surveyor', surveyor: 'Surveyor' };
-            let csvContent = "\uFEFF"; // Add BOM Ù„Ø¯Ø¹Ù… Ø§Ù„Ù„ØºØ© Arabic ÙÙŠ Excel
+            let csvContent = "\uFEFF"; // Add BOM áÏÚã ÇááÛÉ Arabic Ýí Excel
             csvContent += "Name,Employee ID,Branch,Responsible Branch,Email,Permission,Status\n";
 
             db.users.filter(u => 
@@ -489,15 +490,15 @@
                 (branch === '' || u.branch === branch)
             ).forEach(u => {
                 const role = roleLabels[u.role] || u.role;
-                const branchName = db.branches.find(b => b.id === u.branch)?.name || 'â€”';
-                const responsibleBranchName = db.branches.find(b => b.id === u.responsibleBranch)?.name || 'â€”';
+                const branchName = db.branches.find(b => b.id === u.branch)?.name || '—';
+                const responsibleBranchName = db.branches.find(b => b.id === u.responsibleBranch)?.name || '—';
                 csvContent += `"${u.name}","${u.empId}","${branchName}","${responsibleBranchName}","${u.email}","${role}","${u.status === 'approved' ? 'Active' : 'Pending'}"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `Ø¨ÙŠØ§Ù†Ø§Øª_EmployeeÙŠÙ†_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+            link.download = `ÈíÇäÇÊ_Employeeíä_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
             link.click();
             URL.revokeObjectURL(link.href);
         };
