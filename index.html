@@ -812,6 +812,7 @@ let _lastVerifiedEmpId = null;
 
 // التحقق من الرقم الوظيفي مباشرة من Supabase
 async function checkEmpIdAllowed(val) {
+  const seq = ++_empIdCheckSeq; // رقم هذا الطلب
   const msgEl   = document.getElementById('verifyEmpIdMessage');
   const btn     = document.getElementById('verifyEmpIdBtn');
   const preview = document.getElementById('empNamePreview');
@@ -842,18 +843,21 @@ async function checkEmpIdAllowed(val) {
         .select('emp_id, name')
         .eq('emp_id', val)
         .maybeSingle();
+      // تجاهل الرد إذا جاء طلب أحدث بعده
+      if (seq !== _empIdCheckSeq) return;
       if (data) {
         allowed = true;
         empName = data.name || '';
-        // Sync to local so next checks are instant
         if (!db.allowedEmployeeIds) db.allowedEmployeeIds = [];
         if (!db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === val)) {
           db.allowedEmployeeIds.push({ empId: val, name: empName });
           localStorage.setItem(DB_KEY, JSON.stringify(db));
         }
       }
-    } catch(e) {}
+    } catch(e) { if (seq !== _empIdCheckSeq) return; }
   }
+  // تجاهل النتيجة إذا تغيّر الرقم أثناء الانتظار
+  if (seq !== _empIdCheckSeq) return;
 
   if (!allowed) {
     msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">الرقم غير مسموح به</span>';
@@ -866,10 +870,17 @@ async function checkEmpIdAllowed(val) {
   if (empName) { previewText.textContent = empName; preview.style.display = 'block'; }
 }
 
+let _empIdCheckTimer = null;
+let _empIdCheckSeq   = 0; // رقم تسلسلي لإلغاء الردود القديمة
+
 document.getElementById('verifyEmpId').addEventListener('input', function() {
   this.value = this.value.replace(/[^0-9]/g, '');
   _lastVerifiedEmpId = null;
-  checkEmpIdAllowed(this.value.trim());
+  clearTimeout(_empIdCheckTimer);
+  const val = this.value.trim();
+  if (!val) { checkEmpIdAllowed(''); return; }
+  // debounce 350ms — لا يُرسل طلب Supabase إلا بعد توقف المستخدم عن الكتابة
+  _empIdCheckTimer = setTimeout(() => checkEmpIdAllowed(val), 350);
 });
 
 // ===== Verification form submit =====

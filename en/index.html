@@ -755,7 +755,10 @@ async function doForgotPassword() {
 let _lastVerifiedEmpId = null;
 
 // Employee ID Verification Direct from Supabase
+let _empIdCheckSeq = 0;
+
 async function checkEmpIdAllowed(val) {
+  const seq = ++_empIdCheckSeq;
   const msgEl   = document.getElementById('verifyEmpIdMessage');
   const btn     = document.getElementById('verifyEmpIdBtn');
   const preview = document.getElementById('empNamePreview');
@@ -786,18 +789,19 @@ async function checkEmpIdAllowed(val) {
         .select('emp_id, name')
         .eq('emp_id', val)
         .maybeSingle();
+      if (seq !== _empIdCheckSeq) return;
       if (data) {
         allowed = true;
         empName = data.name || '';
-        // Sync to local so next checks are instant
         if (!db.allowedEmployeeIds) db.allowedEmployeeIds = [];
         if (!db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === val)) {
           db.allowedEmployeeIds.push({ empId: val, name: empName });
           localStorage.setItem(DB_KEY, JSON.stringify(db));
         }
       }
-    } catch(e) {}
+    } catch(e) { if (seq !== _empIdCheckSeq) return; }
   }
+  if (seq !== _empIdCheckSeq) return;
 
   if (!allowed) {
     msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">Number غير مسمandح به</span>';
@@ -810,10 +814,14 @@ async function checkEmpIdAllowed(val) {
   if (empName) { previewText.textContent = empName; preview.style.display = 'block'; }
 }
 
+let _empIdCheckTimer = null;
 document.getElementById('verifyEmpId').addEventListener('input', function() {
   this.value = this.value.replace(/[^0-9]/g, '');
   _lastVerifiedEmpId = null;
-  checkEmpIdAllowed(this.value.trim());
+  clearTimeout(_empIdCheckTimer);
+  const val = this.value.trim();
+  if (!val) { checkEmpIdAllowed(''); return; }
+  _empIdCheckTimer = setTimeout(() => checkEmpIdAllowed(val), 350);
 });
 
 // ===== Verification form submit =====
