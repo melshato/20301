@@ -180,7 +180,7 @@
                 <button onclick="if(confirm('حذف جميع الإشعارات المقروءة؟')) clearReadNotifications()" class="btn btn-ghost btn-sm" style="color:#ef4444;">
                     <i class="fa-solid fa-trash-can"></i> حذف المقروءة
                 </button>
-                <button onclick="toggleDebug()" class="btn btn-ghost btn-sm">
+                <button onclick="toggleDebug()" class="btn btn-ghost btn-sm" id="debugBtn">
                     <i class="fa-solid fa-bug"></i>
                 </button>
             </div>
@@ -391,7 +391,7 @@ function _renderNotifItem(n) {
 function _buildActionButtons(n) {
     if (!n.requiresAction || n.read) return '';
 
-    if (n.actionType === 'custody_transfer_request' && n.relatedId && currentUser.role === 'surveyor') {
+    if (n.actionType === 'custody_transfer_request' && n.relatedId) {
         const c = db.custodies.find(x => x.id === n.relatedId);
         if (!c || c.status !== 'pending_surveyor_acceptance' || c.userId !== currentUser.id) return '';
         return `
