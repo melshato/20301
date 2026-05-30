@@ -1044,7 +1044,10 @@ function formatDate(v) {
     return new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function getBranchName(branchId) { return db.branches.find(b => b.id === branchId) || null; }
+function getBranchName(branchId) {
+    const b = db.branches.find(b => b.id === branchId);
+    return b ? (b.nameEn || b.nameAr || b.name || null) : null;
+}
 
 // ============================================================
 // فلترة البيانات حسب صNoحية المستخدم
