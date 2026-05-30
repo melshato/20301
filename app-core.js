@@ -3072,10 +3072,15 @@ async function _loadRemoteSettings() {
 // _loadRemoteDB — يجلب users/branches/devices من Supabase ويدمجها
 // ============================================================
 let _loadingRemote = false;
+let _loadingPromise = null;
 async function _loadRemoteDB() {
     if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
-    if (_loadingRemote) return; // prevent concurrent calls that could cause duplicates
+    if (_loadingRemote) return _loadingPromise;
     _loadingRemote = true;
+    _loadingPromise = _execLoadRemoteDB();
+    return _loadingPromise;
+}
+async function _execLoadRemoteDB() {
     try {
         const oldCurrentUserId = currentUser?.id;
 
@@ -3587,7 +3592,7 @@ async function _loadRemoteDB() {
             if (typeof refreshPage  === 'function') refreshPage();
         }
     } catch(e) { /* silent — offline */ }
-    finally { _loadingRemote = false; }
+    finally { _loadingRemote = false; _loadingPromise = null; }
 }
 
 // ══════════════════════════════════════════════════════════
