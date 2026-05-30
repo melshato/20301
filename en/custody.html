@@ -463,11 +463,11 @@ function toggleSection(name) {
 }
 
 // ===== init =====
-function init() {
+async function init() {
     renderSidebar();
     populateBranchesSelect();
     populateTargetUsers(db.users);
-    _loadRemoteDB();
+    await _loadRemoteDB();
     renderCustodies();
     renderPendingApprovals();
     renderIncomingTransfers();
@@ -922,6 +922,7 @@ window.refreshPage = () => {
     renderPendingApprovals();
     renderCustodies();
     renderIncomingTransfers();
+    if (isAdmin) { populateWarehouseDevices(); populateWhTargetUsers(); }
 };
 
 window.onNewNotification = (n) => {
