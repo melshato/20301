@@ -569,11 +569,49 @@
 
         function notifySurveyor(deviceSerial, deviceType, surveyorId) {
             if (!surveyorId) { alert('لا يوجد مساح مرتبط بهذا الجهاز.'); return; }
+
+            const surveyor = db.users.find(u => u.id === surveyorId);
+            const branchId = surveyor?.branch;
+            const head     = branchId ? db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId) : null;
+
+            // إخطار المساح
             addNotification(surveyorId,
-                `تنبيه: الجهاز (${deviceType} — S/N: ${deviceSerial}) الذي بحوزتك مطلوب للمعايرة. يرجى التنسيق مع رئيس المساحين لإجراء المعايرة في أقرب وقت ممكن.`,
+                `⚠ تنبيه معايرة: الجهاز (${deviceType} — S/N: ${deviceSerial}) الذي بحوزتك مطلوب للمعايرة. يرجى التنسيق مع رئيس المساحين لإجراء المعايرة في أقرب وقت ممكن.`,
                 'warning', null, false, 'calibration-alerts.html');
-            addLog(`أرسل ${currentUser.name} إخطاراً للمساح بشأن معايرة الجهاز (${deviceSerial})`);
-            alert('تم إرسال إشعار للمساح بنجاح.');
+
+            // تحذير رئيس المساحين
+            if (head) {
+                addNotification(head.id,
+                    `🔔 تحذير معايرة: الجهاز (${deviceType} — S/N: ${deviceSerial}) بعهدة المساح ${surveyor?.name || ''} يحتاج معايرة عاجلة. يُرجى المتابعة.`,
+                    'error', null, false, 'calibration-alerts.html');
+            }
+
+            addLog(`أرسل ${currentUser.name} إخطاراً للمساح ${surveyor?.name || surveyorId}${head ? ' وتحذيراً لرئيس المساحين ' + head.name : ''} بشأن معايرة (${deviceSerial})`);
+
+            // رسالة تأكيد في الصفحة
+            const sent = [`✅ تم إرسال إخطار إلى المساح: ${surveyor?.name || surveyorId}`];
+            if (head) sent.push(`⚠ تم إرسال تحذير إلى رئيس المساحين: ${head.name}`);
+            else      sent.push(`ℹ لا يوجد رئيس مساحين مسجّل لهذا الفرع.`);
+            showCalibToast(sent.join('\n'));
+        }
+
+        function showCalibToast(msg) {
+            let toast = document.getElementById('calibToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'calibToast';
+                toast.style.cssText = `
+                    position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+                    background:#0f172a;color:#fff;border-radius:14px;padding:16px 24px;
+                    font-size:.9rem;line-height:1.7;z-index:9999;max-width:420px;width:90%;
+                    box-shadow:0 8px 32px rgba(0,0,0,.35);white-space:pre-line;text-align:right;
+                    border-right:4px solid #22c55e;`;
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => toast.style.display = 'none', 5000);
         }
 
         function requestCalibFromAdmin(deviceSerial, deviceType) {
@@ -582,7 +620,7 @@
                 addNotification(admin.id, msg, 'warning', null, false, 'calibration-alerts.html', null, true);
             });
             addLog(`أرسل ${currentUser.name} طلب معايرة للإدارة بشأن الجهاز (${deviceSerial})`);
-            alert('تم إرسال الطلب إلى المدير ومطور النظام.');
+            showCalibToast(`✅ تم إرسال طلب المعايرة إلى المدير بنجاح.\nالجهاز: ${deviceType} — S/N: ${deviceSerial}`);
         }
 
         function populateBranches() {
