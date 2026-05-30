@@ -365,7 +365,7 @@ async function loadSurveyorDashboard() {
     document.getElementById('serviceTime').innerText = calculateService(currentUser.joinDate);
     const branchObj = getBranchName(currentUser.branch);
     const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === currentUser.branch);
-    document.getElementById('branchHeadInfo').innerHTML = `${branchObj ? branchObj.name : 'غير محدد'}<br><small style="color:var(--text-muted);font-size:.72rem;">رئيس المساحين: ${head ? head.name : 'غير معين'}</small>`;
+    document.getElementById('branchHeadInfo').innerHTML = `${branchObj || 'غير محدد'}<br><small style="color:var(--text-muted);font-size:.72rem;">رئيس المساحين: ${head ? head.name : 'غير معين'}</small>`;
 
     // التقييم
     const myRating = getAverageRating(currentUser.id);
