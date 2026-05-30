@@ -3295,6 +3295,8 @@ async function _execLoadRemoteDB() {
             const seen = new Map();
             db.custodies = db.custodies.filter(c => {
                 if (_terminalStatuses.includes(c.status)) return true;
+                // سجلات الانتظار عند المستلم لا تُحذف — قد يكون للجهاز سجل approved للمُرسِل وpending للمستلم
+                if (c.status === 'pending_receiver_acceptance' || c.status === 'pending_surveyor_acceptance') return true;
                 const key = c.serialNumber;
                 if (seen.has(key)) return false;
                 seen.set(key, true);
