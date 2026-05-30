@@ -350,9 +350,11 @@ function getFiltered() {
 
     return getVisibleDevices().filter(d => {
         const typeLabel = getDeviceTypeName(d.type).toLowerCase();
+        const owner = db.users.find(u => u.id === d.ownerId);
+        const effectiveBranch = d.branch || owner?.branch || owner?.responsibleBranch;
         const matchSearch = d.serial.toLowerCase().includes(search) || typeLabel.includes(search);
         const matchStatus = !statusF || d.status === statusF;
-        const matchBranch = !branchF || d.branch === branchF;
+        const matchBranch = !branchF || effectiveBranch === branchF;
         return matchSearch && matchStatus && matchBranch;
     });
 }
@@ -408,7 +410,8 @@ function refreshTable() {
 
     tbody.innerHTML = filtered.map(d => {
         const owner    = db.users.find(u => u.id === d.ownerId);
-        const branch   = db.branches.find(b => b.id === d.branch);
+        const effectiveBranchId = d.branch || owner?.branch || owner?.responsibleBranch;
+        const branch   = db.branches.find(b => b.id === effectiveBranchId);
         const calExpired = d.calDate && new Date(d.calDate) < today;
         const calWarning = d.calDate && !calExpired &&
             (new Date(d.calDate) - today) / 86400000 <= (db.settings.alertDays || 30);
