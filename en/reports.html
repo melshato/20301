@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports | SAJCO</title>
@@ -73,8 +72,8 @@
                         <option value="">All</option>
                         <option value="warehouse">Warehouse</option>
                         <option value="assigned">Custody</option>
-                        <option value="at_maintenance">At Vendor — Maintenance</option>
-                        <option value="at_calibration">At Vendor — Calibration</option>
+                        <option value="at_maintenance">At Vendor â€” Maintenance</option>
+                        <option value="at_calibration">At Vendor â€” Calibration</option>
                         <option value="needs_calibration">Needs Calibration</option>
                     </select>
                 </div>
@@ -269,11 +268,11 @@ window.renderDevicesReport = () => {
             <td><strong>${d.serial}</strong></td>
             <td>${getDeviceTypeName(d.type)}</td>
             <td>${owner?owner.name:'<span style="color:var(--text-muted)">Warehouse</span>'}</td>
-            <td>${branch?branch.name:'—'}</td>
+            <td>${branch?branch.name:'â€”'}</td>
             <td style="color:${calExp?'#dc2626':calWarn?'#d97706':'inherit'};">${formatDate(d.calDate)}</td>
             <td>${getDeviceStatusBadge(d.status)}</td>
         </tr>`;
-    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">None ÈíÇäÇÊ.</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">None Ø¨ÙŠØ§Ù†Ø§Øª.</td></tr>';
 };
 
 // ===== Surveyors =====
@@ -290,26 +289,26 @@ window.renderSurveyorsReport = () => {
         { label:'Total', value:users.length, color:'var(--primary)' },
         { label:'Surveyors', value:users.filter(u=>u.role==='surveyor').length, color:'#7c3aed' },
         { label:'Head Surveyors', value:users.filter(u=>u.role==='head').length, color:'#2563eb' },
-        { label:'áÏíåã ÊÞííã', value:rated.length, color:'#d97706' }
+        { label:'Ù„Ø¯ÙŠÙ‡Ù… ØªÙ‚ÙŠÙŠÙ…', value:rated.length, color:'#d97706' }
     ]);
 
     document.getElementById('survTableBody').innerHTML = users.map((u, i) => {
         const branch = db.branches.find(b=>b.id===(u.branch||u.responsibleBranch));
         const proj = getSurveyorProject(u.id);
         const rating = db.ratings.find(r=>r.userId===u.id);
-        const stars = rating ? Array.from({length:5},(_,j)=>`<i class="fa-${j<rating.stars?'solid':'regular'} fa-star" style="color:${j<rating.stars?'#fbbf24':'#d1d5db'};font-size:.8rem;"></i>`).join('') : '—';
+        const stars = rating ? Array.from({length:5},(_,j)=>`<i class="fa-${j<rating.stars?'solid':'regular'} fa-star" style="color:${j<rating.stars?'#fbbf24':'#d1d5db'};font-size:.8rem;"></i>`).join('') : 'â€”';
         return `<tr>
             <td>${i+1}</td>
             <td><strong>${u.name}</strong></td>
             <td>${u.empId}</td>
             <td>${u.role==='head'?'Head Surveyor':'Surveyor'}</td>
-            <td>${branch?branch.name:'—'}</td>
-            <td>${proj?proj.name:'<span style="color:var(--text-muted)">ÛíÑ ãÓÌá</span>'}</td>
-            <td>${u.totalExp||'—'} year</td>
+            <td>${branch?branch.name:'â€”'}</td>
+            <td>${proj?proj.name:'<span style="color:var(--text-muted)">ØºÙŠØ± Ù…Ø³Ø¬Ù„</span>'}</td>
+            <td>${u.totalExp||'â€”'} year</td>
             <td>${formatDate(u.joinDate)}</td>
             <td>${stars}${rating&&rating.weightedScore!==undefined?` <span style="font-size:.75rem;color:var(--primary);">(${rating.weightedScore}/100)</span>`:''}</td>
         </tr>`;
-    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text-muted);">None ÈíÇäÇÊ.</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text-muted);">None Ø¨ÙŠØ§Ù†Ø§Øª.</td></tr>';
 };
 
 // ===== Projects =====
@@ -322,7 +321,7 @@ window.renderProjectsReport = () => {
         { label:'Total', value:projects.length, color:'var(--primary)' },
         { label:'Active', value:projects.filter(p=>p.status==='active').length, color:'#16a34a' },
         { label:'Completed', value:projects.filter(p=>p.status==='completed').length, color:'#2563eb' },
-        { label:'On HoldÉ', value:projects.filter(p=>p.status==='paused').length, color:'#d97706' }
+        { label:'On HoldØ©', value:projects.filter(p=>p.status==='paused').length, color:'#d97706' }
     ]);
 
     document.getElementById('projTableBody').innerHTML = projects.map((p, i) => {
@@ -332,7 +331,7 @@ window.renderProjectsReport = () => {
         return `<tr>
             <td>${i+1}</td>
             <td><strong>${p.name}</strong></td>
-            <td>${branch?branch.name:'—'}</td>
+            <td>${branch?branch.name:'â€”'}</td>
             <td>${(p.surveyorIds||[]).length}</td>
             <td>${devCount}</td>
             <td>
@@ -362,26 +361,26 @@ window.renderLeavesReport = () => {
     renderStats('leaveStats', [
         { label:'Total', value:leaves.length, color:'var(--primary)' },
         { label:'Approved', value:leaves.filter(r=>r.status==='approved'||r.status==='completed').length, color:'#16a34a' },
-        { label:'ÞíÏ ÇNoäÊÙÇÑ', value:leaves.filter(r=>r.status?.includes('pending')).length, color:'#d97706' },
+        { label:'Ù‚ÙŠØ¯ Ø§NoÙ†ØªØ¸Ø§Ø±', value:leaves.filter(r=>r.status?.includes('pending')).length, color:'#d97706' },
         { label:'Rejected', value:leaves.filter(r=>r.status==='rejected').length, color:'#dc2626' }
     ]);
 
     const typeMap = { annual:'Annual', emergency:'Emergency', sick:'Sick', unpaid:'Unpaid', other:'Other' };
     document.getElementById('leaveTableBody').innerHTML = leaves.map((r, i) => {
         const user = db.users.find(u=>u.id===r.userId);
-        const finalDays = r.approvedDaysFinal||r.approvedDaysByHead||'—';
+        const finalDays = r.approvedDaysFinal||r.approvedDaysByHead||'â€”';
         return `<tr>
             <td>${i+1}</td>
-            <td>${user?user.name:'—'}</td>
+            <td>${user?user.name:'â€”'}</td>
             <td>${typeMap[r.leaveType]||r.leaveType}</td>
             <td>${formatDate(r.startDate)}</td>
             <td>${formatDate(r.endDate)}</td>
-            <td>${r.daysRequested||'—'}</td>
-            <td style="color:${finalDays!=='—'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
+            <td>${r.daysRequested||'â€”'}</td>
+            <td style="color:${finalDays!=='â€”'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
             <td>${getLeaveStatusBadge(r.status)}</td>
             <td>${r.isDeparted?`<span style="color:#16a34a;font-size:.8rem;"><i class="fa-solid fa-check"></i> ${formatDate(r.actualDepartureDate)}</span>`:'<span style="color:#d97706;font-size:.8rem;">No</span>'}</td>
         </tr>`;
-    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text-muted);">None ÈíÇäÇÊ.</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text-muted);">None Ø¨ÙŠØ§Ù†Ø§Øª.</td></tr>';
 };
 
 // ===== Maintenance =====
@@ -407,15 +406,15 @@ window.renderMaintenanceReport = () => {
         const branch = db.branches.find(b=>b.id===r.branchId);
         return `<tr>
             <td>${i+1}</td>
-            <td><strong>${r.serialNumber||'—'}</strong><br><span style="font-size:.75rem;color:var(--text-muted);">${r.deviceType||'—'}</span></td>
+            <td><strong>${r.serialNumber||'â€”'}</strong><br><span style="font-size:.75rem;color:var(--text-muted);">${r.deviceType||'â€”'}</span></td>
             <td>${typeMap[r.requestType]||r.requestType}</td>
-            <td>${r.requestedByName||'—'}</td>
-            <td>${branch?branch.name:'—'}</td>
+            <td>${r.requestedByName||'â€”'}</td>
+            <td>${branch?branch.name:'â€”'}</td>
             <td>${formatDate(r.timestamp)}</td>
             <td>${statusMap[r.status]||r.status}</td>
-            <td>${r.notes||'—'}</td>
+            <td>${r.notes||'â€”'}</td>
         </tr>`;
-    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">None ÈíÇäÇÊ.</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">None Ø¨ÙŠØ§Ù†Ø§Øª.</td></tr>';
 };
 
 // ===== Print =====

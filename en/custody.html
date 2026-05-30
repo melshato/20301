@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custody Management - SAJCO</title>
@@ -159,7 +158,7 @@
             </div>
         </div>
 
-        <!-- ÃÒÑÇÑ Actions -->
+        <!-- Ø£Ø²Ø±Ø§Ø± Actions -->
         <div class="action-btn-group">
             <button id="toggleAddBtn" class="action-toggle-btn btn-add" onclick="toggleSection('add')">
                 <i class="fa-solid fa-plus" id="addIcon"></i>
@@ -175,7 +174,7 @@
             </button>
         </div>
 
-        <!-- ÞÓã Add Custody (ÞÇÈá ááØí) -->
+        <!-- Ù‚Ø³Ù… Add Custody (Ù‚Ø§Ø¨Ù„ Ù„Ù„Ø·ÙŠ) -->
         <div class="collapsible-section" id="addSection">
             <div class="section-inner add-inner">
                 <h3 style="margin-bottom:20px;color:#15803d;"><i class="fa-solid fa-box-archive"></i> Add New Custody</h3>
@@ -275,7 +274,7 @@
             </div>
         </div>
 
-        <!-- ÞÓã äÞá ÇáCustody (ÞÇÈá ááØí) -->
+        <!-- Ù‚Ø³Ù… Ù†Ù‚Ù„ Ø§Ù„Custody (Ù‚Ø§Ø¨Ù„ Ù„Ù„Ø·ÙŠ) -->
         <div class="collapsible-section" id="transferSection">
             <div class="section-inner xfer-inner">
                 <h3 style="margin-bottom:20px;color:#2563eb;"><i class="fa-solid fa-right-left"></i> Transfer Device Custody</h3>
@@ -394,13 +393,13 @@
     </main>
 </div>
 
-<!-- ãandÏÇá Accept Custody Transfer -->
+<!-- Ù…andØ¯Ø§Ù„ Accept Custody Transfer -->
 <div id="acceptTransferModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;">
     <div class="card" style="max-width:520px;width:93%;max-height:90vh;overflow-y:auto;">
         <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check"></i> Accept Custody Transfer</h3>
         <input type="hidden" id="acceptCustodyId">
 
-        <!-- ÊäÈíå ÇáReceive Èred -->
+        <!-- ØªÙ†Ø¨ÙŠÙ‡ Ø§Ù„Receive Ø¨red -->
         <div class="acceptance-warning">
             <strong><i class="fa-solid fa-triangle-exclamation"></i> Notice upon Receipt:</strong><br>
             Please carefully verify that <strong>all parts and accessories of the Device are complete</strong> before confirming receipt.
@@ -416,10 +415,10 @@
             <label class="form-label">Device Condition Rating <span style="color:var(--danger)">*</span></label>
             <select id="acceptDeviceCondition" class="form-select">
                 <option value="">Select Rating...</option>
-                <option value="excellent">Excellent — Complete and working perfectly</option>
-                <option value="good">Good — Complete with minor scratches</option>
-                <option value="fair">Fair — Missing some accessories</option>
-                <option value="needs_maintenance">Needs Maintenance — has a fault or defect</option>
+                <option value="excellent">Excellent â€” Complete and working perfectly</option>
+                <option value="good">Good â€” Complete with minor scratches</option>
+                <option value="fair">Fair â€” Missing some accessories</option>
+                <option value="needs_maintenance">Needs Maintenance â€” has a fault or defect</option>
             </select>
         </div>
         <div class="form-group">
@@ -442,7 +441,7 @@
             <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="Any additional comment..."></textarea>
         </div>
 
-        <!-- Confirm ÅÞÑÇÑ ÇáReceive -->
+        <!-- Confirm Ø¥Ù‚Ø±Ø§Ø± Ø§Ù„Receive -->
         <div class="acceptance-confirm-row">
             <input type="checkbox" id="acceptConfirmCheck">
             <label for="acceptConfirmCheck">
@@ -457,7 +456,7 @@
     </div>
 </div>
 
-<!-- ãandÏÇá Reject Custody Transfer -->
+<!-- Ù…andØ¯Ø§Ù„ Reject Custody Transfer -->
 <div id="rejectTransferModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;">
     <div class="card" style="max-width:400px;width:90%;">
         <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark"></i> Reject Custody Transfer</h3>
@@ -552,7 +551,7 @@ function filterWarehouseDevices(query) {
 
     select.innerHTML = '<option value="">Select Device...</option>' +
         filtered.map(d =>
-            `<option value="${d.id}">${getDeviceTypeName(d.type)} — ${d.serial}</option>`
+            `<option value="${d.id}">${getDeviceTypeName(d.type)} â€” ${d.serial}</option>`
         ).join('');
 
     if (countEl) {
@@ -575,7 +574,7 @@ document.getElementById('whEmpIdSearch').addEventListener('input', e => {
     const info = document.getElementById('whTargetUserInfo');
     const sel = document.getElementById('whTargetUserId');
     if (user) {
-        info.textContent = `Employee: ${user.name} — ${user.branch || ''}`;
+        info.textContent = `Employee: ${user.name} â€” ${user.branch || ''}`;
         sel.value = user.id;
     } else {
         info.textContent = '';
@@ -609,7 +608,7 @@ document.getElementById('fromEmpId').addEventListener('input', e => {
             myDevices.map(d => `<option value="${d.serial}">${getDeviceTypeName(d.type)} (S/N: ${d.serial})</option>`).join('');
     } else {
         infoDiv.textContent = '';
-        deviceSelect.innerHTML = '<option value="">Enter Employee ID ÕÍíÍ orNoð...</option>';
+        deviceSelect.innerHTML = '<option value="">Enter Employee ID ØµØ­ÙŠØ­ orNoÙ‹...</option>';
     }
 });
 
@@ -689,10 +688,10 @@ document.getElementById('calibrationDate').addEventListener('change', function()
     const errEl = document.getElementById('calDateErr');
     const today = new Date(); today.setHours(0,0,0,0);
     if (!this.value) {
-        errEl.textContent = '? Please Add Calibration Certificate Date'; errEl.style.display = 'block';
+        errEl.textContent = 'âš  Please Add Calibration Certificate Date'; errEl.style.display = 'block';
         this.style.borderColor = '#dc2626';
     } else if (new Date(this.value) <= today) {
-        errEl.textContent = '? Calibration Date fromÊåí Permission or ÞÏíã!'; errEl.style.display = 'block';
+        errEl.textContent = 'âš  Calibration Date fromØªÙ‡ÙŠ Permission or Ù‚Ø¯ÙŠÙ…!'; errEl.style.display = 'block';
         this.style.borderColor = '#dc2626';
     } else {
         errEl.textContent = ''; errEl.style.display = 'none'; this.style.borderColor = '';
@@ -711,7 +710,7 @@ document.getElementById('receivedFrom').addEventListener('change', e => {
 document.getElementById('custodyForm').addEventListener('submit', async e => {
     e.preventDefault();
     const targetId = document.getElementById('targetUserId').value;
-    if (!targetId) { alert('ÇáÑÌÇÁ ÇÎÊíÇÑ Surveyor.'); return; }
+    if (!targetId) { alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Surveyor.'); return; }
 
     const result = addCustody(
         targetId,
@@ -729,7 +728,7 @@ document.getElementById('custodyForm').addEventListener('submit', async e => {
     );
 
     if (result) {
-        alert(currentUser.role === 'admin' ? 'DoneÊ Add ÇáCustody ÈSuccess' : 'Done Send ØáÈ ÇáCustody ááReview');
+        alert(currentUser.role === 'admin' ? 'DoneØª Add Ø§Ù„Custody Ø¨Success' : 'Done Send Ø·Ù„Ø¨ Ø§Ù„Custody Ù„Ù„Review');
         e.target.reset();
         document.getElementById('receivedFromNameGroup').classList.add('hidden');
         document.getElementById('calDateErr').style.display = 'none';
@@ -737,10 +736,10 @@ document.getElementById('custodyForm').addEventListener('submit', async e => {
         populateBranchesSelect();
         await renderCustodies();
         await renderPendingApprovals();
-        // Close ÇáÞÓã ÈÚÏ Add
+        // Close Ø§Ù„Ù‚Ø³Ù… Ø¨Ø¹Ø¯ Add
         toggleSection('add');
     } else {
-        alert('An error occurred ÃËäÇÁ Add ÇáCustody. ÊÃßÏ from Data.');
+        alert('An error occurred Ø£Ø«Ù†Ø§Ø¡ Add Ø§Ù„Custody. ØªØ£ÙƒØ¯ from Data.');
     }
 });
 
@@ -805,13 +804,13 @@ async function renderCustodies() {
     let custodies = [];
 
     if (isAdmin) {
-        titleEl.textContent = 'Custody Records (ApprovaldÉ)';
+        titleEl.textContent = 'Custody Records (ApprovaldØ©)';
         custodies = db.custodies.filter(c => c.status === 'approved');
     } else if (currentUser.role === 'head') {
-        titleEl.textContent = 'ÚåÏÇÊ ÝÑÚí';
+        titleEl.textContent = 'Ø¹Ù‡Ø¯Ø§Øª ÙØ±Ø¹ÙŠ';
         custodies = db.custodies.filter(c => c.status === 'approved' && c.branchId === currentUser.responsibleBranch);
     } else {
-        titleEl.textContent = 'ÚåÏÊí';
+        titleEl.textContent = 'Ø¹Ù‡Ø¯ØªÙŠ';
         const currentEmpId = String(currentUser.empId);
         custodies = db.custodies.filter(c => {
             if (['pending_receiver_acceptance','pending_surveyor_acceptance','transferred_out'].includes(c.status)) return false;
@@ -825,7 +824,7 @@ async function renderCustodies() {
         custodyThead.querySelectorAll('.receiver-col').forEach(el => el.remove());
         if (showReceiverInfo) {
             const thActions = custodyThead.querySelector('th:last-child');
-            ['Notes Recipient', 'ÊÞííã Recipient', 'ÊÚáíÞ Recipient'].forEach(text => {
+            ['Notes Recipient', 'ØªÙ‚ÙŠÙŠÙ… Recipient', 'ØªØ¹Ù„ÙŠÙ‚ Recipient'].forEach(text => {
                 const th = document.createElement('th');
                 th.className = 'receiver-col';
                 th.textContent = text;
@@ -839,22 +838,22 @@ async function renderCustodies() {
         const branch  = db.branches.find(b => b.id === c.branchId);
         const owner   = db.users.find(u => u.id === c.userId);
         const receiverCols = showReceiverInfo ? `
-            <td>${c.receiverNotes || '—'}</td>
-            <td>${c.receiverDeviceCondition || '—'}</td>
-            <td>${c.receiverComment || '—'}</td>
+            <td>${c.receiverNotes || 'â€”'}</td>
+            <td>${c.receiverDeviceCondition || 'â€”'}</td>
+            <td>${c.receiverComment || 'â€”'}</td>
         ` : '';
         return `<tr>
             <td>${getDeviceTypeName(c.deviceType)}</td>
             <td><strong>${c.serialNumber}</strong></td>
-            <td><span style="font-weight:600;color:var(--primary);">${owner ? owner.name : '—'}</span>${owner?.empId ? `<br><small style="color:var(--text-muted);">${owner.empId}</small>` : ''}</td>
+            <td><span style="font-weight:600;color:var(--primary);">${owner ? owner.name : 'â€”'}</span>${owner?.empId ? `<br><small style="color:var(--text-muted);">${owner.empId}</small>` : ''}</td>
             <td>${formatDate(c.receiptDate)}</td>
-            <td>${branch ? branch.name : '—'}</td>
+            <td>${branch ? branch.name : 'â€”'}</td>
             <td>${formatDate(c.calibrationDate)}</td>
             <td>${getStatusBadge(c.deviceCondition)}</td>
             <td>${getReceivedFromText(c.receivedFrom, c.receivedFromName)}</td>
-            <td>${c.notes || '—'}</td>
-            <td>${c.satisfied === true ? 'Yes' : c.satisfied === false ? 'No' : '—'}</td>
-            <td>${c.careLevel || '—'}</td>
+            <td>${c.notes || 'â€”'}</td>
+            <td>${c.satisfied === true ? 'Yes' : c.satisfied === false ? 'No' : 'â€”'}</td>
+            <td>${c.careLevel || 'â€”'}</td>
             ${receiverCols}
             <td>
                 ${isAdmin ? `<button onclick="handleDeleteCustody('${c.id}')" class="btn btn-ghost" style="padding:4px 8px;font-size:.75rem;color:var(--danger);">
@@ -893,9 +892,9 @@ async function renderIncomingTransfers() {
                 ? '<span class="badge badge-info">Transfer</span>'
                 : '<span class="badge badge-warning">New Custody</span>';
             const source = isTransfer
-                ? (c.transferData?.fromUserName || '—')
-                : (db.users.find(u => u.id === c.assignedBy)?.name || '—');
-            const notes = isTransfer ? (c.transferData?.reason || '—') : (c.notes || '—');
+                ? (c.transferData?.fromUserName || 'â€”')
+                : (db.users.find(u => u.id === c.assignedBy)?.name || 'â€”');
+            const notes = isTransfer ? (c.transferData?.reason || 'â€”') : (c.notes || 'â€”');
             return `<tr>
                 <td>${typeLabel}</td>
                 <td>${getDeviceTypeName(c.deviceType)}</td>
@@ -987,14 +986,14 @@ window.submitRejectTransfer = () => {
         renderIncomingTransfers();
         renderCustodies();
     } else {
-        alert('An error occurred. ÊÃßÏ from ÕNoÍíÊß.');
+        alert('An error occurred. ØªØ£ÙƒØ¯ from ØµNoØ­ÙŠØªÙƒ.');
     }
 };
 
 window.handleDeleteCustody = id => {
-    if (confirm('åá ÃäÊ ãÊÃßÏ from Delete åÐå ÇáCustody¿')) {
+    if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Ù‡Ø°Ù‡ Ø§Ù„CustodyØŸ')) {
         if (deleteCustody(id)) { renderCustodies(); renderPendingApprovals(); }
-        else { alert('An error occurred ÃËäÇÁ ÇáDelete.'); }
+        else { alert('An error occurred Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Delete.'); }
     }
 };
 
@@ -1016,20 +1015,20 @@ async function renderPendingApprovals() {
         tbody.innerHTML = pending.map(req => {
             const user = db.users.find(u => u.id === req.userId);
             const branch = db.branches.find(b => b.id === req.branchId);
-            let reqType = req.transferData ? 'Transfer Custody' : 'Custody ÌÏíÏÉ';
-            if (req.deviceCondition === 'needs_maintenance') reqType = 'Maintenance ÌåÇÒ';
-            if (req.deviceCondition === 'needs_calibration') reqType = 'Calibration ÌåÇÒ';
-            let notes = req.notes || '—';
-            if (req.transferData) notes = `from: ${req.transferData.fromUserName} ? ${req.transferData.toUserName}. ${req.transferData.reason || ''}`;
+            let reqType = req.transferData ? 'Transfer Custody' : 'Custody Ø¬Ø¯ÙŠØ¯Ø©';
+            if (req.deviceCondition === 'needs_maintenance') reqType = 'Maintenance Ø¬Ù‡Ø§Ø²';
+            if (req.deviceCondition === 'needs_calibration') reqType = 'Calibration Ø¬Ù‡Ø§Ø²';
+            let notes = req.notes || 'â€”';
+            if (req.transferData) notes = `from: ${req.transferData.fromUserName} â†’ ${req.transferData.toUserName}. ${req.transferData.reason || ''}`;
             return `<tr>
                 <td><input type="checkbox" class="custody-cb" data-id="${req.id}" onchange="_updateBulkBar()" style="width:16px;height:16px;cursor:pointer;"></td>
                 <td><span class="badge badge-info">${reqType}</span></td>
-                <td>${user ? user.name : '—'}</td>
+                <td>${user ? user.name : 'â€”'}</td>
                 <td>${getDeviceTypeName(req.deviceType)} (S/N: ${req.serialNumber})</td>
                 <td>${notes}</td>
                 <td>${formatDate(req.timestamp)}</td>
                 <td>${getStatusBadge(req.deviceCondition)}</td>
-                <td>${branch ? branch.name : '—'}</td>
+                <td>${branch ? branch.name : 'â€”'}</td>
                 <td>
                     <button onclick="approveCustodyAction('${req.id}')" class="btn btn-primary btn-sm" style="margin-left:4px;">
                         <i class="fa-solid fa-check"></i> Approve
@@ -1046,17 +1045,17 @@ async function renderPendingApprovals() {
 }
 
 window.approveCustodyAction = id => {
-    if (confirm('Approval Úáì åÐÇ Request¿')) {
+    if (confirm('Approval Ø¹Ù„Ù‰ Ù‡Ø°Ø§ RequestØŸ')) {
         const step = currentUser.role === 'admin' ? 'admin' : 'head';
-        if (approveCustody(id, step)) { alert('DoneÊ Approval ÈSuccess.'); renderPendingApprovals(); renderCustodies(); }
-        else { alert('An error occurred ÃËäÇÁ Approval.'); }
+        if (approveCustody(id, step)) { alert('DoneØª Approval Ø¨Success.'); renderPendingApprovals(); renderCustodies(); }
+        else { alert('An error occurred Ø£Ø«Ù†Ø§Ø¡ Approval.'); }
     }
 };
 
 window.rejectCustodyAction = id => {
-    if (confirm('Reject åÐÇ Request¿ ÓíDone Deleteå from ÇáäÙÇã.')) {
-        if (rejectCustody(id)) { alert('Done ÇáReject ÈSuccess.'); renderPendingApprovals(); renderCustodies(); }
-        else { alert('An error occurred ÃËäÇÁ ÇáReject.'); }
+    if (confirm('Reject Ù‡Ø°Ø§ RequestØŸ Ø³ÙŠDone DeleteÙ‡ from Ø§Ù„Ù†Ø¸Ø§Ù….')) {
+        if (rejectCustody(id)) { alert('Done Ø§Ù„Reject Ø¨Success.'); renderPendingApprovals(); renderCustodies(); }
+        else { alert('An error occurred Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„Reject.'); }
     }
 };
 
@@ -1077,9 +1076,9 @@ window.onNewNotification = (n) => {
 // ===== onload =====
 window.onload = () => { init(); };
 
-// ???????????????????????????????????????????????
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // QR / Barcode Scanner
-// ???????????????????????????????????????????????
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let _qrStream = null;
 async function startQRScan() {
     const overlay = document.getElementById('qrScanOverlay');
@@ -1087,7 +1086,7 @@ async function startQRScan() {
     overlay.style.display = 'flex';
     if (!('BarcodeDetector' in window)) {
         overlay.style.display = 'none';
-        const val = prompt('Camera not supported — enter serial number manually:');
+        const val = prompt('Camera not supported â€” enter serial number manually:');
         if (val) document.getElementById('serialNumber').value = val.trim();
         return;
     }
@@ -1109,7 +1108,7 @@ async function startQRScan() {
             requestAnimationFrame(scan);
         };
         video.onloadedmetadata = () => requestAnimationFrame(scan);
-    } catch(e) { overlay.style.display = 'none'; alert('Cannot access camera — please allow camera permission.'); }
+    } catch(e) { overlay.style.display = 'none'; alert('Cannot access camera â€” please allow camera permission.'); }
 }
 function stopQRScan() {
     if (_qrStream) { _qrStream.getTracks().forEach(t => t.stop()); _qrStream = null; }
@@ -1117,9 +1116,9 @@ function stopQRScan() {
     document.getElementById('qrVideo').srcObject = null;
 }
 
-// ???????????????????????????????????????????????
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // Bulk Approve
-// ???????????????????????????????????????????????
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function _getCheckedCustodyIds() {
     return [...document.querySelectorAll('.custody-cb:checked')].map(cb => cb.dataset.id);
 }
@@ -1151,7 +1150,7 @@ function bulkApprove() {
     if (!confirm(`Approve ${ids.length} request(s) at once?`)) return;
     let approved = 0, failed = 0;
     ids.forEach(id => { approveCustody(id, currentUser.role) ? approved++ : failed++; });
-    alert(`Approved: ${approved}${failed ? ` — Failed: ${failed}` : ''}`);
+    alert(`Approved: ${approved}${failed ? ` â€” Failed: ${failed}` : ''}`);
     renderPendingApprovals();
     renderCustodies();
 }

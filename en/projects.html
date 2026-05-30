@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Management | SAJCO</title>
@@ -271,7 +270,7 @@ const isAdmin = currentUser.role === 'admin';
 const isHead  = currentUser.role === 'head';
 
 if (!isAdmin && !isHead) {
-    // Surveyors only view their own project — redirect to dashboard
+    // Surveyors only view their own project â€” redirect to dashboard
     window.location.href = 'surveyor-dashboard.html';
 }
 
@@ -309,7 +308,7 @@ function renderProjects() {
     if (!projects.length) {
         container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">
             <i class="fa-solid fa-folder-open" style="font-size:3rem;margin-bottom:10px;display:block;opacity:.3;"></i>
-            None Projects İí åĞÇ ÇáŞÓã
+            None Projects ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ù‚Ø³Ù…
         </div>`;
         return;
     }
@@ -330,8 +329,8 @@ function renderProjects() {
                     <div class="project-title">${p.name}</div>
                     <div class="project-branch">
                         <i class="fa-solid fa-location-dot" style="color:var(--primary);"></i>
-                        ${branch ? branch.name : 'ÛíÑ ãSet'}
-                        ${p.description ? ' — ' + p.description : ''}
+                        ${branch ? branch.name : 'ØºÙŠØ± Ù…Set'}
+                        ${p.description ? ' â€” ' + p.description : ''}
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
@@ -369,26 +368,26 @@ function renderProjects() {
                 </div>
                 <div class="project-stat">
                     <div class="num">${deviceCount}</div>
-                    <div class="lbl">ÃÌåÒÉ</div>
+                    <div class="lbl">Ø£Ø¬Ù‡Ø²Ø©</div>
                 </div>
                 <div class="project-stat">
-                    <div class="num" style="font-size:1rem;">${p.startDate ? formatDate(p.startDate) : '—'}</div>
+                    <div class="num" style="font-size:1rem;">${p.startDate ? formatDate(p.startDate) : 'â€”'}</div>
                     <div class="lbl">Start Date</div>
                 </div>
                 <div class="project-stat">
                     <div class="num" style="font-size:1rem;color:${daysLeft !== null && daysLeft < 30 ? '#dc2626' : 'var(--primary)'};">
-                        ${daysLeft !== null ? (daysLeft > 0 ? `${daysLeft} day` : '<span style="color:#dc2626;">ÇäÊåì</span>') : '—'}
+                        ${daysLeft !== null ? (daysLeft > 0 ? `${daysLeft} day` : '<span style="color:#dc2626;">Ø§Ù†ØªÙ‡Ù‰</span>') : 'â€”'}
                     </div>
-                    <div class="lbl">ÇáãÊÈŞí</div>
+                    <div class="lbl">Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ</div>
                 </div>
             </div>
 
             <!-- Surveyors list -->
             <div style="margin-top:10px;">
-                <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:6px;">Surveyors ÇáãÚíøäandä:</div>
+                <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:6px;">Surveyors Ø§Ù„Ù…Ø¹ÙŠÙ‘Ù†andÙ†:</div>
                 ${surveyors.length
                     ? surveyors.map(s => `<span class="surveyor-tag"><i class="fa-solid fa-user-hard-hat" style="color:#7c3aed;"></i>${s.name}</span>`).join('')
-                    : '<span style="color:var(--text-muted);font-size:.85rem;">áã íDone ÊÚííä Surveyors ÈÚÏ</span>'
+                    : '<span style="color:var(--text-muted);font-size:.85rem;">Ù„Ù… ÙŠDone ØªØ¹ÙŠÙŠÙ† Surveyors Ø¨Ø¹Ø¯</span>'
                 }
             </div>
         </div>
@@ -467,7 +466,7 @@ document.getElementById('projectForm').onsubmit = e => {
     } else {
         const result = addProject(data);
         if (!result.success) { alert(result.msg); return; }
-        showToast('Done ÅäÔÇÁ Project ÈSuccess', 'success');
+        showToast('Done Ø¥Ù†Ø´Ø§Ø¡ Project Ø¨Success', 'success');
     }
     closeModal();
     renderProjects();
@@ -476,7 +475,7 @@ document.getElementById('projectForm').onsubmit = e => {
 window.handleDeleteProject = (id) => {
     const p = db.projects.find(x => x.id === id);
     if (!p) return;
-    if (confirm(`åá ÃäÊ ãÊÃßÏ from Delete Project "${p.name}"¿`)) {
+    if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Project "${p.name}"ØŸ`)) {
         if (deleteProject(id)) {
             showToast('Done Delete Project', 'success');
             renderProjects();
@@ -523,14 +522,14 @@ function renderCurrentSurveyors(p) {
     const surveyors = (p.surveyorIds || []).map(id => db.users.find(u => u.id === id)).filter(Boolean);
     const container = document.getElementById('currentSurveyors');
     if (!surveyors.length) {
-        container.innerHTML = '<div style="color:var(--text-muted);font-size:.9rem;">None Surveyors İí åĞÇ Project currently.</div>';
+        container.innerHTML = '<div style="color:var(--text-muted);font-size:.9rem;">None Surveyors ÙÙŠ Ù‡Ø°Ø§ Project currently.</div>';
         return;
     }
     container.innerHTML = surveyors.map(s => `
         <span class="surveyor-tag">
             <i class="fa-solid fa-user-hard-hat" style="color:#7c3aed;"></i>
             ${s.name}
-            <button class="remove-btn" onclick="doRemoveSurveyor('${p.id}','${s.id}')" title="ÅÒÇáÉ from Project">
+            <button class="remove-btn" onclick="doRemoveSurveyor('${p.id}','${s.id}')" title="Ø¥Ø²Ø§Ù„Ø© from Project">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </span>
@@ -540,30 +539,30 @@ function renderCurrentSurveyors(p) {
 window.doAssignSurveyor = () => {
     const projId = document.getElementById('assignProjectId').value;
     const survId = document.getElementById('assignSurveyorSelect').value;
-    if (!survId) { alert('ÇáÑÌÇÁ ÇÎÊíÇÑ Surveyor'); return; }
+    if (!survId) { alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Surveyor'); return; }
     if (addSurveyorToProject(projId, survId)) {
-        showToast('Done Add the Surveyor ááãÔÑandÚ', 'success');
+        showToast('Done Add the Surveyor Ù„Ù„Ù…Ø´Ø±andØ¹', 'success');
         openAssignModal(projId);
         renderProjects();
     }
 };
 
 window.doRemoveSurveyor = (projId, survId) => {
-    if (confirm('åá ÊÑíÏ ÅÒÇáÉ åĞÇ the Surveyor from Project¿')) {
+    if (confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø¥Ø²Ø§Ù„Ø© Ù‡Ø°Ø§ the Surveyor from ProjectØŸ')) {
         removeSurveyorFromProject(projId, survId);
         openAssignModal(projId);
         renderProjects();
-        showToast('Done ÅÒÇáÉ the Surveyor from Project', 'success');
+        showToast('Done Ø¥Ø²Ø§Ù„Ø© the Surveyor from Project', 'success');
     }
 };
 
 window.doTransferSurveyor = () => {
     const survId = document.getElementById('transferSurveyorSelect').value;
     const targetProjId = document.getElementById('transferTargetProject').value;
-    if (!survId || !targetProjId) { alert('ÇáÑÌÇÁ ÇÎÊíÇÑ the Surveyor andProject ÇáåÏİ'); return; }
+    if (!survId || !targetProjId) { alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ø®ØªÙŠØ§Ø± the Surveyor andProject Ø§Ù„Ù‡Ø¯Ù'); return; }
     if (transferSurveyorToProject(survId, targetProjId)) {
         const projId = document.getElementById('assignProjectId').value;
-        showToast('Done Transfer Surveyor ÈSuccess', 'success');
+        showToast('Done Transfer Surveyor Ø¨Success', 'success');
         openAssignModal(projId);
         renderProjects();
     }
@@ -582,7 +581,7 @@ function showToast(msg, type = 'success') {
 // Page subtitle
 document.getElementById('pageSubtitle').textContent = isHead
     ? `Your Branch Projects: ${db.branches.find(b => b.id === currentUser.responsibleBranch)?.name || ''}`
-    : 'All Projects ÚÈÑ branches';
+    : 'All Projects Ø¹Ø¨Ø± branches';
 
 setInterval(renderProjects, 30000);
 window.refreshPage = renderProjects;

@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>áæÍÉ ÊÍßã ÑÆíÓ ÇáãÓÇÍíä | ÓÇÌßæ</title>
+    <title>Ù„ÙˆØ­Ø© ØªØ­ÙƒÙ… Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† | Ø³Ø§Ø¬ÙƒÙˆ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -44,9 +43,9 @@
 <div id="appShell">
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
-        <!-- ÔÑíØ ÇáÃÎÈÇÑ -->
+        <!-- Ø´Ø±ÙŠØ· Ø§Ù„Ø£Ø®Ø¨Ø§Ø± -->
         <div class="news-ticker hidden-ticker" id="newsTicker">
-            <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;"></i> ÃÎÈÇÑ</span>
+            <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;"></i> Ø£Ø®Ø¨Ø§Ø±</span>
             <div class="ticker-wrapper">
                 <div class="ticker-text" id="tickerContent"></div>
             </div>
@@ -55,138 +54,138 @@
         <div style="padding-top:24px;">
         <header style="margin-bottom:20px;">
             <h2 id="userGreeting" style="font-size:1.5rem;font-weight:700;"></h2>
-            <p style="color:var(--text-muted)">áæÍÉ ÊÍßã İÑÚß - ÌãíÚ ÇáÈíÇäÇÊ ÇáãÚÑæÖÉ ÊÎÕ İÑÚß İŞØ.</p>
+            <p style="color:var(--text-muted)">Ù„ÙˆØ­Ø© ØªØ­ÙƒÙ… ÙØ±Ø¹Ùƒ - Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¹Ø±ÙˆØ¶Ø© ØªØ®Øµ ÙØ±Ø¹Ùƒ ÙÙ‚Ø·.</p>
         </header>
 
-        <!-- ãÄÔÑ ÚÒá ÇáİÑÚ -->
+        <!-- Ù…Ø¤Ø´Ø± Ø¹Ø²Ù„ Ø§Ù„ÙØ±Ø¹ -->
         <div class="branch-isolation-notice">
             <i class="fa-solid fa-shield-halved"></i>
-            <span>ÃäÊ ÊÑì ÈíÇäÇÊ <strong id="branchIsolationName">İÑÚß</strong> İŞØ. ÇáÈíÇäÇÊ ãÍãíÉ æãäÚÒáÉ.</span>
+            <span>Ø£Ù†Øª ØªØ±Ù‰ Ø¨ÙŠØ§Ù†Ø§Øª <strong id="branchIsolationName">ÙØ±Ø¹Ùƒ</strong> ÙÙ‚Ø·. Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø­Ù…ÙŠØ© ÙˆÙ…Ù†Ø¹Ø²Ù„Ø©.</span>
         </div>
 
-        <!-- ÅÔÚÇÑÇÊ ÇáİÑÚ -->
+        <!-- Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø§Ù„ÙØ±Ø¹ -->
         <div id="headNotifications"></div>
 
-        <!-- ØáÈÇÊ ÈÇäÊÙÇÑ ãæÇİŞÊß -->
+        <!-- Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ -->
         <div id="pendingSection"></div>
 
-        <!-- ØáÈÇÊ äŞá ÇáÚãÇá ÈÇäÊÙÇÑ ãæÇİŞÊß -->
+        <!-- Ø·Ù„Ø¨Ø§Øª Ù†Ù‚Ù„ Ø§Ù„Ø¹Ù…Ø§Ù„ Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ -->
         <div id="headWorkerTransfers"></div>
 
-        <!-- ÊäÈíåÇÊ ÇáãÚÇíÑÉ -->
+        <!-- ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø© -->
         <div id="calibrationAlerts"></div>
 
-        <!-- ÇáÅÍÕÇÆíÇÊ -->
+        <!-- Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-users"></i></div>
                 <div>
-                    <div style="font-size:.82rem;color:var(--text-muted)">ÇáãÓÇÍæä İí İÑÚß</div>
+                    <div style="font-size:.82rem;color:var(--text-muted)">Ø§Ù„Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ ÙØ±Ø¹Ùƒ</div>
                     <div id="branchSurveyorCount" style="font-size:1.5rem;font-weight:800;">0</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-microchip"></i></div>
                 <div>
-                    <div style="font-size:.82rem;color:var(--text-muted)">ÃÌåÒÉ İÑÚß (ÛíÑ ÇáãÓÊæÏÚ)</div>
+                    <div style="font-size:.82rem;color:var(--text-muted)">Ø£Ø¬Ù‡Ø²Ø© ÙØ±Ø¹Ùƒ (ØºÙŠØ± Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹)</div>
                     <div id="branchDeviceCount" style="font-size:1.5rem;font-weight:800;">0</div>
                 </div>
             </div>
             <div class="stat-card" style="cursor:pointer;" onclick="scrollToPending()">
                 <div class="stat-icon" style="background:#fef3c7;color:#92400e;"><i class="fa-solid fa-clock"></i></div>
                 <div>
-                    <div style="font-size:.82rem;color:var(--text-muted)">ØáÈÇÊ ÈÇäÊÙÇÑ ãæÇİŞÊß</div>
+                    <div style="font-size:.82rem;color:var(--text-muted)">Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ</div>
                     <div id="pendingApprovalCount" style="font-size:1.5rem;font-weight:800;color:#92400e;">0</div>
                 </div>
             </div>
         </div>
 
-        <!-- ãáÎÕ ÇáÃÌåÒÉ -->
-        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-microchip" style="color:var(--primary)"></i> ãáÎÕ ÃÌåÒÉ İÑÚß</h3>
+        <!-- Ù…Ù„Ø®Øµ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© -->
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-microchip" style="color:var(--primary)"></i> Ù…Ù„Ø®Øµ Ø£Ø¬Ù‡Ø²Ø© ÙØ±Ø¹Ùƒ</h3>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px;align-items:flex-start;">
             <div class="stats-grid" style="flex:1;min-width:280px;margin-bottom:0;">
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#f0fdf4;color:#166534;"><i class="fa-solid fa-tower-observation"></i></div>
-                    <div><div style="font-size:.75rem;color:var(--text-muted)">ãÍØÉ ãÊßÇãáÉ</div><div id="countTS" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                    <div><div style="font-size:.75rem;color:var(--text-muted)">Ù…Ø­Ø·Ø© Ù…ØªÙƒØ§Ù…Ù„Ø©</div><div id="countTS" style="font-size:1.2rem;font-weight:700;">0</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-ruler-horizontal"></i></div>
-                    <div><div style="font-size:.75rem;color:var(--text-muted)">ãíÒÇä ãÓÇÍí</div><div id="countAL" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                    <div><div style="font-size:.75rem;color:var(--text-muted)">Ù…ÙŠØ²Ø§Ù† Ù…Ø³Ø§Ø­ÙŠ</div><div id="countAL" style="font-size:1.2rem;font-weight:700;">0</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#fff7ed;color:#9a3412;"><i class="fa-solid fa-satellite-dish"></i></div>
-                    <div><div style="font-size:.75rem;color:var(--text-muted)">ÌåÇÒ GPS</div><div id="countGPS" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                    <div><div style="font-size:.75rem;color:var(--text-muted)">Ø¬Ù‡Ø§Ø² GPS</div><div id="countGPS" style="font-size:1.2rem;font-weight:700;">0</div></div>
                 </div>
             </div>
             <div class="card" style="width:180px;margin-bottom:0;padding:14px;display:flex;flex-direction:column;align-items:center;">
                 <h4 style="font-size:.8rem;margin-bottom:10px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
-                    <i class="fa-solid fa-chart-pie" style="color:var(--primary);"></i> ÇáÊæÒíÚ
+                    <i class="fa-solid fa-chart-pie" style="color:var(--primary);"></i> Ø§Ù„ØªÙˆØ²ÙŠØ¹
                 </h4>
                 <div style="width:150px;height:150px;"><canvas id="deviceTypePieChart"></canvas></div>
             </div>
             <div class="card" style="width:180px;margin-bottom:0;padding:14px;display:flex;flex-direction:column;align-items:center;">
                 <h4 style="font-size:.8rem;margin-bottom:10px;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
-                    <i class="fa-solid fa-certificate" style="color:#dc2626;"></i> ÇáãÚÇíÑÉ
+                    <i class="fa-solid fa-certificate" style="color:#dc2626;"></i> Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©
                 </h4>
                 <div style="width:150px;height:150px;"><canvas id="calibStatusChart"></canvas></div>
             </div>
         </div>
 
-        <!-- ÈÇÑ ÔÇÑÊ ÍÇáÉ ÇáÃÌåÒÉ — ÑÆíÓ ÇáãÓÇÍíä -->
+        <!-- Ø¨Ø§Ø± Ø´Ø§Ø±Øª Ø­Ø§Ù„Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© â€” Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† -->
         <div class="card" style="margin-bottom:28px;padding:20px;">
             <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:.95rem;">
-                <i class="fa-solid fa-chart-column" style="color:#7c3aed;"></i> ÊÍáíá ÍÇáÉ ÃÌåÒÉ ÇáİÑÚ
+                <i class="fa-solid fa-chart-column" style="color:#7c3aed;"></i> ØªØ­Ù„ÙŠÙ„ Ø­Ø§Ù„Ø© Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ÙØ±Ø¹
             </h3>
             <canvas id="headDeviceStatusBar" height="120"></canvas>
         </div>
 
-        <!-- ãÔÇÑíÚ İÑÚß -->
-        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-diagram-project" style="color:var(--primary)"></i> ãÔÇÑíÚ İÑÚß</h3>
+        <!-- Ù…Ø´Ø§Ø±ÙŠØ¹ ÙØ±Ø¹Ùƒ -->
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-diagram-project" style="color:var(--primary)"></i> Ù…Ø´Ø§Ø±ÙŠØ¹ ÙØ±Ø¹Ùƒ</h3>
         <div id="branchProjectsSection" style="margin-bottom:28px;"></div>
 
-        <!-- ÊæÒíÚ ÇáÃÌåÒÉ Úáì ÇáãÓÇÍíä -->
-        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-users-gear" style="color:var(--primary)"></i> ÊæÒíÚ ÇáÃÌåÒÉ Úáì ãÓÇÍí İÑÚß</h3>
+        <!-- ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† -->
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-users-gear" style="color:var(--primary)"></i> ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø¹Ù„Ù‰ Ù…Ø³Ø§Ø­ÙŠ ÙØ±Ø¹Ùƒ</h3>
         <div class="card">
             <div class="table-container">
                 <table>
-                    <thead><tr><th>ÇáãÓÇÍ</th><th>ÇáÑŞã ÇáæÙíİí</th><th>ÇáÊŞííã</th><th>ÇáÃÌåÒÉ İí ÚåÏÊå</th><th>ÍÇáÉ ÇáãÚÇíÑÉ</th></tr></thead>
+                    <thead><tr><th>Ø§Ù„Ù…Ø³Ø§Ø­</th><th>Ø§Ù„Ø±Ù‚Ù… Ø§Ù„ÙˆØ¸ÙŠÙÙŠ</th><th>Ø§Ù„ØªÙ‚ÙŠÙŠÙ…</th><th>Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø¹Ù‡Ø¯ØªÙ‡</th><th>Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©</th></tr></thead>
                     <tbody id="surveyorsDistributionBody"></tbody>
                 </table>
             </div>
         </div>
-        <!-- ÅÏÇÑÉ ÅÌÇÒÇÊ ãÓÇÍí İÑÚß -->
+        <!-- Ø¥Ø¯Ø§Ø±Ø© Ø¥Ø¬Ø§Ø²Ø§Øª Ù…Ø³Ø§Ø­ÙŠ ÙØ±Ø¹Ùƒ -->
         <div style="margin-top:32px;">
             <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
-                <i class="fa-solid fa-calendar-days" style="color:var(--primary)"></i> ÅÏÇÑÉ ÅÌÇÒÇÊ ãÓÇÍí İÑÚß
-                <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);margin-right:8px;">ÊÃßíÏ ÇáãÛÇÏÑÉ æÇáÅÑÌÇÚ ááÚãá</span>
+                <i class="fa-solid fa-calendar-days" style="color:var(--primary)"></i> Ø¥Ø¯Ø§Ø±Ø© Ø¥Ø¬Ø§Ø²Ø§Øª Ù…Ø³Ø§Ø­ÙŠ ÙØ±Ø¹Ùƒ
+                <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);margin-right:8px;">ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© ÙˆØ§Ù„Ø¥Ø±Ø¬Ø§Ø¹ Ù„Ù„Ø¹Ù…Ù„</span>
             </h3>
 
-            <!-- ãÓÇÍæä İí ÅÌÇÒÉ ÍÇáíÇğ — ŞÇÆãÉ ÈÍË -->
+            <!-- Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ Ø¥Ø¬Ø§Ø²Ø© Ø­Ø§Ù„ÙŠØ§Ù‹ â€” Ù‚Ø§Ø¦Ù…Ø© Ø¨Ø­Ø« -->
             <div class="card" style="border-right:4px solid #f59e0b;margin-bottom:20px;">
-                <h4 style="font-size:.95rem;color:#92400e;margin-bottom:12px;"><i class="fa-solid fa-umbrella-beach"></i> ãÓÇÍæä İí ÅÌÇÒÉ ÍÇáíÇğ</h4>
-                <div id="headOnLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">áÇ íæÌÏ ãÓÇÍæä İí ÅÌÇÒÉ ÍÇáíÇğ.</p></div>
+                <h4 style="font-size:.95rem;color:#92400e;margin-bottom:12px;"><i class="fa-solid fa-umbrella-beach"></i> Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ Ø¥Ø¬Ø§Ø²Ø© Ø­Ø§Ù„ÙŠØ§Ù‹</h4>
+                <div id="headOnLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ Ø¥Ø¬Ø§Ø²Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.</p></div>
             </div>
 
-            <!-- ãÓÇÍæä ÈÇäÊÙÇÑ ÊÃßíÏ ÇáãÛÇÏÑÉ -->
+            <!-- Ù…Ø³Ø§Ø­ÙˆÙ† Ø¨Ø§Ù†ØªØ¸Ø§Ø± ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© -->
             <div class="card" style="border-right:4px solid #3b82f6;margin-bottom:20px;">
-                <h4 style="font-size:.95rem;color:#1e40af;margin-bottom:12px;"><i class="fa-solid fa-calendar-check"></i> ãÓÇÍæä ÈÇäÊÙÇÑ ÊÃßíÏ ÇáãÛÇÏÑÉ</h4>
-                <div id="headPlanningLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">áÇ íæÌÏ ãÓÇÍæä ÈÇäÊÙÇÑ ãÛÇÏÑÉ.</p></div>
+                <h4 style="font-size:.95rem;color:#1e40af;margin-bottom:12px;"><i class="fa-solid fa-calendar-check"></i> Ù…Ø³Ø§Ø­ÙˆÙ† Ø¨Ø§Ù†ØªØ¸Ø§Ø± ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</h4>
+                <div id="headPlanningLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³Ø§Ø­ÙˆÙ† Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ØºØ§Ø¯Ø±Ø©.</p></div>
             </div>
 
-            <!-- ÅÖÇİÉ ãÓÇÍ ááÅÌÇÒÉ íÏæíÇğ -->
+            <!-- Ø¥Ø¶Ø§ÙØ© Ù…Ø³Ø§Ø­ Ù„Ù„Ø¥Ø¬Ø§Ø²Ø© ÙŠØ¯ÙˆÙŠØ§Ù‹ -->
             <div class="card" style="border-right:4px solid #16a34a;">
-                <h4 style="font-size:.95rem;color:#166534;margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> ÅÖÇİÉ ãÓÇÍ ááÅÌÇÒÉ íÏæíÇğ</h4>
+                <h4 style="font-size:.95rem;color:#166534;margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> Ø¥Ø¶Ø§ÙØ© Ù…Ø³Ø§Ø­ Ù„Ù„Ø¥Ø¬Ø§Ø²Ø© ÙŠØ¯ÙˆÙŠØ§Ù‹</h4>
                 <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
                     <div style="flex:1;min-width:200px;">
-                        <label class="form-label">ÇÎÊÑ ÇáãæÙİ</label>
+                        <label class="form-label">Ø§Ø®ØªØ± Ø§Ù„Ù…ÙˆØ¸Ù</label>
                         <select id="headLeaveManualEmployee" class="form-select" style="font-size:.9rem;"></select>
                     </div>
                     <div style="flex:1;min-width:150px;">
-                        <label class="form-label">ÊÇÑíÎ ÇáãÛÇÏÑÉ</label>
+                        <label class="form-label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</label>
                         <input type="date" id="headLeaveManualDate" class="form-input" style="font-size:.9rem;">
                     </div>
                     <button onclick="headSendToLeave()" class="btn btn-primary" style="font-size:.85rem;">
-                        <i class="fa-solid fa-plane-departure"></i> ÊÓÌíá ÇáãÛÇÏÑÉ
+                        <i class="fa-solid fa-plane-departure"></i> ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©
                     </button>
                 </div>
             </div>
@@ -194,91 +193,91 @@
 
         </div><!-- end inner wrapper -->
 
-        <!-- ====== ØáÈÇÊ ÒíÇÏÉ ÇáÑÇÊÈ ====== -->
+        <!-- ====== Ø·Ù„Ø¨Ø§Øª Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨ ====== -->
         <div id="srrHeadPanel" style="display:none;margin-top:24px;" class="card" style="border-right:4px solid #15803d;">
-            <h3 style="margin-bottom:4px;border-right:4px solid #15803d;padding-right:12px;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> ØáÈÇÊ ÒíÇÏÉ ÇáÑÇÊÈ — ÈÇäÊÙÇÑ ãæÇİŞÊß</h3>
-            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">ÈÚÏ ÇáãæÇİŞÉ íõÑİÚ ÇáØáÈ ááÅÏÇÑÉ ÇáÚáíÇ ÊáŞÇÆíÇğ — áÇ íÍÊÇÌ ãÑÇÌÚÉ ÇáãÏíÑ ÇáÚÇã İí ÇáäÙÇã</p>
+            <h3 style="margin-bottom:4px;border-right:4px solid #15803d;padding-right:12px;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> Ø·Ù„Ø¨Ø§Øª Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨ â€” Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ</h3>
+            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Ø¨Ø¹Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙŠÙØ±ÙØ¹ Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ â€” Ù„Ø§ ÙŠØ­ØªØ§Ø¬ Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù… ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù…</p>
             <div id="srrHeadList"></div>
         </div>
 
-        <!-- ãæÏÇá ÑİÖ ØáÈ ÒíÇÏÉ ÇáÑÇÊÈ -->
+        <!-- Ù…ÙˆØ¯Ø§Ù„ Ø±ÙØ¶ Ø·Ù„Ø¨ Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨ -->
         <div id="srrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
-                <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> ÓÈÈ ÑİÖ ØáÈ ÇáÒíÇÏÉ</h4>
-                <div class="form-group"><label class="form-label">ãáÇÍÙÉ ÇáÑİÖ (ÇÎÊíÇÑí)</label>
-                <input type="text" id="srrRejectNote" class="form-input" placeholder="ÃÏÎá ÓÈÈ ÇáÑİÖ..."></div>
+                <h4 style="margin-bottom:14px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> Ø³Ø¨Ø¨ Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø²ÙŠØ§Ø¯Ø©</h4>
+                <div class="form-group"><label class="form-label">Ù…Ù„Ø§Ø­Ø¸Ø© Ø§Ù„Ø±ÙØ¶ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
+                <input type="text" id="srrRejectNote" class="form-input" placeholder="Ø£Ø¯Ø®Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶..."></div>
                 <div style="display:flex;gap:8px;margin-top:12px;">
-                    <button onclick="confirmSrrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> ÑİÖ</button>
-                    <button onclick="document.getElementById('srrRejectModal').style.display='none'" class="btn btn-ghost">ÅáÛÇÁ</button>
+                    <button onclick="confirmSrrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-times"></i> Ø±ÙØ¶</button>
+                    <button onclick="document.getElementById('srrRejectModal').style.display='none'" class="btn btn-ghost">Ø¥Ù„ØºØ§Ø¡</button>
                 </div>
             </div>
         </div>
 
-        <!-- ====== ØáÈÇÊ ÊÚÏíá ÈíÇäÇÊ ÇáãÓÇÍíä ====== -->
+        <!-- ====== Ø·Ù„Ø¨Ø§Øª ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† ====== -->
         <div class="card" id="pcrHeadPanel" style="margin-top:24px;border-right:4px solid #d97706;">
-            <h3 style="margin-bottom:4px;"><i class="fa-solid fa-user-pen" style="color:#d97706;"></i> ØáÈÇÊ ÊÚÏíá ÈíÇäÇÊ ÇáãæÙİíä</h3>
-            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">ØáÈÇÊ ÈÇäÊÙÇÑ ãæÇİŞÊß — ÈÚÏ ÇáãæÇİŞÉ ÊõÑÓá ááãÏíÑ ááÇÚÊãÇÏ ÇáäåÇÆí</p>
+            <h3 style="margin-bottom:4px;"><i class="fa-solid fa-user-pen" style="color:#d97706;"></i> Ø·Ù„Ø¨Ø§Øª ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†</h3>
+            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ â€” Ø¨Ø¹Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ØªÙØ±Ø³Ù„ Ù„Ù„Ù…Ø¯ÙŠØ± Ù„Ù„Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠ</p>
             <div id="pcrHeadList"></div>
         </div>
 
-        <!-- ====== ØáÈÇÊ ÇÓÊÚÇÏÉ ßáãÉ ÇáãÑæÑ ====== -->
+        <!-- ====== Ø·Ù„Ø¨Ø§Øª Ø§Ø³ØªØ¹Ø§Ø¯Ø© ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ====== -->
         <div class="card" id="pwrHeadPanel" style="margin-top:16px;border-right:4px solid #dc2626;">
-            <h3 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> ØáÈÇÊ ÇÓÊÚÇÏÉ ßáãÉ ÇáãÑæÑ</h3>
-            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">ãæÙİæä äÓæÇ ßáãÉ ÇáãÑæÑ — ÍÏÏ ßáãÉ ãÑæÑ ãÄŞÊÉ æÃÑÓáåÇ áåã</p>
+            <h3 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> Ø·Ù„Ø¨Ø§Øª Ø§Ø³ØªØ¹Ø§Ø¯Ø© ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±</h3>
+            <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Ù…ÙˆØ¸ÙÙˆÙ† Ù†Ø³ÙˆØ§ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± â€” Ø­Ø¯Ø¯ ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¤Ù‚ØªØ© ÙˆØ£Ø±Ø³Ù„Ù‡Ø§ Ù„Ù‡Ù…</p>
             <div id="pwrHeadList"></div>
         </div>
 
-        <!-- ãæÏÇá ÊÚííä ßáãÉ ãÑæÑ ãÄŞÊÉ -->
+        <!-- Ù…ÙˆØ¯Ø§Ù„ ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¤Ù‚ØªØ© -->
         <div id="pwrModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
-                <h4 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> ÊÚííä ßáãÉ ãÑæÑ ãÄŞÊÉ</h4>
+                <h4 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¤Ù‚ØªØ©</h4>
                 <p id="pwrModalEmployeeName" style="color:var(--text-muted);font-size:.88rem;margin-bottom:16px;"></p>
                 <div class="form-group">
-                    <label class="form-label">ßáãÉ ÇáãÑæÑ ÇáãÄŞÊÉ</label>
-                    <input type="text" id="pwrTempPass" class="form-input" placeholder="ÃÏÎá ßáãÉ ãÑæÑ ãÄŞÊÉ (4 ÃÍÑİ Úáì ÇáÃŞá)">
+                    <label class="form-label">ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù…Ø¤Ù‚ØªØ©</label>
+                    <input type="text" id="pwrTempPass" class="form-input" placeholder="Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¤Ù‚ØªØ© (4 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„)">
                 </div>
                 <div style="font-size:.8rem;color:#d97706;background:#fffbeb;border-radius:8px;padding:8px 12px;margin-bottom:16px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ÃÈáÛ ÇáãæÙİ ÈåĞå ÇáßáãÉ — ÓíõØáÈ ãäå ÊÛííÑåÇ İæÑÇğ ÚäÏ ÇáÏÎæá
+                    <i class="fa-solid fa-triangle-exclamation"></i> Ø£Ø¨Ù„Øº Ø§Ù„Ù…ÙˆØ¸Ù Ø¨Ù‡Ø°Ù‡ Ø§Ù„ÙƒÙ„Ù…Ø© â€” Ø³ÙŠÙØ·Ù„Ø¨ Ù…Ù†Ù‡ ØªØºÙŠÙŠØ±Ù‡Ø§ ÙÙˆØ±Ø§Ù‹ Ø¹Ù†Ø¯ Ø§Ù„Ø¯Ø®ÙˆÙ„
                 </div>
                 <div style="display:flex;gap:8px;">
-                    <button onclick="confirmPwrReset()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> ÊÃßíÏ æÊÚííä</button>
-                    <button onclick="document.getElementById('pwrModal').style.display='none'" class="btn btn-ghost">ÅáÛÇÁ</button>
+                    <button onclick="confirmPwrReset()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> ØªØ£ÙƒÙŠØ¯ ÙˆØªØ¹ÙŠÙŠÙ†</button>
+                    <button onclick="document.getElementById('pwrModal').style.display='none'" class="btn btn-ghost">Ø¥Ù„ØºØ§Ø¡</button>
                 </div>
                 <div id="pwrModalResult" style="margin-top:10px;"></div>
             </div>
         </div>
 
-        <!-- ãæÏÇá ÇáÊÍŞŞ ŞÈá ÇáãÛÇÏÑÉ -->
+        <!-- Ù…ÙˆØ¯Ø§Ù„ Ø§Ù„ØªØ­Ù‚Ù‚ Ù‚Ø¨Ù„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© -->
         <div id="headDeptCheckModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
-                <h4 style="margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> ÊäÈíå ŞÈá ÊÓÌíá ÇáãÛÇÏÑÉ</h4>
+                <h4 style="margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> ØªÙ†Ø¨ÙŠÙ‡ Ù‚Ø¨Ù„ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</h4>
                 <div id="headDeptCheckBody" style="margin:12px 0;font-size:.9rem;"></div>
                 <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:.82rem;color:#92400e;margin-bottom:16px;">
-                    <i class="fa-solid fa-circle-info"></i> íõäÕÍ ÈäŞá ÇáÚåÏÉ æÇáÚãÇá ŞÈá ÇáãÛÇÏÑÉ áÖãÇä ÇÓÊãÑÇÑíÉ ÇáÚãá
+                    <i class="fa-solid fa-circle-info"></i> ÙŠÙÙ†ØµØ­ Ø¨Ù†Ù‚Ù„ Ø§Ù„Ø¹Ù‡Ø¯Ø© ÙˆØ§Ù„Ø¹Ù…Ø§Ù„ Ù‚Ø¨Ù„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ù„Ø¶Ù…Ø§Ù† Ø§Ø³ØªÙ…Ø±Ø§Ø±ÙŠØ© Ø§Ù„Ø¹Ù…Ù„
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button onclick="executeHeadPendingDept()" class="btn btn-primary" style="flex:1;">
-                        <i class="fa-solid fa-plane-departure"></i> ÅÊãÇã ÇáãÛÇÏÑÉ Úáì Ãí ÍÇá
+                        <i class="fa-solid fa-plane-departure"></i> Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø¹Ù„Ù‰ Ø£ÙŠ Ø­Ø§Ù„
                     </button>
                     <a href="workers.html" class="btn btn-ghost" style="flex:1;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">
-                        <i class="fa-solid fa-helmet-safety"></i> äŞá ÇáÚãÇá ÃæáÇğ
+                        <i class="fa-solid fa-helmet-safety"></i> Ù†Ù‚Ù„ Ø§Ù„Ø¹Ù…Ø§Ù„ Ø£ÙˆÙ„Ø§Ù‹
                     </a>
-                    <button onclick="document.getElementById('headDeptCheckModal').style.display='none'" class="btn btn-ghost" style="width:100%;margin-top:4px;">ÅáÛÇÁ</button>
+                    <button onclick="document.getElementById('headDeptCheckModal').style.display='none'" class="btn btn-ghost" style="width:100%;margin-top:4px;">Ø¥Ù„ØºØ§Ø¡</button>
                 </div>
             </div>
         </div>
 
-        <!-- ãæÏÇá ÑİÖ ØáÈ ÇáÊÚÏíá -->
+        <!-- Ù…ÙˆØ¯Ø§Ù„ Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ -->
         <div id="pcrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
             <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
-                <h4 style="margin-bottom:16px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> ÓÈÈ ÇáÑİÖ</h4>
+                <h4 style="margin-bottom:16px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶</h4>
                 <div class="form-group">
-                    <label class="form-label">ãáÇÍÙÉ ÇáÑİÖ (ÇÎÊíÇÑí)</label>
-                    <input type="text" id="pcrRejectNote" class="form-input" placeholder="ÃÏÎá ÓÈÈ ÇáÑİÖ...">
+                    <label class="form-label">Ù…Ù„Ø§Ø­Ø¸Ø© Ø§Ù„Ø±ÙØ¶ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
+                    <input type="text" id="pcrRejectNote" class="form-input" placeholder="Ø£Ø¯Ø®Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶...">
                 </div>
                 <div style="display:flex;gap:8px;margin-top:12px;">
-                    <button onclick="confirmPcrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;"><i class="fa-solid fa-times"></i> ÑİÖ</button>
-                    <button onclick="document.getElementById('pcrRejectModal').style.display='none'" class="btn btn-ghost">ÅáÛÇÁ</button>
+                    <button onclick="confirmPcrReject()" class="btn" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer;"><i class="fa-solid fa-times"></i> Ø±ÙØ¶</button>
+                    <button onclick="document.getElementById('pcrRejectModal').style.display='none'" class="btn btn-ghost">Ø¥Ù„ØºØ§Ø¡</button>
                 </div>
             </div>
         </div>
@@ -301,16 +300,16 @@ function scrollToPending() {
 function loadHeadSurveyorDashboard() {
     const myBranch = currentUser.responsibleBranch;
     const branch = db.branches.find(b => b.id === myBranch);
-    const branchName = branch ? branch.name : 'ÛíÑ ãÍÏÏ';
+    const branchName = branch ? branch.name : 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
 
-    document.getElementById('userGreeting').innerText = `ãÑÍÈÇğ¡ ÑÆíÓ ÇáãÓÇÍíä ${currentUser.name} — ${branchName}`;
+    document.getElementById('userGreeting').innerText = `Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† ${currentUser.name} â€” ${branchName}`;
     document.getElementById('branchIsolationName').textContent = branchName;
 
-    // ÇáãÓÇÍæä İí İÑÚí İŞØ
+    // Ø§Ù„Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ ÙØ±Ø¹ÙŠ ÙÙ‚Ø·
     const branchSurveyors = db.users.filter(u => u.branch === myBranch && u.role === 'surveyor' && u.status === 'approved');
     document.getElementById('branchSurveyorCount').innerText = branchSurveyors.length;
 
-    // ÃÌåÒÉ İÑÚí İŞØ (ÈÏæä ÇáãÓÊæÏÚ)
+    // Ø£Ø¬Ù‡Ø²Ø© ÙØ±Ø¹ÙŠ ÙÙ‚Ø· (Ø¨Ø¯ÙˆÙ† Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹)
     const branchUsers = branchSurveyors.map(u => u.id);
     branchUsers.push(currentUser.id);
     const branchDevices = db.devices.filter(d =>
@@ -319,13 +318,13 @@ function loadHeadSurveyorDashboard() {
     );
     document.getElementById('branchDeviceCount').innerText = branchDevices.length;
 
-    // ØáÈÇÊ ÈÇäÊÙÇÑ ãæÇİŞÊí ãä İÑÚí İŞØ
+    // Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙŠ Ù…Ù† ÙØ±Ø¹ÙŠ ÙÙ‚Ø·
     const pendingCustodies = db.custodies.filter(c =>
         c.status === 'pending_head_approval' && c.branchId === myBranch
     );
     document.getElementById('pendingApprovalCount').innerText = pendingCustodies.length;
 
-    // ÊäÈíåÇÊ ÇáãÚÇíÑÉ áÃÌåÒÉ İÑÚí
+    // ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø© Ù„Ø£Ø¬Ù‡Ø²Ø© ÙØ±Ø¹ÙŠ
     const today = new Date(); today.setHours(0,0,0,0);
     const alertLimit = new Date(); alertLimit.setDate(today.getDate() + (db.settings.alertDays || 30));
     const expiring = branchDevices.filter(d => d.calDate && new Date(d.calDate) <= alertLimit);
@@ -333,19 +332,19 @@ function loadHeadSurveyorDashboard() {
         const list = expiring.map(d => {
             const diff = Math.ceil((new Date(d.calDate) - today) / 86400000);
             const owner = db.users.find(u => u.id === d.ownerId);
-            const statusT = diff <= 0 ? '<span style="color:#ef4444;font-weight:700;">ãäÊåíÉ!</span>' : `ãÊÈŞí ${diff} íæã`;
-            return `<li>${getDeviceTypeName(d.type)} (${d.serial}) — ${owner ? owner.name : 'ÛíÑ ãÚíä'} — ${statusT}</li>`;
+            const statusT = diff <= 0 ? '<span style="color:#ef4444;font-weight:700;">Ù…Ù†ØªÙ‡ÙŠØ©!</span>' : `Ù…ØªØ¨Ù‚ÙŠ ${diff} ÙŠÙˆÙ…`;
+            return `<li>${getDeviceTypeName(d.type)} (${d.serial}) â€” ${owner ? owner.name : 'ØºÙŠØ± Ù…Ø¹ÙŠÙ†'} â€” ${statusT}</li>`;
         }).join('');
         document.getElementById('calibrationAlerts').innerHTML = `
             <div style="background:#fff5f5;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:12px;padding:16px;margin-bottom:20px;color:#991b1b;display:flex;align-items:flex-start;gap:14px;">
                 <i class="fa-solid fa-triangle-exclamation fa-xl" style="margin-top:3px;"></i>
-                <div><strong>ÊäÈíåÇÊ ãÚÇíÑÉ ÚÇÌáÉ</strong><ul style="margin-top:8px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
+                <div><strong>ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ù…Ø¹Ø§ÙŠØ±Ø© Ø¹Ø§Ø¬Ù„Ø©</strong><ul style="margin-top:8px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
             </div>`;
     } else {
         document.getElementById('calibrationAlerts').innerHTML = '';
     }
 
-    // ÅÔÚÇÑÇÊ ÛíÑ ãŞÑæÁÉ
+    // Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ØºÙŠØ± Ù…Ù‚Ø±ÙˆØ¡Ø©
     const unreadNotifs = db.notifications.filter(n => n.userId === currentUser.id && !n.read);
     if (unreadNotifs.length > 0) {
         const items = unreadNotifs.slice(0, 5).map(n => {
@@ -353,31 +352,31 @@ function loadHeadSurveyorDashboard() {
             const custodyInNotif = n.relatedId && n.actionType === 'custody_approval' ? db.custodies.find(c => c.id === n.relatedId) : null;
             const canActOnCustody = custodyInNotif && custodyInNotif.status === 'pending_head_approval' && custodyInNotif.branchId === myBranch;
             const approveBtns = canActOnCustody ? `
-                <button class="btn-approve" onclick="doApprove('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ŞÈæá</button>
-                <button class="btn-reject" onclick="doReject('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>
+                <button class="btn-approve" onclick="doApprove('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„</button>
+                <button class="btn-reject" onclick="doReject('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>
             ` : '';
             const leaveInNotif = n.relatedId && n.actionType === 'leave_approval' ? db.leaveRequests?.find(lr => lr.id === n.relatedId) : null;
             const canActOnLeave = leaveInNotif && leaveInNotif.status === 'pending_head_approval' && leaveInNotif.branchId === myBranch;
             const leaveBtns = canActOnLeave ? `
-                <button class="btn-approve" onclick="doApproveLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> ŞÈæá</button>
-                <button class="btn-reject" onclick="doRejectLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>
+                <button class="btn-approve" onclick="doApproveLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„</button>
+                <button class="btn-reject" onclick="doRejectLeave('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>
             ` : '';
-            const actionLink = n.actionUrl ? `<a href="${n.actionUrl}" class="btn-view-service" onclick="markNotificationAsRead('${n.id}')"><i class="fa-solid fa-arrow-left"></i> ÚÑÖ</a>` : '';
+            const actionLink = n.actionUrl ? `<a href="${n.actionUrl}" class="btn-view-service" onclick="markNotificationAsRead('${n.id}')"><i class="fa-solid fa-arrow-left"></i> Ø¹Ø±Ø¶</a>` : '';
             return `
                 <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
                     <div style="font-size:.88rem;margin-bottom:6px;">${n.message}</div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
                         ${approveBtns || leaveBtns}
                         ${actionLink}
-                        <button onclick="markNotificationAsRead('${n.id}');loadHeadSurveyorDashboard();" style="font-size:.72rem;color:var(--primary);background:none;border:none;cursor:pointer;font-weight:600;">ŞÑÇÁÉ</button>
+                        <button onclick="markNotificationAsRead('${n.id}');loadHeadSurveyorDashboard();" style="font-size:.72rem;color:var(--primary);background:none;border:none;cursor:pointer;font-weight:600;">Ù‚Ø±Ø§Ø¡Ø©</button>
                     </div>
                 </div>`;
         }).join('');
         document.getElementById('headNotifications').innerHTML = `
             <div style="background:#e0f2fe;border:1px solid #90cdf4;border-right:4px solid #3182ce;border-radius:12px;padding:16px;margin-bottom:20px;color:#1e40af;">
                 <div style="font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
-                    <span><i class="fa-solid fa-bell"></i> ÅÔÚÇÑÇÊ ÌÏíÏÉ (${unreadNotifs.length})</span>
-                    <a href="notification-center.html" style="font-size:.78rem;color:#1e40af;font-weight:600;">ÚÑÖ Çáßá</a>
+                    <span><i class="fa-solid fa-bell"></i> Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© (${unreadNotifs.length})</span>
+                    <a href="notification-center.html" style="font-size:.78rem;color:#1e40af;font-weight:600;">Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„</a>
                 </div>
                 ${items}
             </div>`;
@@ -385,28 +384,28 @@ function loadHeadSurveyorDashboard() {
         document.getElementById('headNotifications').innerHTML = '';
     }
 
-    // ØáÈÇÊ ÇáÚåÏÉ ÈÇäÊÙÇÑ ãæÇİŞÊí
+    // Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¹Ù‡Ø¯Ø© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙŠ
     if (pendingCustodies.length > 0) {
         const rows = pendingCustodies.map(req => {
             const user = db.users.find(u => u.id === req.userId);
             const isTransfer = !!req.transferData;
             return `<tr>
-                <td>${user ? user.name : '—'}</td>
+                <td>${user ? user.name : 'â€”'}</td>
                 <td>${getDeviceTypeName(req.deviceType)} <small style="color:var(--text-muted);">(${req.serialNumber})</small></td>
-                <td>${isTransfer ? '<span class="badge badge-info">äŞá ÚåÏÉ</span>' : '<span class="badge badge-success">ÌÏíÏ</span>'}</td>
+                <td>${isTransfer ? '<span class="badge badge-info">Ù†Ù‚Ù„ Ø¹Ù‡Ø¯Ø©</span>' : '<span class="badge badge-success">Ø¬Ø¯ÙŠØ¯</span>'}</td>
                 <td>${formatDate(req.timestamp)}</td>
                 <td style="display:flex;gap:6px;">
-                    <button class="btn-approve" onclick="doApproveCustodyDirect('${req.id}')"><i class="fa-solid fa-check"></i> ŞÈæá</button>
-                    <button class="btn-reject" onclick="doRejectCustodyDirect('${req.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>
+                    <button class="btn-approve" onclick="doApproveCustodyDirect('${req.id}')"><i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„</button>
+                    <button class="btn-reject" onclick="doRejectCustodyDirect('${req.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>
                 </td>
             </tr>`;
         }).join('');
         document.getElementById('pendingSection').innerHTML = `
             <div class="pending-card" id="pendingSectionAnchor">
-                <h3 style="color:#92400e;margin-bottom:14px;"><i class="fa-solid fa-user-clock"></i> ØáÈÇÊ ÚåÏÉ ÈÇäÊÙÇÑ ãæÇİŞÊß (${pendingCustodies.length})</h3>
+                <h3 style="color:#92400e;margin-bottom:14px;"><i class="fa-solid fa-user-clock"></i> Ø·Ù„Ø¨Ø§Øª Ø¹Ù‡Ø¯Ø© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ (${pendingCustodies.length})</h3>
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>ÇáãÓÇÍ</th><th>ÇáÌåÇÒ</th><th>äæÚ ÇáØáÈ</th><th>ÇáÊÇÑíÎ</th><th>ÇáÅÌÑÇÁ</th></tr></thead>
+                        <thead><tr><th>Ø§Ù„Ù…Ø³Ø§Ø­</th><th>Ø§Ù„Ø¬Ù‡Ø§Ø²</th><th>Ù†ÙˆØ¹ Ø§Ù„Ø·Ù„Ø¨</th><th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th><th>Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
                 </div>
@@ -415,7 +414,7 @@ function loadHeadSurveyorDashboard() {
         document.getElementById('pendingSection').innerHTML = '';
     }
 
-    // ãáÎÕ ÇáÃäæÇÚ
+    // Ù…Ù„Ø®Øµ Ø§Ù„Ø£Ù†ÙˆØ§Ø¹
     const tsCount = branchDevices.filter(d => d.type === 'total_station' || d.type.includes('station')).length;
     const alCount = branchDevices.filter(d => d.type === 'auto_level' || d.type.includes('level')).length;
     const gpsCount = branchDevices.filter(d => d.type.toLowerCase().includes('gps')).length;
@@ -423,19 +422,19 @@ function loadHeadSurveyorDashboard() {
     document.getElementById('countAL').innerText = alCount;
     document.getElementById('countGPS').innerText = gpsCount;
 
-    // ÑÓã ÇáÊæÒíÚ ÇáÏÇÆÑí
+    // Ø±Ø³Ù… Ø§Ù„ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø¯Ø§Ø¦Ø±ÙŠ
     const ctx = document.getElementById('deviceTypePieChart').getContext('2d');
     if (myChart) myChart.destroy();
     myChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['ãÍØÉ', 'ãíÒÇä', 'GPS'],
+            labels: ['Ù…Ø­Ø·Ø©', 'Ù…ÙŠØ²Ø§Ù†', 'GPS'],
             datasets: [{ data: [tsCount, alCount, gpsCount], backgroundColor: ['#6366f1', '#0ea5e9', '#f59e0b'], borderWidth: 0, hoverOffset: 6 }]
         },
         options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, font: { size: 9 }, padding: 8 } } } }
     });
 
-    // ÑÓã ÍÇáÉ ÇáãÚÇíÑÉ
+    // Ø±Ø³Ù… Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©
     const calibOk = branchDevices.filter(d => !(d.calDate && new Date(d.calDate) <= alertLimit)).length;
     const calibAlert = expiring.length;
     const ctxCalib = document.getElementById('calibStatusChart').getContext('2d');
@@ -443,19 +442,19 @@ function loadHeadSurveyorDashboard() {
     window._calibChart = new Chart(ctxCalib, {
         type: 'doughnut',
         data: {
-            labels: ['ãÚÇíÑÉ ÌíÏÉ', 'ÊÍÊÇÌ ãÚÇíÑÉ'],
+            labels: ['Ù…Ø¹Ø§ÙŠØ±Ø© Ø¬ÙŠØ¯Ø©', 'ØªØ­ØªØ§Ø¬ Ù…Ø¹Ø§ÙŠØ±Ø©'],
             datasets: [{ data: [calibOk, calibAlert], backgroundColor: ['#10b981', '#f43f5e'], borderWidth: 0, hoverOffset: 6 }]
         },
         options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, font: { size: 9 }, padding: 8 } } } }
     });
 
-    // ÈÇÑ ÔÇÑÊ ÍÇáÉ ÇáÃÌåÒÉ
+    // Ø¨Ø§Ø± Ø´Ø§Ø±Øª Ø­Ø§Ù„Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©
     const statuses = [
-        { label:'ÇáãÓÊæÏÚ', key:'warehouse',        color:'#6366f1' },
-        { label:'ãÚíøäÉ',   key:'assigned',         color:'#10b981' },
-        { label:'ÕíÇäÉ',    key:'maintenance',      color:'#f43f5e' },
-        { label:'ãÚÇíÑÉ',   key:'needs_calibration',color:'#f59e0b' },
-        { label:'ãÊÇÍÉ',    key:'available',        color:'#3b82f6' },
+        { label:'Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹', key:'warehouse',        color:'#6366f1' },
+        { label:'Ù…Ø¹ÙŠÙ‘Ù†Ø©',   key:'assigned',         color:'#10b981' },
+        { label:'ØµÙŠØ§Ù†Ø©',    key:'maintenance',      color:'#f43f5e' },
+        { label:'Ù…Ø¹Ø§ÙŠØ±Ø©',   key:'needs_calibration',color:'#f59e0b' },
+        { label:'Ù…ØªØ§Ø­Ø©',    key:'available',        color:'#3b82f6' },
     ];
     const barLabels = statuses.map(s => s.label);
     const barData   = statuses.map(s => branchDevices.filter(d => d.status === s.key || d.status === ('at_'+s.key)).length);
@@ -467,7 +466,7 @@ function loadHeadSurveyorDashboard() {
             type: 'bar',
             data: {
                 labels: barLabels,
-                datasets: [{ label: 'ÚÏÏ ÇáÃÌåÒÉ', data: barData, backgroundColor: barColors.map(c=>c+'CC'), borderColor: barColors, borderWidth: 2, borderRadius: 8, borderSkipped: false }]
+                datasets: [{ label: 'Ø¹Ø¯Ø¯ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©', data: barData, backgroundColor: barColors.map(c=>c+'CC'), borderColor: barColors, borderWidth: 2, borderRadius: 8, borderSkipped: false }]
             },
             options: {
                 responsive: true, maintainAspectRatio: true,
@@ -480,14 +479,14 @@ function loadHeadSurveyorDashboard() {
         });
     }
 
-    // ãÔÇÑíÚ ÇáİÑÚ
+    // Ù…Ø´Ø§Ø±ÙŠØ¹ Ø§Ù„ÙØ±Ø¹
     const myProjects = (db.projects || []).filter(p => p.branchId === myBranch);
     const projContainer = document.getElementById('branchProjectsSection');
     if (myProjects.length === 0) {
-        projContainer.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:var(--text-muted);"><i class="fa-solid fa-folder-open fa-2x" style="margin-bottom:10px;display:block;"></i>áÇ ÊæÌÏ ãÔÇÑíÚ ãÓÌáÉ áåĞÇ ÇáİÑÚ. <a href="projects.html" style="color:var(--primary);font-weight:600;">ÅÖÇİÉ ãÔÑæÚ</a></div>';
+        projContainer.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:var(--text-muted);"><i class="fa-solid fa-folder-open fa-2x" style="margin-bottom:10px;display:block;"></i>Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø´Ø§Ø±ÙŠØ¹ Ù…Ø³Ø¬Ù„Ø© Ù„Ù‡Ø°Ø§ Ø§Ù„ÙØ±Ø¹. <a href="projects.html" style="color:var(--primary);font-weight:600;">Ø¥Ø¶Ø§ÙØ© Ù…Ø´Ø±ÙˆØ¹</a></div>';
     } else {
         const statusColors = { active: '#10b981', completed: '#6366f1', paused: '#f59e0b' };
-        const statusLabels = { active: 'äÔØ', completed: 'ãßÊãá', paused: 'ãÊæŞİ' };
+        const statusLabels = { active: 'Ù†Ø´Ø·', completed: 'Ù…ÙƒØªÙ…Ù„', paused: 'Ù…ØªÙˆÙ‚Ù' };
         projContainer.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">` +
             myProjects.map(p => {
                 const completion = p.completion || 0;
@@ -495,7 +494,7 @@ function loadHeadSurveyorDashboard() {
                 const workerCount = (db.workers || []).filter(w => w.projectId === p.id).length;
                 const endDate = p.endDate ? new Date(p.endDate) : null;
                 const daysLeft = endDate ? Math.ceil((endDate - new Date()) / 86400000) : null;
-                const daysLabel = daysLeft === null ? '' : daysLeft < 0 ? `<span style="color:#ef4444;font-size:.72rem;">ÊÃÎÑ ${Math.abs(daysLeft)} íæã</span>` : `<span style="font-size:.72rem;color:#64748b;">ãÊÈŞí ${daysLeft} íæã</span>`;
+                const daysLabel = daysLeft === null ? '' : daysLeft < 0 ? `<span style="color:#ef4444;font-size:.72rem;">ØªØ£Ø®Ø± ${Math.abs(daysLeft)} ÙŠÙˆÙ…</span>` : `<span style="font-size:.72rem;color:#64748b;">Ù…ØªØ¨Ù‚ÙŠ ${daysLeft} ÙŠÙˆÙ…</span>`;
                 const color = statusColors[p.status] || '#6366f1';
                 const pct = Math.min(100, completion);
                 return `<div class="card" style="padding:18px;border-top:3px solid ${color};">
@@ -505,29 +504,29 @@ function loadHeadSurveyorDashboard() {
                     </div>
                     <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px;">${p.description || ''}</div>
                     <div style="margin-bottom:8px;">
-                        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><span>äÓÈÉ ÇáÅäÌÇÒ</span><strong style="color:${color};">${pct}%</strong></div>
+                        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><span>Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²</span><strong style="color:${color};">${pct}%</strong></div>
                         <div style="height:7px;background:#f1f5f9;border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;transition:width .4s;"></div></div>
                     </div>
                     <div style="display:flex;gap:12px;font-size:.75rem;color:#64748b;flex-wrap:wrap;">
-                        <span><i class="fa-solid fa-users" style="color:${color};"></i> ${survCount} ãÓÇÍ</span>
-                        ${workerCount > 0 ? `<span><i class="fa-solid fa-helmet-safety" style="color:#d97706;"></i> ${workerCount} ÚÇãá</span>` : ''}
+                        <span><i class="fa-solid fa-users" style="color:${color};"></i> ${survCount} Ù…Ø³Ø§Ø­</span>
+                        ${workerCount > 0 ? `<span><i class="fa-solid fa-helmet-safety" style="color:#d97706;"></i> ${workerCount} Ø¹Ø§Ù…Ù„</span>` : ''}
                         ${daysLabel}
                     </div>
                 </div>`;
             }).join('') + `</div>`;
     }
 
-    // ÊæÒíÚ ÇáÃÌåÒÉ Úáì ÇáãÓÇÍíä
+    // ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†
     const tbody = document.getElementById('surveyorsDistributionBody');
     if (branchSurveyors.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">áÇ íæÌÏ ãÓÇÍæä ãÓÌáæä İí åĞÇ ÇáİÑÚ.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³Ø§Ø­ÙˆÙ† Ù…Ø³Ø¬Ù„ÙˆÙ† ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„ÙØ±Ø¹.</td></tr>';
     } else {
         tbody.innerHTML = branchSurveyors.map(s => {
             const devs = db.devices.filter(d => d.ownerId === s.id);
             const alertDev = devs.filter(d => d.calDate && (new Date(d.calDate) - today) / 86400000 <= 30);
             const calStatus = alertDev.length > 0
-                ? `<span class="badge badge-warning">${alertDev.length} ÌåÇÒ ŞÑíÈ ãä ÇáÇäÊåÇÁ</span>`
-                : `<span class="badge badge-success">ÌíÏ</span>`;
+                ? `<span class="badge badge-warning">${alertDev.length} Ø¬Ù‡Ø§Ø² Ù‚Ø±ÙŠØ¨ Ù…Ù† Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡</span>`
+                : `<span class="badge badge-success">Ø¬ÙŠØ¯</span>`;
             const rating = getAverageRating(s.id);
             let starsHtml = '';
             if (rating) {
@@ -535,11 +534,11 @@ function loadHeadSurveyorDashboard() {
                     starsHtml += `<i class="fa-${i <= rating ? 'solid' : 'regular'} fa-star" style="color:${i <= rating ? '#fbbf24' : '#d1d5db'};font-size:.95rem;"></i>`;
                 starsHtml += ` <span style="font-size:.75rem;color:#64748b;">(${rating}/5)</span>`;
             } else {
-                starsHtml = '<span style="color:#94a3b8;font-size:.8rem;">áã íõŞíóøã</span>';
+                starsHtml = '<span style="color:#94a3b8;font-size:.8rem;">Ù„Ù… ÙŠÙÙ‚ÙŠÙÙ‘Ù…</span>';
             }
             const devHtml = devs.length
                 ? devs.map(d => `${getDeviceTypeName(d.type)}<br><small style="color:#64748b;">${d.serial}</small>`).join('<hr style="margin:2px 0;opacity:.3;">')
-                : '<span style="color:#94a3b8">áÇ ÊæÌÏ ÃÌåÒÉ</span>';
+                : '<span style="color:#94a3b8">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£Ø¬Ù‡Ø²Ø©</span>';
             return `<tr>
                 <td><strong>${s.name}</strong></td>
                 <td>${s.empId}</td>
@@ -567,7 +566,7 @@ function renderHeadWorkerTransfers() {
     container.innerHTML = `
         <div style="background:#fffbeb;border:1px solid #fde68a;border-right:4px solid #d97706;border-radius:12px;padding:16px;margin-bottom:20px;">
             <h3 style="color:#92400e;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-                <i class="fa-solid fa-people-arrows"></i> ØáÈÇÊ äŞá ÚãÇá ÈÇäÊÙÇÑ ãæÇİŞÊß (${pending.length})
+                <i class="fa-solid fa-people-arrows"></i> Ø·Ù„Ø¨Ø§Øª Ù†Ù‚Ù„ Ø¹Ù…Ø§Ù„ Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ (${pending.length})
             </h3>
             <div style="display:flex;flex-direction:column;gap:8px;">
                 ${pending.map(r => {
@@ -577,18 +576,18 @@ function renderHeadWorkerTransfers() {
                             <i class="fa-solid fa-helmet-safety" style="font-size:.85rem;"></i>
                         </div>
                         <div style="flex:1;min-width:0;">
-                            <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || '—'}</div>
+                            <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || 'â€”'}</div>
                             <div style="font-size:.72rem;color:var(--text-muted);">
-                                ãä ${r.fromSurveyorName || '—'} ? Åáì ${r.toSurveyorName || '—'}
-                                ${r.reason ? `· ÓÈÈ: ${r.reason}` : ''}
+                                Ù…Ù† ${r.fromSurveyorName || 'â€”'} â† Ø¥Ù„Ù‰ ${r.toSurveyorName || 'â€”'}
+                                ${r.reason ? `Â· Ø³Ø¨Ø¨: ${r.reason}` : ''}
                             </div>
                         </div>
                         <div style="display:flex;gap:6px;flex-shrink:0;">
                             <button onclick="doHeadApproveWorkerTransfer('${r.id}')" class="btn-approve" style="font-size:.78rem;padding:5px 12px;">
-                                <i class="fa-solid fa-check"></i> ÇÚÊãÇÏ
+                                <i class="fa-solid fa-check"></i> Ø§Ø¹ØªÙ…Ø§Ø¯
                             </button>
                             <button onclick="doHeadRejectWorkerTransfer('${r.id}')" class="btn-reject" style="font-size:.78rem;padding:5px 12px;">
-                                <i class="fa-solid fa-xmark"></i> ÑİÖ
+                                <i class="fa-solid fa-xmark"></i> Ø±ÙØ¶
                             </button>
                         </div>
                     </div>`;
@@ -598,79 +597,79 @@ function renderHeadWorkerTransfers() {
 }
 
 window.doHeadApproveWorkerTransfer = (reqId) => {
-    if (!confirm('ÇÚÊãÇÏ äŞá ÇáÚÇãá ÈÔßá äåÇÆí¿')) return;
+    if (!confirm('Ø§Ø¹ØªÙ…Ø§Ø¯ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„ Ø¨Ø´ÙƒÙ„ Ù†Ù‡Ø§Ø¦ÙŠØŸ')) return;
     if (approveWorkerTransferRequest(reqId)) {
-        showToast('Êã ÇÚÊãÇÏ äŞá ÇáÚÇãá ?', 'success');
+        showToast('ØªÙ… Ø§Ø¹ØªÙ…Ø§Ø¯ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„ âœ“', 'success');
         loadHeadSurveyorDashboard();
     } else {
-        showToast('áÇ íãßä ÇáÇÚÊãÇÏ ÍÇáíÇğ', 'error');
+        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯ Ø­Ø§Ù„ÙŠØ§Ù‹', 'error');
     }
 };
 
 window.doHeadRejectWorkerTransfer = (reqId) => {
-    const reason = prompt('ÓÈÈ ÑİÖ äŞá ÇáÚÇãá:');
+    const reason = prompt('Ø³Ø¨Ø¨ Ø±ÙØ¶ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„:');
     if (reason === null) return;
     if (rejectWorkerTransferRequest(reqId, reason)) {
-        showToast('Êã ÑİÖ äŞá ÇáÚÇãá', 'success');
+        showToast('ØªÙ… Ø±ÙØ¶ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„', 'success');
         loadHeadSurveyorDashboard();
     } else {
-        showToast('áÇ íãßä ÇáÑİÖ ÍÇáíÇğ', 'error');
+        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶ Ø­Ø§Ù„ÙŠØ§Ù‹', 'error');
     }
 };
 
 // ============================================================
-// ÃÒÑÇÑ ÇáãæÇİŞÉ æÇáÑİÖ
+// Ø£Ø²Ø±Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ§Ù„Ø±ÙØ¶
 // ============================================================
 window.doApprove = (custodyId, notifId) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ŞÈæá ØáÈ ÇáÚåÏÉ¿')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ù‚Ø¨ÙˆÙ„ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©ØŸ')) return;
     if (approveCustody(custodyId, 'head')) {
         markNotificationAsRead(notifId);
-        showToast('ÊãÊ ÇáãæÇİŞÉ æÃõÑÓá ÇáØáÈ ááãÏíÑ ÇáÚÇã', 'success');
+        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ£ÙØ±Ø³Ù„ Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…', 'success');
         loadHeadSurveyorDashboard();
-    } else showToast('áÇ íãßä ÇáãæÇİŞÉ', 'error');
+    } else showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©', 'error');
 };
 
 window.doReject = (custodyId, notifId) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÑİÖ ØáÈ ÇáÚåÏÉ¿')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©ØŸ')) return;
     if (rejectCustody(custodyId)) {
         markNotificationAsRead(notifId);
-        showToast('Êã ÑİÖ ØáÈ ÇáÚåÏÉ', 'success');
+        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©', 'success');
         loadHeadSurveyorDashboard();
-    } else showToast('áÇ íãßä ÇáÑİÖ', 'error');
+    } else showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶', 'error');
 };
 
 window.doApproveLeave = (leaveId, notifId) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ŞÈæá ØáÈ ÇáÅÌÇÒÉ¿')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ù‚Ø¨ÙˆÙ„ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ')) return;
     if (approveLeaveRequest(leaveId, 'head')) {
         markNotificationAsRead(notifId);
-        showToast('ÊãÊ ÇáãæÇİŞÉ Úáì ÇáÅÌÇÒÉ æÃõÑÓá ááãÏíÑ', 'success');
+        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© ÙˆØ£ÙØ±Ø³Ù„ Ù„Ù„Ù…Ø¯ÙŠØ±', 'success');
         loadHeadSurveyorDashboard();
-    } else showToast('áÇ íãßä ÇáãæÇİŞÉ', 'error');
+    } else showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©', 'error');
 };
 
 window.doRejectLeave = (leaveId, notifId) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÑİÖ ØáÈ ÇáÅÌÇÒÉ¿')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ')) return;
     if (rejectLeaveRequest(leaveId)) {
         markNotificationAsRead(notifId);
-        showToast('Êã ÑİÖ ØáÈ ÇáÅÌÇÒÉ', 'success');
+        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©', 'success');
         loadHeadSurveyorDashboard();
-    } else showToast('áÇ íãßä ÇáÑİÖ', 'error');
+    } else showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶', 'error');
 };
 
 window.doApproveCustodyDirect = (id) => {
-    if (!confirm('ÇáãæÇİŞÉ Úáì ØáÈ ÇáÚåÏÉ æÅÑÓÇáå ááãÏíÑ ÇáÚÇã¿')) return;
+    if (!confirm('Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø© ÙˆØ¥Ø±Ø³Ø§Ù„Ù‡ Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…ØŸ')) return;
     if (approveCustody(id, 'head')) {
-        showToast('ÊãÊ ÇáãæÇİŞÉ æÃõÑÓá ááãÏíÑ ÇáÚÇã', 'success');
+        showToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ£ÙØ±Ø³Ù„ Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…', 'success');
         loadHeadSurveyorDashboard();
-    } else showToast('áÇ íãßä ÇáãæÇİŞÉ', 'error');
+    } else showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©', 'error');
 };
 
 window.doRejectCustodyDirect = (id) => {
-    if (!confirm('ÑİÖ ØáÈ ÇáÚåÏÉ¿')) return;
+    if (!confirm('Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©ØŸ')) return;
     if (rejectCustody(id)) {
-        showToast('Êã ÑİÖ ØáÈ ÇáÚåÏÉ', 'success');
+        showToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¹Ù‡Ø¯Ø©', 'success');
         loadHeadSurveyorDashboard();
-    } else showToast('áÇ íãßä ÇáÑİÖ', 'error');
+    } else showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶', 'error');
 };
 
 function showToast(msg, type = 'success') {
@@ -681,24 +680,24 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3500);
 }
 
-// ÊÍÏíË ÊáŞÇÆí ßá 30 ËÇäíÉ
+// ØªØ­Ø¯ÙŠØ« ØªÙ„Ù‚Ø§Ø¦ÙŠ ÙƒÙ„ 30 Ø«Ø§Ù†ÙŠØ©
 setInterval(() => { reloadDB(); loadHeadSurveyorDashboard(); }, 30000);
 
-// ?? Head Leave Management ????????????????????????????????
+// â”€â”€ Head Leave Management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderHeadLeavePanel() {
     const myBranch = currentUser.responsibleBranch;
     const onLeave      = getSurveyorsOnLeave().filter(u => u.branch === myBranch);
     const planningLeave = getSurveyorsPlanningLeave().filter(u => u.branch === myBranch);
     const branchSurveyors = db.users.filter(u => u.branch === myBranch && u.role === 'surveyor' && u.status === 'approved');
 
-    // ? ãÓÇÍæä İí ÅÌÇÒÉ — ŞÇÆãÉ ÈÍË ?
+    // â”€ Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ Ø¥Ø¬Ø§Ø²Ø© â€” Ù‚Ø§Ø¦Ù…Ø© Ø¨Ø­Ø« â”€
     const onLeaveEl = document.getElementById('headOnLeaveList');
     if (onLeave.length === 0) {
-        onLeaveEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">áÇ íæÌÏ ãÓÇÍæä İí ÅÌÇÒÉ ÍÇáíÇğ.</p>';
+        onLeaveEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³Ø§Ø­ÙˆÙ† ÙÙŠ Ø¥Ø¬Ø§Ø²Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.</p>';
     } else {
         window._headOnLeaveRows = onLeave.map(u => {
             const req = (db.leaveRequests || []).find(r => r.userId === u.id && r.isDeparted && !r.isReturned);
-            const departDate = req?.actualDepartureDate ? new Date(req.actualDepartureDate).toLocaleDateString('ar-SA') : '—';
+            const departDate = req?.actualDepartureDate ? new Date(req.actualDepartureDate).toLocaleDateString('ar-SA') : 'â€”';
             return { u, req, departDate };
         });
         onLeaveEl.innerHTML = `
@@ -706,12 +705,12 @@ function renderHeadLeavePanel() {
                 <div style="position:relative;flex:1;min-width:200px;">
                     <i class="fa-solid fa-magnifying-glass" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;"></i>
                     <input type="text" id="headOnLeaveSearch" class="form-input"
-                        placeholder="ÈÍË ÈÑŞã ÇáãæÙİ..."
+                        placeholder="Ø¨Ø­Ø« Ø¨Ø±Ù‚Ù… Ø§Ù„Ù…ÙˆØ¸Ù..."
                         style="padding-right:34px;font-size:.88rem;"
                         oninput="filterHeadOnLeaveList(this.value)">
                 </div>
                 <span style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;white-space:nowrap;">
-                    <i class="fa-solid fa-umbrella-beach"></i> ${onLeave.length} İí ÅÌÇÒÉ
+                    <i class="fa-solid fa-umbrella-beach"></i> ${onLeave.length} ÙÙŠ Ø¥Ø¬Ø§Ø²Ø©
                 </span>
             </div>
             <div id="headOnLeaveSearchMsg" style="display:none;margin-bottom:10px;"></div>
@@ -719,7 +718,7 @@ function renderHeadLeavePanel() {
             <div class="table-container" style="max-height:300px;overflow-y:auto;">
                 <table>
                     <thead>
-                        <tr><th>#</th><th>ÇáÇÓã</th><th>ÇáÑŞã ÇáæÙíİí</th><th>ÊÇÑíÎ ÇáãÛÇÏÑÉ</th><th>ÇáÅÌÑÇÁ</th></tr>
+                        <tr><th>#</th><th>Ø§Ù„Ø§Ø³Ù…</th><th>Ø§Ù„Ø±Ù‚Ù… Ø§Ù„ÙˆØ¸ÙŠÙÙŠ</th><th>ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</th><th>Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡</th></tr>
                     </thead>
                     <tbody id="headOnLeaveTableBody">
                         ${window._headOnLeaveRows.map((item, i) => `
@@ -728,41 +727,41 @@ function renderHeadLeavePanel() {
                                 <td><strong>${item.u.name}</strong></td>
                                 <td style="font-family:monospace;font-size:.85rem;">${item.u.empId}</td>
                                 <td style="font-size:.82rem;color:#92400e;">${item.departDate}</td>
-                                <td>${item.req ? `<button onclick="headReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.76rem;padding:4px 10px;"><i class="fa-solid fa-plane-arrival"></i> ÅÑÌÇÚ</button>` : '—'}</td>
+                                <td>${item.req ? `<button onclick="headReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.76rem;padding:4px 10px;"><i class="fa-solid fa-plane-arrival"></i> Ø¥Ø±Ø¬Ø§Ø¹</button>` : 'â€”'}</td>
                             </tr>`).join('')}
                     </tbody>
                 </table>
             </div>`;
     }
 
-    // ? ãÓÇÍæä ÈÇäÊÙÇÑ ÊÃßíÏ ÇáãÛÇÏÑÉ ?
+    // â”€ Ù…Ø³Ø§Ø­ÙˆÙ† Ø¨Ø§Ù†ØªØ¸Ø§Ø± ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© â”€
     const planningEl = document.getElementById('headPlanningLeaveList');
     if (planningLeave.length === 0) {
-        planningEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">áÇ íæÌÏ ãÓÇÍæä ÈÇäÊÙÇÑ ãÛÇÏÑÉ.</p>';
+        planningEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³Ø§Ø­ÙˆÙ† Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ØºØ§Ø¯Ø±Ø©.</p>';
     } else {
         planningEl.innerHTML = planningLeave.map(u => {
             const req = (db.leaveRequests || []).find(r =>
                 r.userId === u.id && !r.isDeparted &&
                 (r.status === 'approved' || r.status === 'pending_admin_approval' || r.status === 'pending_head_approval'));
-            const startDate = req?.startDate ? new Date(req.startDate).toLocaleDateString('ar-SA') : '—';
+            const startDate = req?.startDate ? new Date(req.startDate).toLocaleDateString('ar-SA') : 'â€”';
             return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;border:1px solid #bfdbfe;background:#eff6ff;margin-bottom:8px;gap:12px;flex-wrap:wrap;">
                 <div>
                     <strong>${u.name}</strong>
-                    <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">ÑŞã: ${u.empId}</span>
-                    <span style="font-size:.8rem;color:#1e40af;">ãæÚÏ ÇáÅÌÇÒÉ: ${startDate}</span>
+                    <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">Ø±Ù‚Ù…: ${u.empId}</span>
+                    <span style="font-size:.8rem;color:#1e40af;">Ù…ÙˆØ¹Ø¯ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©: ${startDate}</span>
                     ${getLeaveStatusBadge ? getLeaveStatusBadge(req?.status) : ''}
                 </div>
                 ${req ? `<button onclick="headConfirmDeparture('${req.id}')" class="btn" style="font-size:.8rem;padding:6px 14px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">
-                    <i class="fa-solid fa-plane-departure"></i> ÊÃßíÏ ÇáãÛÇÏÑÉ
+                    <i class="fa-solid fa-plane-departure"></i> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©
                 </button>` : ''}
             </div>`;
         }).join('');
     }
 
-    // ? ŞÇÆãÉ ÇáãæÙİíä ááÅÖÇİÉ ÇáíÏæíÉ ?
+    // â”€ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ù„Ù„Ø¥Ø¶Ø§ÙØ© Ø§Ù„ÙŠØ¯ÙˆÙŠØ© â”€
     const empSelect = document.getElementById('headLeaveManualEmployee');
     const available = branchSurveyors.filter(u => !onLeave.find(o => o.id === u.id));
-    empSelect.innerHTML = '<option value="">-- ÇÎÊÑ ãæÙİ --</option>' +
+    empSelect.innerHTML = '<option value="">-- Ø§Ø®ØªØ± Ù…ÙˆØ¸Ù --</option>' +
         available.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
     document.getElementById('headLeaveManualDate').value = new Date().toISOString().split('T')[0];
 }
@@ -792,7 +791,7 @@ window.filterHeadOnLeaveList = (query) => {
     const visible = [...rows].filter(tr => tr.style.display !== 'none');
     if (visible.length === 0) {
         msgEl.style.display = 'block';
-        msgEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:.85rem;"><i class="fa-solid fa-circle-exclamation"></i> áÇ íæÌÏ ãÓÇÍ ÈÑŞã "<strong>${q}</strong>" İí ŞÇÆãÉ ÇáÅÌÇÒÉ.</div>`;
+        msgEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:.85rem;"><i class="fa-solid fa-circle-exclamation"></i> Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³Ø§Ø­ Ø¨Ø±Ù‚Ù… "<strong>${q}</strong>" ÙÙŠ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©.</div>`;
         cardEl.style.display = 'none';
     } else {
         msgEl.style.display = 'none';
@@ -806,11 +805,11 @@ window.filterHeadOnLeaveList = (query) => {
                             <div style="font-weight:700;font-size:.95rem;">${item.u.name}</div>
                             <div style="font-size:.82rem;color:var(--text-muted);margin-top:3px;">
                                 <i class="fa-solid fa-id-badge"></i> ${item.u.empId}
-                                &nbsp;|&nbsp; <i class="fa-solid fa-plane-departure"></i> ÛÇÏÑ: ${item.departDate}
+                                &nbsp;|&nbsp; <i class="fa-solid fa-plane-departure"></i> ØºØ§Ø¯Ø±: ${item.departDate}
                             </div>
                         </div>
                         ${item.req ? `<button onclick="headReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.85rem;padding:8px 18px;">
-                            <i class="fa-solid fa-plane-arrival"></i> ÅÑÌÇÚ ááÚãá
+                            <i class="fa-solid fa-plane-arrival"></i> Ø¥Ø±Ø¬Ø§Ø¹ Ù„Ù„Ø¹Ù…Ù„
                         </button>` : ''}
                     </div>`;
             }
@@ -820,7 +819,7 @@ window.filterHeadOnLeaveList = (query) => {
     }
 };
 
-// ?? Head departure check helpers ????????????????????????
+// â”€â”€ Head departure check helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _headPendingDept = null;
 
 function _headDeptCheckItems(userId) {
@@ -833,11 +832,11 @@ function _showHeadDeptCheckModal(userId, items, onProceed) {
     const user = db.users.find(u => u.id === userId);
     let html = `<div style="font-weight:700;margin-bottom:10px;font-size:.95rem;">${user?.name || ''} (${user?.empId || ''})</div>`;
     if (items.devices.length)
-        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#991b1b;"><i class="fa-solid fa-microchip"></i> <strong>${items.devices.length}</strong> ÌåÇÒ İí ÚåÏÊå</div>`;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#991b1b;"><i class="fa-solid fa-microchip"></i> <strong>${items.devices.length}</strong> Ø¬Ù‡Ø§Ø² ÙÙŠ Ø¹Ù‡Ø¯ØªÙ‡</div>`;
     if (items.workers.length) {
-        html += `<div style="display:flex;align-items:center;gap:8px;color:#92400e;"><i class="fa-solid fa-helmet-safety"></i> <strong>${items.workers.length}</strong> ÚÇãá ãÑÊÈØ Èå</div>`;
+        html += `<div style="display:flex;align-items:center;gap:8px;color:#92400e;"><i class="fa-solid fa-helmet-safety"></i> <strong>${items.workers.length}</strong> Ø¹Ø§Ù…Ù„ Ù…Ø±ØªØ¨Ø· Ø¨Ù‡</div>`;
         if (items.workers.length <= 6)
-            html += `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;padding-right:22px;">${items.workers.map(w=>w.name).join('¡ ')}</div>`;
+            html += `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;padding-right:22px;">${items.workers.map(w=>w.name).join('ØŒ ')}</div>`;
     }
     document.getElementById('headDeptCheckBody').innerHTML = html;
     _headPendingDept = onProceed;
@@ -852,12 +851,12 @@ window.executeHeadPendingDept = () => {
 
 window.headReturnFromLeave = (leaveId) => {
     if (!leaveId) return;
-    const returnDate = prompt('ÃÏÎá ÊÇÑíÎ ÇáÅÑÌÇÚ (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+    const returnDate = prompt('Ø£Ø¯Ø®Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¥Ø±Ø¬Ø§Ø¹ (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
     if (!returnDate) return;
     if (markLeaveReturned(leaveId, returnDate)) {
         renderHeadLeavePanel();
         loadHeadSurveyorDashboard();
-        showToast('Êã ÊÓÌíá ÚæÏÉ ÇáãæÙİ ÈäÌÇÍ', 'success');
+        showToast('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø¹ÙˆØ¯Ø© Ø§Ù„Ù…ÙˆØ¸Ù Ø¨Ù†Ø¬Ø§Ø­', 'success');
     }
 };
 
@@ -865,14 +864,14 @@ window.headConfirmDeparture = (leaveId) => {
     if (!leaveId) return;
     const req = (db.leaveRequests || []).find(r => r.id === leaveId);
     if (!req) return;
-    const departDate = prompt('ÃßÏ ÊÇÑíÎ ÇáãÛÇÏÑÉ (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+    const departDate = prompt('Ø£ÙƒØ¯ ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
     if (!departDate) return;
     const items = _headDeptCheckItems(req.userId);
     const proceed = () => {
         if (markLeaveDeparted(leaveId, departDate)) {
             renderHeadLeavePanel();
             loadHeadSurveyorDashboard();
-            showToast('Êã ÊÓÌíá ãÛÇÏÑÉ ÇáãæÙİ', 'success');
+            showToast('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„Ù…ÙˆØ¸Ù', 'success');
         }
     };
     if (items.devices.length || items.workers.length) {
@@ -885,7 +884,7 @@ window.headConfirmDeparture = (leaveId) => {
 window.headSendToLeave = () => {
     const userId    = document.getElementById('headLeaveManualEmployee').value;
     const departDate = document.getElementById('headLeaveManualDate').value;
-    if (!userId || !departDate) { showToast('ÇÎÊÑ ãæÙİÇğ æÊÇÑíÎÇğ', 'error'); return; }
+    if (!userId || !departDate) { showToast('Ø§Ø®ØªØ± Ù…ÙˆØ¸ÙØ§Ù‹ ÙˆØªØ§Ø±ÙŠØ®Ø§Ù‹', 'error'); return; }
     const user = db.users.find(u => u.id === userId);
     if (!user) return;
     const req = {
@@ -896,21 +895,21 @@ window.headSendToLeave = () => {
         startDate: departDate,
         endDate: departDate,
         daysRequested: 1,
-        reason: 'ÅÖÇİÉ íÏæíÉ ãä ÑÆíÓ ÇáãÓÇÍíä',
+        reason: 'Ø¥Ø¶Ø§ÙØ© ÙŠØ¯ÙˆÙŠØ© Ù…Ù† Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†',
         status: 'approved',
         branchId: user.branch || null,
         timestamp: new Date().toISOString(),
-        approvalHistory: [{ approverName: currentUser.name, approverRole: 'ÑÆíÓ ÇáãÓÇÍíä', decision: 'approved', timestamp: new Date().toISOString() }]
+        approvalHistory: [{ approverName: currentUser.name, approverRole: 'Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†', decision: 'approved', timestamp: new Date().toISOString() }]
     };
     const items = _headDeptCheckItems(userId);
     const proceed = () => {
         if (!db.leaveRequests) db.leaveRequests = [];
         db.leaveRequests.push(req);
         markLeaveDeparted(req.id, departDate);
-        addNotification(userId, `Êã ÊÓÌíáß İí ÅÌÇÒÉ ÈæÇÓØÉ ÑÆíÓ ÇáãÓÇÍíä ${currentUser.name}.`, 'info');
+        addNotification(userId, `ØªÙ… ØªØ³Ø¬ÙŠÙ„Ùƒ ÙÙŠ Ø¥Ø¬Ø§Ø²Ø© Ø¨ÙˆØ§Ø³Ø·Ø© Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† ${currentUser.name}.`, 'info');
         renderHeadLeavePanel();
         loadHeadSurveyorDashboard();
-        showToast(`Êã ÊÓÌíá ${user.name} İí ÅÌÇÒÉ`, 'success');
+        showToast(`ØªÙ… ØªØ³Ø¬ÙŠÙ„ ${user.name} ÙÙŠ Ø¥Ø¬Ø§Ø²Ø©`, 'success');
     };
     if (items.devices.length || items.workers.length) {
         _showHeadDeptCheckModal(userId, items, proceed);
@@ -919,7 +918,7 @@ window.headSendToLeave = () => {
     }
 };
 
-// ?? Salary Raise Requests ????????????????????????????????
+// â”€â”€ Salary Raise Requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderSrrHeadPanel() {
     const panel = document.getElementById('srrHeadPanel');
     const reqs  = (db.salaryRaiseRequests || [])
@@ -932,7 +931,7 @@ function renderSrrHeadPanel() {
         const targetIcon = r.targetType === 'employee'
             ? '<i class="fa-solid fa-user-tie" style="color:#7c3aed;"></i>'
             : '<i class="fa-solid fa-helmet-safety" style="color:#d97706;"></i>';
-        const targetTypeLabel = r.targetType === 'employee' ? 'ãÓÇÍ' : 'ÚÇãá';
+        const targetTypeLabel = r.targetType === 'employee' ? 'Ù…Ø³Ø§Ø­' : 'Ø¹Ø§Ù…Ù„';
         const branch = db.branches.find(b => b.id === r.branchId);
         return `
         <div style="border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:14px 18px;margin-bottom:12px;">
@@ -940,33 +939,33 @@ function renderSrrHeadPanel() {
                 <div>
                     <div style="font-weight:700;font-size:.92rem;">${targetIcon} ${r.targetName} <span style="color:var(--text-muted);font-size:.8rem;">(${targetTypeLabel})</span></div>
                     <div style="font-size:.78rem;color:var(--text-muted);margin-top:3px;">
-                        ŞÏøãå: <strong>${r.surveyorName}</strong>
-                        ${branch ? ` | İÑÚ: ${branch.name}` : ''}
+                        Ù‚Ø¯Ù‘Ù…Ù‡: <strong>${r.surveyorName}</strong>
+                        ${branch ? ` | ÙØ±Ø¹: ${branch.name}` : ''}
                         &nbsp;|&nbsp; ${new Date(r.timestamp).toLocaleDateString('ar-EG')}
                     </div>
                 </div>
-                <span style="background:#dcfce7;color:#15803d;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap;">ÈÇäÊÙÇÑ ãæÇİŞÊß</span>
+                <span style="background:#dcfce7;color:#15803d;font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap;">Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ</span>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:4px 16px;font-size:.82rem;color:#374151;margin-bottom:12px;background:#fff;border-radius:8px;padding:10px;">
-                <span><i class="fa-solid fa-money-bill" style="color:#15803d;"></i> ÇáÑÇÊÈ ÇáÍÇáí: <strong>${r.currentSalary ? r.currentSalary + ' ÑíÇá' : '—'}</strong></span>
-                ${r.requestedRaiseAmount ? `<span><i class="fa-solid fa-arrow-trend-up" style="color:#15803d;"></i> ÇáÒíÇÏÉ ÇáãØáæÈÉ: <strong>${r.requestedRaiseAmount} ÑíÇá</strong></span>` : ''}
-                ${r.raisePercentage ? `<span><i class="fa-solid fa-percent" style="color:#15803d;"></i> ÇáäÓÈÉ: <strong>${r.raisePercentage}%</strong></span>` : ''}
-                ${r.lastRaiseDate ? `<span><i class="fa-solid fa-calendar" style="color:#64748b;"></i> ÂÎÑ ÒíÇÏÉ: ${r.lastRaiseDate}</span>` : ''}
-                ${r.targetRating ? `<span><i class="fa-solid fa-star" style="color:#fbbf24;"></i> ÇáÊŞííã: <strong>${r.targetRating}/5</strong></span>` : ''}
-                <span><i class="fa-solid fa-comment" style="color:#6366f1;"></i> ÇáÓÈÈ: ${r.reason || '—'}</span>
+                <span><i class="fa-solid fa-money-bill" style="color:#15803d;"></i> Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø­Ø§Ù„ÙŠ: <strong>${r.currentSalary ? r.currentSalary + ' Ø±ÙŠØ§Ù„' : 'â€”'}</strong></span>
+                ${r.requestedRaiseAmount ? `<span><i class="fa-solid fa-arrow-trend-up" style="color:#15803d;"></i> Ø§Ù„Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©: <strong>${r.requestedRaiseAmount} Ø±ÙŠØ§Ù„</strong></span>` : ''}
+                ${r.raisePercentage ? `<span><i class="fa-solid fa-percent" style="color:#15803d;"></i> Ø§Ù„Ù†Ø³Ø¨Ø©: <strong>${r.raisePercentage}%</strong></span>` : ''}
+                ${r.lastRaiseDate ? `<span><i class="fa-solid fa-calendar" style="color:#64748b;"></i> Ø¢Ø®Ø± Ø²ÙŠØ§Ø¯Ø©: ${r.lastRaiseDate}</span>` : ''}
+                ${r.targetRating ? `<span><i class="fa-solid fa-star" style="color:#fbbf24;"></i> Ø§Ù„ØªÙ‚ÙŠÙŠÙ…: <strong>${r.targetRating}/5</strong></span>` : ''}
+                <span><i class="fa-solid fa-comment" style="color:#6366f1;"></i> Ø§Ù„Ø³Ø¨Ø¨: ${r.reason || 'â€”'}</span>
             </div>
-            ${r.achievements ? `<div style="font-size:.8rem;color:#374151;margin-bottom:8px;"><strong>ÇáÅäÌÇÒÇÊ:</strong> ${r.achievements}</div>` : ''}
-            ${r.notes ? `<div style="font-size:.8rem;color:#64748b;margin-bottom:10px;"><strong>ãáÇÍÙÇÊ:</strong> ${r.notes}</div>` : ''}
+            ${r.achievements ? `<div style="font-size:.8rem;color:#374151;margin-bottom:8px;"><strong>Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª:</strong> ${r.achievements}</div>` : ''}
+            ${r.notes ? `<div style="font-size:.8rem;color:#64748b;margin-bottom:10px;"><strong>Ù…Ù„Ø§Ø­Ø¸Ø§Øª:</strong> ${r.notes}</div>` : ''}
             <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;font-size:.78rem;color:#92400e;margin-bottom:12px;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
-                ÚäÏ ÇáãæÇİŞÉ íõÑİÚ åĞÇ ÇáØáÈ ááÅÏÇÑÉ ÇáÚáíÇ ÊáŞÇÆíÇğ — ÓíÕá ÅÔÚÇÑ ááãÓÇÍ ÈĞáß
+                Ø¹Ù†Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙŠÙØ±ÙØ¹ Ù‡Ø°Ø§ Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹ â€” Ø³ÙŠØµÙ„ Ø¥Ø´Ø¹Ø§Ø± Ù„Ù„Ù…Ø³Ø§Ø­ Ø¨Ø°Ù„Ùƒ
             </div>
             <div style="display:flex;gap:8px;">
                 <button onclick="approveSrr('${r.id}')" class="btn btn-primary" style="background:#15803d;border-color:#15803d;font-size:.85rem;">
-                    <i class="fa-solid fa-check"></i> ÇáãæÇİŞÉ æÇáÑİÚ ááÅÏÇÑÉ ÇáÚáíÇ
+                    <i class="fa-solid fa-check"></i> Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ§Ù„Ø±ÙØ¹ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§
                 </button>
                 <button onclick="openSrrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.85rem;color:#dc2626;border-color:#dc2626;">
-                    <i class="fa-solid fa-times"></i> ÑİÖ
+                    <i class="fa-solid fa-times"></i> Ø±ÙØ¶
                 </button>
             </div>
         </div>`;
@@ -974,10 +973,10 @@ function renderSrrHeadPanel() {
 }
 
 window.approveSrr = (id) => {
-    if (!confirm('ÇáãæÇİŞÉ Úáì ØáÈ ÒíÇÏÉ ÇáÑÇÊÈ æÑİÚå ááÅÏÇÑÉ ÇáÚáíÇ¿')) return;
+    if (!confirm('Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨ ÙˆØ±ÙØ¹Ù‡ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§ØŸ')) return;
     if (approveSalaryRaiseRequest(id)) {
         renderSrrHeadPanel();
-        _showSyncToast('ÊãÊ ÇáãæÇİŞÉ — Êã ÅÔÚÇÑ ÇáãÓÇÍ ÈÑİÚ ÇáØáÈ ááÅÏÇÑÉ ÇáÚáíÇ ?', 'success');
+        _showSyncToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© â€” ØªÙ… Ø¥Ø´Ø¹Ø§Ø± Ø§Ù„Ù…Ø³Ø§Ø­ Ø¨Ø±ÙØ¹ Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§ âœ“', 'success');
     }
 };
 
@@ -992,12 +991,12 @@ window.confirmSrrReject = () => {
     if (rejectSalaryRaiseRequest(_srrRejectId, note)) {
         document.getElementById('srrRejectModal').style.display = 'none';
         renderSrrHeadPanel();
-        _showSyncToast('Êã ÑİÖ ØáÈ ÒíÇÏÉ ÇáÑÇÊÈ', 'info');
+        _showSyncToast('ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨ Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨', 'info');
     }
 };
 
-// ?? Profile Change Requests (head approval) ??????????????
-const _pcrLabelH = { phone:'ÑŞã ÇáåÇÊİ', email:'ÇáÈÑíÏ ÇáÅáßÊÑæäí', password:'ßáãÉ ÇáãÑæÑ' };
+// â”€â”€ Profile Change Requests (head approval) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const _pcrLabelH = { phone:'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ', email:'Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ', password:'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±' };
 
 function renderPcrHeadList() {
     const el = document.getElementById('pcrHeadList');
@@ -1013,17 +1012,17 @@ function renderPcrHeadList() {
             <div>
                 <div style="font-weight:700;font-size:.9rem;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.userEmpId})</span></div>
                 <div style="font-size:.82rem;color:var(--text-muted);margin-top:2px;">
-                    ØáÈ ÊÚÏíá: <strong style="color:#92400e;">${_pcrLabelH[r.type]}</strong>
-                    ${r.type !== 'password' ? `? <span style="color:#1e40af;">${r.newValueDisplay}</span>` : ''}
+                    Ø·Ù„Ø¨ ØªØ¹Ø¯ÙŠÙ„: <strong style="color:#92400e;">${_pcrLabelH[r.type]}</strong>
+                    ${r.type !== 'password' ? `â† <span style="color:#1e40af;">${r.newValueDisplay}</span>` : ''}
                     &nbsp;|&nbsp; ${new Date(r.timestamp).toLocaleDateString('ar-EG')}
                 </div>
             </div>
             <div style="display:flex;gap:8px;">
                 <button onclick="headApprovePcr('${r.id}')" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;">
-                    <i class="fa-solid fa-check"></i> ãæÇİŞÉ æÅÑÓÇá ááãÏíÑ
+                    <i class="fa-solid fa-check"></i> Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ¥Ø±Ø³Ø§Ù„ Ù„Ù„Ù…Ø¯ÙŠØ±
                 </button>
                 <button onclick="openPcrRejectModal('${r.id}')" class="btn btn-ghost" style="font-size:.82rem;padding:6px 14px;color:#dc2626;border-color:#dc2626;">
-                    <i class="fa-solid fa-times"></i> ÑİÖ
+                    <i class="fa-solid fa-times"></i> Ø±ÙØ¶
                 </button>
             </div>
         </div>`).join('');
@@ -1040,17 +1039,17 @@ window.confirmPcrReject = () => {
     if (rejectProfileChangeRequest(_activePcrRejectId, note)) {
         document.getElementById('pcrRejectModal').style.display = 'none';
         renderPcrHeadList();
-        _showSyncToast('Êã ÑİÖ ÇáØáÈ', 'info');
+        _showSyncToast('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨', 'info');
     }
 };
 window.headApprovePcr = (id) => {
     if (approveProfileChangeRequest(id)) {
         renderPcrHeadList();
-        _showSyncToast('ÊãÊ ÇáãæÇİŞÉ æÃõÑÓá ÇáØáÈ ááãÏíÑ', 'success');
+        _showSyncToast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙˆØ£ÙØ±Ø³Ù„ Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„Ù…Ø¯ÙŠØ±', 'success');
     }
 };
 
-// ?? Password Reset Requests ??????????????????????????????
+// â”€â”€ Password Reset Requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderPwrHeadList() {
     const el = document.getElementById('pwrHeadList');
     const reqs = (db.passwordResetRequests || []).filter(r =>
@@ -1064,10 +1063,10 @@ function renderPwrHeadList() {
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid #fecaca;margin-bottom:10px;background:#fff5f5;">
             <div>
                 <div style="font-weight:700;font-size:.9rem;color:#991b1b;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.empId})</span></div>
-                <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">äÓí ßáãÉ ÇáãÑæÑ — ${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
+                <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">Ù†Ø³ÙŠ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± â€” ${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
             </div>
             <button onclick="openPwrModal('${r.id}','${r.userName}')" class="btn" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;cursor:pointer;font-family:inherit;">
-                <i class="fa-solid fa-key"></i> ÊÚííä ßáãÉ ãÑæÑ ãÄŞÊÉ
+                <i class="fa-solid fa-key"></i> ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¤Ù‚ØªØ©
             </button>
         </div>`).join('');
 }
@@ -1075,7 +1074,7 @@ function renderPwrHeadList() {
 let _activePwrReqId = null;
 window.openPwrModal = (id, name) => {
     _activePwrReqId = id;
-    document.getElementById('pwrModalEmployeeName').textContent = `ÇáãæÙİ: ${name}`;
+    document.getElementById('pwrModalEmployeeName').textContent = `Ø§Ù„Ù…ÙˆØ¸Ù: ${name}`;
     document.getElementById('pwrTempPass').value = '';
     document.getElementById('pwrModalResult').innerHTML = '';
     document.getElementById('pwrModal').style.display = 'flex';
@@ -1086,8 +1085,8 @@ window.confirmPwrReset = async () => {
     if (result && result.success) {
         document.getElementById('pwrModalResult').innerHTML =
             `<div style="background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;font-size:.85rem;">
-                <i class="fa-solid fa-circle-check"></i> Êã ÊÚííä ßáãÉ ÇáãÑæÑ ÇáãÄŞÊÉ: <strong>${result.tempPassword}</strong><br>
-                ÃÈáÛ ÇáãæÙİ <strong>${result.userName}</strong> ÈåĞå ÇáßáãÉ
+                <i class="fa-solid fa-circle-check"></i> ØªÙ… ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù…Ø¤Ù‚ØªØ©: <strong>${result.tempPassword}</strong><br>
+                Ø£Ø¨Ù„Øº Ø§Ù„Ù…ÙˆØ¸Ù <strong>${result.userName}</strong> Ø¨Ù‡Ø°Ù‡ Ø§Ù„ÙƒÙ„Ù…Ø©
             </div>`;
         setTimeout(() => {
             document.getElementById('pwrModal').style.display = 'none';
@@ -1096,7 +1095,7 @@ window.confirmPwrReset = async () => {
     }
 };
 
-// ÅÍÕÇÁÇÊ ÇáİÑÚ ãä Supabase ãÈÇÔÑÉ
+// Ø¥Ø­ØµØ§Ø¡Ø§Øª Ø§Ù„ÙØ±Ø¹ Ù…Ù† Supabase Ù…Ø¨Ø§Ø´Ø±Ø©
 async function refreshBranchStats() {
     if (!supabaseClient || !currentUser?.responsibleBranch) return;
     try {

@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>áæÍÉ ÊÍßã ÇáãÓÇÍ | ÓÇÌßæ</title>
+    <title>Ù„ÙˆØ­Ø© ØªØ­ÙƒÙ… Ø§Ù„Ù…Ø³Ø§Ø­ | Ø³Ø§Ø¬ÙƒÙˆ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -69,9 +68,9 @@
 <div id="appShell">
     <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
-        <!-- ÔÑíØ ÇáÃÎÈÇÑ -->
+        <!-- Ø´Ø±ÙŠØ· Ø§Ù„Ø£Ø®Ø¨Ø§Ø± -->
         <div class="news-ticker hidden-ticker" id="newsTicker">
-            <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;"></i> ÃÎÈÇÑ</span>
+            <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-left:6px;"></i> Ø£Ø®Ø¨Ø§Ø±</span>
             <div class="ticker-wrapper">
                 <div class="ticker-text" id="tickerContent"></div>
             </div>
@@ -80,27 +79,27 @@
         <div style="padding-top:24px;">
         <header style="margin-bottom:24px;">
             <h2 id="userGreeting" style="font-size:1.5rem;font-weight:700;"></h2>
-            <p style="color:var(--text-muted)">ãáİß ÇáÔÎÕí æãÊÇÈÚÉ ÚåÏÊß æÅãßÇäíÉ ÇáÊæÇÕá ãÚ ÇáÅÏÇÑÉ.</p>
+            <p style="color:var(--text-muted)">Ù…Ù„ÙÙƒ Ø§Ù„Ø´Ø®ØµÙŠ ÙˆÙ…ØªØ§Ø¨Ø¹Ø© Ø¹Ù‡Ø¯ØªÙƒ ÙˆØ¥Ù…ÙƒØ§Ù†ÙŠØ© Ø§Ù„ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©.</p>
         </header>
 
-        <!-- ÇáÊÈæíÈÇÊ ÇáÑÆíÓíÉ -->
+        <!-- Ø§Ù„ØªØ¨ÙˆÙŠØ¨Ø§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© -->
         <div class="tabs-header" style="margin-bottom:24px;">
             <button class="tab-btn active" onclick="switchTab('overview',this)">
-                <i class="fa-solid fa-house"></i> äÙÑÉ ÚÇãÉ
+                <i class="fa-solid fa-house"></i> Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø©
             </button>
             <button class="tab-btn" onclick="switchTab('devices',this)">
-                <i class="fa-solid fa-microchip"></i> ÃÌåÒÊí
+                <i class="fa-solid fa-microchip"></i> Ø£Ø¬Ù‡Ø²ØªÙŠ
             </button>
             <button class="tab-btn" onclick="switchTab('raise',this)">
-                <i class="fa-solid fa-hand-holding-dollar"></i> ÒíÇÏÉ ÇáÑÇÊÈ
+                <i class="fa-solid fa-hand-holding-dollar"></i> Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨
             </button>
             <button class="tab-btn" onclick="switchTab('messages',this)">
-                <i class="fa-solid fa-envelope-circle-check"></i> ÑÓÇáÉ ááÅÏÇÑÉ
+                <i class="fa-solid fa-envelope-circle-check"></i> Ø±Ø³Ø§Ù„Ø© Ù„Ù„Ø¥Ø¯Ø§Ø±Ø©
                 <span id="msgTabBadge" style="display:none;background:#ef4444;color:#fff;font-size:.65rem;padding:1px 5px;border-radius:8px;font-weight:700;"></span>
             </button>
         </div>
 
-        <!-- ÊÈæíÈ äÙÑÉ ÚÇãÉ -->
+        <!-- ØªØ¨ÙˆÙŠØ¨ Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø© -->
         <div class="tab-content active" id="tab-overview">
             <div id="surveyorNotifications"></div>
         <div id="pendingAlert"></div>
@@ -111,226 +110,226 @@
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-box-open"></i></div>
                     <div>
-                        <div style="font-size:.82rem;color:var(--text-muted)">ÇáÃÌåÒÉ İí ÚåÏÊí</div>
+                        <div style="font-size:.82rem;color:var(--text-muted)">Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø¹Ù‡Ø¯ØªÙŠ</div>
                         <div id="myDeviceCount" style="font-size:1.5rem;font-weight:800;">0</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#fdf2f2;color:#991b1b;"><i class="fa-solid fa-calendar-check"></i></div>
                     <div>
-                        <div style="font-size:.82rem;color:var(--text-muted)">ÓäæÇÊ ÇáÎÏãÉ</div>
-                        <div id="serviceTime" style="font-size:1.5rem;font-weight:800;">—</div>
+                        <div style="font-size:.82rem;color:var(--text-muted)">Ø³Ù†ÙˆØ§Øª Ø§Ù„Ø®Ø¯Ù…Ø©</div>
+                        <div id="serviceTime" style="font-size:1.5rem;font-weight:800;">â€”</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-building-user"></i></div>
                     <div>
-                        <div style="font-size:.82rem;color:var(--text-muted)">ÇáİÑÚ æÑÆíÓ ÇáãÓÇÍíä</div>
-                        <div id="branchHeadInfo" style="font-size:.92rem;font-weight:700;line-height:1.3;">—</div>
+                        <div style="font-size:.82rem;color:var(--text-muted)">Ø§Ù„ÙØ±Ø¹ ÙˆØ±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†</div>
+                        <div id="branchHeadInfo" style="font-size:.92rem;font-weight:700;line-height:1.3;">â€”</div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background:#fef9c3;color:#a16207;"><i class="fa-solid fa-star"></i></div>
                     <div>
-                        <div style="font-size:.82rem;color:var(--text-muted)">ÊŞííãí</div>
-                        <div id="myRatingStars" style="margin-top:4px;font-size:1.1rem;">—</div>
+                        <div style="font-size:.82rem;color:var(--text-muted)">ØªÙ‚ÙŠÙŠÙ…ÙŠ</div>
+                        <div id="myRatingStars" style="margin-top:4px;font-size:1.1rem;">â€”</div>
                         <div id="myRatingNote" style="font-size:.72rem;color:var(--text-muted);margin-top:2px;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ãÚáæãÇÊ ÇáãÔÑæÚ -->
+            <!-- Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ -->
             <div id="myProjectCard" style="margin-bottom:20px;"></div>
 
-            <h3 style="margin-bottom:16px;"><i class="fa-solid fa-microchip" style="color:var(--primary)"></i> ãáÎÕ ÇáÃÌåÒÉ</h3>
+            <h3 style="margin-bottom:16px;"><i class="fa-solid fa-microchip" style="color:var(--primary)"></i> Ù…Ù„Ø®Øµ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©</h3>
             <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:20px;">
                 <div class="stats-grid" style="flex:1;min-width:260px;margin-bottom:0;">
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#f0fdf4;color:#166534;"><i class="fa-solid fa-tower-observation"></i></div>
-                        <div><div style="font-size:.75rem;color:var(--text-muted)">ãÍØÉ ãÊßÇãáÉ</div><div id="countTS" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                        <div><div style="font-size:.75rem;color:var(--text-muted)">Ù…Ø­Ø·Ø© Ù…ØªÙƒØ§Ù…Ù„Ø©</div><div id="countTS" style="font-size:1.2rem;font-weight:700;">0</div></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#eff6ff;color:#1e40af;"><i class="fa-solid fa-ruler-horizontal"></i></div>
-                        <div><div style="font-size:.75rem;color:var(--text-muted)">ãíÒÇä ãÓÇÍí</div><div id="countAL" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                        <div><div style="font-size:.75rem;color:var(--text-muted)">Ù…ÙŠØ²Ø§Ù† Ù…Ø³Ø§Ø­ÙŠ</div><div id="countAL" style="font-size:1.2rem;font-weight:700;">0</div></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background:#fff7ed;color:#9a3412;"><i class="fa-solid fa-satellite-dish"></i></div>
-                        <div><div style="font-size:.75rem;color:var(--text-muted)">ÌåÇÒ GPS</div><div id="countGPS" style="font-size:1.2rem;font-weight:700;">0</div></div>
+                        <div><div style="font-size:.75rem;color:var(--text-muted)">Ø¬Ù‡Ø§Ø² GPS</div><div id="countGPS" style="font-size:1.2rem;font-weight:700;">0</div></div>
                     </div>
                 </div>
                 <div class="card" style="width:190px;margin-bottom:0;padding:14px;display:flex;flex-direction:column;align-items:center;">
-                    <h4 style="font-size:.78rem;margin-bottom:8px;color:var(--text-muted);"><i class="fa-solid fa-chart-pie" style="color:#6366f1;margin-left:4px;"></i>ÊæÒíÚ ÃÌåÒÊí</h4>
+                    <h4 style="font-size:.78rem;margin-bottom:8px;color:var(--text-muted);"><i class="fa-solid fa-chart-pie" style="color:#6366f1;margin-left:4px;"></i>ØªÙˆØ²ÙŠØ¹ Ø£Ø¬Ù‡Ø²ØªÙŠ</h4>
                     <div style="width:140px;height:140px;"><canvas id="myDeviceDonut"></canvas></div>
                 </div>
             </div>
 
-            <!-- ÔÇÑÊÇÊ ÊÍáíáíÉ -->
+            <!-- Ø´Ø§Ø±ØªØ§Øª ØªØ­Ù„ÙŠÙ„ÙŠØ© -->
             <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;" id="surveyorChartsRow">
-                <!-- ÔÇÑÊ ÇáãÚÇíÑÉ -->
+                <!-- Ø´Ø§Ø±Øª Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø© -->
                 <div class="card" style="flex:2;min-width:260px;padding:18px;">
                     <h4 style="margin-bottom:14px;font-size:.88rem;display:flex;align-items:center;gap:8px;">
                         <i class="fa-solid fa-certificate" style="color:#f59e0b;"></i>
-                        ÍÇáÉ ãÚÇíÑÉ ÃÌåÒÊí
+                        Ø­Ø§Ù„Ø© Ù…Ø¹Ø§ÙŠØ±Ø© Ø£Ø¬Ù‡Ø²ØªÙŠ
                     </h4>
                     <div id="calChartWrap" style="position:relative;height:140px;">
                         <canvas id="myCalibrationBar"></canvas>
                     </div>
                     <div id="calChartEmpty" style="display:none;text-align:center;padding:30px;color:var(--text-muted);font-size:.85rem;">
                         <i class="fa-solid fa-circle-check" style="color:#16a34a;font-size:1.4rem;display:block;margin-bottom:8px;"></i>
-                        áÇ ÊæÌÏ ÃÌåÒÉ İí ÚåÏÊß
+                        Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø¹Ù‡Ø¯ØªÙƒ
                     </div>
                 </div>
-                <!-- ãáÎÕ ÈØÇŞÇÊ ÇáãÚÇíÑÉ -->
+                <!-- Ù…Ù„Ø®Øµ Ø¨Ø·Ø§Ù‚Ø§Øª Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø© -->
                 <div class="card" style="flex:1;min-width:180px;padding:18px;">
                     <h4 style="margin-bottom:14px;font-size:.88rem;display:flex;align-items:center;gap:8px;">
                         <i class="fa-solid fa-gauge-high" style="color:var(--primary);"></i>
-                        ÍÇáÉ ÇáÚåÏÉ
+                        Ø­Ø§Ù„Ø© Ø§Ù„Ø¹Ù‡Ø¯Ø©
                     </h4>
                     <div id="custodyStatusCards" style="display:flex;flex-direction:column;gap:10px;"></div>
                 </div>
             </div>
 
-            <!-- ŞÇÆãÉ ÇáÃÌåÒÉ İí ÇáÚåÏÉ ãÈÇÔÑÉ -->
+            <!-- Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ù…Ø¨Ø§Ø´Ø±Ø© -->
             <div style="margin-top:20px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                    <h4 style="font-size:.95rem;"><i class="fa-solid fa-list" style="color:var(--primary);margin-left:6px;"></i>ŞÇÆãÉ ÃÌåÒÊí</h4>
+                    <h4 style="font-size:.95rem;"><i class="fa-solid fa-list" style="color:var(--primary);margin-left:6px;"></i>Ù‚Ø§Ø¦Ù…Ø© Ø£Ø¬Ù‡Ø²ØªÙŠ</h4>
                     <span id="overviewDeviceCount" style="font-size:.82rem;color:var(--text-muted);"></span>
                 </div>
                 <div id="overviewDevicesList"></div>
             </div>
         </div>
 
-        <!-- ÊÈæíÈ ÇáÃÌåÒÉ -->
+        <!-- ØªØ¨ÙˆÙŠØ¨ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© -->
         <div class="tab-content" id="tab-devices">
             <div class="card">
-                <h3><i class="fa-solid fa-microchip"></i> ÃÌåÒÊí ÇáÍÇáíÉ</h3>
+                <h3><i class="fa-solid fa-microchip"></i> Ø£Ø¬Ù‡Ø²ØªÙŠ Ø§Ù„Ø­Ø§Ù„ÙŠØ©</h3>
                 <div id="myDevicesList">
-                    <div style="text-align:center;padding:30px;color:var(--text-muted);">ÌÇÑí ÇáÊÍãíá...</div>
+                    <div style="text-align:center;padding:30px;color:var(--text-muted);">Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...</div>
                 </div>
             </div>
-            <!-- ØáÈÇÊ äŞá ÇáÚãÇá -->
+            <!-- Ø·Ù„Ø¨Ø§Øª Ù†Ù‚Ù„ Ø§Ù„Ø¹Ù…Ø§Ù„ -->
             <div id="workerTransferRequests" style="margin-top:16px;"></div>
         </div>
 
-        <!-- ÊÈæíÈ ÒíÇÏÉ ÇáÑÇÊÈ -->
+        <!-- ØªØ¨ÙˆÙŠØ¨ Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨ -->
         <div class="tab-content" id="tab-raise">
-            <!-- äãæĞÌ ØáÈ ÒíÇÏÉ ÇáÑÇÊÈ -->
+            <!-- Ù†Ù…ÙˆØ°Ø¬ Ø·Ù„Ø¨ Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨ -->
             <div class="card" style="margin-bottom:20px;">
-                <h3 style="margin-bottom:4px;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> ØáÈ ÒíÇÏÉ ÑÇÊÈ</h3>
-                <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:18px;">íõÑÓá ÇáØáÈ áÑÆíÓ ÇáãÓÇÍíä ááãæÇİŞÉ — ÈÚÏ ÇáãæÇİŞÉ íõÑİÚ ááÅÏÇÑÉ ÇáÚáíÇ áÇÊÎÇĞ ÇáÅÌÑÇÁÇÊ ÇááÇÒãÉ</p>
+                <h3 style="margin-bottom:4px;"><i class="fa-solid fa-hand-holding-dollar" style="color:#15803d;"></i> Ø·Ù„Ø¨ Ø²ÙŠØ§Ø¯Ø© Ø±Ø§ØªØ¨</h3>
+                <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:18px;">ÙŠÙØ±Ø³Ù„ Ø§Ù„Ø·Ù„Ø¨ Ù„Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† Ù„Ù„Ù…ÙˆØ§ÙÙ‚Ø© â€” Ø¨Ø¹Ø¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© ÙŠÙØ±ÙØ¹ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§ Ù„Ø§ØªØ®Ø§Ø° Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø§Ù„Ù„Ø§Ø²Ù…Ø©</p>
 
-                <!-- ÈíÇäÇÊ ÊáŞÇÆíÉ -->
+                <!-- Ø¨ÙŠØ§Ù†Ø§Øª ØªÙ„Ù‚Ø§Ø¦ÙŠØ© -->
                 <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:.84rem;color:#166534;">
-                    <div style="font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> ÈíÇäÇÊß — ÊõÚÈÃ ÊáŞÇÆíÇğ</div>
+                    <div style="font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> Ø¨ÙŠØ§Ù†Ø§ØªÙƒ â€” ØªÙØ¹Ø¨Ø£ ØªÙ„Ù‚Ø§Ø¦ÙŠØ§Ù‹</div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px 20px;" id="selfRaiseAutoInfo"></div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label">ÇáÑÇÊÈ ÇáÍÇáí (ÑíÇá) <span style="color:#ef4444;">*</span></label>
+                        <label class="form-label">Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø­Ø§Ù„ÙŠ (Ø±ÙŠØ§Ù„) <span style="color:#ef4444;">*</span></label>
                         <input type="number" id="srCurrentSalary" class="form-input" placeholder="0" min="0">
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label">ãÈáÛ ÇáÒíÇÏÉ ÇáãØáæÈÉ (ÑíÇá)</label>
+                        <label class="form-label">Ù…Ø¨Ù„Øº Ø§Ù„Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (Ø±ÙŠØ§Ù„)</label>
                         <input type="number" id="srRaiseAmount" class="form-input" placeholder="0" min="0">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label">äÓÈÉ ÇáÒíÇÏÉ ÇáãØáæÈÉ (%)</label>
-                        <input type="number" id="srRaisePct" class="form-input" placeholder="ãËÇá: 10" min="0" max="100" step="0.5">
+                        <label class="form-label">Ù†Ø³Ø¨Ø© Ø§Ù„Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (%)</label>
+                        <input type="number" id="srRaisePct" class="form-input" placeholder="Ù…Ø«Ø§Ù„: 10" min="0" max="100" step="0.5">
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label class="form-label">ÊÇÑíÎ ÂÎÑ ÒíÇÏÉ ÑÇÊÈ</label>
+                        <label class="form-label">ØªØ§Ø±ÙŠØ® Ø¢Ø®Ø± Ø²ÙŠØ§Ø¯Ø© Ø±Ø§ØªØ¨</label>
                         <input type="date" id="srLastRaise" class="form-input">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">ÓÈÈ ØáÈ ÇáÒíÇÏÉ <span style="color:#ef4444;">*</span></label>
+                    <label class="form-label">Ø³Ø¨Ø¨ Ø·Ù„Ø¨ Ø§Ù„Ø²ÙŠØ§Ø¯Ø© <span style="color:#ef4444;">*</span></label>
                     <select id="srReason" class="form-select">
-                        <option value="">— ÇÎÊÑ ÇáÓÈÈ —</option>
-                        <option value="ÃÏÇÁ ãÊãíÒ">ÃÏÇÁ ãÊãíÒ</option>
-                        <option value="ÒíÇÏÉ ÇáãåÇã æÇáãÓÄæáíÇÊ">ÒíÇÏÉ ÇáãåÇã æÇáãÓÄæáíÇÊ</option>
-                        <option value="Øæá İÊÑÉ ÇáÎÏãÉ Ïæä ÒíÇÏÉ">Øæá İÊÑÉ ÇáÎÏãÉ Ïæä ÒíÇÏÉ</option>
-                        <option value="ÇÑÊİÇÚ ÊßÇáíİ ÇáãÚíÔÉ">ÇÑÊİÇÚ ÊßÇáíİ ÇáãÚíÔÉ</option>
-                        <option value="ãåÇÑÇÊ ÅÖÇİíÉ ÇßÊÓÈÊåÇ">ãåÇÑÇÊ ÅÖÇİíÉ ÇßÊÓÈÊåÇ</option>
-                        <option value="ÃÎÑì">ÃÎÑì</option>
+                        <option value="">â€” Ø§Ø®ØªØ± Ø§Ù„Ø³Ø¨Ø¨ â€”</option>
+                        <option value="Ø£Ø¯Ø§Ø¡ Ù…ØªÙ…ÙŠØ²">Ø£Ø¯Ø§Ø¡ Ù…ØªÙ…ÙŠØ²</option>
+                        <option value="Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù…Ù‡Ø§Ù… ÙˆØ§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ§Øª">Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù…Ù‡Ø§Ù… ÙˆØ§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ§Øª</option>
+                        <option value="Ø·ÙˆÙ„ ÙØªØ±Ø© Ø§Ù„Ø®Ø¯Ù…Ø© Ø¯ÙˆÙ† Ø²ÙŠØ§Ø¯Ø©">Ø·ÙˆÙ„ ÙØªØ±Ø© Ø§Ù„Ø®Ø¯Ù…Ø© Ø¯ÙˆÙ† Ø²ÙŠØ§Ø¯Ø©</option>
+                        <option value="Ø§Ø±ØªÙØ§Ø¹ ØªÙƒØ§Ù„ÙŠÙ Ø§Ù„Ù…Ø¹ÙŠØ´Ø©">Ø§Ø±ØªÙØ§Ø¹ ØªÙƒØ§Ù„ÙŠÙ Ø§Ù„Ù…Ø¹ÙŠØ´Ø©</option>
+                        <option value="Ù…Ù‡Ø§Ø±Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© Ø§ÙƒØªØ³Ø¨ØªÙ‡Ø§">Ù…Ù‡Ø§Ø±Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© Ø§ÙƒØªØ³Ø¨ØªÙ‡Ø§</option>
+                        <option value="Ø£Ø®Ø±Ù‰">Ø£Ø®Ø±Ù‰</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">ÅäÌÇÒÇÊ æÃÚãÇá ÈÇÑÒÉ</label>
-                    <textarea id="srAchievements" class="form-input" rows="3" placeholder="ÇĞßÑ ãÔÇÑíÚß æÅäÌÇÒÇÊß ÇáÊí ÊÈÑÑ ÇáÒíÇÏÉ..." style="resize:vertical;"></textarea>
+                    <label class="form-label">Ø¥Ù†Ø¬Ø§Ø²Ø§Øª ÙˆØ£Ø¹Ù…Ø§Ù„ Ø¨Ø§Ø±Ø²Ø©</label>
+                    <textarea id="srAchievements" class="form-input" rows="3" placeholder="Ø§Ø°ÙƒØ± Ù…Ø´Ø§Ø±ÙŠØ¹Ùƒ ÙˆØ¥Ù†Ø¬Ø§Ø²Ø§ØªÙƒ Ø§Ù„ØªÙŠ ØªØ¨Ø±Ø± Ø§Ù„Ø²ÙŠØ§Ø¯Ø©..." style="resize:vertical;"></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">ãáÇÍÙÇÊ ÅÖÇİíÉ</label>
-                    <textarea id="srNotes" class="form-input" rows="2" placeholder="Ãí ãÚáæãÇÊ ÅÖÇİíÉ ÊÑíÏ ÅÖÇİÊåÇ..." style="resize:vertical;"></textarea>
+                    <label class="form-label">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ©</label>
+                    <textarea id="srNotes" class="form-input" rows="2" placeholder="Ø£ÙŠ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ© ØªØ±ÙŠØ¯ Ø¥Ø¶Ø§ÙØªÙ‡Ø§..." style="resize:vertical;"></textarea>
                 </div>
                 <div id="selfRaiseAlert" style="margin-bottom:12px;"></div>
                 <button onclick="submitSelfRaiseRequest()" class="btn btn-primary" style="background:#15803d;border-color:#15803d;">
-                    <i class="fa-solid fa-paper-plane"></i> ÅÑÓÇá ØáÈ ÒíÇÏÉ ÇáÑÇÊÈ
+                    <i class="fa-solid fa-paper-plane"></i> Ø¥Ø±Ø³Ø§Ù„ Ø·Ù„Ø¨ Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ø±Ø§ØªØ¨
                 </button>
             </div>
 
-            <!-- ÓÌá ØáÈÇÊí -->
+            <!-- Ø³Ø¬Ù„ Ø·Ù„Ø¨Ø§ØªÙŠ -->
             <div class="card">
-                <h3 style="margin-bottom:14px;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i> ÓÌá ØáÈÇÊ ÒíÇÏÉ ÑÇÊÈí</h3>
-                <div id="myRaiseHistory"><p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:20px;">áÇ ÊæÌÏ ØáÈÇÊ ÓÇÈŞÉ.</p></div>
+                <h3 style="margin-bottom:14px;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i> Ø³Ø¬Ù„ Ø·Ù„Ø¨Ø§Øª Ø²ÙŠØ§Ø¯Ø© Ø±Ø§ØªØ¨ÙŠ</h3>
+                <div id="myRaiseHistory"><p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:20px;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ø³Ø§Ø¨Ù‚Ø©.</p></div>
             </div>
         </div>
 
-        <!-- ÊÈæíÈ ÇáÑÓÇÆá ÇáÎÇÕÉ -->
+        <!-- ØªØ¨ÙˆÙŠØ¨ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„Ø®Ø§ØµØ© -->
         <div class="tab-content" id="tab-messages">
-            <!-- ãáÇÍÙÉ ÇáÎÕæÕíÉ -->
+            <!-- Ù…Ù„Ø§Ø­Ø¸Ø© Ø§Ù„Ø®ØµÙˆØµÙŠØ© -->
             <div class="message-privacy-notice">
                 <i class="fa-solid fa-shield-halved fa-lg"></i>
                 <div>
-                    <strong>ÑÓÇáÉ ãÈÇÔÑÉ ááãÏíÑ ÇáÚÇã - ÓÑíÉ ÊÇãÉ</strong><br>
-                    <span style="font-size:.8rem;">åĞå ÇáÑÓÇÆá áä íÑÇåÇ ÑÆíÓ ÇáãÓÇÍíä Ãæ Ãí ÔÎÕ ÂÎÑ. ÊÕá ãÈÇÔÑÉ ááãÏíÑ ÇáÚÇã İŞØ.</span>
+                    <strong>Ø±Ø³Ø§Ù„Ø© Ù…Ø¨Ø§Ø´Ø±Ø© Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù… - Ø³Ø±ÙŠØ© ØªØ§Ù…Ø©</strong><br>
+                    <span style="font-size:.8rem;">Ù‡Ø°Ù‡ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ Ù„Ù† ÙŠØ±Ø§Ù‡Ø§ Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† Ø£Ùˆ Ø£ÙŠ Ø´Ø®Øµ Ø¢Ø®Ø±. ØªØµÙ„ Ù…Ø¨Ø§Ø´Ø±Ø© Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù… ÙÙ‚Ø·.</span>
                 </div>
             </div>
 
-            <!-- äãæĞÌ ÇáÑÓÇáÉ -->
+            <!-- Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ø±Ø³Ø§Ù„Ø© -->
             <div class="card">
-                <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary)"></i> ÅÑÓÇá ÑÓÇáÉ ÌÏíÏÉ ááãÏíÑ ÇáÚÇã</h3>
+                <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary)"></i> Ø¥Ø±Ø³Ø§Ù„ Ø±Ø³Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…</h3>
                 <form id="directMsgForm" onsubmit="handleSendMessage(event)">
                     <div class="form-row">
                         <div class="form-group" style="flex:1;">
-                            <label class="form-label">äæÚ ÇáÑÓÇáÉ <span style="color:#ef4444;">*</span></label>
+                            <label class="form-label">Ù†ÙˆØ¹ Ø§Ù„Ø±Ø³Ø§Ù„Ø© <span style="color:#ef4444;">*</span></label>
                             <select id="msgType" class="form-select" required>
-                                <option value="general">ÚÇãÉ</option>
-                                <option value="complaint">Ôßæì</option>
-                                <option value="suggestion">ãŞÊÑÍ</option>
-                                <option value="urgent">ÚÇÌáÉ</option>
+                                <option value="general">Ø¹Ø§Ù…Ø©</option>
+                                <option value="complaint">Ø´ÙƒÙˆÙ‰</option>
+                                <option value="suggestion">Ù…Ù‚ØªØ±Ø­</option>
+                                <option value="urgent">Ø¹Ø§Ø¬Ù„Ø©</option>
                             </select>
                         </div>
                         <div class="form-group" style="flex:2;">
-                            <label class="form-label">ÇáãæÖæÚ <span style="color:#ef4444;">*</span></label>
-                            <input type="text" id="msgSubject" class="form-input" placeholder="ãæÖæÚ ÇáÑÓÇáÉ..." required maxlength="200">
+                            <label class="form-label">Ø§Ù„Ù…ÙˆØ¶ÙˆØ¹ <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="msgSubject" class="form-input" placeholder="Ù…ÙˆØ¶ÙˆØ¹ Ø§Ù„Ø±Ø³Ø§Ù„Ø©..." required maxlength="200">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">äÕ ÇáÑÓÇáÉ <span style="color:#ef4444;">*</span></label>
-                        <textarea id="msgBody" class="form-input" rows="5" placeholder="ÇßÊÈ ÑÓÇáÊß åäÇ..." required minlength="20" maxlength="2000" style="resize:vertical;"></textarea>
+                        <label class="form-label">Ù†Øµ Ø§Ù„Ø±Ø³Ø§Ù„Ø© <span style="color:#ef4444;">*</span></label>
+                        <textarea id="msgBody" class="form-input" rows="5" placeholder="Ø§ÙƒØªØ¨ Ø±Ø³Ø§Ù„ØªÙƒ Ù‡Ù†Ø§..." required minlength="20" maxlength="2000" style="resize:vertical;"></textarea>
                         <div id="charCount" style="text-align:left;font-size:.72rem;color:var(--text-muted);margin-top:4px;">0 / 2000</div>
                     </div>
                     <div id="msgAlert" style="margin-bottom:12px;"></div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-paper-plane"></i> ÅÑÓÇá ÇáÑÓÇáÉ
+                        <i class="fa-solid fa-paper-plane"></i> Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©
                     </button>
                 </form>
             </div>
 
-            <!-- ÑÓÇÆáí ÇáÓÇÈŞÉ -->
+            <!-- Ø±Ø³Ø§Ø¦Ù„ÙŠ Ø§Ù„Ø³Ø§Ø¨Ù‚Ø© -->
             <div class="card">
-                <h3><i class="fa-solid fa-inbox" style="color:var(--primary)"></i> ÑÓÇÆáí ÇáÓÇÈŞÉ</h3>
+                <h3><i class="fa-solid fa-inbox" style="color:var(--primary)"></i> Ø±Ø³Ø§Ø¦Ù„ÙŠ Ø§Ù„Ø³Ø§Ø¨Ù‚Ø©</h3>
                 <div id="myMessagesList">
-                    <div style="text-align:center;padding:20px;color:var(--text-muted);">áÇ ÊæÌÏ ÑÓÇÆá ãÑÓáÉ ÈÚÏ.</div>
+                    <div style="text-align:center;padding:20px;color:var(--text-muted);">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„ Ù…Ø±Ø³Ù„Ø© Ø¨Ø¹Ø¯.</div>
                 </div>
             </div>
 
         </div>
 
-        <!-- ÊÈæíÈ ÇáÃÌåÒÉ -->
+        <!-- ØªØ¨ÙˆÙŠØ¨ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© -->
     </main>
 </div>
 
@@ -351,26 +350,26 @@ function switchTab(tab, btn) {
 }
 
 function calculateService(joinDate) {
-    if (!joinDate) return 'ÌÏíÏ';
+    if (!joinDate) return 'Ø¬Ø¯ÙŠØ¯';
     const start = new Date(joinDate);
     const end = new Date();
     let years = end.getFullYear() - start.getFullYear();
     let months = end.getMonth() - start.getMonth();
     if (months < 0) { years--; months += 12; }
-    return years > 0 ? `${years} ÓäÉ æ ${months} ÔåÑ` : `${months} ÔåÑ`;
+    return years > 0 ? `${years} Ø³Ù†Ø© Ùˆ ${months} Ø´Ù‡Ø±` : `${months} Ø´Ù‡Ø±`;
 }
 
 async function loadSurveyorDashboard() {
     await _loadRemoteDB();
-    document.getElementById('userGreeting').innerText = `ãÑÍÈÇğ¡ ${currentUser.name} (ÑŞã: ${currentUser.empId})`;
+    document.getElementById('userGreeting').innerText = `Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ ${currentUser.name} (Ø±Ù‚Ù…: ${currentUser.empId})`;
     const myDevices = db.devices.filter(d => d.ownerId === currentUser.id);
     document.getElementById('myDeviceCount').innerText = myDevices.length;
     document.getElementById('serviceTime').innerText = calculateService(currentUser.joinDate);
     const branchObj = getBranchName(currentUser.branch);
     const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === currentUser.branch);
-    document.getElementById('branchHeadInfo').innerHTML = `${branchObj || 'ÛíÑ ãÍÏÏ'}<br><small style="color:var(--text-muted);font-size:.72rem;">ÑÆíÓ ÇáãÓÇÍíä: ${head ? head.name : 'ÛíÑ ãÚíä'}</small>`;
+    document.getElementById('branchHeadInfo').innerHTML = `${branchObj || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}<br><small style="color:var(--text-muted);font-size:.72rem;">Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†: ${head ? head.name : 'ØºÙŠØ± Ù…Ø¹ÙŠÙ†'}</small>`;
 
-    // ÇáÊŞííã
+    // Ø§Ù„ØªÙ‚ÙŠÙŠÙ…
     const myRating = getAverageRating(currentUser.id);
     const starsEl = document.getElementById('myRatingStars');
     const noteEl  = document.getElementById('myRatingNote');
@@ -379,15 +378,15 @@ async function loadSurveyorDashboard() {
         for (let i = 1; i <= 5; i++)
             starsHtml += `<i class="fa-${i <= myRating ? 'solid' : 'regular'} fa-star" style="color:${i <= myRating ? '#fbbf24' : '#d1d5db'};font-size:1.15rem;"></i>`;
         starsEl.innerHTML = starsHtml;
-        noteEl.textContent = `${myRating} ãä 5`;
+        noteEl.textContent = `${myRating} Ù…Ù† 5`;
         const ratingRec = getUserRating(currentUser.id);
-        if (ratingRec?.notes) noteEl.textContent += ` — ${ratingRec.notes}`;
+        if (ratingRec?.notes) noteEl.textContent += ` â€” ${ratingRec.notes}`;
     } else {
-        starsEl.innerHTML = '<span style="color:#94a3b8;font-size:.88rem;">áã íÊã ÊŞííãß ÈÚÏ</span>';
+        starsEl.innerHTML = '<span style="color:#94a3b8;font-size:.88rem;">Ù„Ù… ÙŠØªÙ… ØªÙ‚ÙŠÙŠÙ…Ùƒ Ø¨Ø¹Ø¯</span>';
         noteEl.textContent = '';
     }
 
-    // ÚåÏ ãÚáŞÉ
+    // Ø¹Ù‡Ø¯ Ù…Ø¹Ù„Ù‚Ø©
     const pending = db.custodies.filter(c => {
         if (!['pending_head_approval', 'pending_admin_approval', 'pending_approval'].includes(c.status)) return false;
         const u = db.users.find(x => x.id === c.userId);
@@ -397,11 +396,11 @@ async function loadSurveyorDashboard() {
         document.getElementById('pendingAlert').innerHTML = `
             <div class="pending-banner">
                 <i class="fa-solid fa-clock-rotate-left fa-xl"></i>
-                <div><strong>ÚåÏ ãÚáŞÉ</strong><br>áÏíß ${pending.length} ØáÈÇÊ ÈÇäÊÙÇÑ ÇáãæÇİŞÉ.</div>
+                <div><strong>Ø¹Ù‡Ø¯ Ù…Ø¹Ù„Ù‚Ø©</strong><br>Ù„Ø¯ÙŠÙƒ ${pending.length} Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©.</div>
             </div>`;
     } else document.getElementById('pendingAlert').innerHTML = '';
 
-    // ÚåÏ ÈÇäÊÙÇÑ ŞÈæá ÇáãÓÇÍ — äÑÈØ ÈÇáÑŞã ÇáæÙíİí (empId) áÊİÇÏí ÊÛíÑ UUID
+    // Ø¹Ù‡Ø¯ Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ù…Ø³Ø§Ø­ â€” Ù†Ø±Ø¨Ø· Ø¨Ø§Ù„Ø±Ù‚Ù… Ø§Ù„ÙˆØ¸ÙŠÙÙŠ (empId) Ù„ØªÙØ§Ø¯ÙŠ ØªØºÙŠØ± UUID
     const currentEmpId = String(currentUser.empId);
     const pendingAccept = db.custodies.filter(c => {
         if (!['pending_surveyor_acceptance', 'pending_receiver_acceptance'].includes(c.status)) return false;
@@ -413,7 +412,7 @@ async function loadSurveyorDashboard() {
         const parts = pendingAccept.map(c => {
             const isTransfer = c.status === 'pending_receiver_acceptance';
             const fromUser = db.users.find(u => u.id === (isTransfer ? c.transferData?.fromUserId : c.assignedBy));
-            const fromLabel = isTransfer ? `ãä ÇáãÓÇÍ ${fromUser?.name || c.transferData?.fromUserName}` : `ãä ${fromUser?.name || 'ÇáãÓÊæÏÚ'}`;
+            const fromLabel = isTransfer ? `Ù…Ù† Ø§Ù„Ù…Ø³Ø§Ø­ ${fromUser?.name || c.transferData?.fromUserName}` : `Ù…Ù† ${fromUser?.name || 'Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹'}`;
             const icon = isTransfer ? 'fa-arrow-right-arrow-left' : 'fa-box-open';
             const bg = isTransfer ? '#e0f2fe' : '#fef3c7';
             const color = isTransfer ? '#0369a1' : '#92400e';
@@ -424,45 +423,45 @@ async function loadSurveyorDashboard() {
                 </div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-weight:600;font-size:.85rem;">${getDeviceTypeName(c.deviceType)}</div>
-                    <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${c.serialNumber} · ${fromLabel}</div>
-                    ${isTransfer ? `<div style="font-size:.7rem;color:#0369a1;margin-top:2px;"><i class="fa-solid fa-right-left"></i> äŞá ÚåÏÉ</div>` : ''}
+                    <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${c.serialNumber} Â· ${fromLabel}</div>
+                    ${isTransfer ? `<div style="font-size:.7rem;color:#0369a1;margin-top:2px;"><i class="fa-solid fa-right-left"></i> Ù†Ù‚Ù„ Ø¹Ù‡Ø¯Ø©</div>` : ''}
                 </div>
                 <div style="display:flex;gap:6px;flex-shrink:0;">
                     <button onclick="openAcceptCustodyModal('${c.id}')" class="btn btn-primary btn-sm" style="padding:5px 12px;font-size:.78rem;">
-                        <i class="fa-solid fa-check"></i> ŞÈæá
+                        <i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„
                     </button>
                     <button onclick="openRejectCustodyModal('${c.id}')" class="btn btn-ghost btn-sm" style="padding:5px 12px;font-size:.78rem;color:#ef4444;border-color:#ef4444;">
-                        <i class="fa-solid fa-xmark"></i> ÑİÖ
+                        <i class="fa-solid fa-xmark"></i> Ø±ÙØ¶
                     </button>
                 </div>
             </div>`}).join('');
         acceptContainer.innerHTML = `
             <div style="background:#fffbeb;border:1px solid #fde68a;border-right:4px solid #f59e0b;padding:16px;border-radius:12px;margin-bottom:20px;">
                 <div style="font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;color:#92400e;">
-                    <i class="fa-solid fa-hand"></i> ÚåÏ ÌÏíÏÉ ÈÇäÊÙÇÑ ŞÈæáß (${pendingAccept.length})
+                    <i class="fa-solid fa-hand"></i> Ø¹Ù‡Ø¯ Ø¬Ø¯ÙŠØ¯Ø© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù‚Ø¨ÙˆÙ„Ùƒ (${pendingAccept.length})
                 </div>
                 ${parts}
             </div>`;
     } else acceptContainer.innerHTML = '';
 
-    // ÊäÈíåÇÊ ÇáãÚÇíÑÉ
+    // ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©
     const today = new Date(); today.setHours(0,0,0,0);
     const alertLimit = new Date(); alertLimit.setDate(today.getDate() + (db.settings.alertDays || 30));
     const expiring = myDevices.filter(d => d.calDate && new Date(d.calDate) <= alertLimit);
     if (expiring.length > 0) {
         const list = expiring.map(d => {
             const diff = Math.ceil((new Date(d.calDate) - today) / 86400000);
-            const statusText = diff <= 0 ? '<span style="color:red;font-weight:700;">ãäÊåíÉ!</span>' : `ãÊÈŞí ${diff} íæã`;
+            const statusText = diff <= 0 ? '<span style="color:red;font-weight:700;">Ù…Ù†ØªÙ‡ÙŠØ©!</span>' : `Ù…ØªØ¨Ù‚ÙŠ ${diff} ÙŠÙˆÙ…`;
             return `<li>${getDeviceTypeName(d.type)} (S/N: ${d.serial}) - ${statusText}</li>`;
         }).join('');
         document.getElementById('calibrationAlerts').innerHTML = `
             <div class="alert-banner">
                 <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-                <div><strong>ÊäÈíåÇÊ ãÚÇíÑÉ ÚÇÌáÉ</strong><ul style="margin-top:6px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
+                <div><strong>ØªÙ†Ø¨ÙŠÙ‡Ø§Øª Ù…Ø¹Ø§ÙŠØ±Ø© Ø¹Ø§Ø¬Ù„Ø©</strong><ul style="margin-top:6px;padding-right:20px;font-size:.88rem;">${list}</ul></div>
             </div>`;
     } else document.getElementById('calibrationAlerts').innerHTML = '';
 
-    // ÇáãÔÑæÚ ÇáãÓÌá Úáíå
+    // Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ø§Ù„Ù…Ø³Ø¬Ù„ Ø¹Ù„ÙŠÙ‡
     const myProject = getSurveyorProject ? getSurveyorProject(currentUser.id) : null;
     const projCard = document.getElementById('myProjectCard');
     if (myProject) {
@@ -470,22 +469,22 @@ async function loadSurveyorDashboard() {
         const pct = Math.min(100, completion);
         const endDate = myProject.endDate ? new Date(myProject.endDate) : null;
         const daysLeft = endDate ? Math.ceil((endDate - new Date()) / 86400000) : null;
-        const daysLabel = daysLeft === null ? '<span style="color:#94a3b8;">ÛíÑ ãÍÏÏ</span>'
-            : daysLeft < 0 ? `<span style="color:#ef4444;font-weight:700;">ÊÃÎÑ ${Math.abs(daysLeft)} íæã</span>`
-            : `<span style="color:#064e3b;">ãÊÈŞí ${daysLeft} íæã</span>`;
+        const daysLabel = daysLeft === null ? '<span style="color:#94a3b8;">ØºÙŠØ± Ù…Ø­Ø¯Ø¯</span>'
+            : daysLeft < 0 ? `<span style="color:#ef4444;font-weight:700;">ØªØ£Ø®Ø± ${Math.abs(daysLeft)} ÙŠÙˆÙ…</span>`
+            : `<span style="color:#064e3b;">Ù…ØªØ¨Ù‚ÙŠ ${daysLeft} ÙŠÙˆÙ…</span>`;
         projCard.innerHTML = `
             <div class="card" style="padding:20px;border-right:4px solid #6366f1;display:flex;flex-wrap:wrap;gap:20px;align-items:center;">
                 <div style="flex:1;min-width:180px;">
-                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><i class="fa-solid fa-diagram-project" style="color:#6366f1;"></i> ãÔÑæÚí ÇáÍÇáí</div>
+                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:4px;"><i class="fa-solid fa-diagram-project" style="color:#6366f1;"></i> Ù…Ø´Ø±ÙˆØ¹ÙŠ Ø§Ù„Ø­Ø§Ù„ÙŠ</div>
                     <div style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:8px;">${myProject.name}</div>
                     ${myProject.description ? `<div style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px;">${myProject.description}</div>` : ''}
                     <div style="display:flex;gap:16px;font-size:.78rem;color:#64748b;flex-wrap:wrap;">
-                        <span><i class="fa-solid fa-calendar-days" style="color:#6366f1;"></i> ÇäÊåÇÁ ãÊæŞÚ: ${myProject.endDate || 'ÛíÑ ãÍÏÏ'}</span>
+                        <span><i class="fa-solid fa-calendar-days" style="color:#6366f1;"></i> Ø§Ù†ØªÙ‡Ø§Ø¡ Ù…ØªÙˆÙ‚Ø¹: ${myProject.endDate || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'}</span>
                         <span>${daysLabel}</span>
                     </div>
                 </div>
                 <div style="text-align:center;min-width:100px;">
-                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;">äÓÈÉ ÇáÅäÌÇÒ</div>
+                    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;">Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²</div>
                     <div style="position:relative;width:80px;height:80px;margin:0 auto;">
                         <svg viewBox="0 0 36 36" style="width:80px;height:80px;transform:rotate(-90deg);">
                             <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.5"/>
@@ -501,7 +500,7 @@ async function loadSurveyorDashboard() {
         projCard.innerHTML = '';
     }
 
-    // ÇáãáÎÕ
+    // Ø§Ù„Ù…Ù„Ø®Øµ
     const tsCount = myDevices.filter(d => d.type.includes('station') || d.type === 'total_station').length;
     const alCount = myDevices.filter(d => d.type.includes('level') || d.type === 'auto_level').length;
     const gpsCount = myDevices.filter(d => d.type.toLowerCase().includes('gps')).length;
@@ -509,19 +508,19 @@ async function loadSurveyorDashboard() {
     document.getElementById('countAL').innerText = alCount;
     document.getElementById('countGPS').innerText = gpsCount;
 
-    // ÑÓã ÏÇÆÑí áÃÌåÒÊí
+    // Ø±Ø³Ù… Ø¯Ø§Ø¦Ø±ÙŠ Ù„Ø£Ø¬Ù‡Ø²ØªÙŠ
     const ctxDonut = document.getElementById('myDeviceDonut').getContext('2d');
     if (window._myDeviceChart) window._myDeviceChart.destroy();
     window._myDeviceChart = new Chart(ctxDonut, {
         type: 'doughnut',
         data: {
-            labels: ['ãÍØÉ', 'ãíÒÇä', 'GPS'],
+            labels: ['Ù…Ø­Ø·Ø©', 'Ù…ÙŠØ²Ø§Ù†', 'GPS'],
             datasets: [{ data: [tsCount, alCount, gpsCount], backgroundColor: ['#6366f1', '#0ea5e9', '#f59e0b'], borderWidth: 0, hoverOffset: 6 }]
         },
         options: { cutout: '65%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, font: { size: 9 }, padding: 8 } } } }
     });
 
-    // ÔÇÑÊ ãÚÇíÑÉ ÇáÃÌåÒÉ (ÈÇÑ ÃİŞí)
+    // Ø´Ø§Ø±Øª Ù…Ø¹Ø§ÙŠØ±Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© (Ø¨Ø§Ø± Ø£ÙÙ‚ÙŠ)
     const calChartWrap = document.getElementById('calChartWrap');
     const calChartEmpty = document.getElementById('calChartEmpty');
     const calCtx = document.getElementById('myCalibrationBar');
@@ -544,7 +543,7 @@ async function loadSurveyorDashboard() {
             data: {
                 labels: calLabels,
                 datasets: [{
-                    label: 'ÃíÇã ÍÊì ÇäÊåÇÁ ÇáãÚÇíÑÉ',
+                    label: 'Ø£ÙŠØ§Ù… Ø­ØªÙ‰ Ø§Ù†ØªÙ‡Ø§Ø¡ Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©',
                     data: calData.map(v => v === null ? 0 : Math.abs(v)),
                     backgroundColor: calColors,
                     borderRadius: 8,
@@ -562,20 +561,20 @@ async function loadSurveyorDashboard() {
                 }
             }
         });
-        // ÖÈØ ÇÑÊİÇÚ ÇáÔÇÑÊ ÍÓÈ ÚÏÏ ÇáÃÌåÒÉ
+        // Ø¶Ø¨Ø· Ø§Ø±ØªÙØ§Ø¹ Ø§Ù„Ø´Ø§Ø±Øª Ø­Ø³Ø¨ Ø¹Ø¯Ø¯ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©
         calChartWrap.style.height = Math.max(100, myDevices.length * 45) + 'px';
     }
 
-    // ÈØÇŞÇÊ ãáÎÕ ÇáÚåÏÉ
+    // Ø¨Ø·Ø§Ù‚Ø§Øª Ù…Ù„Ø®Øµ Ø§Ù„Ø¹Ù‡Ø¯Ø©
     const totalDev = myDevices.length;
     const expiredCal = myDevices.filter(d => d.calDate && Math.ceil((new Date(d.calDate) - new Date()) / 86400000) <= 0).length;
     const nearCal = myDevices.filter(d => d.calDate && Math.ceil((new Date(d.calDate) - new Date()) / 86400000) > 0 && Math.ceil((new Date(d.calDate) - new Date()) / 86400000) <= 30).length;
     const okCal = totalDev - expiredCal - nearCal;
     document.getElementById('custodyStatusCards').innerHTML = [
-        { icon: 'fa-box-open', label: 'ÅÌãÇáí ÇáÃÌåÒÉ', val: totalDev, bg: '#eff6ff', color: '#1e40af' },
-        { icon: 'fa-circle-check', label: 'ãÚÇíÑÉ ÓáíãÉ', val: okCal, bg: '#f0fdf4', color: '#166534' },
-        { icon: 'fa-triangle-exclamation', label: 'ÊäÊåí ŞÑíÈÇğ', val: nearCal, bg: '#fffbeb', color: '#92400e' },
-        { icon: 'fa-circle-xmark', label: 'ãÚÇíÑÉ ãäÊåíÉ', val: expiredCal, bg: '#fff5f5', color: '#991b1b' }
+        { icon: 'fa-box-open', label: 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©', val: totalDev, bg: '#eff6ff', color: '#1e40af' },
+        { icon: 'fa-circle-check', label: 'Ù…Ø¹Ø§ÙŠØ±Ø© Ø³Ù„ÙŠÙ…Ø©', val: okCal, bg: '#f0fdf4', color: '#166534' },
+        { icon: 'fa-triangle-exclamation', label: 'ØªÙ†ØªÙ‡ÙŠ Ù‚Ø±ÙŠØ¨Ø§Ù‹', val: nearCal, bg: '#fffbeb', color: '#92400e' },
+        { icon: 'fa-circle-xmark', label: 'Ù…Ø¹Ø§ÙŠØ±Ø© Ù…Ù†ØªÙ‡ÙŠØ©', val: expiredCal, bg: '#fff5f5', color: '#991b1b' }
     ].map(c => `
         <div style="display:flex;align-items:center;gap:10px;background:${c.bg};border-radius:10px;padding:8px 12px;">
             <div style="width:32px;height:32px;border-radius:8px;background:${c.bg};border:1px solid rgba(0,0,0,.07);display:flex;align-items:center;justify-content:center;color:${c.color};">
@@ -587,20 +586,20 @@ async function loadSurveyorDashboard() {
             </div>
         </div>`).join('');
 
-    // ŞÇÆãÉ ÇáÃÌåÒÉ İí äÙÑÉ ÚÇãÉ
+    // Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø©
     const overviewList = document.getElementById('overviewDevicesList');
     const overviewCount = document.getElementById('overviewDeviceCount');
     if (myDevices.length === 0) {
-        overviewList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.88rem;">áÇ ÊæÌÏ ÃÌåÒÉ İí ÚåÏÊß ÍÇáíÇğ.</div>';
+        overviewList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:.88rem;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø¹Ù‡Ø¯ØªÙƒ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>';
         overviewCount.textContent = '';
     } else {
-        overviewCount.textContent = `(${myDevices.length} ÌåÇÒ)`;
+        overviewCount.textContent = `(${myDevices.length} Ø¬Ù‡Ø§Ø²)`;
         overviewList.innerHTML = myDevices.map(d => {
             const diff = d.calDate ? Math.ceil((new Date(d.calDate) - new Date()) / 86400000) : null;
-            const calStatus = diff === null ? '<span style="color:#94a3b8;font-size:.75rem;">ÛíÑ ãÍÏÏ</span>'
-                : diff <= 0 ? '<span style="color:#ef4444;font-weight:700;font-size:.75rem;">ãäÊåíÉ!</span>'
-                : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;font-size:.75rem;">ãÊÈŞí ${diff} íæã</span>`
-                : `<span style="color:#16a34a;font-size:.75rem;">ãÊÈŞí ${diff} íæã</span>`;
+            const calStatus = diff === null ? '<span style="color:#94a3b8;font-size:.75rem;">ØºÙŠØ± Ù…Ø­Ø¯Ø¯</span>'
+                : diff <= 0 ? '<span style="color:#ef4444;font-weight:700;font-size:.75rem;">Ù…Ù†ØªÙ‡ÙŠØ©!</span>'
+                : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;font-size:.75rem;">Ù…ØªØ¨Ù‚ÙŠ ${diff} ÙŠÙˆÙ…</span>`
+                : `<span style="color:#16a34a;font-size:.75rem;">Ù…ØªØ¨Ù‚ÙŠ ${diff} ÙŠÙˆÙ…</span>`;
             return `
                 <div class="device-row" style="padding:10px 14px;">
                     <div style="width:36px;height:36px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;color:#16a34a;flex-shrink:0;">
@@ -608,32 +607,32 @@ async function loadSurveyorDashboard() {
                     </div>
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:600;font-size:.85rem;">${getDeviceTypeName(d.type)}</div>
-                        <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${d.serial} · ${getDeviceStatusBadge(d.status)}</div>
+                        <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${d.serial} Â· ${getDeviceStatusBadge(d.status)}</div>
                     </div>
                     <div style="text-align:left;font-size:.75rem;white-space:nowrap;">${calStatus}</div>
                 </div>`;
         }).join('');
     }
 
-    // ÅÔÚÇÑÇÊ
+    // Ø¥Ø´Ø¹Ø§Ø±Ø§Øª
     const unread = db.notifications.filter(n => n.userId === currentUser.id && !n.read);
     if (unread.length > 0) {
         const items = unread.slice(0, 5).map(n => `
             <li style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
                 <span style="font-size:.88rem;">${n.message}</span>
-                <button onclick="markNotificationAsRead('${n.id}');loadSurveyorDashboard();" class="btn btn-ghost btn-sm" style="white-space:nowrap;font-size:.72rem;">ÅÎİÇÁ</button>
+                <button onclick="markNotificationAsRead('${n.id}');loadSurveyorDashboard();" class="btn btn-ghost btn-sm" style="white-space:nowrap;font-size:.72rem;">Ø¥Ø®ÙØ§Ø¡</button>
             </li>`).join('');
         document.getElementById('surveyorNotifications').innerHTML = `
             <div style="background:#f0fdf4;border:1px solid #86efac;border-right:4px solid #16a34a;padding:16px;border-radius:12px;margin-bottom:20px;color:#166534;">
                 <div style="font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                    <span><i class="fa-solid fa-bell"></i> ÅÔÚÇÑÇÊ ÌÏíÏÉ (${unread.length})</span>
-                    <a href="notification-center.html" style="font-size:.78rem;color:#16a34a;font-weight:600;">ÚÑÖ Çáßá</a>
+                    <span><i class="fa-solid fa-bell"></i> Ø¥Ø´Ø¹Ø§Ø±Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© (${unread.length})</span>
+                    <a href="notification-center.html" style="font-size:.78rem;color:#16a34a;font-weight:600;">Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„</a>
                 </div>
                 <ul style="margin:0;padding-right:16px;list-style:disc;">${items}</ul>
             </div>`;
     } else document.getElementById('surveyorNotifications').innerHTML = '';
 
-    // ÔÇÑÉ ÑÓÇÆá ÇáÑÏ ãä ÇáãÏíÑ
+    // Ø´Ø§Ø±Ø© Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„Ø±Ø¯ Ù…Ù† Ø§Ù„Ù…Ø¯ÙŠØ±
     const repliedMsgs = (db.directMessages || []).filter(m => m.senderId === currentUser.id && m.status === 'replied' && !m.isRead);
     if (repliedMsgs.length > 0) {
         const badge = document.getElementById('msgTabBadge');
@@ -656,7 +655,7 @@ function renderSurveyorWorkerTransfers() {
     container.innerHTML = `
         <div class="card" style="border-right:4px solid #d97706;">
             <h3 style="margin-bottom:14px;color:#92400e;">
-                <i class="fa-solid fa-people-arrows"></i> ØáÈÇÊ äŞá ÚãÇá Åáíß (${incoming.length})
+                <i class="fa-solid fa-people-arrows"></i> Ø·Ù„Ø¨Ø§Øª Ù†Ù‚Ù„ Ø¹Ù…Ø§Ù„ Ø¥Ù„ÙŠÙƒ (${incoming.length})
             </h3>
             ${incoming.map(r => {
                 const w = db.workers.find(x => x.id === r.workerId);
@@ -665,18 +664,18 @@ function renderSurveyorWorkerTransfers() {
                         <i class="fa-solid fa-helmet-safety" style="font-size:.85rem;"></i>
                     </div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || '—'}</div>
+                        <div style="font-weight:600;font-size:.85rem;">${w ? w.name : r.workerName || 'â€”'}</div>
                         <div style="font-size:.72rem;color:var(--text-muted);">
-                            ãä: ${r.fromSurveyorName || '—'}
-                            ${r.reason ? `· ÓÈÈ: ${r.reason}` : ''}
+                            Ù…Ù†: ${r.fromSurveyorName || 'â€”'}
+                            ${r.reason ? `Â· Ø³Ø¨Ø¨: ${r.reason}` : ''}
                         </div>
                     </div>
                     <div style="display:flex;gap:6px;flex-shrink:0;">
                         <button onclick="doApproveWorkerTransfer('${r.id}')" class="btn btn-primary btn-sm" style="padding:5px 12px;font-size:.78rem;">
-                            <i class="fa-solid fa-check"></i> ŞÈæá ÇáäŞá
+                            <i class="fa-solid fa-check"></i> Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ù†Ù‚Ù„
                         </button>
                         <button onclick="doRejectWorkerTransfer('${r.id}')" class="btn btn-ghost btn-sm" style="padding:5px 12px;font-size:.78rem;color:#ef4444;border-color:#ef4444;">
-                            <i class="fa-solid fa-xmark"></i> ÑİÖ
+                            <i class="fa-solid fa-xmark"></i> Ø±ÙØ¶
                         </button>
                     </div>
                 </div>`;
@@ -688,28 +687,28 @@ function renderMyDevices() {
     const myDevices = db.devices.filter(d => d.ownerId === currentUser.id);
     const list = document.getElementById('myDevicesList');
     if (myDevices.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);">áÇ ÊæÌÏ ÃÌåÒÉ İí ÚåÏÊß ÍÇáíÇğ.</div>';
+        list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø£Ø¬Ù‡Ø²Ø© ÙÙŠ Ø¹Ù‡Ø¯ØªÙƒ Ø­Ø§Ù„ÙŠØ§Ù‹.</div>';
         return;
     }
     const today = new Date(); today.setHours(0,0,0,0);
     list.innerHTML = myDevices.map(d => {
         const diff = d.calDate ? Math.ceil((new Date(d.calDate) - today) / 86400000) : null;
-        const calStatus = diff === null ? '<span style="color:#94a3b8;">ÛíÑ ãÍÏÏ</span>'
-            : diff <= 0 ? '<span style="color:#ef4444;font-weight:700;">ãäÊåíÉ!</span>'
-            : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;">ãÊÈŞí ${diff} íæã</span>`
-            : `<span style="color:#16a34a;">ãÊÈŞí ${diff} íæã</span>`;
+        const calStatus = diff === null ? '<span style="color:#94a3b8;">ØºÙŠØ± Ù…Ø­Ø¯Ø¯</span>'
+            : diff <= 0 ? '<span style="color:#ef4444;font-weight:700;">Ù…Ù†ØªÙ‡ÙŠØ©!</span>'
+            : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;">Ù…ØªØ¨Ù‚ÙŠ ${diff} ÙŠÙˆÙ…</span>`
+            : `<span style="color:#16a34a;">Ù…ØªØ¨Ù‚ÙŠ ${diff} ÙŠÙˆÙ…</span>`;
 
         const hasPendingReq = hasPendingMaintenanceRequest(d.id, d.serial);
         const canSendMaint = d.status === 'assigned' && !hasPendingReq;
         const sendBtns = canSendMaint ? `
             <button onclick="handleSendToMaintenance('${d.id}','${d.serial}','maintenance')" class="btn-maintenance">
-                <i class="fa-solid fa-screwdriver-wrench"></i> ØáÈ ÕíÇäÉ
+                <i class="fa-solid fa-screwdriver-wrench"></i> Ø·Ù„Ø¨ ØµÙŠØ§Ù†Ø©
             </button>
             <button onclick="handleSendToMaintenance('${d.id}','${d.serial}','calibration')" class="btn-calibration">
-                <i class="fa-solid fa-certificate"></i> ØáÈ ãÚÇíÑÉ
+                <i class="fa-solid fa-certificate"></i> Ø·Ù„Ø¨ Ù…Ø¹Ø§ÙŠØ±Ø©
             </button>` : hasPendingReq
             ? `<span class="badge badge-warning" style="font-size:.78rem;padding:6px 14px;white-space:nowrap;">
-                 <i class="fa-solid fa-clock"></i> ÇáØáÈ ŞíÏ ÇáãÑÇÌÚÉ
+                 <i class="fa-solid fa-clock"></i> Ø§Ù„Ø·Ù„Ø¨ Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©
                </span>` : '';
 
         return `
@@ -722,7 +721,7 @@ function renderMyDevices() {
                     <div style="font-size:.78rem;color:var(--text-muted);">S/N: ${d.serial}</div>
                     <div style="font-size:.78rem;margin-top:2px;">
                         ${getDeviceStatusBadge(d.status)}
-                        <span style="margin-right:8px;">ãÚÇíÑÉ: ${calStatus}</span>
+                        <span style="margin-right:8px;">Ù…Ø¹Ø§ÙŠØ±Ø©: ${calStatus}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">${sendBtns}</div>
@@ -731,40 +730,40 @@ function renderMyDevices() {
 }
 
 window.handleSendToMaintenance = (deviceId, serial, type) => {
-    const notes = prompt(`ãáÇÍÙÇÊ ØáÈ ${type === 'maintenance' ? 'ÇáÕíÇäÉ' : 'ÇáãÚÇíÑÉ'} ááÌåÇÒ (${serial}) (ÇÎÊíÇÑí):`);
+    const notes = prompt(`Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø·Ù„Ø¨ ${type === 'maintenance' ? 'Ø§Ù„ØµÙŠØ§Ù†Ø©' : 'Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©'} Ù„Ù„Ø¬Ù‡Ø§Ø² (${serial}) (Ø§Ø®ØªÙŠØ§Ø±ÙŠ):`);
     if (notes === null) return;
     const result = sendMaintenanceRequest(deviceId, serial, db.devices.find(d=>d.id===deviceId)?.type, type, notes);
     if (result.success) {
-        showToast(`Êã ÅÑÓÇá ØáÈ ${type === 'maintenance' ? 'ÇáÕíÇäÉ' : 'ÇáãÚÇíÑÉ'} ÈäÌÇÍ æÈÇäÊÙÇÑ ÇáãæÇİŞÉ`, 'success');
+        showToast(`ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø·Ù„Ø¨ ${type === 'maintenance' ? 'Ø§Ù„ØµÙŠØ§Ù†Ø©' : 'Ø§Ù„Ù…Ø¹Ø§ÙŠØ±Ø©'} Ø¨Ù†Ø¬Ø§Ø­ ÙˆØ¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©`, 'success');
         renderMyDevices();
     } else {
-        showToast(result.msg || 'ÍÏË ÎØÃ', 'error');
+        showToast(result.msg || 'Ø­Ø¯Ø« Ø®Ø·Ø£', 'error');
     }
 };
 
 window.doApproveWorkerTransfer = (reqId) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ŞÈæá ØáÈ äŞá ÇáÚÇãá¿')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ù‚Ø¨ÙˆÙ„ Ø·Ù„Ø¨ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„ØŸ')) return;
     if (approveWorkerTransferRequest(reqId)) {
-        showToast('Êã ŞÈæá äŞá ÇáÚÇãá ? æÅÑÓÇá áÑÆíÓ ÇáãÓÇÍíä', 'success');
+        showToast('ØªÙ… Ù‚Ø¨ÙˆÙ„ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„ âœ“ ÙˆØ¥Ø±Ø³Ø§Ù„ Ù„Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†', 'success');
         loadSurveyorDashboard();
     } else {
-        showToast('áÇ íãßä ÇáŞÈæá ÍÇáíÇğ', 'error');
+        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù‚Ø¨ÙˆÙ„ Ø­Ø§Ù„ÙŠØ§Ù‹', 'error');
     }
 };
 
 window.doRejectWorkerTransfer = (reqId) => {
-    const reason = prompt('ÓÈÈ ÑİÖ äŞá ÇáÚÇãá:');
+    const reason = prompt('Ø³Ø¨Ø¨ Ø±ÙØ¶ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„:');
     if (reason === null) return;
     if (rejectWorkerTransferRequest(reqId, reason)) {
-        showToast('Êã ÑİÖ äŞá ÇáÚÇãá', 'success');
+        showToast('ØªÙ… Ø±ÙØ¶ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ø§Ù…Ù„', 'success');
         loadSurveyorDashboard();
     } else {
-        showToast('áÇ íãßä ÇáÑİÖ ÍÇáíÇğ', 'error');
+        showToast('Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ø±ÙØ¶ Ø­Ø§Ù„ÙŠØ§Ù‹', 'error');
     }
 };
 
 // ============================================================
-// ÑÓÇÆá ÎÇÕÉ ááãÏíÑ ÇáÚÇã
+// Ø±Ø³Ø§Ø¦Ù„ Ø®Ø§ØµØ© Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…
 // ============================================================
 document.getElementById('msgBody').addEventListener('input', function() {
     document.getElementById('charCount').textContent = `${this.value.length} / 2000`;
@@ -779,13 +778,13 @@ window.handleSendMessage = (e) => {
     alertEl.innerHTML = '';
 
     if (body.length < 20) {
-        alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.85rem;">ÇáÑÓÇáÉ ŞÕíÑÉ ÌÏÇğ - ÇáÍÏ ÇáÃÏäì 20 ÍÑİ</div>`;
+        alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.85rem;">Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ù‚ØµÙŠØ±Ø© Ø¬Ø¯Ø§Ù‹ - Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰ 20 Ø­Ø±Ù</div>`;
         return;
     }
 
     const result = sendDirectMessage(subject, body, type);
     if (result.success) {
-        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> Êã ÅÑÓÇá ÑÓÇáÊß ÈäÌÇÍ æÓÊÕá ááãÏíÑ ÇáÚÇã ãÈÇÔÑÉ.</div>`;
+        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø±Ø³Ø§Ù„ØªÙƒ Ø¨Ù†Ø¬Ø§Ø­ ÙˆØ³ØªØµÙ„ Ù„Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù… Ù…Ø¨Ø§Ø´Ø±Ø©.</div>`;
         document.getElementById('directMsgForm').reset();
         document.getElementById('charCount').textContent = '0 / 2000';
         renderMyMessages();
@@ -798,29 +797,29 @@ function renderMyMessages() {
     const msgs = getMyDirectMessages().sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
     const list = document.getElementById('myMessagesList');
     if (msgs.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);">áÇ ÊæÌÏ ÑÓÇÆá ãÑÓáÉ ÈÚÏ.</div>';
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø±Ø³Ø§Ø¦Ù„ Ù…Ø±Ø³Ù„Ø© Ø¨Ø¹Ø¯.</div>';
         return;
     }
-    const typeLabels = { complaint: 'Ôßæì', suggestion: 'ãŞÊÑÍ', urgent: 'ÚÇÌáÉ', general: 'ÚÇãÉ' };
+    const typeLabels = { complaint: 'Ø´ÙƒÙˆÙ‰', suggestion: 'Ù…Ù‚ØªØ±Ø­', urgent: 'Ø¹Ø§Ø¬Ù„Ø©', general: 'Ø¹Ø§Ù…Ø©' };
     const typeClasses = { complaint: 'msg-type-complaint', suggestion: 'msg-type-suggestion', urgent: 'msg-type-urgent', general: 'msg-type-general' };
     list.innerHTML = msgs.map(m => `
         <div class="message-card">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
                 <span class="message-type-badge ${typeClasses[m.messageType] || 'msg-type-general'}">
                     <i class="fa-solid ${m.messageType === 'complaint' ? 'fa-triangle-exclamation' : m.messageType === 'suggestion' ? 'fa-lightbulb' : m.messageType === 'urgent' ? 'fa-bolt' : 'fa-envelope'}"></i>
-                    ${typeLabels[m.messageType] || 'ÚÇãÉ'}
+                    ${typeLabels[m.messageType] || 'Ø¹Ø§Ù…Ø©'}
                 </span>
                 <strong style="font-size:.9rem;">${m.subject}</strong>
                 <span style="flex:1;"></span>
                 <span style="font-size:.75rem;color:var(--text-muted);">${_formatRelTime(m.timestamp)}</span>
                 <span class="badge ${m.status === 'replied' ? 'badge-success' : 'badge-warning'}" style="font-size:.7rem;">
-                    ${m.status === 'replied' ? 'Êã ÇáÑÏ' : m.status === 'read' ? 'ãŞÑæÁÉ' : 'İí ÇáÇäÊÙÇÑ'}
+                    ${m.status === 'replied' ? 'ØªÙ… Ø§Ù„Ø±Ø¯' : m.status === 'read' ? 'Ù…Ù‚Ø±ÙˆØ¡Ø©' : 'ÙÙŠ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±'}
                 </span>
             </div>
             <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px;">${m.body}</p>
             ${m.adminReply ? `
                 <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px;margin-top:8px;">
-                    <div style="font-size:.78rem;font-weight:700;color:#166534;margin-bottom:4px;"><i class="fa-solid fa-reply"></i> ÑÏ ÇáãÏíÑ ÇáÚÇã:</div>
+                    <div style="font-size:.78rem;font-weight:700;color:#166534;margin-bottom:4px;"><i class="fa-solid fa-reply"></i> Ø±Ø¯ Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…:</div>
                     <p style="font-size:.85rem;color:#166534;">${m.adminReply}</p>
                     <div style="font-size:.72rem;color:#94a3b8;margin-top:4px;">${m.repliedAt ? _formatRelTime(m.repliedAt) : ''}</div>
                 </div>` : ''}
@@ -832,10 +831,10 @@ function _formatRelTime(ts) {
     const m = Math.floor(diff / 60000);
     const h = Math.floor(diff / 3600000);
     const d = Math.floor(diff / 86400000);
-    if (m < 1) return 'ÇáÂä';
-    if (m < 60) return `ãäĞ ${m} ÏŞíŞÉ`;
-    if (h < 24) return `ãäĞ ${h} ÓÇÚÉ`;
-    return `ãäĞ ${d} íæã`;
+    if (m < 1) return 'Ø§Ù„Ø¢Ù†';
+    if (m < 60) return `Ù…Ù†Ø° ${m} Ø¯Ù‚ÙŠÙ‚Ø©`;
+    if (h < 24) return `Ù…Ù†Ø° ${h} Ø³Ø§Ø¹Ø©`;
+    return `Ù…Ù†Ø° ${d} ÙŠÙˆÙ…`;
 }
 
 function showToast(msg, type = 'success') {
@@ -846,21 +845,21 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3500);
 }
 
-// ?? Salary Raise ????????????????????????????????????????
+// â”€â”€ Salary Raise â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function initSelfRaiseTab() {
     const branch = db.branches.find(b => b.id === currentUser.branch);
     const head   = db.users.find(u => u.role === 'head' && u.responsibleBranch === currentUser.branch);
     const rating = getAverageRating ? getAverageRating(currentUser.id) : null;
     const svc    = calculateService(currentUser.joinDate);
     document.getElementById('selfRaiseAutoInfo').innerHTML = `
-        <span><strong>ÇáÇÓã:</strong> ${currentUser.name}</span>
-        <span><strong>ÇáÑŞã ÇáæÙíİí:</strong> ${currentUser.empId}</span>
-        <span><strong>ÇáãÓãì ÇáæÙíİí:</strong> ãÓÇÍ</span>
-        <span><strong>ÇáİÑÚ:</strong> ${branch?.name || '—'}</span>
-        <span><strong>ÑÆíÓ ÇáãÓÇÍíä:</strong> ${head?.name || '—'}</span>
-        <span><strong>ÊÇÑíÎ ÇáÇáÊÍÇŞ:</strong> ${currentUser.joinDate || '—'}</span>
-        <span><strong>ÓäæÇÊ ÇáÎÏãÉ:</strong> ${svc}</span>
-        <span><strong>ÇáÊŞííã:</strong> ${rating ? rating + ' / 5' : 'áã íõŞíóøã'}</span>`;
+        <span><strong>Ø§Ù„Ø§Ø³Ù…:</strong> ${currentUser.name}</span>
+        <span><strong>Ø§Ù„Ø±Ù‚Ù… Ø§Ù„ÙˆØ¸ÙŠÙÙŠ:</strong> ${currentUser.empId}</span>
+        <span><strong>Ø§Ù„Ù…Ø³Ù…Ù‰ Ø§Ù„ÙˆØ¸ÙŠÙÙŠ:</strong> Ù…Ø³Ø§Ø­</span>
+        <span><strong>Ø§Ù„ÙØ±Ø¹:</strong> ${branch?.name || 'â€”'}</span>
+        <span><strong>Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†:</strong> ${head?.name || 'â€”'}</span>
+        <span><strong>ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ù„ØªØ­Ø§Ù‚:</strong> ${currentUser.joinDate || 'â€”'}</span>
+        <span><strong>Ø³Ù†ÙˆØ§Øª Ø§Ù„Ø®Ø¯Ù…Ø©:</strong> ${svc}</span>
+        <span><strong>Ø§Ù„ØªÙ‚ÙŠÙŠÙ…:</strong> ${rating ? rating + ' / 5' : 'Ù„Ù… ÙŠÙÙ‚ÙŠÙÙ‘Ù…'}</span>`;
     renderMyRaiseHistory();
 }
 
@@ -868,8 +867,8 @@ window.submitSelfRaiseRequest = () => {
     const alertEl = document.getElementById('selfRaiseAlert');
     const currentSalary = document.getElementById('srCurrentSalary').value.trim();
     const reason        = document.getElementById('srReason').value;
-    if (!currentSalary) { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">ÇáÑÇÊÈ ÇáÍÇáí ãØáæÈ</div>`; return; }
-    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">ÓÈÈ ÇáØáÈ ãØáæÈ</div>`; return; }
+    if (!currentSalary) { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø­Ø§Ù„ÙŠ Ù…Ø·Ù„ÙˆØ¨</div>`; return; }
+    if (!reason)        { alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:.85rem;">Ø³Ø¨Ø¨ Ø§Ù„Ø·Ù„Ø¨ Ù…Ø·Ù„ÙˆØ¨</div>`; return; }
 
     const result = submitSalaryRaiseRequest('employee', currentUser.id, {
         currentSalary,
@@ -881,7 +880,7 @@ window.submitSelfRaiseRequest = () => {
         notes:                document.getElementById('srNotes').value.trim()
     });
     if (result) {
-        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> Êã ÅÑÓÇá ØáÈß áÑÆíÓ ÇáãÓÇÍíä ÈäÌÇÍ. ÓíÊã ÅÔÚÇÑß ÈÇáäÊíÌÉ.</div>`;
+        alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-circle-check"></i> ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø·Ù„Ø¨Ùƒ Ù„Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† Ø¨Ù†Ø¬Ø§Ø­. Ø³ÙŠØªÙ… Ø¥Ø´Ø¹Ø§Ø±Ùƒ Ø¨Ø§Ù„Ù†ØªÙŠØ¬Ø©.</div>`;
         ['srCurrentSalary','srRaiseAmount','srRaisePct','srLastRaise','srAchievements','srNotes'].forEach(id => { document.getElementById(id).value = ''; });
         document.getElementById('srReason').value = '';
         renderMyRaiseHistory();
@@ -894,38 +893,38 @@ function renderMyRaiseHistory() {
         .filter(r => r.surveyorId === currentUser.id)
         .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
     if (reqs.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:20px;">áÇ ÊæÌÏ ØáÈÇÊ ÓÇÈŞÉ.</p>';
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:20px;">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ø³Ø§Ø¨Ù‚Ø©.</p>';
         return;
     }
     const statusCfg = {
-        pending_head: { label:'ÈÇäÊÙÇÑ ÑÆíÓ ÇáãÓÇÍíä', color:'#92400e', bg:'#fffbeb', border:'#fde68a' },
-        approved:     { label:'æÇİŞ ÑÆíÓ ÇáãÓÇÍíä', color:'#166534', bg:'#f0fdf4', border:'#86efac' },
-        rejected:     { label:'ãÑİæÖ', color:'#991b1b', bg:'#fff5f5', border:'#fecaca' }
+        pending_head: { label:'Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†', color:'#92400e', bg:'#fffbeb', border:'#fde68a' },
+        approved:     { label:'ÙˆØ§ÙÙ‚ Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†', color:'#166534', bg:'#f0fdf4', border:'#86efac' },
+        rejected:     { label:'Ù…Ø±ÙÙˆØ¶', color:'#991b1b', bg:'#fff5f5', border:'#fecaca' }
     };
     container.innerHTML = reqs.map(r => {
         const s = statusCfg[r.status] || statusCfg.pending_head;
-        const targetLabel = r.targetType === 'employee' ? 'ØáÈ ÑÇÊÈí' : `ØáÈ ÚÇãá: ${r.targetName}`;
+        const targetLabel = r.targetType === 'employee' ? 'Ø·Ù„Ø¨ Ø±Ø§ØªØ¨ÙŠ' : `Ø·Ù„Ø¨ Ø¹Ø§Ù…Ù„: ${r.targetName}`;
         return `<div style="border:1px solid ${s.border};background:${s.bg};border-radius:12px;padding:14px 18px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
                 <div>
                     <div style="font-weight:700;font-size:.9rem;">${targetLabel}</div>
                     <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">
-                        ÇáÑÇÊÈ ÇáÍÇáí: <strong>${r.currentSalary ? r.currentSalary + ' ÑíÇá' : '—'}</strong>
-                        ${r.requestedRaiseAmount ? ` | ÒíÇÏÉ ãØáæÈÉ: <strong>${r.requestedRaiseAmount} ÑíÇá</strong>` : ''}
-                        ${r.raisePercentage ? ` | äÓÈÉ: <strong>${r.raisePercentage}%</strong>` : ''}
+                        Ø§Ù„Ø±Ø§ØªØ¨ Ø§Ù„Ø­Ø§Ù„ÙŠ: <strong>${r.currentSalary ? r.currentSalary + ' Ø±ÙŠØ§Ù„' : 'â€”'}</strong>
+                        ${r.requestedRaiseAmount ? ` | Ø²ÙŠØ§Ø¯Ø© Ù…Ø·Ù„ÙˆØ¨Ø©: <strong>${r.requestedRaiseAmount} Ø±ÙŠØ§Ù„</strong>` : ''}
+                        ${r.raisePercentage ? ` | Ù†Ø³Ø¨Ø©: <strong>${r.raisePercentage}%</strong>` : ''}
                     </div>
-                    <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">ÇáÓÈÈ: ${r.reason || '—'}</div>
+                    <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">Ø§Ù„Ø³Ø¨Ø¨: ${r.reason || 'â€”'}</div>
                 </div>
                 <span style="background:${s.bg};color:${s.color};border:1px solid ${s.border};font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap;">${s.label}</span>
             </div>
-            ${r.status === 'approved' ? `<div style="margin-top:10px;font-size:.8rem;background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;"><i class="fa-solid fa-circle-check"></i> <strong>æÇİŞ ${r.approvedBy}</strong> — Êã ÑİÚ ÇáØáÈ ááÅÏÇÑÉ ÇáÚáíÇ áÇÊÎÇĞ ÇáÅÌÑÇÁÇÊ ÇááÇÒãÉ</div>` : ''}
-            ${r.status === 'rejected' && r.rejectionNote ? `<div style="margin-top:8px;font-size:.8rem;color:#991b1b;">ÓÈÈ ÇáÑİÖ: ${r.rejectionNote}</div>` : ''}
+            ${r.status === 'approved' ? `<div style="margin-top:10px;font-size:.8rem;background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;"><i class="fa-solid fa-circle-check"></i> <strong>ÙˆØ§ÙÙ‚ ${r.approvedBy}</strong> â€” ØªÙ… Ø±ÙØ¹ Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ù„ÙŠØ§ Ù„Ø§ØªØ®Ø§Ø° Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø§Ù„Ù„Ø§Ø²Ù…Ø©</div>` : ''}
+            ${r.status === 'rejected' && r.rejectionNote ? `<div style="margin-top:8px;font-size:.8rem;color:#991b1b;">Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶: ${r.rejectionNote}</div>` : ''}
             <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px;">${new Date(r.timestamp).toLocaleDateString('ar-EG')}</div>
         </div>`;
     }).join('');
 }
 
-// ÇäÊŞÇá ãÈÇÔÑ ááÊÈæíÈ ãä URL hash
+// Ø§Ù†ØªÙ‚Ø§Ù„ Ù…Ø¨Ø§Ø´Ø± Ù„Ù„ØªØ¨ÙˆÙŠØ¨ Ù…Ù† URL hash
 if (window.location.hash === '#messages') {
     setTimeout(() => {
         document.querySelector('.tab-btn:nth-child(4)').click();
@@ -939,7 +938,7 @@ window.onload = () => {
     initRealtime();
 };
 
-// ?? ãæÏÇáÇÊ ŞÈæá/ÑİÖ ÇáÚåÏÉ ãä ÇáãÓÊæÏÚ ??
+// â”€â”€ Ù…ÙˆØ¯Ø§Ù„Ø§Øª Ù‚Ø¨ÙˆÙ„/Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ù…Ù† Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹ â”€â”€
 window.openAcceptCustodyModal = (custodyId) => {
     document.getElementById('acceptCustodyId').value = custodyId;
     document.getElementById('acceptDeviceCondition').value = '';
@@ -963,9 +962,9 @@ window.submitAcceptCustody = () => {
     const satisfiedVal = document.querySelector('#acceptCustodyModal input[name="acceptSatisfied"]:checked')?.value;
     const satisfied = satisfiedVal === 'true' ? true : satisfiedVal === 'false' ? false : null;
 
-    if (!condition) { showToast('íÑÌì ÊŞííã ÍÇáÉ ÇáÌåÇÒ.', 'error'); return; }
-    if (satisfied === null) { showToast('íÑÌì ÊÍÏíÏ ãÏì ÑÖÇß Úä ÍÇáÉ ÇáÌåÇÒ.', 'error'); return; }
-    if (!confirmed) { showToast('íÌÈ ÊÃßíÏ ÇáÅŞÑÇÑ ÈÇáÇÓÊáÇã.', 'error'); return; }
+    if (!condition) { showToast('ÙŠØ±Ø¬Ù‰ ØªÙ‚ÙŠÙŠÙ… Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø².', 'error'); return; }
+    if (satisfied === null) { showToast('ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ù…Ø¯Ù‰ Ø±Ø¶Ø§Ùƒ Ø¹Ù† Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø².', 'error'); return; }
+    if (!confirmed) { showToast('ÙŠØ¬Ø¨ ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø¥Ù‚Ø±Ø§Ø± Ø¨Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù….', 'error'); return; }
 
     const custody = db.custodies.find(c => c.id === id);
     const isTransfer = custody && custody.status === 'pending_receiver_acceptance';
@@ -979,9 +978,9 @@ window.submitAcceptCustody = () => {
     if (success) {
         closeAcceptCustodyModal();
         loadSurveyorDashboard();
-        showToast(isTransfer ? 'Êã ŞÈæá ÇáäŞá. ÈÇäÊÙÇÑ ãæÇİŞÉ ÑÆíÓ ÇáãÓÇÍíä.' : 'Êã ŞÈæá ÇáÚåÏÉ ÈäÌÇÍ æÊÓÌíáåÇ İí ÚåÏÊß.', 'success');
+        showToast(isTransfer ? 'ØªÙ… Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ù†Ù‚Ù„. Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚Ø© Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†.' : 'ØªÙ… Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ø¨Ù†Ø¬Ø§Ø­ ÙˆØªØ³Ø¬ÙŠÙ„Ù‡Ø§ ÙÙŠ Ø¹Ù‡Ø¯ØªÙƒ.', 'success');
     } else {
-        showToast('ÍÏË ÎØÃ. ÊÃßÏ ãä ÕáÇÍíÊß.', 'error');
+        showToast('Ø­Ø¯Ø« Ø®Ø·Ø£. ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ.', 'error');
     }
 };
 
@@ -996,7 +995,7 @@ window.closeRejectCustodyModal = () => {
 window.submitRejectCustody = () => {
     const id = document.getElementById('rejectCustodyId').value;
     const reason = document.getElementById('rejectReason').value.trim();
-    if (!reason) { showToast('íÌÈ ßÊÇÈÉ ÓÈÈ ÇáÑİÖ.', 'error'); return; }
+    if (!reason) { showToast('ÙŠØ¬Ø¨ ÙƒØªØ§Ø¨Ø© Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶.', 'error'); return; }
 
     const custody = db.custodies.find(c => c.id === id);
     const isTransfer = custody && custody.status === 'pending_receiver_acceptance';
@@ -1010,9 +1009,9 @@ window.submitRejectCustody = () => {
     if (success) {
         closeRejectCustodyModal();
         loadSurveyorDashboard();
-        showToast('Êã ÇáÑİÖ æÅÈáÇÛ ÇáÌåÇÊ ÇáãÚäíÉ.', 'success');
+        showToast('ØªÙ… Ø§Ù„Ø±ÙØ¶ ÙˆØ¥Ø¨Ù„Ø§Øº Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ù…Ø¹Ù†ÙŠØ©.', 'success');
     } else {
-        showToast('ÍÏË ÎØÃ. ÊÃßÏ ãä ÕáÇÍíÊß.', 'error');
+        showToast('Ø­Ø¯Ø« Ø®Ø·Ø£. ØªØ£ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠØªÙƒ.', 'error');
     }
 };
 
@@ -1025,71 +1024,71 @@ function showToast(msg, type = 'success') {
 }
 </script>
 
-<!-- ãæÏÇá ŞÈæá ÇáÚåÏÉ -->
+<!-- Ù…ÙˆØ¯Ø§Ù„ Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø© -->
 <div id="acceptCustodyModal" class="modal-overlay hidden">
     <div class="modal-box">
-        <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> ŞÈæá ÇáÚåÏÉ</h3>
+        <h3 style="margin-bottom:14px;"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø¹Ù‡Ø¯Ø©</h3>
         <input type="hidden" id="acceptCustodyId">
         <div class="acceptance-warning">
-            <strong><i class="fa-solid fa-triangle-exclamation"></i> ÊäÈíå ÚäÏ ÇáÇÓÊáÇã:</strong><br>
-            íÑÌì ÇáÊÍŞŞ ÈÏŞÉ ãä Ãä <strong>ÌãíÚ ŞØÚ æÃßÓÓæÇÑÇÊ ÇáÌåÇÒ ãßÊãáÉ</strong> ŞÈá ÊÃßíÏ ÇáÇÓÊáÇã.
+            <strong><i class="fa-solid fa-triangle-exclamation"></i> ØªÙ†Ø¨ÙŠÙ‡ Ø¹Ù†Ø¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…:</strong><br>
+            ÙŠØ±Ø¬Ù‰ Ø§Ù„ØªØ­Ù‚Ù‚ Ø¨Ø¯Ù‚Ø© Ù…Ù† Ø£Ù† <strong>Ø¬Ù…ÙŠØ¹ Ù‚Ø·Ø¹ ÙˆØ£ÙƒØ³Ø³ÙˆØ§Ø±Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Ø² Ù…ÙƒØªÙ…Ù„Ø©</strong> Ù‚Ø¨Ù„ ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù….
         </div>
         <div class="form-group">
-            <label class="form-label">ÊŞííã ÍÇáÉ ÇáÌåÇÒ <span style="color:#ef4444;">*</span></label>
+            <label class="form-label">ØªÙ‚ÙŠÙŠÙ… Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø² <span style="color:#ef4444;">*</span></label>
             <select id="acceptDeviceCondition" class="form-select">
-                <option value="">ÇÎÊÑ ÇáÊŞííã...</option>
-                <option value="ããÊÇÒ">ããÊÇÒ — ãßÊãá æíÚãá ÈßİÇÁÉ ÊÇãÉ</option>
-                <option value="ÌíÏ">ÌíÏ — ãßÊãá ãÚ ÈÚÖ ÇáÎÏæÔ</option>
-                <option value="ãŞÈæá">ãŞÈæá — äÇŞÕ ÈÚÖ ÇáãáÍŞÇÊ</option>
-                <option value="íÍÊÇÌ ÕíÇäÉ">íÍÊÇÌ ÕíÇäÉ — Èå ÚØá Ãæ Îáá</option>
+                <option value="">Ø§Ø®ØªØ± Ø§Ù„ØªÙ‚ÙŠÙŠÙ…...</option>
+                <option value="Ù…Ù…ØªØ§Ø²">Ù…Ù…ØªØ§Ø² â€” Ù…ÙƒØªÙ…Ù„ ÙˆÙŠØ¹Ù…Ù„ Ø¨ÙƒÙØ§Ø¡Ø© ØªØ§Ù…Ø©</option>
+                <option value="Ø¬ÙŠØ¯">Ø¬ÙŠØ¯ â€” Ù…ÙƒØªÙ…Ù„ Ù…Ø¹ Ø¨Ø¹Ø¶ Ø§Ù„Ø®Ø¯ÙˆØ´</option>
+                <option value="Ù…Ù‚Ø¨ÙˆÙ„">Ù…Ù‚Ø¨ÙˆÙ„ â€” Ù†Ø§Ù‚Øµ Ø¨Ø¹Ø¶ Ø§Ù„Ù…Ù„Ø­Ù‚Ø§Øª</option>
+                <option value="ÙŠØ­ØªØ§Ø¬ ØµÙŠØ§Ù†Ø©">ÙŠØ­ØªØ§Ø¬ ØµÙŠØ§Ù†Ø© â€” Ø¨Ù‡ Ø¹Ø·Ù„ Ø£Ùˆ Ø®Ù„Ù„</option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">åá ÃäÊ ÑÇÖò Úä ÍÇáÉ ÇáÌåÇÒ¿ <span style="color:#ef4444;">*</span></label>
+            <label class="form-label">Ù‡Ù„ Ø£Ù†Øª Ø±Ø§Ø¶Ù Ø¹Ù† Ø­Ø§Ù„Ø© Ø§Ù„Ø¬Ù‡Ø§Ø²ØŸ <span style="color:#ef4444;">*</span></label>
             <div style="display:flex;gap:20px;margin-top:6px;">
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-                    <input type="radio" name="acceptSatisfied" value="true"> äÚã
+                    <input type="radio" name="acceptSatisfied" value="true"> Ù†Ø¹Ù…
                 </label>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-                    <input type="radio" name="acceptSatisfied" value="false"> áÇ
+                    <input type="radio" name="acceptSatisfied" value="false"> Ù„Ø§
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">ãáÇÍÙÇÊ Úáì ÇáÌåÇÒ ÇáãÓÊáã</label>
-            <textarea id="acceptNotes" class="form-textarea" rows="3" placeholder="ÇĞßÑ Ãí äŞÕ İí ÇáÃÏæÇÊ Ãæ ÇáÃßÓÓæÇÑÇÊ..."></textarea>
+            <label class="form-label">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø¹Ù„Ù‰ Ø§Ù„Ø¬Ù‡Ø§Ø² Ø§Ù„Ù…Ø³ØªÙ„Ù…</label>
+            <textarea id="acceptNotes" class="form-textarea" rows="3" placeholder="Ø§Ø°ÙƒØ± Ø£ÙŠ Ù†Ù‚Øµ ÙÙŠ Ø§Ù„Ø£Ø¯ÙˆØ§Øª Ø£Ùˆ Ø§Ù„Ø£ÙƒØ³Ø³ÙˆØ§Ø±Ø§Øª..."></textarea>
         </div>
         <div class="form-group">
-            <label class="form-label">ãÏì ÇåÊãÇãß ÈÇáÌåÇÒ (æÕİ ãÎÊÕÑ)</label>
-            <input type="text" id="acceptCareLevel" class="form-input" placeholder="ãËÇá: ÃÍÑÕ Úáì äÙÇİÊå æÕíÇäÊå ÇáÏæÑíÉ">
+            <label class="form-label">Ù…Ø¯Ù‰ Ø§Ù‡ØªÙ…Ø§Ù…Ùƒ Ø¨Ø§Ù„Ø¬Ù‡Ø§Ø² (ÙˆØµÙ Ù…Ø®ØªØµØ±)</label>
+            <input type="text" id="acceptCareLevel" class="form-input" placeholder="Ù…Ø«Ø§Ù„: Ø£Ø­Ø±Øµ Ø¹Ù„Ù‰ Ù†Ø¸Ø§ÙØªÙ‡ ÙˆØµÙŠØ§Ù†ØªÙ‡ Ø§Ù„Ø¯ÙˆØ±ÙŠØ©">
         </div>
         <div class="form-group">
-            <label class="form-label">ÊÚáíŞ ÅÖÇİí (ÇÎÊíÇÑí)</label>
-            <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="Ãí ÊÚáíŞ ÅÖÇİí..."></textarea>
+            <label class="form-label">ØªØ¹Ù„ÙŠÙ‚ Ø¥Ø¶Ø§ÙÙŠ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
+            <textarea id="acceptComment" class="form-textarea" rows="2" placeholder="Ø£ÙŠ ØªØ¹Ù„ÙŠÙ‚ Ø¥Ø¶Ø§ÙÙŠ..."></textarea>
         </div>
         <div class="acceptance-confirm-row">
             <input type="checkbox" id="acceptConfirmCheck">
-            <label for="acceptConfirmCheck">ÃõŞÑ æÃÄßÏ Ãääí ÊÍŞŞÊ ãä Ãä ÌãíÚ ŞØÚ æÃßÓÓæÇÑÇÊ ÇáÌåÇÒ ßÇãáÉ æåæ İí ÚåÏÊí ÇáÂä¡ æÃÊÍãá ÇáãÓÄæáíÉ ÇáßÇãáÉ Úä ÓáÇãÊå.</label>
+            <label for="acceptConfirmCheck">Ø£ÙÙ‚Ø± ÙˆØ£Ø¤ÙƒØ¯ Ø£Ù†Ù†ÙŠ ØªØ­Ù‚Ù‚Øª Ù…Ù† Ø£Ù† Ø¬Ù…ÙŠØ¹ Ù‚Ø·Ø¹ ÙˆØ£ÙƒØ³Ø³ÙˆØ§Ø±Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Ø² ÙƒØ§Ù…Ù„Ø© ÙˆÙ‡Ùˆ ÙÙŠ Ø¹Ù‡Ø¯ØªÙŠ Ø§Ù„Ø¢Ù†ØŒ ÙˆØ£ØªØ­Ù…Ù„ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ© Ø§Ù„ÙƒØ§Ù…Ù„Ø© Ø¹Ù† Ø³Ù„Ø§Ù…ØªÙ‡.</label>
         </div>
         <div style="display:flex;gap:10px;margin-top:18px;">
-            <button onclick="submitAcceptCustody()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> ÊÃßíÏ ÇáÇÓÊáÇã</button>
-            <button onclick="closeAcceptCustodyModal()" class="btn btn-ghost" style="flex:1;">ÅáÛÇÁ</button>
+            <button onclick="submitAcceptCustody()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…</button>
+            <button onclick="closeAcceptCustodyModal()" class="btn btn-ghost" style="flex:1;">Ø¥Ù„ØºØ§Ø¡</button>
         </div>
     </div>
 </div>
 
-<!-- ãæÏÇá ÑİÖ ÇáÚåÏÉ -->
+<!-- Ù…ÙˆØ¯Ø§Ù„ Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø© -->
 <div id="rejectCustodyModal" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:420px;">
-        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> ÑİÖ ÇáÚåÏÉ</h3>
+        <h3 style="margin-bottom:16px;"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> Ø±ÙØ¶ Ø§Ù„Ø¹Ù‡Ø¯Ø©</h3>
         <input type="hidden" id="rejectCustodyId">
         <div class="form-group">
-            <label class="form-label">ÓÈÈ ÇáÑİÖ <span style="color:#ef4444;">*</span></label>
-            <textarea id="rejectReason" class="form-textarea" rows="3" placeholder="ÃÏÎá ÓÈÈ ÇáÑİÖ..."></textarea>
+            <label class="form-label">Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶ <span style="color:#ef4444;">*</span></label>
+            <textarea id="rejectReason" class="form-textarea" rows="3" placeholder="Ø£Ø¯Ø®Ù„ Ø³Ø¨Ø¨ Ø§Ù„Ø±ÙØ¶..."></textarea>
         </div>
         <div style="display:flex;gap:10px;margin-top:16px;">
-            <button onclick="submitRejectCustody()" class="btn btn-ghost" style="flex:1;color:#ef4444;border-color:#ef4444;"><i class="fa-solid fa-xmark"></i> ÊÃßíÏ ÇáÑİÖ</button>
-            <button onclick="closeRejectCustodyModal()" class="btn btn-ghost" style="flex:1;">ÅáÛÇÁ</button>
+            <button onclick="submitRejectCustody()" class="btn btn-ghost" style="flex:1;color:#ef4444;border-color:#ef4444;"><i class="fa-solid fa-xmark"></i> ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø±ÙØ¶</button>
+            <button onclick="closeRejectCustodyModal()" class="btn btn-ghost" style="flex:1;">Ø¥Ù„ØºØ§Ø¡</button>
         </div>
     </div>
 </div>

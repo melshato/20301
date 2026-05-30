@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+๏ปฟ<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลฯวัษ วแรัÞวใ วแๆูํÝํษ - SAJCO</title>
+    <title>ุฅุฏุงุฑุฉ ุงูุฃุฑูุงู… ุงููุธูููุฉ - SAJCO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -48,15 +47,15 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
-                        <h3 style="margin-bottom: 5px;"><i class="fa-solid fa-id-card"></i> ลฯวัษ วแรัÞวใ วแๆูํÝํษ วแใำใๆอษ</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">วแสอ฿ใ Ýํ วแรัÞวใ วแๆูํÝํษ (ใฺ วำใ วแใๆูÝ) วแใำใๆอ แๅว ศวแสำฬํแ Ýํ วแไูวใ</p>
+                        <h3 style="margin-bottom: 5px;"><i class="fa-solid fa-id-card"></i> ุฅุฏุงุฑุฉ ุงูุฃุฑูุงู… ุงููุธูููุฉ ุงูู…ุณู…ูุญุฉ</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">ุงูุชุญูู… ูู ุงูุฃุฑูุงู… ุงููุธูููุฉ (ู…ุน ุงุณู… ุงูู…ูุธู) ุงูู…ุณู…ูุญ ููุง ุจุงูุชุณุฌูู ูู ุงููุธุงู…</p>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button onclick="exportToExcel()" class="btn btn-ghost">
-                            <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> สีฯํั
+                            <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> ุชุตุฏูุฑ
                         </button>
                         <button onclick="document.getElementById('excelFileInput').click()" class="btn btn-primary">
-                            <i class="fa-solid fa-file-import"></i> วำสํัวฯ ใไ Excel
+                            <i class="fa-solid fa-file-import"></i> ุงุณุชูุฑุงุฏ ู…ู Excel
                         </button>
                         <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
                     </div>
@@ -64,20 +63,20 @@
 
                 <!-- Add new employee ID + name -->
                 <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;">
-                    <h4 style="margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> ลึวÝษ ัÞใ ๆูํÝํ ฬฯํฯ</h4>
+                    <h4 style="margin-bottom:12px;"><i class="fa-solid fa-plus-circle"></i> ุฅุถุงูุฉ ุฑูู… ูุธููู ุฌุฏูุฏ</h4>
                     <div class="form-row" style="align-items: flex-end;gap:12px;">
                         <div class="form-group" style="flex:1;min-width:120px;">
-                            <label class="form-label">วแัÞใ วแๆูํÝํ</label>
-                            <input type="text" id="newEmpId" class="form-input" placeholder="ใหวแ: 1234" inputmode="numeric"
+                            <label class="form-label">ุงูุฑูู… ุงููุธููู</label>
+                            <input type="text" id="newEmpId" class="form-input" placeholder="ู…ุซุงู: 1234" inputmode="numeric"
                                 style="letter-spacing:3px;font-weight:700;font-size:1.1rem;">
                         </div>
                         <div class="form-group" style="flex:2;min-width:200px;">
-                            <label class="form-label">วำใ วแใๆูÝ <span style="color:var(--text-muted);font-weight:400;">(วฮสํวัํ — ํูๅั สแÞวฦํว๐ ฺไฯ วแสำฬํแ)</span></label>
-                            <input type="text" id="newEmpName" class="form-input" placeholder="วแวำใ วแ฿วใแ แแใๆูÝ...">
+                            <label class="form-label">ุงุณู… ุงูู…ูุธู <span style="color:var(--text-muted);font-weight:400;">(ุงุฎุชูุงุฑู โ€” ูุธูุฑ ุชููุงุฆูุงู ุนูุฏ ุงูุชุณุฌูู)</span></label>
+                            <input type="text" id="newEmpName" class="form-input" placeholder="ุงูุงุณู… ุงููุงู…ู ููู…ูุธู...">
                         </div>
                         <div class="form-group" style="flex:0;">
                             <button onclick="addNewEmployeeId()" class="btn btn-primary" style="white-space:nowrap;">
-                                <i class="fa-solid fa-plus"></i> ลึวÝษ
+                                <i class="fa-solid fa-plus"></i> ุฅุถุงูุฉ
                             </button>
                         </div>
                     </div>
@@ -87,23 +86,23 @@
                 <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                         <i class="fa-solid fa-circle-info" style="color: #0ea5e9; font-size: 1.2rem;"></i>
-                        <strong style="color: #0369a1;">สฺแํใวส วแวำสํัวฯ ใไ Excel:</strong>
+                        <strong style="color: #0369a1;">ุชุนููู…ุงุช ุงูุงุณุชูุฑุงุฏ ู…ู Excel:</strong>
                     </div>
                     <ul style="margin: 0; padding-right: 20px; color: #0c4a6e; font-size: 0.9rem;">
-                        <li>วแฺใๆฯ วแรๆแ: <strong>วแัÞใ วแๆูํÝํ</strong> — วแฺใๆฯ วแหวไํ (วฮสํวัํ): <strong>วแวำใ</strong></li>
-                        <li>ํสใ สฬวๅแ วแีÝ วแรๆแ (วแฺไวๆํไ) สแÞวฦํว๐</li>
-                        <li>ำํสใ ลึวÝษ วแรัÞวใ วแฬฯํฯษ ÝÞุ ๆสฬวๅแ วแใ฿ััษ</li>
+                        <li>ุงูุนู…ูุฏ ุงูุฃูู: <strong>ุงูุฑูู… ุงููุธููู</strong> โ€” ุงูุนู…ูุฏ ุงูุซุงูู (ุงุฎุชูุงุฑู): <strong>ุงูุงุณู…</strong></li>
+                        <li>ูุชู… ุชุฌุงูู ุงูุตู ุงูุฃูู (ุงูุนูุงููู) ุชููุงุฆูุงู</li>
+                        <li>ุณูุชู… ุฅุถุงูุฉ ุงูุฃุฑูุงู… ุงูุฌุฏูุฏุฉ ููุท ูุชุฌุงูู ุงูู…ูุฑุฑุฉ</li>
                     </ul>
                 </div>
 
                 <hr style="margin: 20px 0; border-color: var(--border);">
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap:wrap; gap:10px;">
-                    <h4>Þวฦใษ วแรัÞวใ วแใำใๆอษ (<span id="totalCount">0</span>)</h4>
+                    <h4>ูุงุฆู…ุฉ ุงูุฃุฑูุงู… ุงูู…ุณู…ูุญุฉ (<span id="totalCount">0</span>)</h4>
                     <div style="display:flex;gap:10px;">
-                        <input type="text" id="searchEmpId" class="form-input" placeholder="ศอห ฺไ ัÞใ รๆ วำใ..." style="width:220px;" oninput="renderEmployeeIds()">
+                        <input type="text" id="searchEmpId" class="form-input" placeholder="ุจุญุซ ุนู ุฑูู… ุฃู ุงุณู…..." style="width:220px;" oninput="renderEmployeeIds()">
                         <button onclick="clearAllEmployeeIds()" class="btn btn-ghost" style="color: var(--danger);">
-                            <i class="fa-solid fa-trash"></i> อะÝ วแ฿แ
+                            <i class="fa-solid fa-trash"></i> ุญุฐู ุงููู
                         </button>
                     </div>
                 </div>
@@ -113,14 +112,14 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>วแัÞใ วแๆูํÝํ</th>
-                                <th>วำใ วแใๆูÝ</th>
-                                <th>วแอวแษ</th>
-                                <th>วแลฬัวมวส</th>
+                                <th>ุงูุฑูู… ุงููุธููู</th>
+                                <th>ุงุณู… ุงูู…ูุธู</th>
+                                <th>ุงูุญุงูุฉ</th>
+                                <th>ุงูุฅุฌุฑุงุกุงุช</th>
                             </tr>
                         </thead>
                         <tbody id="employeeIdsTableBody">
-                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">แว สๆฬฯ รัÞวใ ๆูํÝํษ ใึวÝษ</td></tr>
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">ูุง ุชูุฌุฏ ุฃุฑูุงู… ูุธูููุฉ ู…ุถุงูุฉ</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -147,34 +146,34 @@
         const msg = document.getElementById('addIdMsg');
         if (!val) { msg.innerHTML = ''; return; }
         if (db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === val))
-            msg.innerHTML = '<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> ๅะว วแัÞใ ใๆฬๆฯ ศวแÝฺแ</span>';
+            msg.innerHTML = '<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> ูุฐุง ุงูุฑูู… ู…ูุฌูุฏ ุจุงููุนู</span>';
         else if (db.users.some(u => u.empId === val))
-            msg.innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-user-check"></i> ๅะว วแัÞใ ใำฬแ ศวแÝฺแ ฿ใำสฮฯใ</span>';
+            msg.innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-user-check"></i> ูุฐุง ุงูุฑูู… ู…ุณุฌู ุจุงููุนู ูู…ุณุชุฎุฏู…</span>';
         else
-            msg.innerHTML = '<span style="color:#16a34a;"><i class="fa-solid fa-circle-check"></i> ใสวอ</span>';
+            msg.innerHTML = '<span style="color:#16a34a;"><i class="fa-solid fa-circle-check"></i> ู…ุชุงุญ</span>';
     });
 
     function addNewEmployeeId() {
         const empId = newEmpIdInput.value.trim();
         const name  = document.getElementById('newEmpName').value.trim();
-        if (!empId) { showToast('วแัฬวม ลฯฮวแ ัÞใ ๆูํÝํ', 'error'); return; }
+        if (!empId) { showToast('ุงูุฑุฌุงุก ุฅุฏุฎุงู ุฑูู… ูุธููู', 'error'); return; }
 
         if (addAllowedEmployeeId(empId, name)) {
             newEmpIdInput.value = '';
             document.getElementById('newEmpName').value = '';
             document.getElementById('addIdMsg').innerHTML = '';
             renderEmployeeIds();
-            showToast(`สใ ลึวÝษ วแัÞใ ${empId}${name ? ' (' + name + ')' : ''} ศไฬวอ`, 'success');
+            showToast(`ุชู… ุฅุถุงูุฉ ุงูุฑูู… ${empId}${name ? ' (' + name + ')' : ''} ุจูุฌุงุญ`, 'success');
         } else {
-            showToast('ๅะว วแัÞใ วแๆูํÝํ ใๆฬๆฯ ศวแÝฺแ', 'error');
+            showToast('ูุฐุง ุงูุฑูู… ุงููุธููู ู…ูุฌูุฏ ุจุงููุนู', 'error');
         }
     }
 
     function removeEmployeeId(empId) {
-        if (confirm(`ๅแ รไส ใสร฿ฯ ใไ อะÝ วแัÞใ วแๆูํÝํ: ${empId}ฟ`)) {
+        if (confirm(`ูู ุฃูุช ู…ุชุฃูุฏ ู…ู ุญุฐู ุงูุฑูู… ุงููุธููู: ${empId}ุ`)) {
             if (removeAllowedEmployeeId(empId)) {
                 renderEmployeeIds();
-                showToast('สใ อะÝ วแัÞใ วแๆูํÝํ ศไฬวอ', 'success');
+                showToast('ุชู… ุญุฐู ุงูุฑูู… ุงููุธููู ุจูุฌุงุญ', 'success');
             }
         }
     }
@@ -182,16 +181,16 @@
     function saveNameEdit(empId, inputEl) {
         const name = inputEl.value.trim();
         updateAllowedEmployeeName(empId, name);
-        showToast('สใ อÝู วแวำใ', 'success');
+        showToast('ุชู… ุญูุธ ุงูุงุณู…', 'success');
     }
 
     function clearAllEmployeeIds() {
-        if (confirm('ๅแ รไส ใสร฿ฯ ใไ อะÝ ฬใํฺ วแรัÞวใ วแๆูํÝํษฟ ๅะว วแลฬัวม แว ํใ฿ไ วแสัวฬฺ ฺไๅ.')) {
+        if (confirm('ูู ุฃูุช ู…ุชุฃูุฏ ู…ู ุญุฐู ุฌู…ูุน ุงูุฃุฑูุงู… ุงููุธูููุฉุ ูุฐุง ุงูุฅุฌุฑุงุก ูุง ูู…ูู ุงูุชุฑุงุฌุน ุนูู.')) {
             db.allowedEmployeeIds = [];
             saveDB();
-            addLog(`สใ อะÝ ฬใํฺ วแรัÞวใ วแๆูํÝํษ วแใำใๆอษ ศๆวำุษ ${currentUser.name}`);
+            addLog(`ุชู… ุญุฐู ุฌู…ูุน ุงูุฃุฑูุงู… ุงููุธูููุฉ ุงูู…ุณู…ูุญุฉ ุจูุงุณุทุฉ ${currentUser.name}`);
             renderEmployeeIds();
-            showToast('สใ อะÝ ฬใํฺ วแรัÞวใ วแๆูํÝํษ', 'success');
+            showToast('ุชู… ุญุฐู ุฌู…ูุน ุงูุฃุฑูุงู… ุงููุธูููุฉ', 'success');
         }
     }
 
@@ -206,7 +205,7 @@
         totalCountSpan.textContent = allEntries.length;
 
         if (filtered.length === 0) {
-            employeeIdsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">แว สๆฬฯ ไสวฦฬ</td></tr>';
+            employeeIdsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">ูุง ุชูุฌุฏ ูุชุงุฆุฌ</td></tr>';
             return;
         }
 
@@ -214,8 +213,8 @@
             const { empId, name } = entry;
             const isUsed = db.users.some(u => u.empId === empId);
             const statusBadge = isUsed
-                ? '<span class="badge badge-success">ใำสฮฯใ</span>'
-                : '<span class="badge badge-warning">ใสวอ</span>';
+                ? '<span class="badge badge-success">ู…ุณุชุฎุฏู…</span>'
+                : '<span class="badge badge-warning">ู…ุชุงุญ</span>';
             const registeredUser = db.users.find(u => u.empId === empId);
 
             return `
@@ -224,15 +223,15 @@
                     <td><span class="id-pill"><i class="fa-solid fa-id-badge" style="color:var(--primary);"></i>${empId}</span></td>
                     <td>
                         <input class="name-edit-input" value="${name || ''}"
-                            placeholder="ว฿สศ วแวำใ ๅไว..."
+                            placeholder="ุงูุชุจ ุงูุงุณู… ููุง..."
                             onblur="saveNameEdit('${empId}', this)"
                             onkeydown="if(event.key==='Enter'){this.blur();}">
-                        ${registeredUser ? `<div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">ใำฬแ ฿Ü: ${registeredUser.name}</div>` : ''}
+                        ${registeredUser ? `<div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">ู…ุณุฌู ูู€: ${registeredUser.name}</div>` : ''}
                     </td>
                     <td>${statusBadge}</td>
                     <td>
                         <button onclick="removeEmployeeId('${empId}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);">
-                            <i class="fa-solid fa-trash"></i> อะÝ
+                            <i class="fa-solid fa-trash"></i> ุญุฐู
                         </button>
                     </td>
                 </tr>
@@ -240,7 +239,7 @@
         }).join('');
     }
 
-    // วำสํัวฯ ใไ Excel
+    // ุงุณุชูุฑุงุฏ ู…ู Excel
     document.getElementById('excelFileInput').addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -258,27 +257,27 @@
                     if (empId && addAllowedEmployeeId(empId, name)) added++;
                 });
                 renderEmployeeIds();
-                showToast(`สใ วำสํัวฯ ${added} ัÞใ ๆูํÝํ ศไฬวอ`, 'success');
+                showToast(`ุชู… ุงุณุชูุฑุงุฏ ${added} ุฑูู… ูุธููู ุจูุฌุงุญ`, 'success');
             };
             reader.readAsArrayBuffer(file);
         } catch (error) {
-            alert('Ýิแ วำสํัวฯ วแใแÝ: ' + error.message);
+            alert('ูุดู ุงุณุชูุฑุงุฏ ุงูู…ูู: ' + error.message);
         }
         e.target.value = '';
     });
 
-    // สีฯํั ลแ์ CSV
+    // ุชุตุฏูุฑ ุฅูู CSV
     function exportToExcel() {
-        if (db.allowedEmployeeIds.length === 0) { alert('แว สๆฬฯ รัÞวใ ๆูํÝํษ แแสีฯํั'); return; }
-        let csv = '?วแัÞใ วแๆูํÝํ,วแวำใ,วแอวแษ\n';
+        if (db.allowedEmployeeIds.length === 0) { alert('ูุง ุชูุฌุฏ ุฃุฑูุงู… ูุธูููุฉ ููุชุตุฏูุฑ'); return; }
+        let csv = '๏ปฟุงูุฑูู… ุงููุธููู,ุงูุงุณู…,ุงูุญุงูุฉ\n';
         db.allowedEmployeeIds.map(e => _normalizeAllowedEmpId(e)).forEach(({ empId, name }) => {
             const isUsed = db.users.some(u => u.empId === empId);
-            csv += `"${empId}","${name || ''}","${isUsed ? 'ใำสฮฯใ' : 'ใสวอ'}"\n`;
+            csv += `"${empId}","${name || ''}","${isUsed ? 'ู…ุณุชุฎุฏู…' : 'ู…ุชุงุญ'}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `วแรัÞวใ_วแๆูํÝํษ_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+        link.download = `ุงูุฃุฑูุงู…_ุงููุธูููุฉ_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
         link.click();
         URL.revokeObjectURL(link.href);
     }

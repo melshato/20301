@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Device Movement History - SAJCO</title>
@@ -81,7 +80,7 @@
             const branchId = document.getElementById('branchSearchFilter').value;
 
             if (!searchText && !branchId) {
-                alert('ÇáÑÌÇÁ ÅÏÎÇá äÕ ááSearch or ÇÎÊíÇÑ ÝÑÚ.');
+                alert('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ù†Øµ Ù„Ù„Search or Ø§Ø®ØªÙŠØ§Ø± ÙØ±Ø¹.');
                 return;
             }
 
@@ -95,7 +94,7 @@
 
                     return (serialMatch || nameMatch) && branchMatch;
                 })
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort from ÇáÃÍÏË ááÃÞÏã
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort from Ø§Ù„Ø£Ø­Ø¯Ø« Ù„Ù„Ø£Ù‚Ø¯Ù…
 
             window._lastDevHistRecords = historyRecords;
             const exportBtn = document.getElementById('exportDevHistBtn');
@@ -107,7 +106,7 @@
             deviceHistoryTableBody.innerHTML = '';
 
             if (records.length === 0) {
-                deviceHistoryTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">None ÓÌNoÊ áåÐÇ Device.</td></tr>';
+                deviceHistoryTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">None Ø³Ø¬NoØª Ù„Ù‡Ø°Ø§ Device.</td></tr>';
                 return;
             }
 
@@ -119,11 +118,11 @@
                 const row = deviceHistoryTableBody.insertRow();
                 row.insertCell().textContent = new Date(record.timestamp).toLocaleString('en-US');
                 row.insertCell().textContent = `${getDeviceTypeName(record.deviceType)} (S/N: ${record.serialNumber})`;
-                row.insertCell().textContent = assignedToUser ? assignedToUser.name : '—';
-                row.insertCell().textContent = branch ? branch.name : '—';
-                row.insertCell().textContent = assignedByUser ? assignedByUser.name : '—';
+                row.insertCell().textContent = assignedToUser ? assignedToUser.name : 'â€”';
+                row.insertCell().textContent = branch ? branch.name : 'â€”';
+                row.insertCell().textContent = assignedByUser ? assignedByUser.name : 'â€”';
                 row.insertCell().textContent = formatDate(record.receiptDate);
-                row.insertCell().textContent = record.notes || '—';
+                row.insertCell().textContent = record.notes || 'â€”';
                 row.insertCell().innerHTML = getCustodyStatusBadge(record.status);
             });
         }

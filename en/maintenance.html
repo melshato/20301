@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+Ôªø<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Management Maintenance & Calibration | SAJCO</title>
@@ -44,7 +43,7 @@
             </button>
         </header>
 
-        <!-- «·Statistics -->
+        <!-- ÿßŸÑStatistics -->
         <div class="maint-stats">
             <div class="maint-card" style="border-top:4px solid #ef4444;">
                 <h4>Needs Maintenance</h4>
@@ -79,7 +78,7 @@
             </div>
         </div>
 
-        <!-- Pending «·Send to Vendor -->
+        <!-- Pending ÿßŸÑSend to Vendor -->
         <div class="card">
             <h3><i class="fa-solid fa-clock-rotate-left"></i> Devices Pending Send to Vendor</h3>
             <div class="table-container">
@@ -93,7 +92,7 @@
             </div>
         </div>
 
-        <!-- ⁄‰œ «·vendor -->
+        <!-- ÿπŸÜÿØ ÿßŸÑvendor -->
         <div class="card" style="border-left: 4px solid #3b82f6;">
             <h3><i class="fa-solid fa-truck-fast"></i> Devices Currently at Vendor</h3>
             <div class="table-container">
@@ -172,7 +171,7 @@
             <input type="file" id="certFileInput" accept=".pdf,image/*" onchange="handleFileSelect(event)">
             <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
             <div style="font-weight:600;">Drag file here or click to select</div>
-            <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;">PDF or image (JPG, PNG) ó max size 20 MB</div>
+            <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;">PDF or image (JPG, PNG) ‚Äî max size 20 MB</div>
             <div id="selectedFileName" style="margin-top:8px;font-size:.82rem;color:var(--primary);font-weight:600;display:none;"></div>
             <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
         </div>
@@ -250,19 +249,19 @@ let _currentReturnIsCalib = false;
 let _currentSendDeviceId = null;
 
 // ============================================================
-// Refresh «·’›Õ…
+// Refresh ÿßŸÑÿµŸÅÿ≠ÿ©
 // ============================================================
 function refreshMaintenancePage() {
     const isAdmin = currentUser.role === 'admin';
     const myBranch = currentUser.responsibleBranch;
 
-    // Devices «·„—∆Ì… Õ”» Role
+    // Devices ÿßŸÑŸÖÿ±ÿ¶Ÿäÿ© ÿ≠ÿ≥ÿ® Role
     let allDevices = getVisibleDevices();
 
     const waitingDevices = allDevices.filter(d => d.status === 'maintenance' || d.status === 'needs_calibration');
     const agentDevices = allDevices.filter(d => d.status === 'at_maintenance' || d.status === 'at_calibration');
 
-    // «·Statistics
+    // ÿßŸÑStatistics
     document.getElementById('totalMaint').innerText = allDevices.filter(d => d.status === 'maintenance' || d.status === 'at_maintenance').length;
     document.getElementById('totalCalib').innerText = allDevices.filter(d => d.status === 'needs_calibration' || d.status === 'at_calibration').length;
     document.getElementById('totalAtAgent').innerText = agentDevices.length;
@@ -277,9 +276,9 @@ function refreshMaintenancePage() {
             const reqType = r.requestType === 'maintenance' ? '<span class="badge badge-danger">Maintenance</span>' : '<span class="badge badge-warning">Calibration</span>';
             return `<tr>
                 <td><strong>${r.serialNumber}</strong></td>
-                <td>${r.deviceType || 'ó'}</td>
+                <td>${r.deviceType || '‚Äî'}</td>
                 <td>${reqType}</td>
-                <td>${r.requestedByName || 'ó'}</td>
+                <td>${r.requestedByName || '‚Äî'}</td>
                 <td>${formatDate(r.timestamp)}</td>
                 <td style="display:flex;gap:6px;">
                     <button class="btn-approve" onclick="doApproveRequest('${r.id}')"><i class="fa-solid fa-check"></i> accept andSend</button>
@@ -291,10 +290,10 @@ function refreshMaintenancePage() {
         document.getElementById('pendingRequestsCard').style.display = 'none';
     }
 
-    // table «No‰ Ÿ«—
+    // table ÿßNoŸÜÿ™ÿ∏ÿßÿ±
     const waitingBody = document.getElementById('waitingTableBody');
     if (waitingDevices.length === 0) {
-        waitingBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">None √ÃÂ“… Pending «·Send.</td></tr>';
+        waitingBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">None ÿ£ÿ¨Ÿáÿ≤ÿ© Pending ÿßŸÑSend.</td></tr>';
     } else {
         waitingBody.innerHTML = waitingDevices.map(d => {
             const owner = db.users.find(u => u.id === d.ownerId);
@@ -315,7 +314,7 @@ function refreshMaintenancePage() {
             return `<tr>
                 <td><strong>${d.serial}</strong></td>
                 <td>${getDeviceTypeName(d.type)}</td>
-                <td>${branch ? branch.name : 'ó'}</td>
+                <td>${branch ? branch.name : '‚Äî'}</td>
                 <td>${owner ? owner.name : 'Warehouse'}</td>
                 <td>${isM ? '<span class="badge badge-danger">Needs Maintenance</span>' : '<span class="badge badge-warning">Needs Calibration</span>'}</td>
                 <td>${sendBtn}</td>
@@ -323,22 +322,22 @@ function refreshMaintenancePage() {
         }).join('');
     }
 
-    // table ⁄‰œ «·vendor
+    // table ÿπŸÜÿØ ÿßŸÑvendor
     const agentBody = document.getElementById('agentTableBody');
     if (agentDevices.length === 0) {
-        agentBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">None √ÃÂ“… At Vendor Currently.</td></tr>';
+        agentBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">None ÿ£ÿ¨Ÿáÿ≤ÿ© At Vendor Currently.</td></tr>';
     } else {
         agentBody.innerHTML = agentDevices.map(d => {
             const isCalib = d.status === 'at_calibration';
             const certs = getCalibrationCerts(d.serial);
             const certsHtml = certs.length > 0
-                ? `<span class="badge badge-success" style="cursor:pointer;" onclick="openCertModal('${d.serial}','${d.id}')">${certs.length} ‘Â«œ… <i class="fa-solid fa-eye"></i></span>`
+                ? `<span class="badge badge-success" style="cursor:pointer;" onclick="openCertModal('${d.serial}','${d.id}')">${certs.length} ÿ¥ŸáÿßÿØÿ© <i class="fa-solid fa-eye"></i></span>`
                 : `<span class="badge" style="cursor:pointer;" onclick="openCertModal('${d.serial}','${d.id}')">None <i class="fa-solid fa-plus"></i></span>`;
             return `<tr>
                 <td><strong>${d.serial}</strong></td>
                 <td>${getDeviceTypeName(d.type)}</td>
-                <td><span class="badge badge-info">${isCalib ? 'Ã«—Ì Calibration' : 'Ã«—Ì «·≈’NoÕ'}</span></td>
-                <td>${d.sentToAgentDate ? formatDate(d.sentToAgentDate) : 'ó'}</td>
+                <td><span class="badge badge-info">${isCalib ? 'ÿ¨ÿßÿ±Ÿä Calibration' : 'ÿ¨ÿßÿ±Ÿä ÿßŸÑÿ•ÿµNoÿ≠'}</span></td>
+                <td>${d.sentToAgentDate ? formatDate(d.sentToAgentDate) : '‚Äî'}</td>
                 <td>${certsHtml}</td>
                 <td>
                     <button onclick="openReturnModal('${d.id}',${isCalib})" class="btn-receive">
@@ -355,7 +354,7 @@ function refreshMaintenancePage() {
 // ============================================================
 window.openSendModal = (deviceId, serial, defaultType) => {
     _currentSendDeviceId = deviceId;
-    document.getElementById('sendModalSubtitle').textContent = `Device: ${getDeviceTypeName(db.devices.find(d=>d.id===deviceId)?.type)} ó S/N: ${serial}`;
+    document.getElementById('sendModalSubtitle').textContent = `Device: ${getDeviceTypeName(db.devices.find(d=>d.id===deviceId)?.type)} ‚Äî S/N: ${serial}`;
     document.getElementById('sendType').value = defaultType;
     document.getElementById('sendNotes').value = '';
     document.getElementById('sendModal').classList.add('open');
@@ -367,13 +366,13 @@ window.confirmSend = () => {
     const type = document.getElementById('sendType').value;
     if (sendToAgent(_currentSendDeviceId, type)) {
         closeSendModal();
-        showToast('Done Send Device to Vendor »Success', 'success');
+        showToast('Done Send Device to Vendor ÿ®Success', 'success');
         refreshMaintenancePage();
     }
 };
 
 window.reqSend = (deviceId, serial, type) => {
-    const notes = prompt(`Notes ÿ·» ${type === 'maintenance' ? 'Maintenance' : 'Calibration'} (Optional):`);
+    const notes = prompt(`Notes ÿ∑ŸÑÿ® ${type === 'maintenance' ? 'Maintenance' : 'Calibration'} (Optional):`);
     if (notes === null) return;
     const dev = db.devices.find(d => d.id === deviceId);
     const result = sendMaintenanceRequest(deviceId, serial, dev?.type, type, notes);
@@ -384,9 +383,9 @@ window.reqSend = (deviceId, serial, type) => {
 };
 
 window.doApproveRequest = (reqId) => {
-    if (!confirm('Approval ⁄·Ï Request andSend Device to Vendorø')) return;
+    if (!confirm('Approval ÿπŸÑŸâ Request andSend Device to Vendorÿü')) return;
     if (approveMaintenanceRequest(reqId)) {
-        showToast('Done  Approval andSend Device to Vendor', 'success');
+        showToast('Doneÿ™ Approval andSend Device to Vendor', 'success');
         refreshMaintenancePage();
     }
 };
@@ -407,7 +406,7 @@ window.openReturnModal = (deviceId, isCalib) => {
     _currentReturnDeviceId = deviceId;
     _currentReturnIsCalib = isCalib;
     const device = db.devices.find(d => d.id === deviceId);
-    document.getElementById('returnModalSubtitle').textContent = `${getDeviceTypeName(device?.type)} ó S/N: ${device?.serial}`;
+    document.getElementById('returnModalSubtitle').textContent = `${getDeviceTypeName(device?.type)} ‚Äî S/N: ${device?.serial}`;
     document.getElementById('returnCalibFields').style.display = isCalib ? '' : 'none';
     document.getElementById('newCalDate').value = '';
     document.getElementById('newCalDateErr').style.display = 'none';
@@ -429,7 +428,7 @@ window.confirmReturn = () => {
     if (_currentReturnIsCalib) {
         newCalDate = document.getElementById('newCalDate').value;
         if (!newCalDate) {
-            document.getElementById('newCalDateErr').textContent = 'Please ≈œŒ«· Calibration Date new ó Â–« «·Õﬁ· Required.';
+            document.getElementById('newCalDateErr').textContent = 'Please ÿ•ÿØÿÆÿßŸÑ Calibration Date new ‚Äî Ÿáÿ∞ÿß ÿßŸÑÿ≠ŸÇŸÑ Required.';
             document.getElementById('newCalDateErr').style.display = 'block';
             document.getElementById('newCalDate').focus();
             return;
@@ -437,7 +436,7 @@ window.confirmReturn = () => {
         const sel = new Date(newCalDate);
         const today = new Date(); today.setHours(0,0,0,0);
         if (sel <= today) {
-            document.getElementById('newCalDateErr').textContent = 'Calibration Date ÌÃ» √‰ Ìﬂand‰ ›Ì «·„” ﬁ»·.';
+            document.getElementById('newCalDateErr').textContent = 'Calibration Date Ÿäÿ¨ÿ® ÿ£ŸÜ ŸäŸÉandŸÜ ŸÅŸä ÿßŸÑŸÖÿ≥ÿ™ŸÇÿ®ŸÑ.';
             document.getElementById('newCalDateErr').style.display = 'block';
             document.getElementById('newCalDate').focus();
             return;
@@ -447,12 +446,12 @@ window.confirmReturn = () => {
     if (returnFromAgent(_currentReturnDeviceId, newCalDate)) {
         const uploadAfter = document.getElementById('uploadCertAfterReturn').checked;
         closeReturnModal();
-        showToast('Received and‰ﬁ· Device ··Warehouse »Success', 'success');
+        showToast('Received andŸÜŸÇŸÑ Device ŸÑŸÑWarehouse ÿ®Success', 'success');
         refreshMaintenancePage();
         if (uploadAfter && _currentReturnIsCalib)
             setTimeout(() => openCertModal(device.serial, device.id, newCalDate), 400);
     } else {
-        errEl.textContent = 'An error occurred. Õ«and· „Ãœœ«.';
+        errEl.textContent = 'An error occurred. ÿ≠ÿßandŸÑ ŸÖÿ¨ÿØÿØÿßŸã.';
         errEl.style.display = 'block';
     }
 };
@@ -485,15 +484,15 @@ window.closeCertModal = () => { document.getElementById('certModal').classList.r
 function _renderExistingCerts(serial) {
     const certs = getCalibrationCerts(serial);
     const container = document.getElementById('existingCerts');
-    if (certs.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);font-size:.82rem;margin-bottom:10px;">None Certificates Uploaded ·Â–« Device yet.</p>'; return; }
-    container.innerHTML = `<h4 style="font-size:.88rem;margin-bottom:8px;"><i class="fa-solid fa-folder-open"></i> «·‘Â«œ«  «·present (${certs.length})</h4>` +
+    if (certs.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);font-size:.82rem;margin-bottom:10px;">None Certificates Uploaded ŸÑŸáÿ∞ÿß Device yet.</p>'; return; }
+    container.innerHTML = `<h4 style="font-size:.88rem;margin-bottom:8px;"><i class="fa-solid fa-folder-open"></i> ÿßŸÑÿ¥ŸáÿßÿØÿßÿ™ ÿßŸÑpresent (${certs.length})</h4>` +
         certs.map(c => {
             const isPdf = c.fileType === 'application/pdf' || c.fileName?.endsWith('.pdf');
             return `<div class="cert-item">
                 <div class="cert-icon ${!isPdf ? 'img' : ''}"><i class="fa-solid ${isPdf ? 'fa-file-pdf' : 'fa-image'}"></i></div>
                 <div style="flex:1;">
-                    <div style="font-weight:600;font-size:.82rem;">${c.fileName || '‘Â«œ…'}</div>
-                    <div style="font-size:.72rem;color:#64748b;">${c.calibrationDate ? `Calibration: ${formatDate(c.calibrationDate)}` : ''}${c.expiryDate ? ` ∑ «‰ Â«¡: ${formatDate(c.expiryDate)}` : ''}</div>
+                    <div style="font-weight:600;font-size:.82rem;">${c.fileName || 'ÿ¥ŸáÿßÿØÿ©'}</div>
+                    <div style="font-size:.72rem;color:#64748b;">${c.calibrationDate ? `Calibration: ${formatDate(c.calibrationDate)}` : ''}${c.expiryDate ? ` ¬∑ ÿßŸÜÿ™Ÿáÿßÿ°: ${formatDate(c.expiryDate)}` : ''}</div>
                 </div>
                 <div style="display:flex;gap:6px;">
                     ${c.fileUrl ? `<a href="${c.fileUrl}" target="_blank" class="btn btn-ghost btn-sm"><i class="fa-solid fa-eye"></i></a>` : ''}
@@ -504,19 +503,19 @@ function _renderExistingCerts(serial) {
 }
 
 window.handleDeleteCert = (certId) => {
-    if (!confirm('Delete Â–Â «·‘Â«œ…ø')) return;
+    if (!confirm('Delete Ÿáÿ∞Ÿá ÿßŸÑÿ¥ŸáÿßÿØÿ©ÿü')) return;
     if (deleteCalibrationCert(certId)) { _renderExistingCerts(_currentCertSerial); refreshMaintenancePage(); }
 };
 
 window.handleFileSelect = (e) => { const file = e.target.files[0]; if (file) _validateAndSetFile(file); };
 
 function _validateAndSetFile(file) {
-    if (file.size > 20 * 1024 * 1024) { _showCertError('ÕÃ„ «·„·› Ì Ã«and“ 20 „ÌÃ«.'); return; }
+    if (file.size > 20 * 1024 * 1024) { _showCertError('ÿ≠ÿ¨ŸÖ ÿßŸÑŸÖŸÑŸÅ Ÿäÿ™ÿ¨ÿßandÿ≤ 20 ŸÖŸäÿ¨ÿß.'); return; }
     const allowed = ['application/pdf','image/jpeg','image/png','image/webp','image/gif'];
-    if (!allowed.includes(file.type)) { _showCertError('Type «·„·› €Ì— „œ⁄and„.'); return; }
+    if (!allowed.includes(file.type)) { _showCertError('Type ÿßŸÑŸÖŸÑŸÅ ÿ∫Ÿäÿ± ŸÖÿØÿπandŸÖ.'); return; }
     _selectedFile = file;
     const nameEl = document.getElementById('selectedFileName');
-    nameEl.textContent = `? ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
+    nameEl.textContent = `‚úì ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
     nameEl.style.display = 'block';
     document.getElementById('uploadZone').classList.add('has-file');
     document.getElementById('certUploadError').style.display = 'none';
@@ -559,10 +558,10 @@ window.submitCert = async () => {
     const expiryDate = document.getElementById('certExpiryDate').value;
     const notes = document.getElementById('certNotes').value.trim();
     document.getElementById('certUploadError').style.display = 'none';
-    if (!_selectedFile && !driveUrl) { _showCertError('«·—Ã«¡ «Œ Ì«— „·› or ≈œŒ«· —«»ÿ Google Drive.'); return; }
+    if (!_selectedFile && !driveUrl) { _showCertError('ÿßŸÑÿ±ÿ¨ÿßÿ° ÿßÿÆÿ™Ÿäÿßÿ± ŸÖŸÑŸÅ or ÿ•ÿØÿÆÿßŸÑ ÿ±ÿßÿ®ÿ∑ Google Drive.'); return; }
     const btn = document.getElementById('submitCertBtn');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ã«—Ì «·—›⁄...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ÿ¨ÿßÿ±Ÿä ÿßŸÑÿ±ŸÅÿπ...';
     try {
         let certData = { serialNumber: _currentCertSerial, deviceId: _currentCertDeviceId, calibrationDate: calDate || null, expiryDate: expiryDate || null, notes };
         if (_selectedFile) {
@@ -575,7 +574,7 @@ window.submitCert = async () => {
             if (typeof SupabaseStorage !== 'undefined' && supabaseClient) {
                 const result = await SupabaseStorage.uploadCalibrationCert(_selectedFile, _currentCertSerial, currentUser.id);
                 if (result.success) { fileUrl = result.url; storagePath = result.path; }
-                else throw new Error(result.error || '›‘· —›⁄ «·„·›');
+                else throw new Error(result.error || 'ŸÅÿ¥ŸÑ ÿ±ŸÅÿπ ÿßŸÑŸÖŸÑŸÅ');
             } else {
                 fileUrl = await _fileToDataUrl(_selectedFile);
                 storagePath = `local/${_selectedFile.name}`;
@@ -587,12 +586,12 @@ window.submitCert = async () => {
         } else {
             const convertedUrl = _convertDriveUrl(driveUrl);
             const viewUrl = _getDrivePreviewUrl(driveUrl);
-            certData = { ...certData, fileName: driveName || `‘Â«œ…_Calibration_${_currentCertSerial}`, fileUrl: viewUrl, storagePath: `gdrive/${driveUrl}`, fileType: 'application/pdf', fileSize: null, isGoogleDrive: true, originalDriveUrl: driveUrl, downloadUrl: convertedUrl };
+            certData = { ...certData, fileName: driveName || `ÿ¥ŸáÿßÿØÿ©_Calibration_${_currentCertSerial}`, fileUrl: viewUrl, storagePath: `gdrive/${driveUrl}`, fileType: 'application/pdf', fileSize: null, isGoogleDrive: true, originalDriveUrl: driveUrl, downloadUrl: convertedUrl };
         }
         addCalibrationCert(certData);
         _renderExistingCerts(_currentCertSerial);
         refreshMaintenancePage();
-        showToast('Done —›⁄ Calibration Certificate »Success', 'success');
+        showToast('Done ÿ±ŸÅÿπ Calibration Certificate ÿ®Success', 'success');
         setTimeout(() => {
             document.getElementById('certFileInput').value = '';
             document.getElementById('selectedFileName').style.display = 'none';
@@ -605,7 +604,7 @@ window.submitCert = async () => {
             _selectedFile = null;
         }, 200);
     } catch (err) {
-        _showCertError('An error occurred: ' + (err.message || '›‘· «·—›⁄'));
+        _showCertError('An error occurred: ' + (err.message || 'ŸÅÿ¥ŸÑ ÿßŸÑÿ±ŸÅÿπ'));
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-upload"></i> Upload Certificate';
@@ -624,7 +623,7 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(-20px)'; setTimeout(()=>el.remove(),500); }, 3500);
 }
 
-// Refresh  ·ﬁ«∆Ì ﬂ· 30 second
+// Refresh ÿ™ŸÑŸÇÿßÿ¶Ÿä ŸÉŸÑ 30 second
 setInterval(() => refreshMaintenancePage(), 30000);
 
 window.onload = () => { renderSidebar(); refreshMaintenancePage(); };

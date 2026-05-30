@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+Ôªø<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | SAJCO</title>
@@ -69,14 +68,14 @@
             <p style="color:var(--text-muted)" id="settingsSubtitle">My Account Data and System Settings.</p>
         </header>
 
-        <!-- ====== My Account Data & Edit Requests (Ã„Ì⁄ Roles) ====== -->
+        <!-- ====== My Account Data & Edit Requests (ÿ¨ŸÖŸäÿπ Roles) ====== -->
         <div class="settings-section" style="border-left: 4px solid var(--primary);">
             <h3><i class="fa-solid fa-user-gear" style="color:var(--primary)"></i> My Account Data & Edit Requests</h3>
 
-            <!-- Info «·Õ”«» current -->
+            <!-- Info ÿßŸÑÿ≠ÿ≥ÿßÿ® current -->
             <div id="profileInfoDisplay" style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"></div>
 
-            <!-- √“—«— tab -->
+            <!-- ÿ£ÿ≤ÿ±ÿßÿ± tab -->
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
                 <button class="pcr-tab active" id="pcrTab_phone"    onclick="showPcrTab('phone')"><i class="fa-solid fa-phone"></i> Edit Phone</button>
                 <button class="pcr-tab"        id="pcrTab_email"    onclick="showPcrTab('email')"><i class="fa-solid fa-envelope"></i> Edit Email</button>
@@ -113,7 +112,7 @@
 
             <div id="pcrSubmitResult" style="margin-top:10px;"></div>
 
-            <!-- ”Ã· My Requests -->
+            <!-- ÿ≥ÿ¨ŸÑ My Requests -->
             <hr style="border-color:var(--border);margin:20px 0;">
             <h4 style="margin-bottom:12px;font-size:.95rem;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:6px;"></i> My Previous Requests</h4>
             <div id="myPcrList"></div>
@@ -140,7 +139,7 @@
             </div>
         </div>
 
-        <!-- ====== ‘⁄«— «·‰Ÿ«„ ====== -->
+        <!-- ====== ÿ¥ÿπÿßÿ± ÿßŸÑŸÜÿ∏ÿßŸÖ ====== -->
         <div class="settings-section">
             <h3><i class="fa-solid fa-image"></i> System Logo</h3>
             <div class="image-upload-card">
@@ -263,12 +262,12 @@
             </button>
         </div>
 
-        <!-- ====== ‘—Ìÿ News ====== -->
+        <!-- ====== ÿ¥ÿ±Ÿäÿ∑ News ====== -->
         <div class="settings-section">
             <h3><i class="fa-solid fa-newspaper" style="color:#dc2626;"></i> Urgent News Ticker</h3>
             <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:16px;">News and warnings shown to all employees in a scrolling ticker at the top of every page.</p>
 
-            <!-- Add Œ»— ÃœÌœ -->
+            <!-- Add ÿÆÿ®ÿ± ÿ¨ÿØŸäÿØ -->
             <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end;">
                 <div style="flex:1;min-width:220px;">
                     <label class="form-label">News or Warning Text</label>
@@ -286,11 +285,11 @@
                 </button>
             </div>
 
-            <!-- ﬁ«∆„… News current -->
+            <!-- ŸÇÿßÿ¶ŸÖÿ© News current -->
             <div id="tickerItemsList"></div>
         </div>
 
-        <!-- ====== «·Copy «NoÕ Ì«ÿÌ ====== -->
+        <!-- ====== ÿßŸÑCopy ÿßNoÿ≠ÿ™Ÿäÿßÿ∑Ÿä ====== -->
         <div class="settings-section">
             <h3><i class="fa-solid fa-database"></i> Backup and Data</h3>
             <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.85rem;color:#166534;">
@@ -302,7 +301,7 @@
                     <i class="fa-solid fa-file-export"></i> Export Backup
                 </button>
                 <button onclick="importBackup()" class="btn btn-ghost" style="font-size:.85rem;">
-                    <i class="fa-solid fa-file-import"></i> Import Copy… «Õ Ì«ÿÌ…
+                    <i class="fa-solid fa-file-import"></i> Import Copyÿ© ÿßÿ≠ÿ™Ÿäÿßÿ∑Ÿäÿ©
                 </button>
             </div>
         </div>
@@ -311,7 +310,7 @@
 </div>
 
 <div id="logoPreviewModal" onclick="this.classList.remove('open')">
-    <img id="logoPreviewModalImg" src="" alt="Preview «·‘⁄«—" onclick="event.stopPropagation()">
+    <img id="logoPreviewModalImg" src="" alt="Preview ÿßŸÑÿ¥ÿπÿßÿ±" onclick="event.stopPropagation()">
 </div>
 
 <div class="designer-credit">
@@ -326,7 +325,7 @@ if (currentUser.role !== 'admin') {
     document.getElementById('adminOnlySections').style.display = 'none';
 }
 
-// ?? Profile Change Request Section ??????????????????????
+// ‚îÄ‚îÄ Profile Change Request Section ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
 const _pcrTypeLabel = { phone: 'Phone Number', email: 'Email', password: 'Password' };
 const _pcrStatusLabel = { pending_head: 'Pending Head Surveyor', pending_admin: 'Pending Admin', approved: 'Approved', rejected: 'Rejected' };
 
@@ -343,8 +342,8 @@ function initProfileSection() {
     const infoItems = [
         { icon: 'fa-user', label: 'Name', value: currentUser.name },
         { icon: 'fa-id-badge', label: 'Employee ID', value: currentUser.empId },
-        { icon: 'fa-phone', label: 'Phone', value: currentUser.phone || 'ó' },
-        { icon: 'fa-envelope', label: 'Email', value: currentUser.email || 'ó' },
+        { icon: 'fa-phone', label: 'Phone', value: currentUser.phone || '‚Äî' },
+        { icon: 'fa-envelope', label: 'Email', value: currentUser.email || '‚Äî' },
     ];
     el.innerHTML = infoItems.map(i => `
         <div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;border:1px solid var(--border);padding:10px 12px;">
@@ -377,7 +376,7 @@ function renderMyPcrList() {
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;background:#f8fafc;">
             <div>
                 <span style="font-weight:600;font-size:.88rem;">${_pcrTypeLabel[r.type] || r.type}</span>
-                ${r.type !== 'password' ? `<span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">? ${r.newValueDisplay}</span>` : ''}
+                ${r.type !== 'password' ? `<span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">‚Üê ${r.newValueDisplay}</span>` : ''}
                 <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${new Date(r.timestamp).toLocaleDateString('en-US')}</div>
             </div>
             <div>
@@ -453,44 +452,44 @@ async function checkSupabaseStatus() {
     const text = document.getElementById('statusText');
     if (!supabaseClient) {
         dot.style.background = '#ef4444';
-        text.textContent = '? €Ì— „ ’· -  √ﬂœ from andÃandœ window.__env ›Ì HTML';
+        text.textContent = '‚ùå ÿ∫Ÿäÿ± ŸÖÿ™ÿµŸÑ - ÿ™ÿ£ŸÉÿØ from andÿ¨andÿØ window.__env ŸÅŸä HTML';
         return false;
     }
     try {
         const { error } = await supabaseClient.from('settings').select('key').limit(1);
         if (error) throw error;
         dot.style.background = '#16a34a';
-        text.textContent = `? „ ’· »‹ Supabase »Success (${new Date().toLocaleTimeString('en-US')})`;
+        text.textContent = `‚úÖ ŸÖÿ™ÿµŸÑ ÿ®ŸÄ Supabase ÿ®Success (${new Date().toLocaleTimeString('en-US')})`;
         return true;
     } catch (e) {
         dot.style.background = '#ef4444';
-        text.textContent = `? Error ›Ì Connection: ${e.message}`;
+        text.textContent = `‚ùå Error ŸÅŸä Connection: ${e.message}`;
         return false;
     }
 }
 
 window.testConnection = async () => {
-    document.getElementById('statusText').textContent = 'Ã«—Ì «NoŒ »«—...';
+    document.getElementById('statusText').textContent = 'ÿ¨ÿßÿ±Ÿä ÿßNoÿÆÿ™ÿ®ÿßÿ±...';
     document.getElementById('statusDot').style.background = '#f59e0b';
     await checkSupabaseStatus();
 };
 
 window.syncNow = async () => {
     const btn = document.getElementById('syncBtn');
-    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ã«—Ì «·Sync...';
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ÿ¨ÿßÿ±Ÿä ÿßŸÑSync...';
     try {
         await _syncToSupabase();
-        showSettingsToast('? Done  «·Sync »Success');
+        showSettingsToast('‚úÖ Doneÿ™ ÿßŸÑSync ÿ®Success');
     } catch(e) {
-        showSettingsToast('? ›‘·  «·Sync: ' + e.message, 'error');
+        showSettingsToast('‚ùå ŸÅÿ¥ŸÑÿ™ ÿßŸÑSync: ' + e.message, 'error');
     } finally {
         btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Sync Data Now';
     }
 };
 
 window.loadFromSupabase = async () => {
-    if (!supabaseClient) { showSettingsToast('Supabase €Ì— „ ’·', 'error'); return; }
-    if (!confirm('Loading Data from Supabase ”Ì” »œ· Data «·„Õ·Ì…. Â· √‰  „ √ﬂœø')) return;
+    if (!supabaseClient) { showSettingsToast('Supabase ÿ∫Ÿäÿ± ŸÖÿ™ÿµŸÑ', 'error'); return; }
+    if (!confirm('Loading Data from Supabase ÿ≥Ÿäÿ≥ÿ™ÿ®ÿØŸÑ Data ÿßŸÑŸÖÿ≠ŸÑŸäÿ©. ŸáŸÑ ÿ£ŸÜÿ™ ŸÖÿ™ÿ£ŸÉÿØÿü')) return;
     try {
         const tables = ['users','devices','custodies','notifications','branches','allowed_employee_ids','settings','calibration_certificates'];
         for (const t of tables) {
@@ -513,10 +512,10 @@ window.loadFromSupabase = async () => {
             }
         }
         saveDB(true);
-        showSettingsToast('? Done Loading Data from Supabase');
+        showSettingsToast('‚úÖ Done Loading Data from Supabase');
         setTimeout(() => location.reload(), 1500);
     } catch(e) {
-        showSettingsToast('? ›‘· «·Loading: ' + e.message, 'error');
+        showSettingsToast('‚ùå ŸÅÿ¥ŸÑ ÿßŸÑLoading: ' + e.message, 'error');
     }
 };
 
@@ -553,21 +552,21 @@ window.handleLogoUpload = async (e) => {
     if (!file) return;
     const status = document.getElementById('logoUploadStatus');
     status.style.display = 'inline-block'; status.className = 'upload-status uploading';
-    status.textContent = 'Ã«—Ì «·—›⁄...';
+    status.textContent = 'ÿ¨ÿßÿ±Ÿä ÿßŸÑÿ±ŸÅÿπ...';
     try {
         const url = await _uploadToStorage(file, 'brand/logo');
         _applyLogo(url);
-        status.className = 'upload-status success'; status.textContent = '? Done «·—›⁄ »Success';
+        status.className = 'upload-status success'; status.textContent = '‚úì Done ÿßŸÑÿ±ŸÅÿπ ÿ®Success';
     } catch(err) {
-        status.className = 'upload-status error'; status.textContent = '? ' + (err.message || '›‘·');
+        status.className = 'upload-status error'; status.textContent = '‚úó ' + (err.message || 'ŸÅÿ¥ŸÑ');
     }
 };
 
 window.applyLogoFromUrl = () => {
     const url = document.getElementById('logoGoogleUrl').value.trim();
-    if (!url) { showSettingsToast('Enter —«»ÿ« ’ÕÌÕ«', 'error'); return; }
+    if (!url) { showSettingsToast('Enter ÿ±ÿßÿ®ÿ∑ÿßŸã ÿµÿ≠Ÿäÿ≠ÿßŸã', 'error'); return; }
     _applyLogo(url);
-    showSettingsToast('Done Apply «·‘⁄«— from «·—«»ÿ');
+    showSettingsToast('Done Apply ÿßŸÑÿ¥ÿπÿßÿ± from ÿßŸÑÿ±ÿßÿ®ÿ∑');
 };
 
 window.applyLogoFromStorage = async () => {
@@ -575,14 +574,14 @@ window.applyLogoFromStorage = async () => {
     if (!path) return;
     const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
     _applyLogo(data.publicUrl);
-    showSettingsToast('Done «Œ Ì«— «·‘⁄«— from Storage');
+    showSettingsToast('Done ÿßÿÆÿ™Ÿäÿßÿ± ÿßŸÑÿ¥ÿπÿßÿ± from Storage');
 };
 
 window.resetLogo = () => {
-    if (!confirm('«” ⁄«œ… «·‘⁄«— Defaultø')) return;
+    if (!confirm('ÿßÿ≥ÿ™ÿπÿßÿØÿ© ÿßŸÑÿ¥ÿπÿßÿ± Defaultÿü')) return;
     db.settings.logo = null;
     saveDB();
-    addLog('Done «” ⁄«œ… «·‘⁄«— Default');
+    addLog('Done ÿßÿ≥ÿ™ÿπÿßÿØÿ© ÿßŸÑÿ¥ÿπÿßÿ± Default');
     location.reload();
 };
 
@@ -590,7 +589,7 @@ async function _applyLogo(url) {
     db.settings.logo = url;
     saveDB(true);
     await _syncSettingsToSupabase();
-    addLog('Done Refresh ‘⁄«— «·‰Ÿ«„');
+    addLog('Done Refresh ÿ¥ÿπÿßÿ± ÿßŸÑŸÜÿ∏ÿßŸÖ');
     const img = document.getElementById('logoPreviewImg');
     img.src = url; img.style.display = 'block';
     document.getElementById('logoPlaceholderIcon').style.display = 'none';
@@ -605,21 +604,21 @@ window.handleAppImageUpload = async (e) => {
     if (!file) return;
     const status = document.getElementById('appImageUploadStatus');
     status.style.display = 'inline-block'; status.className = 'upload-status uploading';
-    status.textContent = 'Ã«—Ì «·—›⁄...';
+    status.textContent = 'ÿ¨ÿßÿ±Ÿä ÿßŸÑÿ±ŸÅÿπ...';
     try {
         const url = await _uploadToStorage(file, 'brand/app-image');
         _applyAppImage(url);
-        status.className = 'upload-status success'; status.textContent = '? Done «·—›⁄ »Success';
+        status.className = 'upload-status success'; status.textContent = '‚úì Done ÿßŸÑÿ±ŸÅÿπ ÿ®Success';
     } catch(err) {
-        status.className = 'upload-status error'; status.textContent = '? ' + (err.message || '›‘·');
+        status.className = 'upload-status error'; status.textContent = '‚úó ' + (err.message || 'ŸÅÿ¥ŸÑ');
     }
 };
 
 window.applyAppImageFromUrl = () => {
     const url = document.getElementById('appImageGoogleUrl').value.trim();
-    if (!url) { showSettingsToast('Enter —«»ÿ« ’ÕÌÕ«', 'error'); return; }
+    if (!url) { showSettingsToast('Enter ÿ±ÿßÿ®ÿ∑ÿßŸã ÿµÿ≠Ÿäÿ≠ÿßŸã', 'error'); return; }
     _applyAppImage(url);
-    showSettingsToast('Done Apply «·image from «·—«»ÿ');
+    showSettingsToast('Done Apply ÿßŸÑimage from ÿßŸÑÿ±ÿßÿ®ÿ∑');
 };
 
 window.applyAppImageFromStorage = async () => {
@@ -627,11 +626,11 @@ window.applyAppImageFromStorage = async () => {
     if (!path) return;
     const { data } = supabaseClient.storage.from('assets').getPublicUrl(path);
     _applyAppImage(data.publicUrl);
-    showSettingsToast('Done «Œ Ì«— «·image from Storage');
+    showSettingsToast('Done ÿßÿÆÿ™Ÿäÿßÿ± ÿßŸÑimage from Storage');
 };
 
 window.resetAppImage = () => {
-    if (!confirm('Delete image «·interfaceø')) return;
+    if (!confirm('Delete image ÿßŸÑinterfaceÿü')) return;
     db.settings.appImage = null;
     saveDB();
     addLog('Done Delete System Background Image');
@@ -674,7 +673,7 @@ window.saveAlertSettings = () => {
     db.settings.alertSoundEnabled = document.getElementById('alertSoundToggle').checked;
     saveDB();
     addLog('Done Refresh Alert Settings');
-    showSettingsToast('? Done Save Alert Settings');
+    showSettingsToast('‚úÖ Done Save Alert Settings');
 };
 
 // ============================================================
@@ -705,14 +704,14 @@ window.importBackup = () => {
             try {
                 const imp = JSON.parse(ev.target.result);
                 if (imp.users && Array.isArray(imp.users)) {
-                    if (confirm('Warning: «No” Ì—«œ ”ÌClear Ã„Ì⁄ Data current. Â· √‰  „ √ﬂœø')) {
+                    if (confirm('Warning: ÿßNoÿ≥ÿ™Ÿäÿ±ÿßÿØ ÿ≥ŸäClear ÿ¨ŸÖŸäÿπ Data current. ŸáŸÑ ÿ£ŸÜÿ™ ŸÖÿ™ÿ£ŸÉÿØÿü')) {
                         if (!imp.logs) imp.logs = [];
-                        imp.logs.unshift({ id: Date.now(), user: currentUser.name, msg: 'Done «” ⁄«œ… Copy… «Õ Ì«ÿÌ… ··‰Ÿ«„' });
+                        imp.logs.unshift({ id: Date.now(), user: currentUser.name, msg: 'Done ÿßÿ≥ÿ™ÿπÿßÿØÿ© Copyÿ© ÿßÿ≠ÿ™Ÿäÿßÿ∑Ÿäÿ© ŸÑŸÑŸÜÿ∏ÿßŸÖ' });
                         localStorage.setItem(DB_KEY, JSON.stringify(imp));
                         location.reload();
                     }
-                } else { showSettingsToast('«·„·› «·„Œ «— €Ì— Valid', 'error'); }
-            } catch(e) { showSettingsToast('Error ›Ì ﬁ—«¡… «·„·›', 'error'); }
+                } else { showSettingsToast('ÿßŸÑŸÖŸÑŸÅ ÿßŸÑŸÖÿÆÿ™ÿßÿ± ÿ∫Ÿäÿ± Valid', 'error'); }
+            } catch(e) { showSettingsToast('Error ŸÅŸä ŸÇÿ±ÿßÿ°ÿ© ÿßŸÑŸÖŸÑŸÅ', 'error'); }
         };
         reader.readAsText(file);
     };
@@ -724,7 +723,7 @@ window.importBackup = () => {
 // ============================================================
 window.previewCurrentLogo = () => {
     const src = db.settings.logo || document.getElementById('logoPreviewImg').src;
-    if (!src || src === window.location.href) { showSettingsToast('None ‘⁄«— ·ViewÂ', 'warning'); return; }
+    if (!src || src === window.location.href) { showSettingsToast('None ÿ¥ÿπÿßÿ± ŸÑViewŸá', 'warning'); return; }
     document.getElementById('logoPreviewModalImg').src = src;
     document.getElementById('logoPreviewModal').classList.add('open');
 };
@@ -738,7 +737,7 @@ function _fileToDataUrl(file) {
 
 async function _uploadToStorage(file, basePath) {
     if (!supabaseClient) {
-        // No Supabase ó fall back to base64 (local only)
+        // No Supabase ‚Äî fall back to base64 (local only)
         return _fileToDataUrl(file);
     }
     const ext = file.name.split('.').pop().toLowerCase() || 'png';
@@ -797,11 +796,11 @@ function renderTickerList() {
     el.innerHTML = items.map((t, i) => `
         <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid ${t.type==='warning'?'#fde68a':'#e2e8f0'};background:${t.type==='warning'?'#fffbeb':'#f8fafc'};margin-bottom:8px;flex-wrap:wrap;">
             <span style="font-size:.8rem;padding:2px 8px;border-radius:20px;font-weight:700;background:${t.type==='warning'?'#fef3c7':'#dbeafe'};color:${t.type==='warning'?'#92400e':'#1e40af'};">
-                ${t.type==='warning'?'? Warning':'? Œ»—'}
+                ${t.type==='warning'?'‚ö† Warning':'‚óè ÿÆÿ®ÿ±'}
             </span>
             <span style="flex:1;font-size:.9rem;${!t.active?'opacity:.45;text-decoration:line-through;':''}">${t.text}</span>
             <div style="display:flex;gap:6px;">
-                <button onclick="toggleTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="${t.active?'≈Ìﬁ«›':'Activate'}">
+                <button onclick="toggleTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;" title="${t.active?'ÿ•ŸäŸÇÿßŸÅ':'Activate'}">
                     <i class="fa-solid ${t.active?'fa-eye-slash':'fa-eye'}"></i>
                 </button>
                 <button onclick="deleteTicker('${t.id}')" class="btn btn-ghost" style="font-size:.75rem;padding:4px 10px;color:#ef4444;" title="Delete">
@@ -815,12 +814,12 @@ function renderTickerList() {
 window.addTickerNews = () => {
     const text = document.getElementById('newTickerText').value.trim();
     const type = document.getElementById('newTickerType').value;
-    if (!text) { showSettingsToast('Enter ‰’ «·Œ»—', 'warning'); return; }
+    if (!text) { showSettingsToast('Enter ŸÜÿµ ÿßŸÑÿÆÿ®ÿ±', 'warning'); return; }
     addTickerItem(text, type);
     document.getElementById('newTickerText').value = '';
     renderTickerList();
     renderNewsTicker();
-    showSettingsToast('? Done Add «·Œ»— »Success');
+    showSettingsToast('‚úÖ Done Add ÿßŸÑÿÆÿ®ÿ± ÿ®Success');
 };
 
 window.toggleTicker = (id) => {
@@ -830,11 +829,11 @@ window.toggleTicker = (id) => {
 };
 
 window.deleteTicker = (id) => {
-    if (!confirm('Delete Â–« «·Œ»—ø')) return;
+    if (!confirm('Delete Ÿáÿ∞ÿß ÿßŸÑÿÆÿ®ÿ±ÿü')) return;
     removeTickerItem(id);
     renderTickerList();
     renderNewsTicker();
-    showSettingsToast('Done «·Delete');
+    showSettingsToast('Done ÿßŸÑDelete');
 };
 
 window.onload = () => {
@@ -842,7 +841,7 @@ window.onload = () => {
     initProfileSection();
     const _settingsSub = document.getElementById('settingsSubtitle');
     if (_settingsSub && currentUser.role !== 'admin') {
-        _settingsSub.textContent = 'Edit your personal account details ó email, password, and phone number.';
+        _settingsSub.textContent = 'Edit your personal account details ‚Äî email, password, and phone number.';
     }
     if (currentUser.role === 'admin') {
         initSettings();

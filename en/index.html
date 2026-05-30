@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Survey &amp; GIS Management System | SAJCO</title>
@@ -274,7 +273,7 @@
 <canvas id="bgCanvas"></canvas>
 
 <div id="offlineBanner" style="display:none;background:#fef3c7;color:#92400e;padding:10px;text-align:center;font-weight:600;position:fixed;top:0;left:0;right:0;z-index:999;">
-  <i class="fa-solid fa-wifi"></i> No Internet connection – some operations may fail
+  <i class="fa-solid fa-wifi"></i> No Internet connection â€“ some operations may fail
 </div>
 
 <div id="authOverlay" style="display:none;">
@@ -330,7 +329,7 @@
       <a href="#" id="toggleForgot" style="color:#dc2626;font-weight:600;text-decoration:none;"><i class="fa-solid fa-key" style="margin-left:4px;"></i>Forgot Password?</a>
     </p>
 
-    <!-- ====== form äÓíÇä Password ====== -->
+    <!-- ====== form Ù†Ø³ÙŠØ§Ù† Password ====== -->
     <div id="forgotBox" class="hidden" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
       <h3 style="text-align:center;margin-bottom:8px;color:#dc2626;">
         <i class="fa-solid fa-key"></i> Password Recovery
@@ -349,7 +348,7 @@
       </button>
     </div>
 
-    <!-- ============ ÒÑ ÊËÈíÊ App (ãandÈÇíá only) ============ -->
+    <!-- ============ Ø²Ø± ØªØ«Ø¨ÙŠØª App (Ù…andØ¨Ø§ÙŠÙ„ only) ============ -->
     <div id="pwaInstallBanner" style="display:none;margin-top:14px;">
       <button id="pwaInstallBtn" onclick="triggerPwaInstall()" style="
           width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
@@ -363,7 +362,7 @@
       </button>
     </div>
 
-    <!-- ============ ÊÚáíãÇÊ iOS ============ -->
+    <!-- ============ ØªØ¹Ù„ÙŠÙ…Ø§Øª iOS ============ -->
     <div id="iosInstallModal" onclick="if(event.target===this)this.style.display='none'"
          style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:flex-end;justify-content:center;">
       <div style="background:#fff;border-radius:22px 22px 0 0;padding:28px 24px 32px;width:100%;max-width:480px;box-shadow:0 -8px 30px rgba(0,0,0,.2);">
@@ -425,7 +424,7 @@
       </form>
     </div>
 
-    <!-- ======================= form ÇáÊÓÌíá ======================= -->
+    <!-- ======================= form Ø§Ù„ØªØ³Ø¬ÙŠÙ„ ======================= -->
     <div id="regBox" class="hidden" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
       <h3 style="text-align:center;margin-bottom:12px;color:var(--primary)">Create New Surveyor Account</h3>
       <div class="verified-badge">
@@ -442,7 +441,7 @@
             <label class="form-label">Full Name</label>
             <input id="regName" class="form-input" required placeholder="Your full name...">
             <div id="regNameHint" class="auto-filled-hint" style="display:none;">
-              <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-filled from Employee ID records — You can edit it
+              <i class="fa-solid fa-magic-wand-sparkles"></i> Auto-filled from Employee ID records â€” You can edit it
             </div>
           </div>
           <div class="form-group"><label class="form-label">Nationality</label><input id="regNationality" class="form-input" required></div>
@@ -486,7 +485,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Graduation Month & Year <span style="color:var(--text-muted);font-size:.8rem;">(for calculating experience)</span></label>
-            <input type="month" id="regGradDate" class="form-input apple-date-input" placeholder="ãËÇá: 2015-06">
+            <input type="month" id="regGradDate" class="form-input apple-date-input" placeholder="Ù…Ø«Ø§Ù„: 2015-06">
             <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Select Graduation Month & Year only</div>
           </div>
           <div class="form-group">
@@ -544,20 +543,20 @@
 
   </div><!-- /authCard -->
 
-  <!-- Credit footer — orbiting stars wrapper -->
+  <!-- Credit footer â€” orbiting stars wrapper -->
   <div id="loginCreditOuter" style="position:relative;overflow:visible;margin-top:22px;width:100%;">
     <!-- Orbiting stars (injected by JS after render) -->
 
     <div class="credit-wrap" id="loginCreditWrap">
       <div class="credit-inner">
-        <span class="credit-star" style="top:5px;right:10px;font-size:.6rem;animation-delay:0s;">?</span>
-        <span class="credit-star" style="top:7px;right:28px;font-size:.4rem;animation-delay:.5s;">?</span>
-        <span class="credit-star" style="top:5px;left:10px;font-size:.55rem;animation-delay:1s;">?</span>
-        <span class="credit-star" style="top:7px;left:28px;font-size:.4rem;animation-delay:1.5s;">?</span>
-        <span class="credit-star" style="bottom:5px;right:16px;font-size:.45rem;animation-delay:.7s;">?</span>
-        <span class="credit-star" style="bottom:5px;left:16px;font-size:.45rem;animation-delay:1.2s;">?</span>
-        <span class="credit-star" style="top:50%;right:5px;font-size:.38rem;animation-delay:1.8s;">?</span>
-        <span class="credit-star" style="top:50%;left:5px;font-size:.38rem;animation-delay:.3s;">?</span>
+        <span class="credit-star" style="top:5px;right:10px;font-size:.6rem;animation-delay:0s;">â˜…</span>
+        <span class="credit-star" style="top:7px;right:28px;font-size:.4rem;animation-delay:.5s;">âœ¦</span>
+        <span class="credit-star" style="top:5px;left:10px;font-size:.55rem;animation-delay:1s;">âœ§</span>
+        <span class="credit-star" style="top:7px;left:28px;font-size:.4rem;animation-delay:1.5s;">â˜…</span>
+        <span class="credit-star" style="bottom:5px;right:16px;font-size:.45rem;animation-delay:.7s;">âœ¦</span>
+        <span class="credit-star" style="bottom:5px;left:16px;font-size:.45rem;animation-delay:1.2s;">âœ§</span>
+        <span class="credit-star" style="top:50%;right:5px;font-size:.38rem;animation-delay:1.8s;">â˜…</span>
+        <span class="credit-star" style="top:50%;left:5px;font-size:.38rem;animation-delay:.3s;">âœ¦</span>
         <div class="credit-line1">
           <i class="fa-regular fa-copyright" style="margin-left:4px;color:#22c55e;"></i>
           Design &amp; Development by <strong>Mahmoud Al-Shatori</strong>
@@ -566,7 +565,7 @@
         <div class="credit-line3">Sponsored by <strong>Arabian Peninsula Contracting Co.</strong></div>
         <div class="credit-line4">
           <i class="fa-regular fa-copyright" style="margin-left:3px;color:#d4af37;font-size:.65rem;vertical-align:middle;"></i>
-          <span id="creditYear"></span> SAJCO — All Rights Reserved
+          <span id="creditYear"></span> SAJCO â€” All Rights Reserved
         </div>
       </div>
     </div>
@@ -656,7 +655,7 @@ const doLogin = async (email, pass) => {
   const loginBtn = document.querySelector('#loginForm [type="submit"]');
   if (loginBtn) loginBtn.disabled = true;
   try {
-    // ?? Primary: Supabase Auth (establishes JWT ? RLS applies) ??
+    // â”€â”€ Primary: Supabase Auth (establishes JWT â†’ RLS applies) â”€â”€
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
       const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
       if (!authErr && authData?.session) {
@@ -673,7 +672,7 @@ const doLogin = async (email, pass) => {
         }
       }
     }
-    // ?? Fallback: password check + auto-migrate to Supabase Auth ??
+    // â”€â”€ Fallback: password check + auto-migrate to Supabase Auth â”€â”€
     // Note: requires "Disable email confirmations" in Supabase Auth settings
     const user = db.users.find(u => u.email?.toLowerCase() === email && u.password === pass);
     if (!user) { showAlert('Invalid login credentials'); return; }
@@ -717,7 +716,7 @@ document.getElementById('toggleReg').onclick = e => {
 document.getElementById('backToLoginFromVerify').onclick = () => location.reload();
 document.getElementById('backToLogin').onclick = () => location.reload();
 
-// ?? Forgot password toggle ??
+// â”€â”€ Forgot password toggle â”€â”€
 document.getElementById('toggleForgot').onclick = e => {
   e.preventDefault();
   document.getElementById('loginForm').classList.add('hidden');
@@ -731,19 +730,19 @@ async function doForgotPassword() {
   const empId = document.getElementById('forgotEmpId').value.trim();
   const alertEl = document.getElementById('forgotAlert');
   alertEl.innerHTML = '';
-  if (!empId) { alertEl.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.88rem;">Please ÅÏÎÇá Employee ID</div>'; return; }
+  if (!empId) { alertEl.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.88rem;">Please Ø¥Ø¯Ø®Ø§Ù„ Employee ID</div>'; return; }
   alertEl.innerHTML = '<div style="color:#64748b;font-size:.85rem;padding:8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Sending...</div>';
   const result = await submitPasswordResetRequest(empId);
   if (result.error) {
     alertEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;font-size:.88rem;"><i class="fa-solid fa-circle-xmark"></i> ${result.error}</div>`;
   } else if (result.alreadySent) {
-    alertEl.innerHTML = `<div style="background:#fffbeb;color:#92400e;padding:10px;border-radius:8px;font-size:.88rem;"><i class="fa-solid fa-clock"></i> ØáÈß ãõÑÓá ÈÇáİÚá andŞíÏ ÇáãÚÇáÌÉ — ÊandÇÕá ãÚ Head Surveyor</div>`;
+    alertEl.innerHTML = `<div style="background:#fffbeb;color:#92400e;padding:10px;border-radius:8px;font-size:.88rem;"><i class="fa-solid fa-clock"></i> Ø·Ù„Ø¨Ùƒ Ù…ÙØ±Ø³Ù„ Ø¨Ø§Ù„ÙØ¹Ù„ andÙ‚ÙŠØ¯ Ø§Ù„Ù…Ø¹Ø§Ù„Ø¬Ø© â€” ØªandØ§ØµÙ„ Ù…Ø¹ Head Surveyor</div>`;
   } else {
     alertEl.innerHTML = `<div style="background:#dcfce7;color:#166534;padding:12px;border-radius:8px;font-size:.9rem;line-height:1.6;">
       <i class="fa-solid fa-circle-check" style="font-size:1.2rem;margin-left:6px;"></i>
-      <strong>Done Send ØáÈß ÈSuccess</strong><br>
-      ÊandÇÕá ãÚ <strong>${result.recipientName || 'Head Surveyor'}</strong> áíÚíÏ ÊÚííä Password andíõÑÓáåÇ áß<br>
-      <span style="font-size:.82rem;color:#166534;opacity:.8;">ÈÚÏ Receive Temporary Password ÓíõØáÈ fromß ÊÛííÑåÇ İandÑ Login</span>
+      <strong>Done Send Ø·Ù„Ø¨Ùƒ Ø¨Success</strong><br>
+      ØªandØ§ØµÙ„ Ù…Ø¹ <strong>${result.recipientName || 'Head Surveyor'}</strong> Ù„ÙŠØ¹ÙŠØ¯ ØªØ¹ÙŠÙŠÙ† Password andÙŠÙØ±Ø³Ù„Ù‡Ø§ Ù„Ùƒ<br>
+      <span style="font-size:.82rem;color:#166534;opacity:.8;">Ø¨Ø¹Ø¯ Receive Temporary Password Ø³ÙŠÙØ·Ù„Ø¨ fromÙƒ ØªØºÙŠÙŠØ±Ù‡Ø§ ÙandØ± Login</span>
     </div>`;
     document.getElementById('forgotEmpId').disabled = true;
     document.querySelector('#forgotBox button.btn-primary').disabled = true;
@@ -767,7 +766,7 @@ async function checkEmpIdAllowed(val) {
   // Check if already registered
   const inUse = db.users.some(u => u.empId === val);
   if (inUse) {
-    msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">åĞÇ Number ãÓÊÎÏã ÈÇáİÚá</span>';
+    msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">Ù‡Ø°Ø§ Number Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø§Ù„ÙØ¹Ù„</span>';
     btn.disabled = true; btn.style.opacity = '.5'; return;
   }
 
@@ -800,7 +799,7 @@ async function checkEmpIdAllowed(val) {
   }
 
   if (!allowed) {
-    msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">Number ÛíÑ ãÓãandÍ Èå</span>';
+    msgEl.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> <span style="color:#dc2626;font-weight:600;">Number ØºÙŠØ± Ù…Ø³Ù…andØ­ Ø¨Ù‡</span>';
     btn.disabled = true; btn.style.opacity = '.5'; return;
   }
 
@@ -823,9 +822,9 @@ document.getElementById('empIdVerificationForm').onsubmit = async e => {
   const alertEl = document.getElementById('empIdVerificationAlert');
   alertEl.innerHTML = '';
 
-  if (!empId) { alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;">ÇáÑÌÇÁ ÅÏÎÇá Employee ID</div>'; return; }
+  if (!empId) { alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;">Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Employee ID</div>'; return; }
   if (db.users.some(u => u.empId === empId)) {
-    alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;"><i class="fa-solid fa-circle-xmark"></i> åĞÇ Number ãÓÊÎÏã ÈÇáİÚá.</div>'; return;
+    alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;"><i class="fa-solid fa-circle-xmark"></i> Ù‡Ø°Ø§ Number Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø§Ù„ÙØ¹Ù„.</div>'; return;
   }
 
   // If checkEmpIdAllowed already verified this exact empId, trust that result
@@ -835,7 +834,7 @@ document.getElementById('empIdVerificationForm').onsubmit = async e => {
   }
 
   if (_lastVerifiedEmpId !== empId) {
-    alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;"><i class="fa-solid fa-circle-xmark"></i> Employee ID ÛíÑ ãÓãandÍ Èå. Please communication ãÚ Management.</div>'; return;
+    alertEl.innerHTML = '<div style="color:#dc2626;padding:8px;background:#fee2e2;border-radius:8px;"><i class="fa-solid fa-circle-xmark"></i> Employee ID ØºÙŠØ± Ù…Ø³Ù…andØ­ Ø¨Ù‡. Please communication Ù…Ø¹ Management.</div>'; return;
   }
 
   // Proceed to full registration form
@@ -856,12 +855,12 @@ document.getElementById('empIdVerificationForm').onsubmit = async e => {
   // Fill branches
   const opts = db.branches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
   document.getElementById('regBranch').innerHTML = '<option value="">Select Assigned Branch...</option>' + opts;
-  document.getElementById('regBranchResponsible').innerHTML = '<option value="">Select Branch ÇáĞí ÓÊÏíÑå...</option>' + opts;
+  document.getElementById('regBranchResponsible').innerHTML = '<option value="">Select Branch Ø§Ù„Ø°ÙŠ Ø³ØªØ¯ÙŠØ±Ù‡...</option>' + opts;
 
   document.getElementById('regName').focus();
 };
 
-// ===== Graduation date ? auto-calculate experience =====
+// ===== Graduation date â†’ auto-calculate experience =====
 document.getElementById('regGradDate').addEventListener('change', function() {
   const val = this.value; // YYYY-MM
   if (!val) return;
@@ -875,7 +874,7 @@ document.getElementById('regGradDate').addEventListener('change', function() {
   }
 });
 
-// ===== Join date ? auto-calculate company years =====
+// ===== Join date â†’ auto-calculate company years =====
 document.getElementById('regJoinDate').addEventListener('change', function() {
   const val = this.value; // YYYY-MM-DD
   if (!val) return;
@@ -902,10 +901,10 @@ const updateDirectManager = () => {
   const managerInput = document.getElementById('regHeadSurveyor');
   if (role === 'head') {
     const admin = db.users.find(u => u.role === 'admin');
-    managerInput.value = admin ? admin.name : 'ÇáãåäÏÓ Mohamed Aqtatit';
+    managerInput.value = admin ? admin.name : 'Ø§Ù„Ù…Ù‡Ù†Ø¯Ø³ Mohamed Aqtatit';
   } else if (role === 'surveyor' && branchId) {
     const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId);
-    managerInput.value = head ? head.name : 'áã íDone ÊÚííä Head Surveyor áåĞÇ Branch';
+    managerInput.value = head ? head.name : 'Ù„Ù… ÙŠDone ØªØ¹ÙŠÙŠÙ† Head Surveyor Ù„Ù‡Ø°Ø§ Branch';
   } else {
     managerInput.value = '';
   }
@@ -935,7 +934,7 @@ document.getElementById('registerForm').onsubmit = async e => {
 
   if (role === 'surveyor') {
     const head = db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId);
-    if (!head) { toast('Cannot register in this branch — no Head Surveyor assigned.', 'error'); return; }
+    if (!head) { toast('Cannot register in this branch â€” no Head Surveyor assigned.', 'error'); return; }
   }
 
   const result = registerNewUser({
@@ -1092,7 +1091,7 @@ function renderLoginTicker() {
   if (typeof _buildTickerHTML === 'function') {
     tickerEl.innerHTML = _buildTickerHTML(items);
   } else {
-    const s = items.map(t => (t.type==='warning'?'? ':'')+t.text).join('  ? ?? ?  ');
+    const s = items.map(t => (t.type==='warning'?'âš  ':'')+t.text).join('  âœ¦ ğŸŒŸ âœ¦  ');
     tickerEl.innerHTML = s + s;
   }
   const charCount = items.reduce((s, t) => s + t.text.length, 0);
@@ -1128,14 +1127,14 @@ window.addEventListener('load', () => {
     const cw = `path('M ${-M+R} ${-M} L ${fw+M-R} ${-M} Q ${fw+M} ${-M} ${fw+M} ${-M+R} L ${fw+M} ${fh+M-R} Q ${fw+M} ${fh+M} ${fw+M-R} ${fh+M} L ${-M+R} ${fh+M} Q ${-M} ${fh+M} ${-M} ${fh+M-R} L ${-M} ${-M+R} Q ${-M} ${-M} ${-M+R} ${-M} Z')`;
     const ccw = `path('M ${-M+R} ${-M} Q ${-M} ${-M} ${-M} ${-M+R} L ${-M} ${fh+M-R} Q ${-M} ${fh+M} ${-M+R} ${fh+M} L ${fw+M-R} ${fh+M} Q ${fw+M} ${fh+M} ${fw+M} ${fh+M-R} L ${fw+M} ${-M+R} Q ${fw+M} ${-M} ${fw+M-R} ${-M} Z')`;
     const stars = [
-      {orbit:'cw', color:'#fbbf24', size:'.9rem',  delay:'0s',    dur:'6s',  char:'?'},
-      {orbit:'cw', color:'#4ade80', size:'.72rem', delay:'-1s',   dur:'6s',  char:'?'},
-      {orbit:'cw', color:'#fde68a', size:'.62rem', delay:'-2s',   dur:'6s',  char:'?'},
-      {orbit:'cw', color:'#d4af37', size:'.94rem', delay:'-3s',   dur:'6s',  char:'?'},
-      {orbit:'cw', color:'#86efac', size:'.68rem', delay:'-4s',   dur:'6s',  char:'?'},
-      {orbit:'cw', color:'#fbbf24', size:'.54rem', delay:'-5s',   dur:'6s',  char:'?'},
-      {orbit:'ccw',color:'#a3e635', size:'.58rem', delay:'-0.5s', dur:'9s',  char:'•'},
-      {orbit:'ccw',color:'#fcd34d', size:'.48rem', delay:'-3s',   dur:'9s',  char:'•'},
+      {orbit:'cw', color:'#fbbf24', size:'.9rem',  delay:'0s',    dur:'6s',  char:'âœ¦'},
+      {orbit:'cw', color:'#4ade80', size:'.72rem', delay:'-1s',   dur:'6s',  char:'â˜…'},
+      {orbit:'cw', color:'#fde68a', size:'.62rem', delay:'-2s',   dur:'6s',  char:'âœ§'},
+      {orbit:'cw', color:'#d4af37', size:'.94rem', delay:'-3s',   dur:'6s',  char:'âœ¦'},
+      {orbit:'cw', color:'#86efac', size:'.68rem', delay:'-4s',   dur:'6s',  char:'â˜…'},
+      {orbit:'cw', color:'#fbbf24', size:'.54rem', delay:'-5s',   dur:'6s',  char:'âœ§'},
+      {orbit:'ccw',color:'#a3e635', size:'.58rem', delay:'-0.5s', dur:'9s',  char:'â€¢'},
+      {orbit:'ccw',color:'#fcd34d', size:'.48rem', delay:'-3s',   dur:'9s',  char:'â€¢'},
     ];
     stars.forEach(d => {
       const s = document.createElement('span');

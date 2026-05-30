@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ØáÈÇÊ ÇáÅÌÇÒÉ | ÓÇÌßæ</title>
+    <title>Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© | Ø³Ø§Ø¬ÙƒÙˆ</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -50,119 +49,119 @@
     <main class="main">
         <header style="margin-bottom:24px;">
             <h2 id="pageTitle" style="font-size:1.55rem;font-weight:800;"></h2>
-            <p style="color:var(--text-muted)">ÊŞÏíã ØáÈ ÇáÅÌÇÒÉ æãÊÇÈÚÉ ÇáãæÇİŞÇÊ ÈãÑÇÍáåÇ ÇáßÇãáÉ.</p>
+            <p style="color:var(--text-muted)">ØªÙ‚Ø¯ÙŠÙ… Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© ÙˆÙ…ØªØ§Ø¨Ø¹Ø© Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø§Øª Ø¨Ù…Ø±Ø§Ø­Ù„Ù‡Ø§ Ø§Ù„ÙƒØ§Ù…Ù„Ø©.</p>
         </header>
 
         <div class="summary-grid no-print">
             <div class="summary-card">
-                <div style="color:var(--text-muted);font-size:.82rem;">ÅÌãÇáí ÇáØáÈÇÊ</div>
+                <div style="color:var(--text-muted);font-size:.82rem;">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</div>
                 <div id="countAll" class="num" style="color:var(--primary);">0</div>
             </div>
             <div class="summary-card">
-                <div style="color:var(--text-muted);font-size:.82rem;">ŞíÏ ÇáãæÇİŞÉ</div>
+                <div style="color:var(--text-muted);font-size:.82rem;">Ù‚ÙŠØ¯ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©</div>
                 <div id="countPending" class="num" style="color:#d97706;">0</div>
             </div>
             <div class="summary-card">
-                <div style="color:var(--text-muted);font-size:.82rem;">ãÚÊãÏÉ / ãßÊãáÉ</div>
+                <div style="color:var(--text-muted);font-size:.82rem;">Ù…Ø¹ØªÙ…Ø¯Ø© / Ù…ÙƒØªÙ…Ù„Ø©</div>
                 <div id="countApproved" class="num" style="color:#16a34a;">0</div>
             </div>
             <div class="summary-card">
-                <div style="color:var(--text-muted);font-size:.82rem;">ãÑİæÖÉ</div>
+                <div style="color:var(--text-muted);font-size:.82rem;">Ù…Ø±ÙÙˆØ¶Ø©</div>
                 <div id="countRejected" class="num" style="color:#dc2626;">0</div>
             </div>
         </div>
 
         <!-- Departure tracking section (for head/admin) -->
         <div id="departureSection" style="display:none;margin-bottom:20px;">
-            <h3 style="margin-bottom:12px;"><i class="fa-solid fa-plane-departure" style="color:#f59e0b;"></i> ÊÊÈÚ ÇáãÛÇÏÑÉ æÇáÚæÏÉ</h3>
+            <h3 style="margin-bottom:12px;"><i class="fa-solid fa-plane-departure" style="color:#f59e0b;"></i> ØªØªØ¨Ø¹ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© ÙˆØ§Ù„Ø¹ÙˆØ¯Ø©</h3>
             <div id="departureCards"></div>
         </div>
 
         <div class="section-grid">
             <!-- Leave form -->
             <div class="card" id="leaveFormCard">
-                <h3><i class="fa-solid fa-pen-to-square"></i> ØáÈ ÅÌÇÒÉ ÌÏíÏ</h3>
+                <h3><i class="fa-solid fa-pen-to-square"></i> Ø·Ù„Ø¨ Ø¥Ø¬Ø§Ø²Ø© Ø¬Ø¯ÙŠØ¯</h3>
                 <form id="leaveForm" autocomplete="off">
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">ÇáÇÓã</label>
+                            <label class="form-label">Ø§Ù„Ø§Ø³Ù…</label>
                             <input id="requesterName" class="form-input" readonly>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">ÇáÑŞã ÇáæÙíİí</label>
+                            <label class="form-label">Ø§Ù„Ø±Ù‚Ù… Ø§Ù„ÙˆØ¸ÙŠÙÙŠ</label>
                             <input id="requesterEmpId" class="form-input" readonly>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">ÇáİÑÚ</label>
+                            <label class="form-label">Ø§Ù„ÙØ±Ø¹</label>
                             <input id="requesterBranch" class="form-input" readonly>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">ÑÆíÓ ÇáãÓÇÍíä ÇáãÈÇÔÑ</label>
+                            <label class="form-label">Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ† Ø§Ù„Ù…Ø¨Ø§Ø´Ø±</label>
                             <input id="requesterHead" class="form-input" readonly>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">äæÚ ÇáÅÌÇÒÉ</label>
+                            <label class="form-label">Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©</label>
                             <select id="leaveType" class="form-select" required>
-                                <option value="annual">ÓäæíÉ</option>
-                                <option value="emergency">ØÇÑÆÉ</option>
-                                <option value="sick">ãÑÖíÉ</option>
-                                <option value="unpaid">ÈÏæä ÑÇÊÈ</option>
-                                <option value="other">ÃÎÑì</option>
+                                <option value="annual">Ø³Ù†ÙˆÙŠØ©</option>
+                                <option value="emergency">Ø·Ø§Ø±Ø¦Ø©</option>
+                                <option value="sick">Ù…Ø±Ø¶ÙŠØ©</option>
+                                <option value="unpaid">Ø¨Ø¯ÙˆÙ† Ø±Ø§ØªØ¨</option>
+                                <option value="other">Ø£Ø®Ø±Ù‰</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">ÚÏÏ ÇáÃíÇã</label>
+                            <label class="form-label">Ø¹Ø¯Ø¯ Ø§Ù„Ø£ÙŠØ§Ù…</label>
                             <input type="number" id="daysRequested" class="form-input" min="1" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label" style="color:#2563eb;font-weight:700;">
-                                <i class="fa-solid fa-calendar-check"></i> ÊÇÑíÎ ÇáãÛÇÏÑÉ ÇáãÊæŞÚ *
+                                <i class="fa-solid fa-calendar-check"></i> ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹ *
                             </label>
                             <input type="date" id="startDate" class="form-input apple-date-input" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label" style="color:#7c3aed;font-weight:700;">
-                                <i class="fa-solid fa-calendar-xmark"></i> ÊÇÑíÎ ÇáÚæÏÉ ÇáãÊæŞÚ *
+                                <i class="fa-solid fa-calendar-xmark"></i> ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹ *
                             </label>
                             <input type="date" id="endDate" class="form-input apple-date-input" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">ÓÈÈ ÇáÅÌÇÒÉ</label>
-                        <textarea id="reason" class="form-textarea" rows="3" placeholder="ÇßÊÈ ÓÈÈ ØáÈ ÇáÅÌÇÒÉ ÈÇÎÊÕÇÑ..." required></textarea>
+                        <label class="form-label">Ø³Ø¨Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©</label>
+                        <textarea id="reason" class="form-textarea" rows="3" placeholder="Ø§ÙƒØªØ¨ Ø³Ø¨Ø¨ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ø§Ø®ØªØµØ§Ø±..." required></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">ÑÇÈØ ÇáãÑİŞ Úáì Google Drive</label>
+                        <label class="form-label">Ø±Ø§Ø¨Ø· Ø§Ù„Ù…Ø±ÙÙ‚ Ø¹Ù„Ù‰ Google Drive</label>
                         <input type="url" id="attachmentUrl" class="form-input" placeholder="https://drive.google.com/...">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">ÑÇÈØ ÕæÑÉ ÇáÊæŞíÚ ÇáÅáßÊÑæäí</label>
-                        <input type="url" id="signatureImageUrl" class="form-input" placeholder="ÑÇÈØ ÕæÑÉ ÇáÊæŞíÚ">
+                        <label class="form-label">Ø±Ø§Ø¨Ø· ØµÙˆØ±Ø© Ø§Ù„ØªÙˆÙ‚ÙŠØ¹ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label>
+                        <input type="url" id="signatureImageUrl" class="form-input" placeholder="Ø±Ø§Ø¨Ø· ØµÙˆØ±Ø© Ø§Ù„ØªÙˆÙ‚ÙŠØ¹">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">ãáÇÍÙÇÊ ÅÖÇİíÉ</label>
-                        <textarea id="notes" class="form-textarea" rows="2" placeholder="ÇÎÊíÇÑí..."></textarea>
+                        <label class="form-label">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ©</label>
+                        <textarea id="notes" class="form-textarea" rows="2" placeholder="Ø§Ø®ØªÙŠØ§Ø±ÙŠ..."></textarea>
                     </div>
                     <div id="leaveFormAlert" style="margin-top:12px;"></div>
                     <div class="small-actions" style="margin-top:14px;">
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> ÅÑÓÇá ÇáØáÈ</button>
-                        <button type="button" class="btn btn-ghost" id="calcDaysBtn"><i class="fa-solid fa-calculator"></i> ÍÓÇÈ ÇáÃíÇã</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø·Ù„Ø¨</button>
+                        <button type="button" class="btn btn-ghost" id="calcDaysBtn"><i class="fa-solid fa-calculator"></i> Ø­Ø³Ø§Ø¨ Ø§Ù„Ø£ÙŠØ§Ù…</button>
                     </div>
                 </form>
             </div>
 
             <!-- Pending approvals -->
             <div class="card" id="pendingApprovalCard">
-                <h3><i class="fa-solid fa-user-check"></i> ØáÈÇÊ ÈÇäÊÙÇÑ ãæÇİŞÊß</h3>
+                <h3><i class="fa-solid fa-user-check"></i> Ø·Ù„Ø¨Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ</h3>
                 <div id="pendingApprovalsContainer"></div>
                 <div id="pendingApprovalsEmpty" style="padding:18px 10px;color:var(--text-muted);text-align:center;" class="hidden">
-                    áÇ ÊæÌÏ ØáÈÇÊ ÊÍÊÇÌ ãæÇİŞÊß ÍÇáíÇğ.
+                    Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª ØªØ­ØªØ§Ø¬ Ù…ÙˆØ§ÙÙ‚ØªÙƒ Ø­Ø§Ù„ÙŠØ§Ù‹.
                 </div>
             </div>
         </div>
@@ -170,24 +169,24 @@
         <!-- My requests table -->
         <div class="card" style="margin-top:24px;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-                <h3 style="margin-bottom:0;"><i class="fa-solid fa-list-check"></i> ØáÈÇÊí</h3>
+                <h3 style="margin-bottom:0;"><i class="fa-solid fa-list-check"></i> Ø·Ù„Ø¨Ø§ØªÙŠ</h3>
                 <div style="display:flex;gap:8px;">
-                    <button onclick="exportLeaveRequestsXLSX()" class="btn btn-ghost no-print"><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> ÊÕÏíÑ Excel</button>
-                    <button type="button" class="btn btn-ghost no-print" onclick="printLatestApproved()"><i class="fa-solid fa-print"></i> ØÈÇÚÉ ÂÎÑ ØáÈ ãÚÊãÏ</button>
+                    <button onclick="exportLeaveRequestsXLSX()" class="btn btn-ghost no-print"><i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> ØªØµØ¯ÙŠØ± Excel</button>
+                    <button type="button" class="btn btn-ghost no-print" onclick="printLatestApproved()"><i class="fa-solid fa-print"></i> Ø·Ø¨Ø§Ø¹Ø© Ø¢Ø®Ø± Ø·Ù„Ø¨ Ù…Ø¹ØªÙ…Ø¯</button>
                 </div>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>ÇáäæÚ</th>
-                            <th>ÊÇÑíÎ ÇáãÛÇÏÑÉ</th>
-                            <th>ÊÇÑíÎ ÇáÚæÏÉ</th>
-                            <th>ÇáÃíÇã ÇáãØáæÈÉ</th>
-                            <th>ÇáÃíÇã ÇáãÚÊãÏÉ</th>
-                            <th>ÇáÍÇáÉ</th>
-                            <th>ãÛÇÏÑÉ İÚáíÉ</th>
-                            <th class="no-print">ÅÌÑÇÁ</th>
+                            <th>Ø§Ù„Ù†ÙˆØ¹</th>
+                            <th>ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</th>
+                            <th>ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø©</th>
+                            <th>Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©</th>
+                            <th>Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©</th>
+                            <th>Ø§Ù„Ø­Ø§Ù„Ø©</th>
+                            <th>Ù…ØºØ§Ø¯Ø±Ø© ÙØ¹Ù„ÙŠØ©</th>
+                            <th class="no-print">Ø¥Ø¬Ø±Ø§Ø¡</th>
                         </tr>
                     </thead>
                     <tbody id="myRequestsBody"></tbody>
@@ -203,20 +202,20 @@
 <div class="modal-overlay" id="departureModal" style="display:none;" onclick="if(event.target===this)closeDepartureModal()">
     <div class="modal-box">
         <div class="modal-header">
-            <h3 id="departureModalTitle">ÊÃßíÏ ÇáãÛÇÏÑÉ</h3>
+            <h3 id="departureModalTitle">ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</h3>
             <button class="modal-close" onclick="closeDepartureModal()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div style="padding:20px 24px 24px;">
             <p id="departureModalDesc" style="color:var(--text-muted);margin-bottom:16px;"></p>
             <div class="form-group">
-                <label class="form-label" style="font-weight:700;">ÊÇÑíÎ ÇáãÛÇÏÑÉ ÇáİÚáí</label>
+                <label class="form-label" style="font-weight:700;">ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„ÙØ¹Ù„ÙŠ</label>
                 <input type="date" id="actualDepartureDate" class="form-input apple-date-input">
             </div>
             <input type="hidden" id="departureLeaveId">
             <input type="hidden" id="departureAction">
             <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
-                <button class="btn btn-ghost" onclick="closeDepartureModal()">ÅáÛÇÁ</button>
-                <button class="btn btn-primary" onclick="confirmDepartureAction()">ÊÃßíÏ</button>
+                <button class="btn btn-ghost" onclick="closeDepartureModal()">Ø¥Ù„ØºØ§Ø¡</button>
+                <button class="btn btn-primary" onclick="confirmDepartureAction()">ØªØ£ÙƒÙŠØ¯</button>
             </div>
         </div>
     </div>
@@ -225,10 +224,10 @@
 <!-- ===== Custody Block Modal ===== -->
 <div id="custodyBlockModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
-        <h4 style="margin-bottom:6px;color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> ÊÚĞøÑ ÊÓÌíá ÇáãÛÇÏÑÉ</h4>
+        <h4 style="margin-bottom:6px;color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> ØªØ¹Ø°Ù‘Ø± ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</h4>
         <div id="custodyBlockBody" style="margin:14px 0;font-size:.9rem;line-height:1.7;"></div>
         <button onclick="document.getElementById('custodyBlockModal').style.display='none'" class="btn btn-primary" style="width:100%;background:#dc2626;border-color:#dc2626;">
-            <i class="fa-solid fa-check"></i> ÍÓäÇğ
+            <i class="fa-solid fa-check"></i> Ø­Ø³Ù†Ø§Ù‹
         </button>
     </div>
 </div>
@@ -258,18 +257,18 @@ function showAlert(msg, type='error') {
         `<div style="background:${bg};color:${color};padding:10px 14px;border-radius:10px;font-weight:600;">${msg}</div>`;
 }
 
-const getBranchLabel = id => { const b = db.branches.find(b => b.id === id); return b ? b.name : 'ÛíÑ ãÍÏÏ'; };
-const getLeaveTypeLabel = v => ({ annual:'ÓäæíÉ', emergency:'ØÇÑÆÉ', sick:'ãÑÖíÉ', unpaid:'ÈÏæä ÑÇÊÈ', other:'ÃÎÑì' }[v] || v || '—');
+const getBranchLabel = id => { const b = db.branches.find(b => b.id === id); return b ? b.name : 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'; };
+const getLeaveTypeLabel = v => ({ annual:'Ø³Ù†ÙˆÙŠØ©', emergency:'Ø·Ø§Ø±Ø¦Ø©', sick:'Ù…Ø±Ø¶ÙŠØ©', unpaid:'Ø¨Ø¯ÙˆÙ† Ø±Ø§ØªØ¨', other:'Ø£Ø®Ø±Ù‰' }[v] || v || 'â€”');
 const isLeavePending = s => s === 'pending_head_approval' || s === 'pending_admin_approval';
 const calcDays = (s, e) => { if (!s || !e) return 0; const d = Math.floor((new Date(e)-new Date(s))/86400000)+1; return d > 0 ? d : 0; };
 
 function renderUserHeader() {
-    document.getElementById('pageTitle').innerText = `ØáÈÇÊ ÇáÅÌÇÒÉ - ${currentUser.name}`;
+    document.getElementById('pageTitle').innerText = `Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© - ${currentUser.name}`;
     document.getElementById('requesterName').value = currentUser.name || '';
     document.getElementById('requesterEmpId').value = currentUser.empId || '';
     document.getElementById('requesterBranch').value = getBranchLabel(currentUser.branch);
     const head = db.users.find(u => u.role==='head' && u.responsibleBranch===currentUser.branch && u.status==='approved');
-    document.getElementById('requesterHead').value = head ? head.name : 'ÛíÑ ãÚíä';
+    document.getElementById('requesterHead').value = head ? head.name : 'ØºÙŠØ± Ù…Ø¹ÙŠÙ†';
 }
 
 // ===== Pending approvals with approved-days input =====
@@ -292,25 +291,25 @@ function renderPendingApprovals() {
         <div class="request-card">
             <div class="request-head">
                 <div>
-                    <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">${user?user.name:'—'} - ${getLeaveTypeLabel(req.leaveType)}</div>
+                    <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">${user?user.name:'â€”'} - ${getLeaveTypeLabel(req.leaveType)}</div>
                     <div style="color:var(--text-muted);font-size:.85rem;">${formatDate(req.timestamp)}</div>
                 </div>
                 ${getLeaveStatusBadge(req.status)}
             </div>
             <div class="request-meta">
-                <div class="meta-box"><div class="meta-label">ÊÇÑíÎ ÇáãÛÇÏÑÉ</div><div class="meta-value">${formatDate(req.startDate)}</div></div>
-                <div class="meta-box"><div class="meta-label">ÊÇÑíÎ ÇáÚæÏÉ</div><div class="meta-value">${formatDate(req.endDate)}</div></div>
-                <div class="meta-box"><div class="meta-label">ÇáÃíÇã ÇáãØáæÈÉ</div><div class="meta-value">${req.daysRequested||'—'}</div></div>
-                <div class="meta-box"><div class="meta-label">ÇáÓÈÈ</div><div class="meta-value">${req.reason||'—'}</div></div>
+                <div class="meta-box"><div class="meta-label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©</div><div class="meta-value">${formatDate(req.startDate)}</div></div>
+                <div class="meta-box"><div class="meta-label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø©</div><div class="meta-value">${formatDate(req.endDate)}</div></div>
+                <div class="meta-box"><div class="meta-label">Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©</div><div class="meta-value">${req.daysRequested||'â€”'}</div></div>
+                <div class="meta-box"><div class="meta-label">Ø§Ù„Ø³Ø¨Ø¨</div><div class="meta-value">${req.reason||'â€”'}</div></div>
             </div>
             <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                 <div style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:8px 12px;">
-                    <label style="font-size:.85rem;font-weight:600;white-space:nowrap;">ÇáÃíÇã ÇáãÚÊãÏÉ:</label>
+                    <label style="font-size:.85rem;font-weight:600;white-space:nowrap;">Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©:</label>
                     <input type="number" id="appDays_${req.id}" class="approve-days-input" value="${defaultDays}" min="1" max="${req.daysRequested*2}">
                 </div>
-                ${req.attachmentUrl ? `<a href="${req.attachmentUrl}" target="_blank" class="btn btn-ghost"><i class="fa-solid fa-link"></i> ÇáãÑİŞ</a>` : ''}
-                <button class="btn btn-primary" onclick="approveLeave('${req.id}')"><i class="fa-solid fa-check"></i> ãæÇİŞÉ</button>
-                <button class="btn btn-ghost" style="color:#b91c1c;" onclick="rejectLeave('${req.id}')"><i class="fa-solid fa-xmark"></i> ÑİÖ</button>
+                ${req.attachmentUrl ? `<a href="${req.attachmentUrl}" target="_blank" class="btn btn-ghost"><i class="fa-solid fa-link"></i> Ø§Ù„Ù…Ø±ÙÙ‚</a>` : ''}
+                <button class="btn btn-primary" onclick="approveLeave('${req.id}')"><i class="fa-solid fa-check"></i> Ù…ÙˆØ§ÙÙ‚Ø©</button>
+                <button class="btn btn-ghost" style="color:#b91c1c;" onclick="rejectLeave('${req.id}')"><i class="fa-solid fa-xmark"></i> Ø±ÙØ¶</button>
             </div>
         </div>`;
     }).join('');
@@ -341,24 +340,24 @@ function renderDepartureSection() {
         <div class="departure-card">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
                 <div>
-                    <div style="font-size:1rem;font-weight:800;">${user?user.name:'—'} — ${getLeaveTypeLabel(req.leaveType)}</div>
+                    <div style="font-size:1rem;font-weight:800;">${user?user.name:'â€”'} â€” ${getLeaveTypeLabel(req.leaveType)}</div>
                     <div style="font-size:.85rem;color:var(--text-muted);margin-top:4px;">
-                        <i class="fa-solid fa-calendar"></i> ÇáãÛÇÏÑÉ ÇáãÊæŞÚÉ: <strong>${formatDate(req.startDate)}</strong>
+                        <i class="fa-solid fa-calendar"></i> Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹Ø©: <strong>${formatDate(req.startDate)}</strong>
                         &nbsp;|&nbsp;
-                        <i class="fa-solid fa-calendar-check"></i> ÇáÚæÏÉ ÇáãÊæŞÚÉ: <strong>${formatDate(req.endDate)}</strong>
+                        <i class="fa-solid fa-calendar-check"></i> Ø§Ù„Ø¹ÙˆØ¯Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹Ø©: <strong>${formatDate(req.endDate)}</strong>
                         &nbsp;|&nbsp;
-                        ÇáÃíÇã ÇáãÚÊãÏÉ: <strong>${finalDays}</strong>
+                        Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©: <strong>${finalDays}</strong>
                     </div>
-                    ${req.isDeparted ? `<div style="color:#16a34a;font-size:.85rem;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> ÛÇÏÑ ÈÊÇÑíÎ: <strong>${formatDate(req.actualDepartureDate)}</strong></div>` : ''}
+                    ${req.isDeparted ? `<div style="color:#16a34a;font-size:.85rem;margin-top:4px;"><i class="fa-solid fa-plane-departure"></i> ØºØ§Ø¯Ø± Ø¨ØªØ§Ø±ÙŠØ®: <strong>${formatDate(req.actualDepartureDate)}</strong></div>` : ''}
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     ${!req.isDeparted ? `
                         <button class="btn-departed" onclick="openDepartureModal('${req.id}','depart')">
-                            <i class="fa-solid fa-plane-departure"></i> ÛÇÏÑ
+                            <i class="fa-solid fa-plane-departure"></i> ØºØ§Ø¯Ø±
                         </button>
                     ` : `
                         <button class="btn-returned" onclick="openDepartureModal('${req.id}','return')">
-                            <i class="fa-solid fa-plane-arrival"></i> ÑÌÚ ãä ÇáÅÌÇÒÉ
+                            <i class="fa-solid fa-plane-arrival"></i> Ø±Ø¬Ø¹ Ù…Ù† Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©
                         </button>
                     `}
                 </div>
@@ -380,20 +379,20 @@ function renderMyRequests() {
 
     const body = document.getElementById('myRequestsBody');
     if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted);">áÇ ÊæÌÏ ØáÈÇÊ ÅÌÇÒÉ ÍÊì ÇáÂä.</td></tr>';
+        body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted);">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª Ø¥Ø¬Ø§Ø²Ø© Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.</td></tr>';
         return;
     }
     body.innerHTML = rows.map(req => {
-        const finalDays = req.approvedDaysFinal || req.approvedDaysByHead || '—';
+        const finalDays = req.approvedDaysFinal || req.approvedDaysByHead || 'â€”';
         const departureTxt = req.actualDepartureDate
             ? `<span style="color:#16a34a;font-size:.8rem;"><i class="fa-solid fa-plane-departure"></i> ${formatDate(req.actualDepartureDate)}</span>`
-            : (req.status==='approved' ? '<span style="color:#d97706;font-size:.8rem;">ÈÇäÊÙÇÑ ÇáÊÃßíÏ</span>' : '—');
+            : (req.status==='approved' ? '<span style="color:#d97706;font-size:.8rem;">Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„ØªØ£ÙƒÙŠØ¯</span>' : 'â€”');
         return `<tr>
             <td>${getLeaveTypeLabel(req.leaveType)}</td>
             <td>${formatDate(req.startDate)}</td>
             <td>${formatDate(req.endDate)}</td>
-            <td><strong>${req.daysRequested||'—'}</strong></td>
-            <td style="color:${finalDays!=='—'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
+            <td><strong>${req.daysRequested||'â€”'}</strong></td>
+            <td style="color:${finalDays!=='â€”'?'#16a34a':'var(--text-muted)'};font-weight:700;">${finalDays}</td>
             <td>${getLeaveStatusBadge(req.status)}</td>
             <td>${departureTxt}</td>
             <td class="no-print"><button class="btn btn-ghost" style="padding:5px 8px;font-size:.8rem;" onclick="printLeave('${req.id}')"><i class="fa-solid fa-print"></i></button></td>
@@ -402,19 +401,19 @@ function renderMyRequests() {
 }
 
 window.approveLeave = (id) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÇáãæÇİŞÉ Úáì ØáÈ ÇáÅÌÇÒÉ¿')) return;
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ')) return;
     const role = isAdmin ? 'admin' : 'head';
     const daysInput = document.getElementById(`appDays_${id}`);
     const approvedDays = daysInput ? Number(daysInput.value) : null;
     const ok = approveLeaveRequest(id, role, approvedDays);
-    if (ok) { toast('ÊãÊ ÇáãæÇİŞÉ ÈäÌÇÍ', 'success'); renderAll(); }
-    else { toast('ÊÚĞÑ ÇáãæÇİŞÉ Úáì åĞÇ ÇáØáÈ', 'error'); }
+    if (ok) { toast('ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success'); renderAll(); }
+    else { toast('ØªØ¹Ø°Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ù‡Ø°Ø§ Ø§Ù„Ø·Ù„Ø¨', 'error'); }
 };
 
 window.rejectLeave = (id) => {
-    if (!confirm('åá ÃäÊ ãÊÃßÏ ãä ÑİÖ ØáÈ ÇáÅÌÇÒÉ¿')) return;
-    if (rejectLeaveRequest(id)) { toast('Êã ÑİÖ ÇáØáÈ', 'success'); renderAll(); }
-    else { toast('ÊÚĞÑ ÑİÖ åĞÇ ÇáØáÈ', 'error'); }
+    if (!confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ÙØ¶ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©ØŸ')) return;
+    if (rejectLeaveRequest(id)) { toast('ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨', 'success'); renderAll(); }
+    else { toast('ØªØ¹Ø°Ø± Ø±ÙØ¶ Ù‡Ø°Ø§ Ø§Ù„Ø·Ù„Ø¨', 'error'); }
 };
 
 // ===== Departure Modal =====
@@ -425,12 +424,12 @@ window.openDepartureModal = (leaveId, action) => {
     document.getElementById('departureLeaveId').value = leaveId;
     document.getElementById('departureAction').value = action;
     if (action === 'depart') {
-        document.getElementById('departureModalTitle').textContent = 'ÊÃßíÏ ãÛÇÏÑÉ ÇáãæÙİ';
-        document.getElementById('departureModalDesc').textContent = `ÃßÏ ãÛÇÏÑÉ ${user?user.name:''} æÃÏÎá ÊÇÑíÎ ÇáãÛÇÏÑÉ ÇáİÚáí.`;
+        document.getElementById('departureModalTitle').textContent = 'ØªØ£ÙƒÙŠØ¯ Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„Ù…ÙˆØ¸Ù';
+        document.getElementById('departureModalDesc').textContent = `Ø£ÙƒØ¯ Ù…ØºØ§Ø¯Ø±Ø© ${user?user.name:''} ÙˆØ£Ø¯Ø®Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„ÙØ¹Ù„ÙŠ.`;
         document.getElementById('actualDepartureDate').value = req.startDate || new Date().toISOString().split('T')[0];
     } else {
-        document.getElementById('departureModalTitle').textContent = 'ÊÃßíÏ ÚæÏÉ ÇáãæÙİ ãä ÇáÅÌÇÒÉ';
-        document.getElementById('departureModalDesc').textContent = `ÃßÏ ÚæÏÉ ${user?user.name:''} ãä ÇáÅÌÇÒÉ æÃÏÎá ÊÇÑíÎ ÇáÚæÏÉ ÇáİÚáí.`;
+        document.getElementById('departureModalTitle').textContent = 'ØªØ£ÙƒÙŠØ¯ Ø¹ÙˆØ¯Ø© Ø§Ù„Ù…ÙˆØ¸Ù Ù…Ù† Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©';
+        document.getElementById('departureModalDesc').textContent = `Ø£ÙƒØ¯ Ø¹ÙˆØ¯Ø© ${user?user.name:''} Ù…Ù† Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© ÙˆØ£Ø¯Ø®Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø© Ø§Ù„ÙØ¹Ù„ÙŠ.`;
         document.getElementById('actualDepartureDate').value = req.endDate || new Date().toISOString().split('T')[0];
     }
     document.getElementById('departureModal').style.display = 'flex';
@@ -451,19 +450,19 @@ window.confirmDepartureAction = () => {
             const user = req ? db.users.find(u => u.id === req.userId) : null;
             document.getElementById('custodyBlockBody').innerHTML =
                 `<div style="font-weight:700;margin-bottom:8px;">${user?.name || ''}</div>` +
-                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> áÇ íãßä ÇáãÛÇÏÑÉ — áÏì ÇáãæÙİ ÚåÏÉ äÔØÉ Úáì ÇáÃÌåÒÉ ÇáÊÇáíÉ:</div>` +
+                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© â€” Ù„Ø¯Ù‰ Ø§Ù„Ù…ÙˆØ¸Ù Ø¹Ù‡Ø¯Ø© Ù†Ø´Ø·Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ØªØ§Ù„ÙŠØ©:</div>` +
                 `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.85rem;font-weight:600;">${window._departureBlockedByCustody}</div>` +
-                `<div style="margin-top:10px;font-size:.82rem;color:var(--text-muted);">íÌÈ ÅÚÇÏÉ ÇáÃÌåÒÉ Ãæ äŞá ÇáÚåÏÉ ŞÈá ÊÓÌíá ÇáãÛÇÏÑÉ.</div>`;
+                `<div style="margin-top:10px;font-size:.82rem;color:var(--text-muted);">ÙŠØ¬Ø¨ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø£Ùˆ Ù†Ù‚Ù„ Ø§Ù„Ø¹Ù‡Ø¯Ø© Ù‚Ø¨Ù„ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø©.</div>`;
             document.getElementById('custodyBlockModal').style.display = 'flex';
             renderAll();
             return;
         }
-        if (ok) toast('Êã ÊÓÌíá ÇáãÛÇÏÑÉ ÈäÌÇÍ', 'success');
+        if (ok) toast('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
     } else {
         ok = markLeaveReturned(leaveId, dateVal);
-        if (ok) toast('Êã ÊÓÌíá ÇáÚæÏÉ ÈäÌÇÍ', 'success');
+        if (ok) toast('ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¹ÙˆØ¯Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
     }
-    if (!ok) toast('ÊÚĞÑÊ ÇáÚãáíÉ', 'error');
+    if (!ok) toast('ØªØ¹Ø°Ø±Øª Ø§Ù„Ø¹Ù…Ù„ÙŠØ©', 'error');
     closeDepartureModal();
     renderAll();
 };
@@ -481,9 +480,9 @@ document.getElementById('leaveForm').addEventListener('submit', e => {
     const daysRequested = Number(document.getElementById('daysRequested').value);
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    if (!startDate) { showAlert('íÌÈ ÅÏÎÇá ÊÇÑíÎ ÇáãÛÇÏÑÉ ÇáãÊæŞÚ', 'error'); return; }
-    if (!endDate)   { showAlert('íÌÈ ÅÏÎÇá ÊÇÑíÎ ÇáÚæÏÉ ÇáãÊæŞÚ', 'error'); return; }
-    if (calcDays(startDate, endDate) <= 0) { showAlert('ÇáÊæÇÑíÎ ÛíÑ ÕÍíÍÉ', 'error'); return; }
+    if (!startDate) { showAlert('ÙŠØ¬Ø¨ Ø¥Ø¯Ø®Ø§Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹', 'error'); return; }
+    if (!endDate)   { showAlert('ÙŠØ¬Ø¨ Ø¥Ø¯Ø®Ø§Ù„ ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹', 'error'); return; }
+    if (calcDays(startDate, endDate) <= 0) { showAlert('Ø§Ù„ØªÙˆØ§Ø±ÙŠØ® ØºÙŠØ± ØµØ­ÙŠØ­Ø©', 'error'); return; }
 
     const result = addLeaveRequest({
         userId: currentUser.id,
@@ -494,9 +493,9 @@ document.getElementById('leaveForm').addEventListener('submit', e => {
         signatureImageUrl: document.getElementById('signatureImageUrl').value.trim(),
         notes: document.getElementById('notes').value.trim()
     });
-    if (!result.success) { showAlert(result.msg||'ÊÚĞÑ ÅÑÓÇá ÇáØáÈ', 'error'); return; }
-    showAlert('Êã ÅÑÓÇá ØáÈ ÇáÅÌÇÒÉ ÈäÌÇÍ', 'success');
-    toast('Êã ÅÑÓÇá ÇáØáÈ æÈÇäÊÙÇÑ ÇáãæÇİŞÇÊ', 'success');
+    if (!result.success) { showAlert(result.msg||'ØªØ¹Ø°Ø± Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø·Ù„Ø¨', 'error'); return; }
+    showAlert('ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ø¨Ù†Ø¬Ø§Ø­', 'success');
+    toast('ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø·Ù„Ø¨ ÙˆØ¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø§Øª', 'success');
     e.target.reset();
     renderAll();
 });
@@ -522,14 +521,13 @@ function buildPrintHtml(req) {
     const admin = db.users.find(u=>u.role==='admin' && u.status==='approved');
     const history = (req.approvalHistory||[]).map(item=>`
         <div style="margin-bottom:8px;padding:8px;border:1px solid #ddd;border-radius:6px;">
-            <strong>${item.approverRole||item.approverName||'—'}</strong>:
-            ${item.decision==='approved'?'ãæÇİŞÉ':item.decision==='rejected'?'ÑİÖ':item.decision==='departed'?'ãÛÇÏÑÉ':item.decision==='returned'?'ÚæÏÉ':'—'}
-            ${item.approvedDays?` (${item.approvedDays} íæã)`:''}
-            — ${formatDate(item.timestamp)}
+            <strong>${item.approverRole||item.approverName||'â€”'}</strong>:
+            ${item.decision==='approved'?'Ù…ÙˆØ§ÙÙ‚Ø©':item.decision==='rejected'?'Ø±ÙØ¶':item.decision==='departed'?'Ù…ØºØ§Ø¯Ø±Ø©':item.decision==='returned'?'Ø¹ÙˆØ¯Ø©':'â€”'}
+            ${item.approvedDays?` (${item.approvedDays} ÙŠÙˆÙ…)`:''}
+            â€” ${formatDate(item.timestamp)}
         </div>
     `).join('');
-    return `<html lang="ar" dir="rtl"><head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg"><meta charset="UTF-8"><style>
+    return `<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><style>
         body{font-family:Arial,sans-serif;direction:rtl;padding:28px;color:#111;}
         .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
         .box{border:1px solid #ddd;border-radius:8px;padding:10px 12px;}
@@ -537,33 +535,33 @@ function buildPrintHtml(req) {
         .val{font-size:14px;font-weight:700;}
         @media print{body{padding:0;}}
     </style></head><body>
-    <h2 style="text-align:center;margin-bottom:20px;">ÔÑßÉ ÔÈå ÇáÌÒíÑÉ ááãŞÇæáÇÊ - ÓÇÌßæ</h2>
-    <h3 style="text-align:center;margin-bottom:20px;">äãæĞÌ ØáÈ ÅÌÇÒÉ</h3>
+    <h2 style="text-align:center;margin-bottom:20px;">Ø´Ø±ÙƒØ© Ø´Ø¨Ù‡ Ø§Ù„Ø¬Ø²ÙŠØ±Ø© Ù„Ù„Ù…Ù‚Ø§ÙˆÙ„Ø§Øª - Ø³Ø§Ø¬ÙƒÙˆ</h2>
+    <h3 style="text-align:center;margin-bottom:20px;">Ù†Ù…ÙˆØ°Ø¬ Ø·Ù„Ø¨ Ø¥Ø¬Ø§Ø²Ø©</h3>
     <div class="grid">
-        <div class="box"><div class="label">ÇÓã ÇáãæÙİ</div><div class="val">${user?user.name:'—'}</div></div>
-        <div class="box"><div class="label">ÇáÑŞã ÇáæÙíİí</div><div class="val">${user?user.empId:'—'}</div></div>
-        <div class="box"><div class="label">ÇáİÑÚ</div><div class="val">${getBranchLabel(req.branchId)}</div></div>
-        <div class="box"><div class="label">äæÚ ÇáÅÌÇÒÉ</div><div class="val">${getLeaveTypeLabel(req.leaveType)}</div></div>
-        <div class="box"><div class="label">ÊÇÑíÎ ÇáãÛÇÏÑÉ ÇáãÊæŞÚ</div><div class="val">${formatDate(req.startDate)}</div></div>
-        <div class="box"><div class="label">ÊÇÑíÎ ÇáÚæÏÉ ÇáãÊæŞÚ</div><div class="val">${formatDate(req.endDate)}</div></div>
-        <div class="box"><div class="label">ÇáÃíÇã ÇáãØáæÈÉ</div><div class="val">${req.daysRequested||'—'}</div></div>
-        <div class="box"><div class="label">ÇáÃíÇã ÇáãÚÊãÏÉ</div><div class="val">${req.approvedDaysFinal||req.approvedDaysByHead||'—'}</div></div>
-        <div class="box"><div class="label">ÊÇÑíÎ ÇáãÛÇÏÑÉ ÇáİÚáí</div><div class="val">${req.actualDepartureDate?formatDate(req.actualDepartureDate):'—'}</div></div>
-        <div class="box"><div class="label">ÊÇÑíÎ ÇáÚæÏÉ ÇáİÚáí</div><div class="val">${req.actualReturnDate?formatDate(req.actualReturnDate):'—'}</div></div>
+        <div class="box"><div class="label">Ø§Ø³Ù… Ø§Ù„Ù…ÙˆØ¸Ù</div><div class="val">${user?user.name:'â€”'}</div></div>
+        <div class="box"><div class="label">Ø§Ù„Ø±Ù‚Ù… Ø§Ù„ÙˆØ¸ÙŠÙÙŠ</div><div class="val">${user?user.empId:'â€”'}</div></div>
+        <div class="box"><div class="label">Ø§Ù„ÙØ±Ø¹</div><div class="val">${getBranchLabel(req.branchId)}</div></div>
+        <div class="box"><div class="label">Ù†ÙˆØ¹ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©</div><div class="val">${getLeaveTypeLabel(req.leaveType)}</div></div>
+        <div class="box"><div class="label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹</div><div class="val">${formatDate(req.startDate)}</div></div>
+        <div class="box"><div class="label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø© Ø§Ù„Ù…ØªÙˆÙ‚Ø¹</div><div class="val">${formatDate(req.endDate)}</div></div>
+        <div class="box"><div class="label">Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©</div><div class="val">${req.daysRequested||'â€”'}</div></div>
+        <div class="box"><div class="label">Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©</div><div class="val">${req.approvedDaysFinal||req.approvedDaysByHead||'â€”'}</div></div>
+        <div class="box"><div class="label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ø§Ù„ÙØ¹Ù„ÙŠ</div><div class="val">${req.actualDepartureDate?formatDate(req.actualDepartureDate):'â€”'}</div></div>
+        <div class="box"><div class="label">ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¹ÙˆØ¯Ø© Ø§Ù„ÙØ¹Ù„ÙŠ</div><div class="val">${req.actualReturnDate?formatDate(req.actualReturnDate):'â€”'}</div></div>
     </div>
-    <div class="box" style="margin-top:12px;"><div class="label">ÇáÓÈÈ</div><div class="val">${req.reason||'—'}</div></div>
-    <h4 style="margin:16px 0 8px;">ÓÌá ÇáãæÇİŞÇÊ</h4>
-    ${history || '<div class="box">áÇ íæÌÏ ÓÌá ÍÊì ÇáÂä.</div>'}
+    <div class="box" style="margin-top:12px;"><div class="label">Ø§Ù„Ø³Ø¨Ø¨</div><div class="val">${req.reason||'â€”'}</div></div>
+    <h4 style="margin:16px 0 8px;">Ø³Ø¬Ù„ Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø§Øª</h4>
+    ${history || '<div class="box">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø³Ø¬Ù„ Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.</div>'}
     <div class="grid" style="margin-top:24px;">
-        <div class="box" style="min-height:100px;"><div class="label">ÊæŞíÚ ÑÆíÓ ÇáãÓÇÍíä</div><div class="val">${head?head.name:'—'}</div></div>
-        <div class="box" style="min-height:100px;"><div class="label">ÊæŞíÚ ÇáãÏíÑ ÇáÚÇã</div><div class="val">${admin?admin.name:'ãÍãÏ ÇŞØíØ'}</div></div>
+        <div class="box" style="min-height:100px;"><div class="label">ØªÙˆÙ‚ÙŠØ¹ Ø±Ø¦ÙŠØ³ Ø§Ù„Ù…Ø³Ø§Ø­ÙŠÙ†</div><div class="val">${head?head.name:'â€”'}</div></div>
+        <div class="box" style="min-height:100px;"><div class="label">ØªÙˆÙ‚ÙŠØ¹ Ø§Ù„Ù…Ø¯ÙŠØ± Ø§Ù„Ø¹Ø§Ù…</div><div class="val">${admin?admin.name:'Ù…Ø­Ù…Ø¯ Ø§Ù‚Ø·ÙŠØ·'}</div></div>
     </div>
     </body></html>`;
 }
 
 window.printLeave = (id) => {
     const req = (db.leaveRequests||[]).find(r=>r.id===id);
-    if (!req) { toast('ÇáØáÈ ÛíÑ ãæÌæÏ','error'); return; }
+    if (!req) { toast('Ø§Ù„Ø·Ù„Ø¨ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯','error'); return; }
     const win = window.open('','_blank','width=900,height=700');
     win.document.open();
     win.document.write(buildPrintHtml(req));
@@ -574,7 +572,7 @@ window.printLeave = (id) => {
 window.printLatestApproved = () => {
     const latest = (db.leaveRequests||[]).filter(r=>r.userId===currentUser.id&&(r.status==='approved'||r.status==='completed'))
         .sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))[0];
-    if (!latest) { toast('áÇ íæÌÏ ØáÈ ãÚÊãÏ ááØÈÇÚÉ','warning'); return; }
+    if (!latest) { toast('Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø·Ù„Ø¨ Ù…Ø¹ØªÙ…Ø¯ Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©','warning'); return; }
     window.printLeave(latest.id);
 };
 
@@ -588,7 +586,7 @@ function renderAll() {
 
 setInterval(renderAll, 30000);
 
-// Realtime hooks — fires instantly when custodies/leave_requests tables change
+// Realtime hooks â€” fires instantly when custodies/leave_requests tables change
 window.refreshPage = renderAll;
 window.onNewNotification = (n) => {
     if (n.actionType === 'leave_approval' || n.actionType === 'leave_departure') renderAll();

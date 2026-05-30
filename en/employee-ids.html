@@ -1,7 +1,6 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee ID Management - SAJCO</title>
@@ -72,7 +71,7 @@
                                 style="letter-spacing:3px;font-weight:700;font-size:1.1rem;">
                         </div>
                         <div class="form-group" style="flex:2;min-width:200px;">
-                            <label class="form-label">Employee Name <span style="color:var(--text-muted);font-weight:400;">(Optional — appears automatically at registration)</span></label>
+                            <label class="form-label">Employee Name <span style="color:var(--text-muted);font-weight:400;">(Optional â€” appears automatically at registration)</span></label>
                             <input type="text" id="newEmpName" class="form-input" placeholder="Full Employee Name...">
                         </div>
                         <div class="form-group" style="flex:0;">
@@ -90,7 +89,7 @@
                         <strong style="color: #0369a1;">Excel Import Instructions:</strong>
                     </div>
                     <ul style="margin: 0; padding-right: 20px; color: #0c4a6e; font-size: 0.9rem;">
-                        <li>First column: <strong>Employee ID</strong> — Second column (Optional): <strong>Name</strong></li>
+                        <li>First column: <strong>Employee ID</strong> â€” Second column (Optional): <strong>Name</strong></li>
                         <li>The first row (headers) will be automatically ignored</li>
                         <li>New numbers will be added only, duplicates will be ignored</li>
                     </ul>
@@ -147,9 +146,9 @@
         const msg = document.getElementById('addIdMsg');
         if (!val) { msg.innerHTML = ''; return; }
         if (db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === val))
-            msg.innerHTML = '<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> åĞÇ Number ãandÌandÏ ÈÇáİÚá</span>';
+            msg.innerHTML = '<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> Ù‡Ø°Ø§ Number Ù…andØ¬andØ¯ Ø¨Ø§Ù„ÙØ¹Ù„</span>';
         else if (db.users.some(u => u.empId === val))
-            msg.innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-user-check"></i> åĞÇ Number ãÓÌá ÈÇáİÚá ßãÓÊÎÏã</span>';
+            msg.innerHTML = '<span style="color:#d97706;"><i class="fa-solid fa-user-check"></i> Ù‡Ø°Ø§ Number Ù…Ø³Ø¬Ù„ Ø¨Ø§Ù„ÙØ¹Ù„ ÙƒÙ…Ø³ØªØ®Ø¯Ù…</span>';
         else
             msg.innerHTML = '<span style="color:#16a34a;"><i class="fa-solid fa-circle-check"></i> Available</span>';
     });
@@ -157,24 +156,24 @@
     function addNewEmployeeId() {
         const empId = newEmpIdInput.value.trim();
         const name  = document.getElementById('newEmpName').value.trim();
-        if (!empId) { showToast('ÇáÑÌÇÁ ÅÏÎÇá Employee ID', 'error'); return; }
+        if (!empId) { showToast('Ø§Ù„Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Employee ID', 'error'); return; }
 
         if (addAllowedEmployeeId(empId, name)) {
             newEmpIdInput.value = '';
             document.getElementById('newEmpName').value = '';
             document.getElementById('addIdMsg').innerHTML = '';
             renderEmployeeIds();
-            showToast(`Done Add Number ${empId}${name ? ' (' + name + ')' : ''} ÈSuccess`, 'success');
+            showToast(`Done Add Number ${empId}${name ? ' (' + name + ')' : ''} Ø¨Success`, 'success');
         } else {
-            showToast('åĞÇ Employee ID ãandÌandÏ ÈÇáİÚá', 'error');
+            showToast('Ù‡Ø°Ø§ Employee ID Ù…andØ¬andØ¯ Ø¨Ø§Ù„ÙØ¹Ù„', 'error');
         }
     }
 
     function removeEmployeeId(empId) {
-        if (confirm(`åá ÃäÊ ãÊÃßÏ from Delete Employee ID: ${empId}¿`)) {
+        if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Employee ID: ${empId}ØŸ`)) {
             if (removeAllowedEmployeeId(empId)) {
                 renderEmployeeIds();
-                showToast('Done Delete Employee ID ÈSuccess', 'success');
+                showToast('Done Delete Employee ID Ø¨Success', 'success');
             }
         }
     }
@@ -186,12 +185,12 @@
     }
 
     function clearAllEmployeeIds() {
-        if (confirm('åá ÃäÊ ãÊÃßÏ from Delete ÌãíÚ ÇáÃÑŞÇã ÇájobÉ¿ åĞÇ Action No íãßä ÇáÊÑÇÌÚ Úäå.')) {
+        if (confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ from Delete Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø±Ù‚Ø§Ù… Ø§Ù„jobØ©ØŸ Ù‡Ø°Ø§ Action No ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù†Ù‡.')) {
             db.allowedEmployeeIds = [];
             saveDB();
-            addLog(`Done Delete ÌãíÚ ÇáÃÑŞÇã ÇájobÉ ÇáãÓãandÍÉ By ${currentUser.name}`);
+            addLog(`Done Delete Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø±Ù‚Ø§Ù… Ø§Ù„jobØ© Ø§Ù„Ù…Ø³Ù…andØ­Ø© By ${currentUser.name}`);
             renderEmployeeIds();
-            showToast('Done Delete ÌãíÚ ÇáÃÑŞÇã ÇájobÉ', 'success');
+            showToast('Done Delete Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø±Ù‚Ø§Ù… Ø§Ù„jobØ©', 'success');
         }
     }
 
@@ -206,7 +205,7 @@
         totalCountSpan.textContent = allEntries.length;
 
         if (filtered.length === 0) {
-            employeeIdsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">None äÊÇÆÌ</td></tr>';
+            employeeIdsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">None Ù†ØªØ§Ø¦Ø¬</td></tr>';
             return;
         }
 
@@ -214,7 +213,7 @@
             const { empId, name } = entry;
             const isUsed = db.users.some(u => u.empId === empId);
             const statusBadge = isUsed
-                ? '<span class="badge badge-success">ãÓÊÎÏã</span>'
+                ? '<span class="badge badge-success">Ù…Ø³ØªØ®Ø¯Ù…</span>'
                 : '<span class="badge badge-warning">Available</span>';
             const registeredUser = db.users.find(u => u.empId === empId);
 
@@ -224,10 +223,10 @@
                     <td><span class="id-pill"><i class="fa-solid fa-id-badge" style="color:var(--primary);"></i>${empId}</span></td>
                     <td>
                         <input class="name-edit-input" value="${name || ''}"
-                            placeholder="ÇßÊÈ Name åäÇ..."
+                            placeholder="Ø§ÙƒØªØ¨ Name Ù‡Ù†Ø§..."
                             onblur="saveNameEdit('${empId}', this)"
                             onkeydown="if(event.key==='Enter'){this.blur();}">
-                        ${registeredUser ? `<div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">ãÓÌá ßÜ: ${registeredUser.name}</div>` : ''}
+                        ${registeredUser ? `<div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">Ù…Ø³Ø¬Ù„ ÙƒÙ€: ${registeredUser.name}</div>` : ''}
                     </td>
                     <td>${statusBadge}</td>
                     <td>
@@ -258,27 +257,27 @@
                     if (empId && addAllowedEmployeeId(empId, name)) added++;
                 });
                 renderEmployeeIds();
-                showToast(`Done Import ${added} Employee ID ÈSuccess`, 'success');
+                showToast(`Done Import ${added} Employee ID Ø¨Success`, 'success');
             };
             reader.readAsArrayBuffer(file);
         } catch (error) {
-            alert('İÔá Import Çáãáİ: ' + error.message);
+            alert('ÙØ´Ù„ Import Ø§Ù„Ù…Ù„Ù: ' + error.message);
         }
         e.target.value = '';
     });
 
     // Export to CSV
     function exportToExcel() {
-        if (db.allowedEmployeeIds.length === 0) { alert('None Employee IDs ááExport'); return; }
-        let csv = '?Employee ID,Name,Status\n';
+        if (db.allowedEmployeeIds.length === 0) { alert('None Employee IDs Ù„Ù„Export'); return; }
+        let csv = 'ï»¿Employee ID,Name,Status\n';
         db.allowedEmployeeIds.map(e => _normalizeAllowedEmpId(e)).forEach(({ empId, name }) => {
             const isUsed = db.users.some(u => u.empId === empId);
-            csv += `"${empId}","${name || ''}","${isUsed ? 'ãÓÊÎÏã' : 'Available'}"\n`;
+            csv += `"${empId}","${name || ''}","${isUsed ? 'Ù…Ø³ØªØ®Ø¯Ù…' : 'Available'}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `ÇáÃÑŞÇã_ÇájobÉ_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
+        link.download = `Ø§Ù„Ø£Ø±Ù‚Ø§Ù…_Ø§Ù„jobØ©_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
         link.click();
         URL.revokeObjectURL(link.href);
     }

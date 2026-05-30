@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+๏ปฟ<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลฯวัษ วแÝัๆฺ | ำวฬ฿ๆ</title>
+    <title>ุฅุฏุงุฑุฉ ุงููุฑูุน | ุณุงุฌูู</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <!-- Supabase Integration -->
@@ -20,58 +19,58 @@
         <main class="main">
             <header style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h2 style="font-size: 1.5rem; font-weight: 700">ลฯวัษ วแÝัๆฺ</h2>
-                    <p style="color: var(--text-muted)">ลึวÝษ ๆสฺฯํแ ๆสฺํํไ ัฤำวม วแใำวอํไ แแÝัๆฺ.</p>
+                    <h2 style="font-size: 1.5rem; font-weight: 700">ุฅุฏุงุฑุฉ ุงููุฑูุน</h2>
+                    <p style="color: var(--text-muted)">ุฅุถุงูุฉ ูุชุนุฏูู ูุชุนููู ุฑุคุณุงุก ุงูู…ุณุงุญูู ูููุฑูุน.</p>
                 </div>
                 <div style="display:flex;gap:8px;">
                     <button onclick="exportBranchesXLSX()" class="btn btn-ghost">
-                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> สีฯํั Excel
+                        <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> ุชุตุฏูุฑ Excel
                     </button>
                     <button onclick="toggleBranchForm()" class="btn btn-primary">
-                        <i class="fa-solid fa-plus"></i> ลึวÝษ Ýัฺ ฬฯํฯ
+                        <i class="fa-solid fa-plus"></i> ุฅุถุงูุฉ ูุฑุน ุฌุฏูุฏ
                     </button>
                 </div>
             </header>
 
-            <!-- ไใๆะฬ วแลึวÝษ ๆวแสฺฯํแ -->
+            <!-- ูู…ูุฐุฌ ุงูุฅุถุงูุฉ ูุงูุชุนุฏูู -->
             <div class="card hidden" id="branchFormContainer">
-                <h3 id="formTitle">ลึวÝษ Ýัฺ ฬฯํฯ</h3>
+                <h3 id="formTitle">ุฅุถุงูุฉ ูุฑุน ุฌุฏูุฏ</h3>
                 <form id="branchForm">
                     <input type="hidden" id="editBranchId">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
                         <div class="form-group">
-                            <label class="form-label">วำใ วแÝัฺ (ฺัศํ) <span style="color:#dc2626">*</span></label>
-                            <input id="bNameAr" class="form-input" placeholder="ใหวแ: Ýัฺ วแัํวึ" required>
+                            <label class="form-label">ุงุณู… ุงููุฑุน (ุนุฑุจู) <span style="color:#dc2626">*</span></label>
+                            <input id="bNameAr" class="form-input" placeholder="ู…ุซุงู: ูุฑุน ุงูุฑูุงุถ" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Branch Name (English)</label>
                             <input id="bNameEn" class="form-input" placeholder="e.g. Riyadh Branch">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">ัฦํำ วแใำวอํไ วแใำฤๆแ</label>
+                            <label class="form-label">ุฑุฆูุณ ุงูู…ุณุงุญูู ุงูู…ุณุคูู</label>
                             <select id="bHeadSurveyor" class="form-select">
-                                <option value="">แว ํๆฬฯ</option>
+                                <option value="">ูุง ููุฌุฏ</option>
                             </select>
                         </div>
                     </div>
                     <div style="margin-top: 20px; display: flex; gap: 10px;">
-                        <button type="submit" class="btn btn-primary">อÝู วแศํวไวส</button>
-                        <button type="button" onclick="toggleBranchForm()" class="btn btn-ghost">ลแÛวม</button>
+                        <button type="submit" class="btn btn-primary">ุญูุธ ุงูุจูุงูุงุช</button>
+                        <button type="button" onclick="toggleBranchForm()" class="btn btn-ghost">ุฅูุบุงุก</button>
                     </div>
                 </form>
             </div>
 
-            <!-- ฬฯๆแ วแÝัๆฺ -->
+            <!-- ุฌุฏูู ุงููุฑูุน -->
             <div class="card">
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>วำใ วแÝัฺ</th>
+                                <th>ุงุณู… ุงููุฑุน</th>
                                 <th>English Name</th>
-                                <th>ัฦํำ วแใำวอํไ</th>
-                                <th>วแลฬัวมวส</th>
+                                <th>ุฑุฆูุณ ุงูู…ุณุงุญูู</th>
+                                <th>ุงูุฅุฌุฑุงุกุงุช</th>
                             </tr>
                         </thead>
                         <tbody id="branchesTableBody"></tbody>
@@ -82,9 +81,9 @@
     </div>
 
     <div class="designer-credit">
-        <div><i class="fa-solid fa-code" style="color: var(--primary); margin-left: 6px;"></i>สใ สีใํใ วแใๆÞฺ ศๆวำุษ <strong>ใอใๆฯ วแิุๆั์</strong></div>
+        <div><i class="fa-solid fa-code" style="color: var(--primary); margin-left: 6px;"></i>ุชู… ุชุตู…ูู… ุงูู…ููุน ุจูุงุณุทุฉ <strong>ู…ุญู…ูุฏ ุงูุดุทูุฑู</strong></div>
         <div style="font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span>ศลิัวÝ วแใๅไฯำ <strong>ใอใฯ ํๆำÝ วÞุํุ</strong></span>
+            <span>ุจุฅุดุฑุงู ุงูู…ููุฏุณ <strong>ู…ุญู…ุฏ ููุณู ุงูุทูุท</strong></span>
             <i class="fa-solid fa-user-tie" style="color: #1e3a8a; font-size: 0.9rem;"></i>
         </div>
     </div>
@@ -92,7 +91,7 @@
     <script>
         checkAuth();
         if (currentUser.role !== 'admin') {
-            window.location.href = 'dashboard.html'; // ÝÞุ วแใฯํั ํใ฿ไๅ วแๆีๆแ
+            window.location.href = 'dashboard.html'; // ููุท ุงูู…ุฏูุฑ ูู…ููู ุงููุตูู
         }
 
         function toggleBranchForm() {
@@ -103,7 +102,7 @@
                 document.getElementById('editBranchId').value = '';
                 document.getElementById('bNameAr').value = '';
                 document.getElementById('bNameEn').value = '';
-                document.getElementById('formTitle').innerText = 'ลึวÝษ Ýัฺ ฬฯํฯ';
+                document.getElementById('formTitle').innerText = 'ุฅุถุงูุฉ ูุฑุน ุฌุฏูุฏ';
                 populateHeadSurveyors();
             } else {
                 populateHeadSurveyors();
@@ -115,7 +114,7 @@
             const availableHeads = db.users.filter(u => 
                 u.role === 'head' && (!u.responsibleBranch || u.id === currentHeadId)
             );
-            select.innerHTML = '<option value="">แว ํๆฬฯ</option>' + 
+            select.innerHTML = '<option value="">ูุง ููุฌุฏ</option>' + 
                 availableHeads.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
             if (currentHeadId) select.value = currentHeadId;
         }
@@ -127,18 +126,18 @@
                 const head = db.users.find(u => u.responsibleBranch === b.id);
                 return `
                     <tr>
-                        <td><span style="font-weight:700;color:var(--primary)">${b.serialNumber || '—'}</span></td>
+                        <td><span style="font-weight:700;color:var(--primary)">${b.serialNumber || 'โ€”'}</span></td>
                         <td><strong>${b.nameAr || b.name}</strong></td>
-                        <td style="color:var(--text-muted)">${b.nameEn || '—'}</td>
-                        <td>${head ? head.name : '<span style="color:var(--text-muted)">Ûํั ใฺํไ</span>'}</td>
+                        <td style="color:var(--text-muted)">${b.nameEn || 'โ€”'}</td>
+                        <td>${head ? head.name : '<span style="color:var(--text-muted)">ุบูุฑ ู…ุนูู</span>'}</td>
                         <td>
-                            <button onclick="editBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px;" title="สฺฯํแ วแÝัฺ"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="assignHeadToBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px; color:#2563eb;" title="สฺํํไ ัฦํำ ใำวอํไ"><i class="fa-solid fa-user-tie"></i></button>
-                            <button onclick="deleteBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);" title="อะÝ วแÝัฺ"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="editBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px;" title="ุชุนุฏูู ุงููุฑุน"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="assignHeadToBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px; color:#2563eb;" title="ุชุนููู ุฑุฆูุณ ู…ุณุงุญูู"><i class="fa-solid fa-user-tie"></i></button>
+                            <button onclick="deleteBranch('${b.id}')" class="btn btn-ghost" style="padding: 5px 10px; color: var(--danger);" title="ุญุฐู ุงููุฑุน"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
-            }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px;">แว สๆฬฯ Ýัๆฺ ใึวÝษ ศฺฯ.</td></tr>';
+            }).join('') || '<tr><td colspan="5" style="text-align:center; padding:20px;">ูุง ุชูุฌุฏ ูุฑูุน ู…ุถุงูุฉ ุจุนุฏ.</td></tr>';
         }
 
         document.getElementById('branchForm').onsubmit = (e) => {
@@ -148,7 +147,7 @@
             const nameEn  = document.getElementById('bNameEn').value.trim();
             const headId  = document.getElementById('bHeadSurveyor').value;
 
-            // ลแÛวม สฺํํไ ัฦํำ วแใำวอํไ วแÞฯํใ
+            // ุฅูุบุงุก ุชุนููู ุฑุฆูุณ ุงูู…ุณุงุญูู ุงููุฏูู…
             db.users.forEach(u => { if (u.responsibleBranch === id) u.responsibleBranch = null; });
 
             let resolvedId = id;
@@ -159,7 +158,7 @@
                 addBranch(resolvedId, nameAr, nameEn || nameAr);
             }
 
-            // สฺํํไ ัฦํำ วแใำวอํไ วแฬฯํฯ
+            // ุชุนููู ุฑุฆูุณ ุงูู…ุณุงุญูู ุงูุฌุฏูุฏ
             if (headId) {
                 const branchId = resolvedId;
                 const head = db.users.find(u => u.id === headId);
@@ -174,37 +173,37 @@
 
         window.editBranch = (id) => {
             const b = db.branches.find(branch => branch.id === id);
-            if (!b) { alert('วแÝัฺ Ûํั ใๆฬๆฯ'); return; }
+            if (!b) { alert('ุงููุฑุน ุบูุฑ ู…ูุฌูุฏ'); return; }
             const head = db.users.find(u => u.responsibleBranch === id);
             document.getElementById('editBranchId').value = b.id;
             document.getElementById('bNameAr').value = b.nameAr || b.name || '';
             document.getElementById('bNameEn').value = b.nameEn || '';
             populateHeadSurveyors(head ? head.id : null);
-            document.getElementById('formTitle').innerText = 'สฺฯํแ วแÝัฺ';
+            document.getElementById('formTitle').innerText = 'ุชุนุฏูู ุงููุฑุน';
             document.getElementById('branchFormContainer').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.assignHeadToBranch = (id) => {
             const b = db.branches.find(branch => branch.id === id);
-            if (!b) { alert('วแÝัฺ Ûํั ใๆฬๆฯ'); return; }
+            if (!b) { alert('ุงููุฑุน ุบูุฑ ู…ูุฌูุฏ'); return; }
             const currentHead = db.users.find(u => u.responsibleBranch === id);
             document.getElementById('editBranchId').value = b.id;
             document.getElementById('bNameAr').value = b.nameAr || b.name || '';
             document.getElementById('bNameEn').value = b.nameEn || '';
             populateHeadSurveyors(currentHead ? currentHead.id : null);
-            document.getElementById('formTitle').innerText = 'สฺํํไ ัฦํำ ใำวอํไ แแÝัฺ';
+            document.getElementById('formTitle').innerText = 'ุชุนููู ุฑุฆูุณ ู…ุณุงุญูู ูููุฑุน';
             document.getElementById('branchFormContainer').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // ฯวแษ deleteBranch วแรำวำํษ ใๆฬๆฯษ วแยไ Ýํ app-core.js
-        // ไÞๆใ ๅไว ศสÛแํÝๅว แลึวÝษ ใไุÞ สอฯํห ๆวฬๅษ วแใำสฮฯใ วแฮวี ศๅะๅ วแีÝอษ
-        const coreDeleteBranch = window.deleteBranch; // ไอีแ ฺแ์ วแฯวแษ ใไ app-core.js
+        // ุฏุงูุฉ deleteBranch ุงูุฃุณุงุณูุฉ ู…ูุฌูุฏุฉ ุงูุขู ูู app-core.js
+        // ูููู… ููุง ุจุชุบููููุง ูุฅุถุงูุฉ ู…ูุทู ุชุญุฏูุซ ูุงุฌูุฉ ุงูู…ุณุชุฎุฏู… ุงูุฎุงุต ุจูุฐู ุงูุตูุญุฉ
+        const coreDeleteBranch = window.deleteBranch; // ูุญุตู ุนูู ุงูุฏุงูุฉ ู…ู app-core.js
         window.deleteBranch = (id) => {
-            if (coreDeleteBranch(id)) { // ไำสฯฺํ วแฯวแษ วแรำวำํษ วแสํ สสฺวใแ ใฺ วแสร฿ํฯ ๆวแอะÝ วแÝฺแํ
+            if (coreDeleteBranch(id)) { // ูุณุชุฏุนู ุงูุฏุงูุฉ ุงูุฃุณุงุณูุฉ ุงูุชู ุชุชุนุงู…ู ู…ุน ุงูุชุฃููุฏ ูุงูุญุฐู ุงููุนูู
                 refreshBranchesTable();
-                // สอฯํห Þวฦใษ วแÝัๆฺ Ýํ ีÝอษ วแใำสฮฯใํไ รํึว๐
+                // ุชุญุฏูุซ ูุงุฆู…ุฉ ุงููุฑูุน ูู ุตูุญุฉ ุงูู…ุณุชุฎุฏู…ูู ุฃูุถุงู
                 if (typeof populateBranches === 'function') populateBranches();
             }
         };

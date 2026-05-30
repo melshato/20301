@@ -1,7 +1,6 @@
-?<!DOCTYPE html>
+ÔªøÔªø<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <link rel="icon" type="image/svg+xml" href="/assets/sajco-logo.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | SAJCO</title> 
@@ -126,7 +125,7 @@
     <div id="appShell">
         <aside class="sidebar" id="sidebar"></aside>
         <main class="main">
-            <!-- ‘—Ìÿ News -->
+            <!-- ÿ¥ÿ±Ÿäÿ∑ News -->
             <div class="news-ticker hidden-ticker" id="newsTicker">
                 <span class="ticker-label"><i class="fa-solid fa-newspaper" style="margin-right:6px;"></i> News</span>
                 <div class="ticker-wrapper">
@@ -140,7 +139,7 @@
                 <p style="color: var(--text-muted)">Here is a summary of system status andresource distribution across branches.</p>
             </header>
 
-            <!-- «·Statistics General ( ŸÂ— for Admin andHead Surveyor only) -->
+            <!-- ÿßŸÑStatistics General (ÿ™ÿ∏Ÿáÿ± for Admin andHead Surveyor only) -->
             <div class="stats-grid" id="adminStatsGrid">
                 <div class="stat-card">
                     <div class="stat-icon" style="background: #e0e7ff; color: #4338ca;"><i class="fa-solid fa-building-flag"></i></div>
@@ -215,7 +214,7 @@
                         <a href="projects.html" style="font-size: 0.7rem; color: #065f46; text-decoration: underline;">Project Management</a>
                     </div>
                 </div>
-                <!-- »ÿ«ﬁ«  Õ«·… Surveyors -->
+                <!-- ÿ®ÿ∑ÿßŸÇÿßÿ™ ÿ≠ÿßŸÑÿ© Surveyors -->
                 <div class="stat-card" style="border:1px solid #bbf7d0;cursor:pointer;" onclick="scrollToLeavePanel()">
                     <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-user-check"></i></div>
                     <div>
@@ -239,7 +238,7 @@
                 </div>
             </div>
 
-            <!-- Statistics the Surveyor ( ŸÂ— ··Surveyor only) -->
+            <!-- Statistics the Surveyor (ÿ™ÿ∏Ÿáÿ± ŸÑŸÑSurveyor only) -->
             <div id="surveyorDashboard" class="hidden">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -253,14 +252,14 @@
                         <div class="stat-icon" style="background: #fdf2f2; color: #991b1b;"><i class="fa-solid fa-calendar-check"></i></div>
                         <div>
                             <div style="font-size: 0.85rem; color: var(--text-muted)">Years of Service</div>
-                            <div id="surveyorServiceTime" style="font-size: 1.5rem; font-weight: 800;">ó</div>
+                            <div id="surveyorServiceTime" style="font-size: 1.5rem; font-weight: 800;">‚Äî</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: #eff6ff; color: #1e40af;"><i class="fa-solid fa-building-user"></i></div>
                         <div>
                             <div style="font-size: 0.85rem; color: var(--text-muted)">Branch / Head Surveyor</div>
-                            <div id="surveyorBranchInfo" style="font-size: 1rem; font-weight: 700; line-height: 1.2;">ó</div>
+                            <div id="surveyorBranchInfo" style="font-size: 1rem; font-weight: 700; line-height: 1.2;">‚Äî</div>
                         </div>
                     </div>
                 </div>
@@ -285,7 +284,7 @@
                 </div>
             </div>
 
-            <!-- „·Œ’ types Devices (ÌŸÂ— ··Ã„Ì⁄) -->
+            <!-- ŸÖŸÑÿÆÿµ types Devices (Ÿäÿ∏Ÿáÿ± ŸÑŸÑÿ¨ŸÖŸäÿπ) -->
             <h3 id="deviceSummaryTitle" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
                 <i class="fa-solid fa-microchip" style="color: var(--primary)"></i> Device Types Summary & Calibration Status
             </h3>
@@ -321,7 +320,7 @@
                 </div>
             </div>
 
-            <!-- ﬁ”„ Requests «· ”ÃÌ· Pending (for Admin only) -->
+            <!-- ŸÇÿ≥ŸÖ Requests ÿßŸÑÿ™ÿ≥ÿ¨ŸäŸÑ Pending (for Admin only) -->
             <div id="pendingRegistrationsSection" style="display:none;margin-bottom:28px;">
                 <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;color:#b45309;">
                     <i class="fa-solid fa-user-clock" style="color:#f59e0b;"></i>
@@ -331,12 +330,12 @@
                 <div id="pendingRegistrationsList"></div>
             </div>
 
-            <!-- ﬁ”„ «· ‰»ÌÂ«  Urgent (ÌŸÂ— Â‰« »⁄œ «·„·Œ’) -->
+            <!-- ŸÇÿ≥ŸÖ ÿßŸÑÿ™ŸÜÿ®ŸäŸáÿßÿ™ Urgent (Ÿäÿ∏Ÿáÿ± ŸáŸÜÿß ÿ®ÿπÿØ ÿßŸÑŸÖŸÑÿÆÿµ) -->
             <div id="headSurveyorNotifications"></div>
             <div id="pendingApprovalAlert"></div>
             <div id="urgentAlerts"></div>
 
-            <!-- ?? Device Status Chart (Admin / Head) ?? -->
+            <!-- ‚ïê‚ïê Device Status Chart (Admin / Head) ‚ïê‚ïê -->
             <div id="deviceStatusChartPanel" style="display:none;margin-bottom:28px;">
                 <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
                     <i class="fa-solid fa-chart-column" style="color:var(--primary);"></i> Device Status Analysis
@@ -361,7 +360,7 @@
                 <i class="fa-solid fa-chart-simple" style="color: var(--primary)"></i> Branch Distribution Details
             </h3>
 
-            <!-- ‘«— «  distribution branches (for Admin only) -->
+            <!-- ÿ¥ÿßÿ±ÿ™ÿßÿ™ distribution branches (for Admin only) -->
             <div id="adminBranchCharts" style="display:none;margin-bottom:28px;">
                 <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch;">
                     <div class="card" style="flex:1;min-width:260px;padding:20px;display:flex;flex-direction:column;">
@@ -394,7 +393,7 @@
                     <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);margin-right:8px;">You can confirm departure or return to work</span>
                 </h3>
 
-                <!-- Surveyors on Leave (Ì„ﬂ‰ ReturnÂ„) -->
+                <!-- Surveyors on Leave (ŸäŸÖŸÉŸÜ ReturnŸáŸÖ) -->
                 <div class="card" style="border-left: 4px solid #f59e0b;margin-bottom:20px;">
                     <h4 style="font-size:.95rem;color:#92400e;margin-bottom:12px;"><i class="fa-solid fa-umbrella-beach"></i> Surveyors Currently On Leave</h4>
                     <div id="onLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">None Surveyors Currently On Leave.</p></div>
@@ -430,15 +429,15 @@
             <!-- ====== Statistics Workers (for Admin only) ====== -->
             <div id="workersAdminPanel" style="display:none;margin-top:32px;padding:0 0 8px 0;">
                 <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
-                    <i class="fa-solid fa-helmet-safety" style="color:#065f46;"></i> Workers Statistics ó Distribution Across Branches
+                    <i class="fa-solid fa-helmet-safety" style="color:#065f46;"></i> Workers Statistics ‚Äî Distribution Across Branches
                 </h3>
                 <div class="stats-grid" id="workersAdminStatCards" style="margin-bottom:24px;"></div>
                 <div class="branch-grid" id="workersBranchCards"></div>
             </div>
 
-            <!-- ====== Requests Edit Data Pending Approve «·„œÌ— ====== -->
+            <!-- ====== Requests Edit Data Pending Approve ÿßŸÑŸÖÿØŸäÿ± ====== -->
             <div id="adminPcrPanel" style="display:none;margin-top:24px;" class="card" style="border-left: 4px solid #7c3aed;">
-                <h3 style="margin-bottom:4px;border-left: 4px solid #7c3aed;padding-right:12px;"><i class="fa-solid fa-user-pen" style="color:#7c3aed;"></i> Employee Data Edit Requests ó Awaiting Your Approval</h3>
+                <h3 style="margin-bottom:4px;border-left: 4px solid #7c3aed;padding-right:12px;"><i class="fa-solid fa-user-pen" style="color:#7c3aed;"></i> Employee Data Edit Requests ‚Äî Awaiting Your Approval</h3>
                 <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">These requests were approved by the Head Surveyor and are awaiting your final approval to apply the changes</p>
                 <div id="adminPcrList"></div>
             </div>
@@ -446,11 +445,11 @@
             <!-- ====== Password Recovery Requests (Head Surveyors) ====== -->
             <div id="adminPwrPanel" style="display:none;margin-top:16px;" class="card">
                 <h3 style="margin-bottom:4px;border-left: 4px solid #dc2626;padding-right:12px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> Password Recovery Requests</h3>
-                <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Head Surveyors forgot password ó Set a temporary password</p>
+                <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;">Head Surveyors forgot password ‚Äî Set a temporary password</p>
                 <div id="adminPwrList"></div>
             </div>
 
-            <!-- „andœ«· «·Verify ﬁ»· Departure -->
+            <!-- ŸÖandÿØÿßŸÑ ÿßŸÑVerify ŸÇÿ®ŸÑ Departure -->
             <div id="deptCheckModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
                 <div style="background:#fff;border-radius:16px;padding:28px;max-width:460px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
                     <h4 style="margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> Warning Before Registering Departure</h4>
@@ -481,7 +480,7 @@
                 </div>
             </div>
 
-            <!-- „andœ«· Reject Request -->
+            <!-- ŸÖandÿØÿßŸÑ Reject Request -->
             <div id="adminPcrRejectModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
                 <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
                     <h4 style="margin-bottom:16px;"><i class="fa-solid fa-times-circle" style="color:#dc2626;"></i> Rejection Reason</h4>
@@ -494,7 +493,7 @@
                 </div>
             </div>
 
-            <!-- „andœ«· Set Temporary Password for Admin -->
+            <!-- ŸÖandÿØÿßŸÑ Set Temporary Password for Admin -->
             <div id="adminPwrModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
                 <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.25);">
                     <h4 style="margin-bottom:4px;"><i class="fa-solid fa-key" style="color:#dc2626;"></i> Set Temporary Password</h4>
@@ -502,7 +501,7 @@
                     <div class="form-group"><label class="form-label">Temporary Password</label>
                     <input type="text" id="adminPwrTempPass" class="form-input" placeholder="Enter temporary password"></div>
                     <div style="font-size:.8rem;color:#d97706;background:#fffbeb;border-radius:8px;padding:8px 12px;margin:12px 0;">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Notify the employee of this password ó they will be asked to change it immediately upon login
+                        <i class="fa-solid fa-triangle-exclamation"></i> Notify the employee of this password ‚Äî they will be asked to change it immediately upon login
                     </div>
                     <div style="display:flex;gap:8px;">
                         <button onclick="confirmAdminPwrReset()" class="btn btn-primary" style="flex:1;"><i class="fa-solid fa-check"></i> Confirm</button>
@@ -528,7 +527,7 @@
         let calibChart = null, branchDeviceChart = null, branchSurveyorChart = null;
 
         function calculateService(joinDate) {
-            if (!joinDate) return 'ÃœÌœ';
+            if (!joinDate) return 'ÿ¨ÿØŸäÿØ';
             const start = new Date(joinDate);
             const end = new Date();
             let years = end.getFullYear() - start.getFullYear();
@@ -541,16 +540,16 @@
         }
         
         function loadDashboard() {
-            //  Œ’Ì’ Message «· —ÕÌ» »‰«¡ ⁄·Ï Role andName
+            // ÿ™ÿÆÿµŸäÿµ Message ÿßŸÑÿ™ÿ±ÿ≠Ÿäÿ® ÿ®ŸÜÿßÿ°Ÿã ÿπŸÑŸâ Role andName
             const greetingEl = document.getElementById('userGreeting');
             if (currentUser.role === 'admin') {
-                greetingEl.innerText = `√ÂNo „Â‰œ” „Õ„œ (Employee ID: ${currentUser.empId})`;
+                greetingEl.innerText = `ÿ£ŸáNoŸã ŸÖŸáŸÜÿØÿ≥ ŸÖÿ≠ŸÖÿØ (Employee ID: ${currentUser.empId})`;
             } else {
                 const title = currentUser.role === 'head' ? 'Head Surveyor' : 'the Surveyor';
-                greetingEl.innerText = `„—Õ»«° ${title} ${currentUser.name} (Employee ID: ${currentUser.empId})`;
+                greetingEl.innerText = `ŸÖÿ±ÿ≠ÿ®ÿßŸãÿå ${title} ${currentUser.name} (Employee ID: ${currentUser.empId})`;
             }
 
-            // Õ”«» Devices «· Ì  ‰ ÂÌ „⁄«Ì— Â« ŒNo· 30 day
+            // ÿ≠ÿ≥ÿßÿ® Devices ÿßŸÑÿ™Ÿä ÿ™ŸÜÿ™ŸáŸä ŸÖÿπÿßŸäÿ±ÿ™Ÿáÿß ÿÆNoŸÑ 30 day
             const today = new Date();
             today.setHours(0,0,0,0);
             const alertLimit = new Date();
@@ -569,10 +568,10 @@
 
             const alertsContainer = document.getElementById('urgentAlerts');
             
-            // Requests «· ”ÃÌ· Pending ÌDone ViewÂ« ›Ì «·ﬁ”„ «·„Œ’’ √⁄NoÂ (pendingRegistrationsSection)
+            // Requests ÿßŸÑÿ™ÿ≥ÿ¨ŸäŸÑ Pending ŸäDone ViewŸáÿß ŸÅŸä ÿßŸÑŸÇÿ≥ŸÖ ÿßŸÑŸÖÿÆÿµÿµ ÿ£ÿπNoŸá (pendingRegistrationsSection)
             let registrationAlertHtml = '';
 
-            //  ‰»ÌÂ »andÃandœ Requests Custody or Maintenance Pending for Admin
+            // ÿ™ŸÜÿ®ŸäŸá ÿ®andÿ¨andÿØ Requests Custody or Maintenance Pending for Admin
             const pendingCustodyRequests = (db.custodies || []).filter(c => 
                 (currentUser.role === 'admin' && (c.status === 'pending_approval' || c.status === 'pending_admin_approval' || c.status === 'pending_head_approval'))
             );
@@ -583,15 +582,15 @@
                     <div class="alert-banner" style="background: #f5f3ff; border-color: #c4b5fd; border-right-color: #8b5cf6; color: #5b21b6; animation: none;">
                         <i class="fa-solid fa-file-signature fa-2xl"></i>
                         <div>
-                            <strong>Requests Custody and‰ﬁ· Pending</strong>
-                            <p>Â‰«ﬂ ${pendingCustodyRequests.length} Requests (Custody/Maintenance/‰ﬁ·) Pending your approval.</p>
-                            <a href="custody.html#filter-pending" style="font-weight: bold; text-decoration: underline; color: #5b21b6;">Review Requests ›Ì ’›Õ… «·⁄Âœ</a>
+                            <strong>Requests Custody andŸÜŸÇŸÑ Pending</strong>
+                            <p>ŸáŸÜÿßŸÉ ${pendingCustodyRequests.length} Requests (Custody/Maintenance/ŸÜŸÇŸÑ) Pending your approval.</p>
+                            <a href="custody.html#filter-pending" style="font-weight: bold; text-decoration: underline; color: #5b21b6;">Review Requests ŸÅŸä ÿµŸÅÿ≠ÿ© ÿßŸÑÿπŸáÿØ</a>
                         </div>
                     </div>
                 `;
             }
 
-            //  ‰»ÌÂ »branches «· Ì None ·Â« Head Surveyor (for Admin only)
+            // ÿ™ŸÜÿ®ŸäŸá ÿ®branches ÿßŸÑÿ™Ÿä None ŸÑŸáÿß Head Surveyor (for Admin only)
             const branchesWithoutHead = db.branches.filter(branch =>
                 !db.users.some(u => u.role === 'head' && u.responsibleBranch === branch.id)
             );
@@ -601,9 +600,9 @@
                     <div class="alert-banner" style="background: #fffaf0; border-color: #fbd38d; border-right-color: #f6ad55; color: #7b341e; animation: none; margin-bottom: 24px;">
                         <i class="fa-solid fa-building-circle-exclamation fa-2xl"></i>
                         <div>
-                            <strong> ‰»ÌÂ ≈œ«—Ì: branches ‘«€—…</strong>
-                            <p>branches next… None ·Â« Head Surveyor „”ƒand· currently: <strong>${branchesWithoutHead.map(b => b.name).join('° ')}</strong>.</p>
-                            <a href="branches.html" style="font-weight: bold; text-decoration: underline; color: #c05621;">Navigate · ⁄ÌÌ‰ Head ·Â–Â branches</a>
+                            <strong>ÿ™ŸÜÿ®ŸäŸá ÿ•ÿØÿßÿ±Ÿä: branches ÿ¥ÿßÿ∫ÿ±ÿ©</strong>
+                            <p>branches nextÿ© None ŸÑŸáÿß Head Surveyor ŸÖÿ≥ÿ§andŸÑ currently: <strong>${branchesWithoutHead.map(b => b.name).join('ÿå ')}</strong>.</p>
+                            <a href="branches.html" style="font-weight: bold; text-decoration: underline; color: #c05621;">Navigate ŸÑÿ™ÿπŸäŸäŸÜ Head ŸÑŸáÿ∞Ÿá branches</a>
                         </div>
                     </div>
                 `;
@@ -617,16 +616,16 @@
                         <i class="fa-solid fa-triangle-exclamation fa-2xl"></i>
                         <div>
                             <strong style="display: block; margin-bottom: 5px;">Calibration Alerts Urgent</strong>
-                            <span>Devices next…   ÿ·» attention immediately:</span>
+                            <span>Devices nextÿ© ÿ™ÿ™ÿ∑ŸÑÿ® attention immediately:</span>
                             <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">${allAlertDevices.filter(d => new Date(d.calDate || d.nextCalibrationDate) <= today).map(d => {
                                 const targetDate = d.calDate || d.nextCalibrationDate;
                                 const nextDate = new Date(targetDate);
                                 const isExpired = nextDate <= today;
                                 const diffDays = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));
-                                return `<li style="margin-bottom: 5px;"><strong>${d.type}</strong> (S/N: ${d.serial}) ${isExpired ? `<span style="color: #e53e3e; font-weight: bold;">(Completed!)</span>` : `<span style="color: #d97706;">(„ »ﬁÌ ${diffDays} day)</span>`}</li>`;
+                                return `<li style="margin-bottom: 5px;"><strong>${d.type}</strong> (S/N: ${d.serial}) ${isExpired ? `<span style="color: #e53e3e; font-weight: bold;">(Completed!)</span>` : `<span style="color: #d97706;">(ŸÖÿ™ÿ®ŸÇŸä ${diffDays} day)</span>`}</li>`;
                             }).join('')}</ul>
                             <div style="margin-top: 10px;">
-                                <a href="calibration-alerts.html" style="color: #c53030; font-weight: bold; text-decoration: underline;">Navigate ·’›Õ… «· ‰»ÌÂ«  «· ›’Ì·Ì…</a>
+                                <a href="calibration-alerts.html" style="color: #c53030; font-weight: bold; text-decoration: underline;">Navigate ŸÑÿµŸÅÿ≠ÿ© ÿßŸÑÿ™ŸÜÿ®ŸäŸáÿßÿ™ ÿßŸÑÿ™ŸÅÿµŸäŸÑŸäÿ©</a>
                             </div>
                         </div>
                     </div>
@@ -640,17 +639,17 @@
             document.getElementById('countUsers').innerText = db.users.filter(u => u.role !== 'admin').length;
             document.getElementById('countDevices').innerText = db.devices.length;
 
-            // Õ”«» Requests «·Custody Pending Approval for Admin (‘«„·… «·‰ﬁ· and«·⁄Âœ new…)
+            // ÿ≠ÿ≥ÿßÿ® Requests ÿßŸÑCustody Pending Approval for Admin (ÿ¥ÿßŸÖŸÑÿ© ÿßŸÑŸÜŸÇŸÑ andÿßŸÑÿπŸáÿØ newÿ©)
             document.getElementById('countPendingCustodies').innerText = pendingCustodyRequests.length;
 
-            // Õ”«» ⁄œœ Devices in Warehouse
+            // ÿ≠ÿ≥ÿßÿ® ÿπÿØÿØ Devices in Warehouse
             const warehouseDevicesCount = db.devices.filter(d => d.status === 'warehouse').length;
             document.getElementById('countWarehouseDevices').innerText = warehouseDevicesCount;
 
             const activeProjects = (db.projects || []).filter(p => p.status === 'active');
             document.getElementById('countActiveProjects').innerText = activeProjects.length;
 
-            // Õ«·… Surveyors
+            // ÿ≠ÿßŸÑÿ© Surveyors
             const atWork = getSurveyorsAtWork();
             const onLeave = getSurveyorsOnLeave();
             const planningLeave = getSurveyorsPlanningLeave();
@@ -666,13 +665,13 @@
                 renderBranchCharts();
             }
 
-            // ﬁ”„ Requests «· ”ÃÌ· Pending
+            // ŸÇÿ≥ŸÖ Requests ÿßŸÑÿ™ÿ≥ÿ¨ŸäŸÑ Pending
             renderPendingRegistrations();
 
             document.getElementById('countMaintenance').innerText = db.devices.filter(d => d.status === 'maintenance' || d.status === 'at_maintenance').length;
             document.getElementById('countNeedsCalibration').innerText = db.devices.filter(d => d.status === 'needs_calibration' || d.status === 'at_calibration' || (d.calDate && new Date(d.calDate) <= today)).length; // Include expired calib
 
-            // Õ”«» √⁄œ«œ Devices Õ”» Type (»‰«¡ ⁄·Ï «NoŒ Ì«—«  ›Ì ’›Õ… «·Custody)
+            // ÿ≠ÿ≥ÿßÿ® ÿ£ÿπÿØÿßÿØ Devices ÿ≠ÿ≥ÿ® Type (ÿ®ŸÜÿßÿ°Ÿã ÿπŸÑŸâ ÿßNoÿÆÿ™Ÿäÿßÿ±ÿßÿ™ ŸÅŸä ÿµŸÅÿ≠ÿ© ÿßŸÑCustody)
             const totalStationCount = db.devices.filter(d => d.type === 'total_station' || d.type === 'Total Station').length;
             const autoLevelCount = db.devices.filter(d => d.type === 'auto_level' || d.type === 'Auto Level').length;
             const gpsCount = db.devices.filter(d => d.type === 'gps' || d.type === 'GPS').length;
@@ -681,7 +680,7 @@
             document.getElementById('countAutoLevel').innerText = autoLevelCount;
             document.getElementById('countGPS').innerText = gpsCount;
 
-            // Refresh «·—”„ «·»Ì«‰Ì «·œ«∆—Ì ·Calibration Status
+            // Refresh ÿßŸÑÿ±ÿ≥ŸÖ ÿßŸÑÿ®ŸäÿßŸÜŸä ÿßŸÑÿØÿßÿ¶ÿ±Ÿä ŸÑCalibration Status
             const calibratedCount = db.devices.length - expiringDevices.length;
             const needsCalibCount = expiringDevices.length;
             const ctxCal = document.getElementById('calibStatusPieChart').getContext('2d');
@@ -690,7 +689,7 @@
             calibChart = new Chart(ctxCal, {
                 type: 'doughnut',
                 data: {
-                    labels: ['√ÃÂ“… Calibration', 'Needs Calibration'],
+                    labels: ['ÿ£ÿ¨Ÿáÿ≤ÿ© Calibration', 'Needs Calibration'],
                     datasets: [{
                         data: [calibratedCount, needsCalibCount],
                         backgroundColor: ['#10b981', '#f43f5e'],
@@ -711,16 +710,16 @@
                 }
             });
 
-            // ?? Device Status Bar + Donut Chart ??
+            // ‚ïê‚ïê Device Status Bar + Donut Chart ‚ïê‚ïê
             renderDeviceStatusCharts();
 
-            // ≈‘⁄«—«  «·„œÌ—
+            // ÿ•ÿ¥ÿπÿßÿ±ÿßÿ™ ÿßŸÑŸÖÿØŸäÿ±
             const unreadNotifications = db.notifications.filter(n => n.userId === currentUser.id && !n.read);
             if (unreadNotifications.length > 0) {
                 const notificationList = unreadNotifications.map(n => `
                     <li style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
                         <span><span style="font-weight: bold;">${new Date(n.timestamp).toLocaleDateString('en-US')}</span>: ${n.message}</span>
-                        <button onclick="markNotificationAsReadAndRefresh('${n.id}')" class="btn btn-ghost" style="padding: 3px 8px; font-size: 0.7rem; margin-right: 10px;">ﬁ—«¡…</button>
+                        <button onclick="markNotificationAsReadAndRefresh('${n.id}')" class="btn btn-ghost" style="padding: 3px 8px; font-size: 0.7rem; margin-right: 10px;">ŸÇÿ±ÿßÿ°ÿ©</button>
                     </li>
                 `).join('');
 
@@ -728,7 +727,7 @@
                     <div class="alert-banner" style="background: #e0f2fe; border-color: #90cdf4; border-right-color: #3182ce; color: #2b6cb0; animation: none; margin-bottom: 24px;">
                         <i class="fa-solid fa-bell fa-2xl"></i>
                         <div>
-                            <strong style="display: block; margin-bottom: 5px;">≈‘⁄«—«  «·‰Ÿ«„</strong>
+                            <strong style="display: block; margin-bottom: 5px;">ÿ•ÿ¥ÿπÿßÿ±ÿßÿ™ ÿßŸÑŸÜÿ∏ÿßŸÖ</strong>
                             <ul style="margin-top: 8px; font-size: 0.9rem; padding-right: 20px; list-style-type: disc;">
                                 ${notificationList}
                             </ul>
@@ -739,7 +738,7 @@
                 document.getElementById('headSurveyorNotifications').innerHTML = '';
             }
 
-            // View „·Œ’ distribution branches
+            // View ŸÖŸÑÿÆÿµ distribution branches
             const container = document.getElementById('branchDetailsContainer');
             if (container) {
                 container.innerHTML = db.branches.map(branch => {
@@ -760,15 +759,15 @@
                     return `
                         <div class="card" style="border-top: 4px solid var(--primary)">
                             <h4 style="margin-bottom: 15px; color: var(--primary)">${branch.name}</h4>
-                            <div class="branch-stat-item"><span><i class="fa-solid fa-user-tie"></i> Total EmployeeÌ‰:</span> <strong>${branchSurveyors}</strong></div>
-                            <div class="branch-stat-item"><span><i class="fa-solid fa-warehouse"></i> ⁄œœ Devices:</span> <strong>${branchDevices}</strong></div>
-                            <div class="branch-stat-item"><span style="color: #b91c1c;"><i class="fa-solid fa-screwdriver-wrench"></i> √ÃÂ“… Maintenance:</span> <strong style="color: #b91c1c;">${maintCount}</strong>${atMaintCount > 0 ? ` <span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:4px;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem;"></i> ⁄‰œ «·vendor: ${atMaintCount}</span>` : ''}</div>
-                            <div class="branch-stat-item"><span style="color: #d97706;"><i class="fa-solid fa-compass-drafting"></i> √ÃÂ“… Calibration:</span> <strong style="color: #d97706;">${calibCount}</strong>${atCalibCount > 0 ? ` <span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:4px;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem;"></i> ⁄‰œ «·vendor: ${atCalibCount}</span>` : ''}</div>
+                            <div class="branch-stat-item"><span><i class="fa-solid fa-user-tie"></i> Total EmployeeŸäŸÜ:</span> <strong>${branchSurveyors}</strong></div>
+                            <div class="branch-stat-item"><span><i class="fa-solid fa-warehouse"></i> ÿπÿØÿØ Devices:</span> <strong>${branchDevices}</strong></div>
+                            <div class="branch-stat-item"><span style="color: #b91c1c;"><i class="fa-solid fa-screwdriver-wrench"></i> ÿ£ÿ¨Ÿáÿ≤ÿ© Maintenance:</span> <strong style="color: #b91c1c;">${maintCount}</strong>${atMaintCount > 0 ? ` <span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:4px;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem;"></i> ÿπŸÜÿØ ÿßŸÑvendor: ${atMaintCount}</span>` : ''}</div>
+                            <div class="branch-stat-item"><span style="color: #d97706;"><i class="fa-solid fa-compass-drafting"></i> ÿ£ÿ¨Ÿáÿ≤ÿ© Calibration:</span> <strong style="color: #d97706;">${calibCount}</strong>${atCalibCount > 0 ? ` <span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:4px;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.6rem;"></i> ÿπŸÜÿØ ÿßŸÑvendor: ${atCalibCount}</span>` : ''}</div>
                             <div class="branch-stat-item">
                                 <span style="color:#065f46;"><i class="fa-solid fa-helmet-safety"></i> Workers:</span>
                                 <strong style="color:#065f46;">${branchWorkers.length}</strong>
                                 ${branchWorkersOnLeave > 0 ? `<span style="font-size:.72rem;color:#d97706;background:#fffbeb;padding:1px 6px;border-radius:10px;margin-right:4px;">${branchWorkersOnLeave} On Leave</span>` : ''}
-                                ${branchWorkersPlanningLeave > 0 ? `<span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:2px;">${branchWorkersPlanningLeave} „Ã«“</span>` : ''}
+                                ${branchWorkersPlanningLeave > 0 ? `<span style="font-size:.72rem;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:10px;margin-right:2px;">${branchWorkersPlanningLeave} ŸÖÿ¨ÿßÿ≤</span>` : ''}
                             </div>
                             <div class="branch-stat-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
                                 <span><i class="fa-solid fa-diagram-project" style="color:#065f46;"></i> Projects Active: <strong style="color:#065f46;">${branchActiveProjects.length}</strong></span>
@@ -780,7 +779,7 @@
             }
         }
 
-        // ?? Requests «· ”ÃÌ· Pending ??????????????????????????????????
+        // ‚îÄ‚îÄ Requests ÿßŸÑÿ™ÿ≥ÿ¨ŸäŸÑ Pending ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         function renderPendingRegistrations() {
             if (currentUser.role !== 'admin') return;
             const pending = db.users.filter(u => u.status === 'pending');
@@ -797,9 +796,9 @@
             badge.textContent = pending.length;
 
             list.innerHTML = pending.map(u => {
-                const branch = db.branches.find(b => b.id === u.responsibleBranch)?.name || 'ó';
+                const branch = db.branches.find(b => b.id === u.responsibleBranch)?.name || '‚Äî';
                 const initial = (u.name || '?').charAt(0);
-                const joined = u.joinDate ? new Date(u.joinDate).toLocaleDateString('en-US') : 'ó';
+                const joined = u.joinDate ? new Date(u.joinDate).toLocaleDateString('en-US') : '‚Äî';
                 return `
                 <div class="pending-reg-card" id="preg-${u.id}">
                     <div class="pending-reg-avatar">${initial}</div>
@@ -808,13 +807,13 @@
                         <div class="pending-reg-meta">
                             <i class="fa-solid fa-id-badge"></i> Employee ID: <strong>${u.empId}</strong>
                             &nbsp;|&nbsp; <i class="fa-solid fa-envelope"></i> ${u.email}
-                            &nbsp;|&nbsp; <i class="fa-solid fa-building-flag"></i> „”ƒand· ⁄‰: ${branch}
-                            &nbsp;|&nbsp; <i class="fa-solid fa-calendar"></i> «· Õ«ﬁ: ${joined}
+                            &nbsp;|&nbsp; <i class="fa-solid fa-building-flag"></i> ŸÖÿ≥ÿ§andŸÑ ÿπŸÜ: ${branch}
+                            &nbsp;|&nbsp; <i class="fa-solid fa-calendar"></i> ÿßŸÑÿ™ÿ≠ÿßŸÇ: ${joined}
                         </div>
                     </div>
                     <div class="pending-reg-actions">
                         <button class="btn-approve-reg" onclick="handleApproveReg('${u.id}')">
-                            <i class="fa-solid fa-user-check"></i> accept «·Õ”«»
+                            <i class="fa-solid fa-user-check"></i> accept ÿßŸÑÿ≠ÿ≥ÿßÿ®
                         </button>
                         <button class="btn-reject-reg" onclick="handleRejectReg('${u.id}', '${u.name}')">
                             <i class="fa-solid fa-user-xmark"></i> Reject
@@ -825,17 +824,17 @@
         }
 
         window.handleApproveReg = (userId) => {
-            if (!confirm('accept Õ”«» Head Surveyor andActivateÂø')) return;
+            if (!confirm('accept ÿ≠ÿ≥ÿßÿ® Head Surveyor andActivateŸáÿü')) return;
             if (approveUser(userId)) {
-                _showSyncToast('Done  Approval ⁄·Ï «·Õ”«» »Success', 'info');
+                _showSyncToast('Doneÿ™ Approval ÿπŸÑŸâ ÿßŸÑÿ≠ÿ≥ÿßÿ® ÿ®Success', 'info');
                 loadDashboard();
             }
         };
 
         window.handleRejectReg = (userId, name) => {
-            if (!confirm(`Reject andDelete Õ”«» "${name}" ‰Â«∆Ì«ø`)) return;
+            if (!confirm(`Reject andDelete ÿ≠ÿ≥ÿßÿ® "${name}" ŸÜŸáÿßÿ¶ŸäÿßŸãÿü`)) return;
             if (rejectUser(userId)) {
-                _showSyncToast('Done Reject «·Õ”«» andDeleteÂ', 'info');
+                _showSyncToast('Done Reject ÿßŸÑÿ≠ÿ≥ÿßÿ® andDeleteŸá', 'info');
                 loadDashboard();
             }
         };
@@ -851,15 +850,15 @@
         };
 
         function renderLeaveManagementPanel(onLeave, planningLeave) {
-            // Surveyors on Leave ó ﬁ«∆„… ﬁ«»·… ··Search
+            // Surveyors on Leave ‚Äî ŸÇÿßÿ¶ŸÖÿ© ŸÇÿßÿ®ŸÑÿ© ŸÑŸÑSearch
             const onLeaveEl = document.getElementById('onLeaveList');
             if (onLeave.length === 0) {
                 onLeaveEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">None Surveyors Currently On Leave.</p>';
             } else {
                 window._onLeaveRows = onLeave.map(u => {
                     const req = (db.leaveRequests || []).find(r => r.userId === u.id && r.isDeparted && !r.isReturned);
-                    const departDate = req?.actualDepartureDate ? new Date(req.actualDepartureDate).toLocaleDateString('en-US') : 'ó';
-                    const branch = db.branches.find(b => b.id === u.branch)?.name || 'ó';
+                    const departDate = req?.actualDepartureDate ? new Date(req.actualDepartureDate).toLocaleDateString('en-US') : '‚Äî';
+                    const branch = db.branches.find(b => b.id === u.branch)?.name || '‚Äî';
                     return { u, req, departDate, branch };
                 });
 
@@ -868,7 +867,7 @@
                         <div style="position:relative;flex:1;min-width:200px;">
                             <i class="fa-solid fa-magnifying-glass" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.82rem;pointer-events:none;"></i>
                             <input type="text" id="onLeaveSearch" class="form-input"
-                                placeholder="Search »—ﬁ„ Employee..."
+                                placeholder="Search ÿ®ÿ±ŸÇŸÖ Employee..."
                                 style="padding-right:34px;font-size:.88rem;"
                                 oninput="filterOnLeaveList(this.value)">
                         </div>
@@ -898,7 +897,7 @@
                                         <td style="font-family:monospace;font-size:.85rem;">${item.u.empId}</td>
                                         <td style="font-size:.85rem;">${item.branch}</td>
                                         <td style="font-size:.82rem;color:#92400e;">${item.departDate}</td>
-                                        <td>${item.req ? `<button onclick="adminReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.76rem;padding:4px 10px;"><i class="fa-solid fa-plane-arrival"></i> Return</button>` : 'ó'}</td>
+                                        <td>${item.req ? `<button onclick="adminReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.76rem;padding:4px 10px;"><i class="fa-solid fa-plane-arrival"></i> Return</button>` : '‚Äî'}</td>
                                     </tr>`).join('')}
                             </tbody>
                         </table>
@@ -912,13 +911,13 @@
             } else {
                 planningEl.innerHTML = planningLeave.map(u => {
                     const req = (db.leaveRequests || []).find(r => r.userId === u.id && !r.isDeparted && (r.status === 'approved' || r.status === 'pending_admin_approval' || r.status === 'pending_head_approval'));
-                    const startDate = req?.startDate ? new Date(req.startDate).toLocaleDateString('en-US') : 'ó';
-                    const branch = db.branches.find(b => b.id === u.branch)?.name || 'ó';
+                    const startDate = req?.startDate ? new Date(req.startDate).toLocaleDateString('en-US') : '‚Äî';
+                    const branch = db.branches.find(b => b.id === u.branch)?.name || '‚Äî';
                     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;border:1px solid #bfdbfe;background:#eff6ff;margin-bottom:8px;gap:12px;flex-wrap:wrap;">
                         <div>
                             <strong>${u.name}</strong>
-                            <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">—ﬁ„: ${u.empId} | ${branch}</span>
-                            <span style="font-size:.8rem;color:#1e40af;">„and⁄œ «·Leave: ${startDate}</span>
+                            <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">ÿ±ŸÇŸÖ: ${u.empId} | ${branch}</span>
+                            <span style="font-size:.8rem;color:#1e40af;">ŸÖandÿπÿØ ÿßŸÑLeave: ${startDate}</span>
                             ${getLeaveStatusBadge(req?.status)}
                         </div>
                         ${req ? `<button onclick="adminConfirmDeparture('${req.id}')" class="btn" style="font-size:.8rem;padding:6px 14px;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">
@@ -928,7 +927,7 @@
                 }).join('');
             }
 
-            // ﬁ«∆„… EmployeeÌ‰ ··Add «·ÌœandÌ…
+            // ŸÇÿßÿ¶ŸÖÿ© EmployeeŸäŸÜ ŸÑŸÑAdd ÿßŸÑŸäÿØandŸäÿ©
             const empSelect = document.getElementById('leaveManualEmployee');
             const surveyors = db.users.filter(u => u.role === 'surveyor' && u.status === 'approved');
             empSelect.innerHTML = '<option value="">-- Select Employee --</option>' + surveyors.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
@@ -941,11 +940,11 @@
             if (!returnDate) return;
             if (markLeaveReturned(leaveId, returnDate)) {
                 loadDashboard();
-                _showSyncToast('Done  ”ÃÌ· Return Employee »Success', 'info');
+                _showSyncToast('Done ÿ™ÿ≥ÿ¨ŸäŸÑ Return Employee ÿ®Success', 'info');
             }
         };
 
-        // ?? Departure check helpers ??????????????????????????
+        // ‚îÄ‚îÄ Departure check helpers ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         let _pendingDept = null;
 
         function _deptCheckItems(userId) {
@@ -960,9 +959,9 @@
             if (items.devices.length)
                 html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#991b1b;"><i class="fa-solid fa-microchip"></i> <strong>${items.devices.length}</strong> devices in their custody</div>`;
             if (items.workers.length) {
-                html += `<div style="display:flex;align-items:center;gap:8px;color:#92400e;"><i class="fa-solid fa-helmet-safety"></i> <strong>${items.workers.length}</strong> Worker „— »ÿ »Â</div>`;
+                html += `<div style="display:flex;align-items:center;gap:8px;color:#92400e;"><i class="fa-solid fa-helmet-safety"></i> <strong>${items.workers.length}</strong> Worker ŸÖÿ±ÿ™ÿ®ÿ∑ ÿ®Ÿá</div>`;
                 if (items.workers.length <= 6)
-                    html += `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;padding-right:22px;">${items.workers.map(w=>w.name).join('° ')}</div>`;
+                    html += `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;padding-right:22px;">${items.workers.map(w=>w.name).join('ÿå ')}</div>`;
             }
             document.getElementById('deptCheckBody').innerHTML = html;
             _pendingDept = onProceed;
@@ -978,7 +977,7 @@
         function _showCustodyBlockModal(userName, deviceList) {
             document.getElementById('custodyBlockBody').innerHTML =
                 `<div style="font-weight:700;margin-bottom:8px;">${userName}</div>` +
-                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> Departure blocked ó the employee has active custody of the following devices:</div>` +
+                `<div style="color:#dc2626;margin-bottom:10px;"><i class="fa-solid fa-box-archive"></i> Departure blocked ‚Äî the employee has active custody of the following devices:</div>` +
                 `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.85rem;font-weight:600;">${deviceList}</div>` +
                 `<div style="margin-top:10px;font-size:.82rem;color:var(--text-muted);">Devices must be returned or custody transferred before registering departure.</div>`;
             document.getElementById('custodyBlockModal').style.display = 'flex';
@@ -986,7 +985,7 @@
 
         window.adminConfirmDeparture = (leaveId) => {
             if (!leaveId) return;
-            const departDate = prompt('√ﬂœ Departure Date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+            const departDate = prompt('ÿ£ŸÉÿØ Departure Date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
             if (!departDate) return;
             const req = (db.leaveRequests || []).find(r => r.id === leaveId);
             if (!req) return;
@@ -1012,16 +1011,16 @@
         window.adminSendToLeave = () => {
             const userId = document.getElementById('leaveManualEmployee').value;
             const departDate = document.getElementById('leaveManualDate').value;
-            if (!userId || !departDate) { alert('Select Employee« andDate«.'); return; }
+            if (!userId || !departDate) { alert('Select EmployeeÿßŸã andDateÿßŸã.'); return; }
             const user = db.users.find(u => u.id === userId);
             if (!user) return;
             const req = {
                 id: 'lr_admin_' + Date.now(),
                 userId, assignedBy: currentUser.id, leaveType: 'annual',
                 startDate: departDate, endDate: departDate, daysRequested: 1,
-                reason: 'Add ÌœandÌ… from General Manager', status: 'approved',
+                reason: 'Add ŸäÿØandŸäÿ© from General Manager', status: 'approved',
                 branchId: user.branch || null, timestamp: new Date().toISOString(),
-                approvalHistory: [{ approverName: currentUser.name, approverRole: '„œÌ— Management', decision: 'approved', timestamp: new Date().toISOString() }]
+                approvalHistory: [{ approverName: currentUser.name, approverRole: 'ŸÖÿØŸäÿ± Management', decision: 'approved', timestamp: new Date().toISOString() }]
             };
             const activeCustodies = (db.custodies || []).filter(c => c.userId === userId && c.status === 'approved');
             if (activeCustodies.length > 0) {
@@ -1034,20 +1033,20 @@
                 if (!db.leaveRequests) db.leaveRequests = [];
                 db.leaveRequests.push(req);
                 markLeaveDeparted(req.id, departDate);
-                addNotification(userId, `Done  ”ÃÌ·ﬂ On Leave By General Manager.`, 'info');
+                addNotification(userId, `Done ÿ™ÿ≥ÿ¨ŸäŸÑŸÉ On Leave By General Manager.`, 'info');
                 loadDashboard();
-                _showSyncToast(`Done  ”ÃÌ· ${user.name} On Leave`, 'info');
+                _showSyncToast(`Done ÿ™ÿ≥ÿ¨ŸäŸÑ ${user.name} On Leave`, 'info');
             };
             if (items.devices.length || items.workers.length)
                 _showDeptCheckModal(userId, items, proceed);
             else proceed();
         };
 
-        // Hook: Ìı⁄Ìœ —”„ «·panel ⁄‰œ and’and· »Ì«‰«  from Supabase (realtime or _loadRemoteDB)
+        // Hook: ŸäŸèÿπŸäÿØ ÿ±ÿ≥ŸÖ ÿßŸÑpanel ÿπŸÜÿØ andÿµandŸÑ ÿ®ŸäÿßŸÜÿßÿ™ from Supabase (realtime or _loadRemoteDB)
         window.refreshPage = loadDashboard;
 
-        // ?? Admin Profile Change Request Approvals ??????????
-        const _adminPcrLabel = { phone:'—ﬁ„ Phone', email:'Email', password:'Password' };
+        // ‚îÄ‚îÄ Admin Profile Change Request Approvals ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+        const _adminPcrLabel = { phone:'ÿ±ŸÇŸÖ Phone', email:'Email', password:'Password' };
 
         function renderAdminPcrPanel() {
             const reqs = (db.profileChangeRequests || []).filter(r => r.status === 'pending_admin')
@@ -1060,15 +1059,15 @@
                     <div>
                         <div style="font-weight:700;font-size:.9rem;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.userEmpId})</span></div>
                         <div style="font-size:.82rem;color:var(--text-muted);margin-top:2px;">
-                            ÿ·» Edit: <strong style="color:#7c3aed;">${_adminPcrLabel[r.type]}</strong>
-                            ${r.type !== 'password' ? `? <span style="color:#1e40af;">${r.newValueDisplay}</span>` : ''}
+                            ÿ∑ŸÑÿ® Edit: <strong style="color:#7c3aed;">${_adminPcrLabel[r.type]}</strong>
+                            ${r.type !== 'password' ? `‚Üê <span style="color:#1e40af;">${r.newValueDisplay}</span>` : ''}
                             ${r.headApprovedBy ? `&nbsp;|&nbsp; approved: ${r.headApprovedBy}` : ''}
                             &nbsp;|&nbsp; ${new Date(r.timestamp).toLocaleDateString('en-US')}
                         </div>
                     </div>
                     <div style="display:flex;gap:8px;">
                         <button onclick="adminApprovePcr('${r.id}')" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;background:#7c3aed;border-color:#7c3aed;">
-                            <i class="fa-solid fa-check"></i> «⁄Done«œ andApply
+                            <i class="fa-solid fa-check"></i> ÿßÿπDoneÿßÿØ andApply
                         </button>
                         <button onclick="openAdminPcrReject('${r.id}')" class="btn btn-ghost" style="font-size:.82rem;padding:6px 14px;color:#dc2626;border-color:#dc2626;">
                             <i class="fa-solid fa-times"></i> Reject
@@ -1080,7 +1079,7 @@
         window.adminApprovePcr = (id) => {
             if (approveProfileChangeRequest(id)) {
                 renderAdminPcrPanel();
-                _showSyncToast('Done «⁄Done«œ Request andApply «· €ÌÌ— ?', 'success');
+                _showSyncToast('Done ÿßÿπDoneÿßÿØ Request andApply ÿßŸÑÿ™ÿ∫ŸäŸäÿ± ‚úì', 'success');
             }
         };
 
@@ -1099,7 +1098,7 @@
             }
         };
 
-        // ?? Admin Password Reset (for head surveyors) ????????
+        // ‚îÄ‚îÄ Admin Password Reset (for head surveyors) ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         function renderAdminPwrPanel() {
             const reqs = (db.passwordResetRequests || []).filter(r => r.status === 'pending' && !r.headId)
                 .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -1110,7 +1109,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:10px;border:1px solid #fecaca;margin-bottom:10px;background:#fff5f5;">
                     <div>
                         <div style="font-weight:700;font-size:.9rem;color:#991b1b;">${r.userName} <span style="color:var(--text-muted);font-size:.8rem;">(${r.empId})</span></div>
-                        <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">‰”Ì Password ó ${new Date(r.timestamp).toLocaleDateString('en-US')}</div>
+                        <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">ŸÜÿ≥Ÿä Password ‚Äî ${new Date(r.timestamp).toLocaleDateString('en-US')}</div>
                     </div>
                     <button onclick="openAdminPwrModal('${r.id}','${r.userName}')" class="btn" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;cursor:pointer;font-family:inherit;">
                         <i class="fa-solid fa-key"></i> Set Temporary Password
@@ -1133,7 +1132,7 @@
                 document.getElementById('adminPwrModalResult').innerHTML =
                     `<div style="background:#dcfce7;color:#166534;border-radius:8px;padding:8px 12px;font-size:.85rem;">
                         <i class="fa-solid fa-circle-check"></i> Temporary Password: <strong>${result.tempPassword}</strong><br>
-                        √»·€ Employee <strong>${result.userName}</strong> »Â–Â password
+                        ÿ£ÿ®ŸÑÿ∫ Employee <strong>${result.userName}</strong> ÿ®Ÿáÿ∞Ÿá password
                     </div>`;
                 setTimeout(() => {
                     document.getElementById('adminPwrModal').style.display = 'none';
@@ -1142,7 +1141,7 @@
             }
         };
 
-        // ?? Device Status Bar + Donut Charts ????????????????
+        // ‚îÄ‚îÄ Device Status Bar + Donut Charts ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         let deviceBarChart = null, deviceDonutChart = null;
         function renderDeviceStatusCharts() {
             const panel = document.getElementById('deviceStatusChartPanel');
@@ -1185,11 +1184,11 @@
             }
         }
 
-        // ?? Branch Distribution Charts ???????????????????????
+        // ‚îÄ‚îÄ Branch Distribution Charts ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         const _branchPalette = ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316','#ec4899'];
 
         function renderBranchCharts() {
-«—            console.log('renderBranchCharts called. db.branches.length:', db.branches.length);
+ÿßÿ±            console.log('renderBranchCharts called. db.branches.length:', db.branches.length);
             const panel = document.getElementById('adminBranchCharts');
             if (!db.branches.length) { panel.style.display = 'none'; return; }
             panel.style.display = 'block';
@@ -1247,7 +1246,7 @@
             buildLegend('branchSurveyorLegend', survData, totalSurv);
         }
 
-        // ?? On-Leave Search Filter ??????????????????????????
+        // ‚îÄ‚îÄ On-Leave Search Filter ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         window.filterOnLeaveList = (query) => {
             const q = query.trim();
             const msgEl  = document.getElementById('onLeaveSearchMsg');
@@ -1276,7 +1275,7 @@
 
             if (visible.length === 0) {
                 msgEl.style.display = 'block';
-                msgEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:.85rem;"><i class="fa-solid fa-circle-exclamation"></i> None Surveyor »Employee ID "<strong>${q}</strong>" ›Ì ﬁ«∆„… «·Leave.</div>`;
+                msgEl.innerHTML = `<div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:8px 14px;font-size:.85rem;"><i class="fa-solid fa-circle-exclamation"></i> None Surveyor ÿ®Employee ID "<strong>${q}</strong>" ŸÅŸä ŸÇÿßÿ¶ŸÖÿ© ÿßŸÑLeave.</div>`;
                 cardEl.style.display = 'none';
             } else {
                 msgEl.style.display = 'none';
@@ -1291,11 +1290,11 @@
                                     <div style="font-size:.82rem;color:var(--text-muted);margin-top:3px;">
                                         <i class="fa-solid fa-id-badge"></i> ${item.u.empId}
                                         &nbsp;|&nbsp; <i class="fa-solid fa-building-flag"></i> ${item.branch}
-                                        &nbsp;|&nbsp; <i class="fa-solid fa-plane-departure"></i> €«œ—: ${item.departDate}
+                                        &nbsp;|&nbsp; <i class="fa-solid fa-plane-departure"></i> ÿ∫ÿßÿØÿ±: ${item.departDate}
                                     </div>
                                 </div>
                                 ${item.req ? `<button onclick="adminReturnFromLeave('${item.req.id}')" class="btn btn-primary" style="font-size:.85rem;padding:8px 18px;">
-                                    <i class="fa-solid fa-plane-arrival"></i> Return ··⁄„·
+                                    <i class="fa-solid fa-plane-arrival"></i> Return ŸÑŸÑÿπŸÖŸÑ
                                 </button>` : ''}
                             </div>`;
                     }
@@ -1305,7 +1304,7 @@
             }
         };
 
-        // ?? Workers Admin Overview ???????????????????????????
+        // ‚îÄ‚îÄ Workers Admin Overview ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
         function renderWorkersAdminPanel() {
             const panel = document.getElementById('workersAdminPanel');
             const workers = db.workers || [];
@@ -1313,7 +1312,7 @@
             if (workers.length === 0 && wlrs.length === 0) { panel.style.display = 'none'; return; }
             panel.style.display = 'block';
 
-            // Total «·Statistics
+            // Total ÿßŸÑStatistics
             const totalWorkers   = workers.length;
             const onLeaveWorkers = workers.filter(w => w.status === 'on_leave').length;
             const planningLeaveW = wlrs.filter(r => r.status === 'approved').length;
@@ -1338,19 +1337,19 @@
                 <div class="stat-card" style="border:1px solid #bfdbfe;">
                     <div class="stat-icon" style="background:#dbeafe;color:#1e40af;"><i class="fa-solid fa-calendar-check"></i></div>
                     <div>
-                        <div style="font-size:.82rem;color:var(--text-muted);">planning «·Leave</div>
+                        <div style="font-size:.82rem;color:var(--text-muted);">planning ÿßŸÑLeave</div>
                         <div style="font-size:1.5rem;font-weight:800;color:#1e40af;">${planningLeaveW}</div>
                     </div>
                 </div>
                 <div class="stat-card" style="border:1px solid #d1fae5;">
                     <div class="stat-icon" style="background:#ecfdf5;color:#065f46;"><i class="fa-solid fa-plane-arrival"></i></div>
                     <div>
-                        <div style="font-size:.82rem;color:var(--text-muted);">⁄«œand« (¬Œ— 7 √Ì«„)</div>
+                        <div style="font-size:.82rem;color:var(--text-muted);">ÿπÿßÿØandÿß (ÿ¢ÿÆÿ± 7 ÿ£ŸäÿßŸÖ)</div>
                         <div style="font-size:1.5rem;font-weight:800;color:#065f46;">${returnedRecent}</div>
                     </div>
                 </div>`;
 
-            // Details Õ”» Branch
+            // Details ÿ≠ÿ≥ÿ® Branch
             document.getElementById('workersBranchCards').innerHTML = db.branches.map(branch => {
                 const bWorkers   = workers.filter(w => w.branchId === branch.id);
                 const bOnLeave   = bWorkers.filter(w => w.status === 'on_leave');
@@ -1365,7 +1364,7 @@
                             <strong style="color:#065f46;">${bWorkers.length}</strong>
                         </div>
                         <div class="branch-stat-item">
-                            <span><i class="fa-solid fa-user-check" style="color:#15803d;"></i> Availableand‰:</span>
+                            <span><i class="fa-solid fa-user-check" style="color:#15803d;"></i> AvailableandŸÜ:</span>
                             <strong style="color:#15803d;">${bWorkers.length - bOnLeave.length}</strong>
                         </div>
                         <div class="branch-stat-item">
@@ -1373,11 +1372,11 @@
                             <strong style="color:#b45309;">${bOnLeave.length}</strong>
                         </div>
                         <div class="branch-stat-item">
-                            <span><i class="fa-solid fa-calendar-check" style="color:#1e40af;"></i> planning «·Leave:</span>
+                            <span><i class="fa-solid fa-calendar-check" style="color:#1e40af;"></i> planning ÿßŸÑLeave:</span>
                             <strong style="color:#1e40af;">${bPlanning.length}</strong>
                         </div>
                         <div class="branch-stat-item">
-                            <span><i class="fa-solid fa-plane-arrival" style="color:#065f46;"></i> ⁄«œand« „ƒŒ—«:</span>
+                            <span><i class="fa-solid fa-plane-arrival" style="color:#065f46;"></i> ÿπÿßÿØandÿß ŸÖÿ§ÿÆÿ±ÿßŸã:</span>
                             <strong style="color:#065f46;">${bReturned.length}</strong>
                         </div>
                         ${bOnLeave.length > 0 ? `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
