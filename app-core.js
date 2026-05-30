@@ -476,6 +476,23 @@ async function _syncToSupabase() {
         timestamp: r.timestamp || new Date().toISOString(),
     }));
 
+    // Devices — upsert on serial (no UUID required for id)
+    const deviceRows = (db.devices || [])
+        .filter(d => d.serial)
+        .map(d => {
+            const row = {
+                serial:            d.serial,
+                type:              d.type              || 'غير محدد',
+                owner_id:          _isUUID(d.ownerId)  ? d.ownerId  : null,
+                branch_id:         _isUUID(d.branch)   ? d.branch   : null,
+                cal_date:          d.calDate           || null,
+                status:            d.status            || 'warehouse',
+                sent_to_agent_date:d.sentToAgentDate   || null,
+            };
+            if (_isUUID(d.id)) row.id = d.id;
+            return row;
+        });
+
     // Custodies — only records with proper Supabase UUIDs
     const custodyRows = (db.custodies || []).filter(c => _isUUID(c.id)).map(c => ({
         id: c.id, ..._custodyToRow(c)
@@ -2183,7 +2200,7 @@ function updateDeviceOwner(serialNumber, userId, calibrationDate, branchId, devi
     if (deviceCondition === 'needs_calibration') mappedStatus = 'needs_calibration';
     const deviceData = { serial: serialNumber, type: deviceType || 'غير محدد', ownerId: userId, branch: branchId, calDate: calibrationDate, status: mappedStatus };
     if (idx !== -1) db.devices[idx] = { ...db.devices[idx], ...deviceData };
-    else db.devices.push({ id: 'dev_' + Date.now(), ...deviceData });
+    else db.devices.push({ id: _safeUUID(), ...deviceData });
 }
 
 // ============================================================
@@ -2393,7 +2410,7 @@ function deleteCalibrationCert(certId) {
 // ============================================================
 function addDevice(serial, type, calDate, ownerId, status, branchId) {
     if (db.devices.some(d => d.serial === serial)) { alert('الرقم التسلسلي مسجل مسبقاً'); return false; }
-    const device = { id: 'dev_' + Date.now(), serial, type, calDate: calDate || null, ownerId: ownerId || null, status: status || 'warehouse', branch: branchId || null };
+    const device = { id: _safeUUID(), serial, type, calDate: calDate || null, ownerId: ownerId || null, status: status || 'warehouse', branch: branchId || null };
     db.devices.push(device);
     saveDB();
     addLog(`إضافة جهاز جديد: ${serial} (${type})`);
@@ -2406,9 +2423,11 @@ function updateDevice(id, updates) {
         db.devices[idx] = { ...db.devices[idx], ...updates };
         if (supabaseClient) {
             const d = db.devices[idx];
-            supabaseClient.from('devices').update({ serial: d.serial, type: d.type, owner_id: d.ownerId, branch_id: d.branch, cal_date: d.calDate, status: d.status, sent_to_agent_date: d.sentToAgentDate }).eq('id', id).then(({ error }) => { if (error) console.warn('update device:', error.message); });
+            const payload = { serial: d.serial, type: d.type, owner_id: _isUUID(d.ownerId) ? d.ownerId : null, branch_id: _isUUID(d.branch) ? d.branch : null, cal_date: d.calDate, status: d.status, sent_to_agent_date: d.sentToAgentDate };
+            // استخدم upsert بـ serial كمفتاح — يعمل حتى لو كان id غير UUID
+            supabaseClient.from('devices').upsert({ ...payload, ...((_isUUID(d.id)) ? { id: d.id } : {}) }, { onConflict: 'serial' }).then(({ error }) => { if (error) console.warn('update device:', error.message); });
         }
-        saveDB(true);
+        saveDB();
         addLog(`تحديث الجهاز ${db.devices[idx].serial}`);
         return true;
     }
