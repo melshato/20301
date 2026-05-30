@@ -192,6 +192,15 @@ const defaultDB = {
 localStorage.removeItem(DB_KEY);
 let db = JSON.parse(JSON.stringify(defaultDB));
 
+// استعادة النسخة الاحتياطية المحلية (لتفادي فقدان البيانات بسبب RLS)
+try {
+    const backup = localStorage.getItem('sajco_db_backup');
+    if (backup) {
+        const parsed = JSON.parse(backup);
+        Object.keys(parsed).forEach(k => { if (k !== '_version') db[k] = parsed[k]; });
+    }
+} catch (_) {}
+
 // ضمان وجود الحقول
 ['settings','custodies','leaveRequests','notifications','devices','logs','users',
  'allowedEmployeeIds','ratings','calibrationCerts','maintenanceRequests','directMessages','projects'].forEach(k => {
@@ -338,10 +347,13 @@ window._submitForceChangePw = function() {
 };
 
 // ============================================================
-// saveDB - يزامن Supabase فقط (لا تخزين محلي)
+// saveDB - يزامن Supabase ويحتفظ بنسخة محلية في localStorage
 // ============================================================
-const saveDB = async () => {
+const saveDB = async (skipSync = false) => {
     db._version = APP_VERSION;
+    // حفظ نسخة محلية احتياطية (لتفادي فقدان البيانات عند منع RLS)
+    try { localStorage.setItem('sajco_db_backup', JSON.stringify(db)); } catch (_) {}
+    if (skipSync) return;
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try { await _syncToSupabase(); }
         catch (err) {

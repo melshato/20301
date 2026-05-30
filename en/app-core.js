@@ -191,6 +191,15 @@ const defaultDB = {
 localStorage.removeItem(DB_KEY);
 let db = JSON.parse(JSON.stringify(defaultDB));
 
+// Restore local backup (to prevent data loss due to RLS)
+try {
+    const backup = localStorage.getItem('sajco_db_backup');
+    if (backup) {
+        const parsed = JSON.parse(backup);
+        Object.keys(parsed).forEach(k => { if (k !== '_version') db[k] = parsed[k]; });
+    }
+} catch (_) {}
+
 // ضمان andجandد الحقandل
 ['settings','custodies','leaveRequests','notifications','devices','logs','users',
  'allowedEmployeeIds','ratings','calibrationCerts','maintenanceRequests','directMessages','projects'].forEach(k => {
@@ -333,8 +342,11 @@ window._submitForceChangePw = function() {
 // ============================================================
 // saveDB - Supabase sync only (no local storage)
 // ============================================================
-const saveDB = async () => {
+const saveDB = async (skipSync = false) => {
     db._version = APP_VERSION;
+    // Save local backup (prevents data loss when RLS blocks Supabase sync)
+    try { localStorage.setItem('sajco_db_backup', JSON.stringify(db)); } catch (_) {}
+    if (skipSync) return;
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try { await _syncToSupabase(); }
         catch (err) { console.warn('Supabase sync error:', err.message); }
