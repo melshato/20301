@@ -256,9 +256,10 @@ function checkAuth() {
         window.location.href = 'index.html';
         return;
     }
-    if (currentUser && supabaseClient) {
+    // Only verify Supabase session for migrated users (have authUid)
+    if (currentUser?.authUid && supabaseClient) {
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (!session && currentUser) {
+            if (!session) {
                 localStorage.removeItem('sajco_session');
                 window.location.href = 'index.html';
             }

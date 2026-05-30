@@ -259,15 +259,15 @@ function checkAuth() {
         window.location.href = 'index.html';
         return;
     }
-    // التحقق من صلاحية جلسة Supabase Auth في الخلفية (لا يُعطّل التحميل)
-    if (currentUser && supabaseClient) {
+    // التحقق من جلسة Supabase Auth فقط للمستخدمين المهاجرين (لديهم authUid)
+    // المستخدمون القدامى (fallback) لا يُمسّهم هذا الشرط
+    if (currentUser?.authUid && supabaseClient) {
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (!session && currentUser) {
-                // الجلسة منتهية من جانب الخادم — سجّل خروج
+            if (!session) {
                 localStorage.removeItem('sajco_session');
                 window.location.href = 'index.html';
             }
-        }).catch(() => {}); // صامت — قد يكون بدون Auth (fallback users)
+        }).catch(() => {});
     }
     if (currentUser?.mustChangePassword) {
         document.addEventListener('DOMContentLoaded', _showForceChangePasswordModal);
@@ -550,15 +550,13 @@ const reloadDB = async () => { await _loadRemoteDB(); };
 (function _initAuthListener() {
     if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
     supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
-            // الجلسة انتهت من الخادم — أخرج تلقائياً
-            if (currentUser && !window.location.pathname.includes('index.html')) {
+        // SIGNED_OUT يُخرج فقط المستخدمين المهاجرين لـ Supabase Auth
+        // المستخدمون على النظام القديم (بدون authUid) لا يتأثرون
+        if (event === 'SIGNED_OUT' && currentUser?.authUid) {
+            if (!window.location.pathname.includes('index.html')) {
                 localStorage.removeItem('sajco_session');
                 window.location.href = 'index.html';
             }
-        }
-        if (event === 'TOKEN_REFRESHED' && session) {
-            // تجديد الجلسة تلقائياً — لا يحتاج تدخل
         }
     });
 })();
