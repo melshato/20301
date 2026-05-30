@@ -70,8 +70,8 @@
         const userCustodyHistoryTableBody = document.getElementById('userCustodyHistoryTableBody');
         const searchEmpIdInput = document.getElementById('searchEmpId');
         const searchedUserInfoDiv = document.getElementById('searchedUserInfo');
-        let lastSearchResults = [];
-        let _lastSearchUserName = '';
+        window.lastSearchResults = [];
+        window._lastSearchUserName = '';
 
         searchEmpIdInput.addEventListener('input', () => {
             const empId = searchEmpIdInput.value.trim();
@@ -171,34 +171,6 @@
                         <small style="color:var(--text-muted)">${new Date(h.timestamp).toLocaleString('ar-EG')}</small></div>`).join('')
                     : '<span style="color:var(--text-muted)">—</span>';
             });
-        }
-
-        function exportUserHistoryToExcel() {
-            if (lastSearchResults.length === 0) {
-                alert('لا توجد بيانات لتصديرها. يرجى البحث عن موظف أولاً.');
-                return;
-            }
-            
-            const empId = searchEmpIdInput.value.trim();
-            const user = db.users.find(u => u.empId === empId);
-            const userName = user ? user.name : 'موظف';
-
-            let csvContent = "\uFEFF"; 
-            csvContent += "تاريخ العملية,الجهاز,العملية,بواسطة,الفرع,ملاحظات,تتبع الموافقات\n";
-
-            lastSearchResults.forEach(r => {
-                const branch = db.branches.find(b => b.id === r.branchId);
-                const branchName = branch ? branch.name : '—';
-                const historyText = r.approvalHistory.map(h => `${h.approverRole}: ${h.approverName} (${new Date(h.timestamp).toLocaleString('ar-EG')})`).join(' | ');
-                csvContent += `"${new Date(r.timestamp).toLocaleString('ar-EG')}","${getDeviceTypeName(r.deviceType)} (S/N: ${r.serialNumber})","${r.action}","${r.byUser}","${branchName}","${r.notes || ''}","${historyText}"\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `سجل_عهدة_${userName}_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`;
-            link.click();
-            URL.revokeObjectURL(link.href);
         }
 
         window.onload = () => {
