@@ -1219,9 +1219,18 @@ function getVisibleCustodies() {
 // ============================================================
 // Maintenance Requests - طلبات الصيانة والمعايرة
 // ============================================================
+function hasPendingMaintenanceRequest(deviceId, serial) {
+    return (db.maintenanceRequests || []).some(r =>
+        (r.deviceId === deviceId || r.serialNumber === serial) &&
+        r.status === 'pending'
+    );
+}
+
 function sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes = '') {
     const device = db.devices.find(d => d.id === deviceId);
     if (!device) return { success: false, msg: 'الجهاز غير موجود' };
+    if (hasPendingMaintenanceRequest(deviceId, serial))
+        return { success: false, msg: 'يوجد طلب قيد المراجعة بالفعل لهذا الجهاز' };
 
     const req = {
         id: crypto.randomUUID(),

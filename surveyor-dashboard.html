@@ -654,14 +654,18 @@ function renderMyDevices() {
             : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;">متبقي ${diff} يوم</span>`
             : `<span style="color:#16a34a;">متبقي ${diff} يوم</span>`;
 
-        const canSendMaint = d.status === 'assigned';
+        const hasPendingReq = hasPendingMaintenanceRequest(d.id, d.serial);
+        const canSendMaint = d.status === 'assigned' && !hasPendingReq;
         const sendBtns = canSendMaint ? `
             <button onclick="handleSendToMaintenance('${d.id}','${d.serial}','maintenance')" class="btn-maintenance">
                 <i class="fa-solid fa-screwdriver-wrench"></i> طلب صيانة
             </button>
             <button onclick="handleSendToMaintenance('${d.id}','${d.serial}','calibration')" class="btn-calibration">
                 <i class="fa-solid fa-certificate"></i> طلب معايرة
-            </button>` : '';
+            </button>` : hasPendingReq
+            ? `<span class="badge badge-warning" style="font-size:.78rem;padding:6px 14px;white-space:nowrap;">
+                 <i class="fa-solid fa-clock"></i> الطلب قيد المراجعة
+               </span>` : '';
 
         return `
             <div class="device-row">

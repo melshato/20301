@@ -324,10 +324,15 @@ function refreshMaintenancePage() {
             const owner = db.users.find(u => u.id === d.ownerId);
             const branch = db.branches.find(b => b.id === d.branch);
             const isM = d.status === 'maintenance';
+            const hasPending = hasPendingMaintenanceRequest(d.id, d.serial);
             const sendBtn = isAdmin
                 ? `<button class="btn-${isM ? 'maintenance' : 'calibration'}" onclick="openSendModal('${d.id}','${d.serial}','${isM ? 'maintenance' : 'calibration'}')">
                     <i class="fa-solid fa-paper-plane"></i> إرسال للوكيل
                    </button>`
+                : hasPending
+                ? `<span class="badge badge-warning" style="font-size:.78rem;padding:6px 14px;white-space:nowrap;">
+                     <i class="fa-solid fa-clock"></i> الطلب قيد المراجعة
+                   </span>`
                 : `<button onclick="reqSend('${d.id}','${d.serial}','${isM ? 'maintenance' : 'calibration'}')" class="btn btn-ghost btn-sm">
                     <i class="fa-solid fa-hand-paper"></i> طلب إرسال
                    </button>`;
@@ -400,6 +405,8 @@ window.reqSend = (deviceId, serial, type) => {
     if (result.success) {
         showToast('تم إرسال الطلب للمدير وبانتظار الموافقة', 'success');
         refreshMaintenancePage();
+    } else {
+        showToast(result.msg || 'حدث خطأ', 'error');
     }
 };
 

@@ -1122,9 +1122,18 @@ function getVisibleCustodies() {
 // ============================================================
 // Maintenance Requests - طلبات Maintenance & Calibration
 // ============================================================
+function hasPendingMaintenanceRequest(deviceId, serial) {
+    return (db.maintenanceRequests || []).some(r =>
+        (r.deviceId === deviceId || r.serialNumber === serial) &&
+        r.status === 'pending'
+    );
+}
+
 function sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes = '') {
     const device = db.devices.find(d => d.id === deviceId);
     if (!device) return { success: false, msg: 'Device not found' };
+    if (hasPendingMaintenanceRequest(deviceId, serial))
+        return { success: false, msg: 'A pending request already exists for this device' };
 
     const req = {
         id: crypto.randomUUID(),

@@ -390,13 +390,19 @@ function buildActionButtons(d) {
                     <i class="fa-solid fa-ruler-combined"></i> معايرة
                  </button>`;
     } else if (!atAgent && !isAdmin && (isHead || currentUser.role === 'surveyor')) {
-        // Non-admin: request buttons
-        btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-req-maint" title="طلب صيانة">
-                    <i class="fa-solid fa-screwdriver-wrench"></i> طلب صيانة
-                 </button>
-                 <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-req-maint" style="background:#7c3aed;" title="طلب معايرة">
-                    <i class="fa-solid fa-ruler-combined"></i> طلب معايرة
-                 </button>`;
+        // Non-admin: check if a pending request already exists
+        if (hasPendingMaintenanceRequest(d.id, d.serial)) {
+            btns += `<span class="badge badge-warning" style="font-size:.78rem;padding:6px 14px;white-space:nowrap;">
+                        <i class="fa-solid fa-clock"></i> الطلب قيد المراجعة
+                     </span>`;
+        } else {
+            btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-req-maint" title="طلب صيانة">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> طلب صيانة
+                     </button>
+                     <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-req-maint" style="background:#7c3aed;" title="طلب معايرة">
+                        <i class="fa-solid fa-ruler-combined"></i> طلب معايرة
+                     </button>`;
+        }
     }
 
     return btns || '<span style="color:var(--text-muted);font-size:.8rem;">—</span>';

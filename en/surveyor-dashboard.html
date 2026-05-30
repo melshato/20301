@@ -650,14 +650,18 @@ function renderMyDevices() {
             : diff <= 30 ? `<span style="color:#f59e0b;font-weight:700;">متبقي ${diff} day</span>`
             : `<span style="color:#16a34a;">متبقي ${diff} day</span>`;
 
-        const canSendMaint = d.status === 'assigned';
+        const hasPendingReq = hasPendingMaintenanceRequest(d.id, d.serial);
+        const canSendMaint = d.status === 'assigned' && !hasPendingReq;
         const sendBtns = canSendMaint ? `
             <button onclick="handleSendToMaintenance('${d.id}','${d.serial}','maintenance')" class="btn-maintenance">
-                <i class="fa-solid fa-screwdriver-wrench"></i> طلب Maintenance
+                <i class="fa-solid fa-screwdriver-wrench"></i> Request Maintenance
             </button>
             <button onclick="handleSendToMaintenance('${d.id}','${d.serial}','calibration')" class="btn-calibration">
-                <i class="fa-solid fa-certificate"></i> طلب Calibration
-            </button>` : '';
+                <i class="fa-solid fa-certificate"></i> Request Calibration
+            </button>` : hasPendingReq
+            ? `<span class="badge badge-warning" style="font-size:.78rem;padding:6px 14px;white-space:nowrap;">
+                 <i class="fa-solid fa-clock"></i> Request Under Review
+               </span>` : '';
 
         return `
             <div class="device-row">

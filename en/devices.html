@@ -385,13 +385,19 @@ function buildActionButtons(d) {
                     <i class="fa-solid fa-ruler-combined"></i> Calibration
                  </button>`;
     } else if (!atAgent && !isAdmin && (isHead || currentUser.role === 'surveyor')) {
-        // Non-admin: request buttons
-        btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-req-maint" title="طلب Maintenance">
-                    <i class="fa-solid fa-screwdriver-wrench"></i> طلب Maintenance
-                 </button>
-                 <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-req-maint" style="background:#7c3aed;" title="طلب Calibration">
-                    <i class="fa-solid fa-ruler-combined"></i> طلب Calibration
-                 </button>`;
+        // Non-admin: check if a pending request already exists
+        if (hasPendingMaintenanceRequest(d.id, d.serial)) {
+            btns += `<span class="badge badge-warning" style="font-size:.78rem;padding:6px 14px;white-space:nowrap;">
+                        <i class="fa-solid fa-clock"></i> Request Under Review
+                     </span>`;
+        } else {
+            btns += `<button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','maintenance')" class="btn-req-maint" title="Request Maintenance">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> Request Maintenance
+                     </button>
+                     <button onclick="openSendModal('${d.id}','${d.serial}','${d.type}','calibration')" class="btn-req-maint" style="background:#7c3aed;" title="Request Calibration">
+                        <i class="fa-solid fa-ruler-combined"></i> Request Calibration
+                     </button>`;
+        }
     }
 
     return btns || '<span style="color:var(--text-muted);font-size:.8rem;">—</span>';
