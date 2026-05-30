@@ -462,6 +462,20 @@ async function _syncToSupabase() {
         timestamp: r.timestamp || new Date().toISOString(),
     }));
 
+    const deviceRows = db.devices.map(d => {
+        const row = {
+            serial:             d.serial,
+            type:               d.type,
+            owner_id:           _isUUID(d.ownerId) ? d.ownerId : null,
+            branch_id:          _isUUID(d.branch)  ? d.branch  : null,
+            cal_date:           d.calDate          || null,
+            status:             d.status           || 'warehouse',
+            sent_to_agent_date: d.sentToAgentDate  || null,
+        };
+        if (_isUUID(d.id)) row.id = d.id;
+        return row;
+    });
+
     const isAdmin = currentUser && currentUser.role === 'admin';
     const ops = [
         (userRows.length && isAdmin) ? supabaseClient.from('users').upsert(userRows, { onConflict: 'emp_id' })                      : null,
@@ -471,6 +485,7 @@ async function _syncToSupabase() {
         workerLeaveRows.length ? supabaseClient.from('worker_leave_requests').upsert(workerLeaveRows, { onConflict: 'id' })        : null,
         projectRows.length     ? supabaseClient.from('projects').upsert(projectRows, { onConflict: 'id' })                         : null,
         pcrRows.length         ? supabaseClient.from('profile_change_requests').upsert(pcrRows, { onConflict: 'id' })              : null,
+        deviceRows.length      ? supabaseClient.from('devices').upsert(deviceRows, { onConflict: 'serial' })                       : null,
         srrRows.length         ? supabaseClient.from('salary_raise_requests').upsert(srrRows, { onConflict: 'id' })                : null,
         supabaseClient.from('settings').upsert({ key: 'newsTicker', value: JSON.stringify(db.newsTicker || []) }, { onConflict: 'key' }),
     ].filter(Boolean);
@@ -2891,7 +2906,6 @@ async function _loadRemoteDB() {
         // ── Branches ───────────────────────────────────────────────
         if (branchesRes.data && branchesRes.data.length > 0) {
             // Replace local branches entirely from Supabase (authoritative source)
-            console.log('Supabase branches data received:', branchesRes.data.length, 'items');
             db.branches = branchesRes.data.map(row => _normalizeBranch({
                 id:           row.id,
                 nameAr:       row.name_ar || row.name,
@@ -2899,9 +2913,6 @@ async function _loadRemoteDB() {
                 serialNumber: row.serial_number || 0,
             }));
             changed = true;
-        }
-        else if (branchesRes.error) {
-            console.error('Error fetching branches from Supabase:', branchesRes.error);
         }
 
         // ── Devices ────────────────────────────────────────────────

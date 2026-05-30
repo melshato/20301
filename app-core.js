@@ -536,6 +536,7 @@ async function _syncToSupabase() {
         projectRows.length    ? supabaseClient.from('projects').upsert(projectRows, { onConflict: 'id' })                            : null,
         pcrRows.length        ? supabaseClient.from('profile_change_requests').upsert(pcrRows, { onConflict: 'id' })                 : null,
         srrRows.length        ? supabaseClient.from('salary_raise_requests').upsert(srrRows, { onConflict: 'id' })                   : null,
+        deviceRows.length     ? supabaseClient.from('devices').upsert(deviceRows, { onConflict: 'serial' })                          : null,
         custodyRows.length    ? supabaseClient.from('custodies').upsert(custodyRows, { onConflict: 'id' })                           : null,
         leaveRows.length      ? supabaseClient.from('leave_requests').upsert(leaveRows, { onConflict: 'id' })                        : null,
         maintRows.length      ? supabaseClient.from('maintenance_requests').upsert(maintRows, { onConflict: 'id' })                  : null,
@@ -3036,7 +3037,6 @@ async function _loadRemoteDB() {
         // ── Branches ───────────────────────────────────────────────
         if (branchesRes.data && branchesRes.data.length > 0) {
             // Replace local branches entirely from Supabase (authoritative source)
-            console.log('Supabase branches data received:', branchesRes.data.length, 'items');
             db.branches = branchesRes.data.map(row => _normalizeBranch({
                 id:           row.id,
                 nameAr:       row.name_ar || row.name,
@@ -3044,9 +3044,6 @@ async function _loadRemoteDB() {
                 serialNumber: row.serial_number || 0,
             }));
             changed = true;
-        }
-        else if (branchesRes.error) {
-            console.error('Error fetching branches from Supabase:', branchesRes.error);
         }
 
         // ── Devices ────────────────────────────────────────────────
@@ -3073,15 +3070,12 @@ async function _loadRemoteDB() {
         }
 
         // ── Allowed Employee IDs ───────────────────────────────────
-        if (empIdsRes.data) {
-            // إذا كانت البيانات قادمة من Supabase فارغة، لا تمسح القائمة المحلية الافتراضية
-            if (empIdsRes.data.length > 0 || db.allowedEmployeeIds.length === 0) {
+        if (empIdsRes.data) { // Check if data exists, even if empty, to allow clearing local state
             db.allowedEmployeeIds = empIdsRes.data.map(row => ({
                 empId: String(row.emp_id),
                 name: row.name || ''
             }));
             changed = true;
-            }
         }
 
         // ── Custodies ─────────────────────────────────────────────
