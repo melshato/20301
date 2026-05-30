@@ -5,9 +5,21 @@
 const DB_KEY = "sajco_v2_db";
 const APP_VERSION = "4.0";
 
-// ── Suppress Chrome SW message-channel-closed warning ──
+// ── Global error handler — يلتقط الأخطاء غير المعالجة ──
 window.addEventListener('unhandledrejection', e => {
-    if (e.reason?.message?.includes('message channel closed before a response was received')) e.preventDefault();
+    if (e.reason?.message?.includes('message channel closed before a response was received')) {
+        e.preventDefault(); // أخطاء browser extensions — تجاهل
+        return;
+    }
+    console.warn('[SAJCO] Unhandled promise rejection:', e.reason);
+});
+
+window.addEventListener('error', e => {
+    // تجاهل أخطاء extensions والـ cross-origin scripts
+    if (!e.filename || e.filename.includes('extension') || e.filename === '') return;
+    console.error('[SAJCO] JS Error:', e.message, 'at', e.filename, ':', e.lineno);
+    // حفظ نسخة احتياطية فوراً عند أي خطأ حرج
+    try { localStorage.setItem('sajco_db_backup', JSON.stringify(db)); } catch (_) {}
 });
 
 // ثوابت حالات الطلبات — مركزية لتجنب الأخطاء الإملائية
@@ -2492,9 +2504,24 @@ function deleteUser(userId) {
     const user = db.users.find(u => u.id === userId);
     if (user && user.id !== 'admin_1' && user.id !== 'dev_1' && currentUser.role === 'admin') {
         db.users = db.users.filter(u => u.id !== userId);
-        db.devices.forEach(d => { if (d.ownerId === userId) { d.ownerId = null; d.status = 'warehouse'; } });
+        // إعادة أجهزة الموظف للمستودع محلياً وفي Supabase
+        db.devices.forEach(d => {
+            if (d.ownerId === userId) {
+                d.ownerId = null;
+                d.status = 'warehouse';
+                if (supabaseClient && _isUUID(d.id)) {
+                    supabaseClient.from('devices').update({ owner_id: null, status: 'warehouse' }).eq('id', d.id).then(() => {});
+                }
+            }
+        });
         db.users.forEach(u => { if (u.substituteId === userId) u.substituteId = null; });
-        saveDB();
+        // حذف المستخدم من Supabase
+        if (supabaseClient && _isUUID(userId)) {
+            supabaseClient.from('users').delete().eq('id', userId).then(({ error }) => {
+                if (error) console.warn('deleteUser Supabase:', error.message);
+            });
+        }
+        saveDB(true);
         addLog(`حذف الموظف: ${user.name}`);
         return true;
     }

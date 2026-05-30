@@ -358,6 +358,81 @@ return _loadRemoteDB._inFlight;
 
 ---
 
+## 18. تأخر ظهور الرقم الوظيفي عند التسجيل
+
+**الصفحة المتأثرة:** `index.html`
+
+**وصف المشكلة:**
+عند كتابة الرقم الوظيفي في نموذج التحقق، كان يتأخر ظهوره أو لا يظهر أحياناً، وبمسح الرقم وإعادة كتابته يعود للظهور.
+
+**السبب — Race Condition:**
+كل ضغطة مفتاح تُطلق طلب Supabase مستقل بدون debounce. كتابة "12345" تُرسل 5 طلبات متزامنة. إذا رجع رد طلب قديم ("1234") بعد رد الطلب الحديث ("12345")، يُلغي النتيجة الصحيحة ويُعيد `_lastVerifiedEmpId = null`.
+
+**الحل:**
+1. إضافة debounce 350ms على حدث `input` — لا يُرسل طلب إلا بعد توقف المستخدم عن الكتابة
+2. إضافة رقم تسلسلي `_empIdCheckSeq` — أي رد يأتي بعد طلب أحدث يُتجاهل تلقائياً
+
+**الملفات:** `index.html`، `en/index.html`
+
+---
+
+## 19. حذف الموظف لا يُزامَن مع Supabase
+
+**الملفات المتأثرة:** `app-core.js`
+
+**وصف المشكلة:**
+عند حذف موظف من `users.html`، كانت `deleteUser()` تحذفه من الذاكرة المحلية فقط. عند إعادة تحميل الصفحة يعود الموظف من Supabase.
+
+**الحل:**
+إضافة استدعاء مباشر لـ Supabase داخل `deleteUser()`:
+```javascript
+supabaseClient.from('users').delete().eq('id', userId).then(...);
+// + تحديث أجهزته في Supabase
+supabaseClient.from('devices').update({ owner_id: null, status: 'warehouse' }).eq('id', d.id);
+```
+
+---
+
+## 20. Supabase RLS تمنع المدير من الكتابة (401 Unauthorized)
+
+**الملفات المتأثرة:** Supabase Dashboard — سياسات RLS
+
+**وصف المشكلة:**
+أخطاء 401 وRLS violation عند محاولة المدير إضافة/تعديل المستخدمين، مما يتسبب في فشل مزامنة العهدات (FK constraint) لأن المستخدمين لم يُحفَظوا في Supabase.
+
+**الحل:**
+إضافة دالة `is_admin()` وسياسات RLS تمنح المدير صلاحية كاملة على جميع الجداول:
+```sql
+CREATE OR REPLACE FUNCTION is_admin() RETURNS boolean AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM users
+    WHERE (id = auth.uid() OR auth_uid = auth.uid())
+    AND role = 'admin' AND status = 'approved'
+  );
+$$ LANGUAGE sql STABLE SECURITY DEFINER;
+
+CREATE POLICY "admin_full_access_users" ON users
+  FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+```
+نفس السياسة على: `custodies`, `devices`, `branches`, `workers`, `notifications`, `projects`, `settings`.
+
+---
+
+## 21. مزامنة ثنائية المرحلة لتجنب FK Constraint
+
+**الملفات المتأثرة:** `app-core.js` — دالة `_syncToSupabase()`
+
+**وصف المشكلة:**
+كانت جميع الجداول تُزامَن بالتوازي. عند فشل `users`، تفشل `custodies` بسبب FK constraint.
+
+**الحل:**
+تقسيم المزامنة لمرحلتين:
+- **المرحلة 1:** `users` + `branches` (جداول FK-parent)
+- **المرحلة 2:** `custodies` + باقي الجداول — لا تُشغَّل إلا إذا نجحت المرحلة الأولى
+- + تجديد جلسة Supabase قبل كل مزامنة لتجنب الـ 401
+
+---
+
 ## ملاحظات عامة للتطوير المستقبلي
 
 | المشكلة الشائعة | الحل الموصى به |
