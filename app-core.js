@@ -2029,6 +2029,30 @@ function approveCustody(custodyId, approverRole) {
         // Also accept if head's responsibleBranch matches directly (covers edge cases)
         const directMatch = currentUser.responsibleBranch === c.branchId;
         if (isResponsible || directMatch) {
+            if (c.transferData && c.status === 'pending_head_approval') {
+                // Final approval for transfer — close old sender custody, approve new one
+                db.custodies.forEach(cu => {
+                    if (cu.serialNumber === c.serialNumber && cu.userId === c.transferData.fromUserId && cu.status === 'approved' && cu.id !== c.id) {
+                        cu.status = 'transferred_out';
+                        _updateCustodyInSupabase(cu);
+                    }
+                });
+                const device = db.devices.find(d => d.serial === c.serialNumber);
+                if (device) updateDeviceOwner(c.serialNumber, c.userId, device.calDate, c.branchId, c.deviceType, device.status === 'maintenance' ? 'needs_maintenance' : 'good');
+                c.status = 'approved';
+                if (!c.approvalHistory) c.approvalHistory = [];
+                c.approvalHistory.push({ approverName: currentUser.name, approverRole: 'رئيس مساحين', timestamp: new Date().toISOString() });
+                saveDB();
+                _updateCustodyInSupabase(c);
+                addLog(`موافقة رئيس مساحين: ${currentUser.name} على نقل عهدة الجهاز (${c.serialNumber}) — اعتماد نهائي`);
+                addNotification(c.userId, `تم اعتماد عهدة الجهاز (${c.serialNumber}) بنجاح بعد موافقة رئيس المساحين.`, 'success', c.id, false, 'custody.html');
+                // Notify admins for info only
+                db.users.filter(u => u.role === 'admin').forEach(a =>
+                    addNotification(a.id,
+                        `رئيس المساحين ${currentUser.name} اعتمد نقل عهدة الجهاز (${c.serialNumber}) إلى ${userName}.`,
+                        'info', c.id));
+                return true;
+            }
             c.status = 'pending_admin_approval';
             if (!c.approvalHistory) c.approvalHistory = [];
             c.approvalHistory.push({ approverName: currentUser.name, approverRole: 'رئيس مساحين', timestamp: new Date().toISOString() });
@@ -2115,22 +2139,25 @@ function acceptTransferByReceiver(custodyId, notes, deviceCondition, comment, sa
     c.receiverComment = comment || '';
     c.satisfied = satisfied ?? null;
     c.careLevel = careLevel || '';
-    c.status = 'pending_admin_approval';
+    c.status = 'pending_head_approval';
     saveDB();
     _updateCustodyInSupabase(c);
     addLog(`قبل ${currentUser.name} نقل عهدة الجهاز (${c.serialNumber}) وأضاف ملاحظات`);
     addNotification(c.transferData.fromUserId,
-        `قبل ${currentUser.name} نقل عهدة الجهاز (${c.serialNumber}). بانتظار الموافقة النهائية.`, 'success', c.id);
-    db.users.filter(u => u.role === 'admin').forEach(a =>
-        addNotification(a.id,
-            `طلب نقل عهدة الجهاز (${c.serialNumber}) من ${c.transferData.fromUserName} إلى ${currentUser.name} — قُبل من المستلم وبانتظار موافقتك.`,
-            'warning', c.id, false, 'custody.html', 'custody_approval', true));
-    // Notify head surveyor of receiver's branch
-    const branchHead = db.users.find(u => u.role === 'head' && u.responsibleBranch === c.branchId && u.status === 'approved');
+        `قبل ${currentUser.name} نقل عهدة الجهاز (${c.serialNumber}). بانتظار موافقة رئيس المساحين.`, 'success', c.id);
+    // Notify head surveyor of receiver's branch for approval
+    const branchHead = getBranchHead(c.branchId);
     if (branchHead && branchHead.id !== currentUser.id) {
         addNotification(branchHead.id,
-            `المساح ${currentUser.name} قبل نقل عهدة الجهاز (${c.serialNumber}) وأضاف ملاحظات: "${notes || '—'}" — التقييم: ${deviceCondition || '—'}`,
-            'info', c.id, false, 'custody.html');
+            `طلب نقل عهدة الجهاز (${c.serialNumber}) من ${c.transferData.fromUserName} إلى ${currentUser.name} — قُبل من المستلم وبانتظار موافقتك.`,
+            'warning', c.id, false, 'custody.html', 'custody_approval', true);
+    }
+    // If no head assigned, notify all admins as fallback
+    if (!branchHead) {
+        db.users.filter(u => u.role === 'admin').forEach(a =>
+            addNotification(a.id,
+                `طلب نقل عهدة الجهاز (${c.serialNumber}) من ${c.transferData.fromUserName} إلى ${currentUser.name} — لا يوجد رئيس مساحين للفرع، بانتظار موافقتك.`,
+                'warning', c.id, false, 'custody.html', 'custody_approval', true));
     }
     return true;
 }

@@ -392,18 +392,25 @@ async function loadSurveyorDashboard() {
     } else document.getElementById('pendingAlert').innerHTML = '';
 
     // Pending warehouse custody — surveyor accept/reject
-    const pendingAccept = db.custodies.filter(c => c.userId === currentUser.id && c.status === 'pending_surveyor_acceptance');
+    const pendingAccept = db.custodies.filter(c => c.userId === currentUser.id && ['pending_surveyor_acceptance', 'pending_receiver_acceptance'].includes(c.status));
     const acceptContainer = document.getElementById('pendingSurveyorAccept');
     if (pendingAccept.length > 0) {
-        const user = db.users.find(u => u.id === pendingAccept[0].assignedBy);
-        const parts = pendingAccept.map(c => `
-            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid #fde68a;margin-bottom:8px;">
-                <div style="width:36px;height:36px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;color:#92400e;flex-shrink:0;">
-                    <i class="fa-solid fa-box-open" style="font-size:.85rem;"></i>
+        const parts = pendingAccept.map(c => {
+            const isTransfer = c.status === 'pending_receiver_acceptance';
+            const fromUser = db.users.find(u => u.id === (isTransfer ? c.transferData?.fromUserId : c.assignedBy));
+            const fromLabel = isTransfer ? `from surveyor ${fromUser?.name || c.transferData?.fromUserName}` : `from ${fromUser?.name || 'warehouse'}`;
+            const icon = isTransfer ? 'fa-arrow-right-arrow-left' : 'fa-box-open';
+            const bg = isTransfer ? '#e0f2fe' : '#fef3c7';
+            const color = isTransfer ? '#0369a1' : '#92400e';
+            return `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid ${isTransfer ? '#bae6fd' : '#fde68a'};margin-bottom:8px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;color:${color};flex-shrink:0;">
+                    <i class="fa-solid ${icon}" style="font-size:.85rem;"></i>
                 </div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-weight:600;font-size:.85rem;">${getDeviceTypeName(c.deviceType)}</div>
-                    <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${c.serialNumber} · from ${user?.name || c.assignedBy}</div>
+                    <div style="font-size:.72rem;color:var(--text-muted);">S/N: ${c.serialNumber} · ${fromLabel}</div>
+                    ${isTransfer ? `<div style="font-size:.7rem;color:#0369a1;margin-top:2px;"><i class="fa-solid fa-right-left"></i> Transfer</div>` : ''}
                 </div>
                 <div style="display:flex;gap:6px;flex-shrink:0;">
                     <button onclick="openAcceptCustodyModal('${c.id}')" class="btn btn-primary btn-sm" style="padding:5px 12px;font-size:.78rem;">
@@ -413,9 +420,9 @@ async function loadSurveyorDashboard() {
                         <i class="fa-solid fa-xmark"></i> Reject
                     </button>
                 </div>
-            </div>`).join('');
+            </div>`}).join('');
         acceptContainer.innerHTML = `
-            <div style="background:#fffbeb;border:1px solid #fde68a;border-right:4px solid #f59e0b;padding:16px;border-radius:12px;margin-bottom:20px;">
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:16px;border-radius:12px;margin-bottom:20px;">
                 <div style="font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;color:#92400e;">
                     <i class="fa-solid fa-hand"></i> New custody awaiting your acceptance (${pendingAccept.length})
                 </div>
@@ -877,10 +884,18 @@ window.submitAcceptCustody = () => {
     if (satisfied === null) { showToast('Please indicate whether you are satisfied.', 'error'); return; }
     if (!confirmed) { showToast('You must confirm the receipt acknowledgment.', 'error'); return; }
 
-    if (acceptCustodyBySurveyor(id, notes, condition, comment, satisfied, careLevel)) {
+    const custody = db.custodies.find(c => c.id === id);
+    const isTransfer = custody && custody.status === 'pending_receiver_acceptance';
+    let success;
+    if (isTransfer) {
+        success = acceptTransferByReceiver(id, notes, condition, comment, satisfied, careLevel);
+    } else {
+        success = acceptCustodyBySurveyor(id, notes, condition, comment, satisfied, careLevel);
+    }
+    if (success) {
         closeAcceptCustodyModal();
         loadSurveyorDashboard();
-        showToast('Custody accepted successfully.', 'success');
+        showToast(isTransfer ? 'Transfer accepted. Pending head surveyor approval.' : 'Custody accepted successfully.', 'success');
     } else {
         showToast('An error occurred. Check your permissions.', 'error');
     }
@@ -899,10 +914,18 @@ window.submitRejectCustody = () => {
     const reason = document.getElementById('rejectReason').value.trim();
     if (!reason) { showToast('Please enter the rejection reason.', 'error'); return; }
 
-    if (rejectCustodyBySurveyor(id, reason)) {
+    const custody = db.custodies.find(c => c.id === id);
+    const isTransfer = custody && custody.status === 'pending_receiver_acceptance';
+    let success;
+    if (isTransfer) {
+        success = rejectTransferByReceiver(id, reason);
+    } else {
+        success = rejectCustodyBySurveyor(id, reason);
+    }
+    if (success) {
         closeRejectCustodyModal();
         loadSurveyorDashboard();
-        showToast('Custody rejected and the responsible party has been notified.', 'success');
+        showToast('Rejected and the relevant parties have been notified.', 'success');
     } else {
         showToast('An error occurred. Check your permissions.', 'error');
     }
