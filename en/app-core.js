@@ -485,6 +485,22 @@ async function _syncToSupabase() {
 const reloadDB = async () => { await _loadRemoteDB(); };
 
 // ============================================================
+// ============================================================
+// Auth State Change — auto-logout when Supabase session expires
+// ============================================================
+(function _initAuthListener() {
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT' && currentUser?.authUid) {
+            if (!window.location.pathname.includes('index.html')) {
+                localStorage.removeItem('sajco_session');
+                window.location.href = 'index.html';
+            }
+        }
+    });
+})();
+
+// ============================================================
 // Supabase Realtime - Refresh لحظي
 // ============================================================
 let _realtimeChannel = null;

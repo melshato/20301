@@ -666,9 +666,9 @@ const showAlert = (msg, type = 'error') => {
   container.appendChild(div);
 };
 
-// يحذف كلمة المرور وأي بيانات حساسة قبل التخزين في localStorage
+// يحذف كلمة المرور فقط — يحتفظ بـ authUid لأن checkAuth يحتاجه
 const _safeSession = (user) => {
-  const { password, passwordHash, authUid, ...safe } = user;
+  const { password, passwordHash, ...safe } = user;
   return { ...safe, loginTime: Date.now() };
 };
 
