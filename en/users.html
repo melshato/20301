@@ -276,7 +276,7 @@
             e.preventDefault();
             const id = document.getElementById('editUserId').value;
             const userData = {
-                id: id || Date.now().toString(),
+                id: id || crypto.randomUUID(),
                 joinDate: id ? db.users.find(u => u.id === id).joinDate : new Date().toISOString().split('T')[0], // Keep original joinDate or set new
                 name: document.getElementById('uName').value,
                 empId: document.getElementById('uEmpId').value,
