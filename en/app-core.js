@@ -822,6 +822,22 @@ function renderSidebar() {
     // تشغيل الـ Realtime بعد رسم الـ sidebar
     setTimeout(initRealtime, 500);
     setTimeout(injectPageIcons, 100);
+
+    // Floating notification bell
+    const isRtl = currentLang === 'ar';
+    let bell = document.getElementById('floatingBell');
+    if (!bell) {
+        bell = document.createElement('a');
+        bell.id = 'floatingBell';
+        bell.href = 'notification-center.html';
+        document.body.appendChild(bell);
+    }
+    const unread = db.notifications.filter(n => n.userId === currentUser.id && !n.read).length;
+    bell.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
+    bell.innerHTML = `
+        <i class="fa-solid fa-bell"></i>
+        ${unread > 0 ? `<span class="bell-badge">${unread > 99 ? '99+' : unread}</span>` : ''}
+    `;
 }
 
 // ============================================================
