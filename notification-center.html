@@ -180,8 +180,12 @@
                 <button onclick="if(confirm('حذف جميع الإشعارات المقروءة؟')) clearReadNotifications()" class="btn btn-ghost btn-sm" style="color:#ef4444;">
                     <i class="fa-solid fa-trash-can"></i> حذف المقروءة
                 </button>
+                <button onclick="toggleDebug()" class="btn btn-ghost btn-sm">
+                    <i class="fa-solid fa-bug"></i>
+                </button>
             </div>
         </div>
+        <div id="debugPane" style="display:none;background:#1e293b;color:#e2e8f0;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:.78rem;direction:ltr;font-family:monospace;white-space:pre-wrap;"></div>
 
         <div class="notif-filter-tabs" style="margin-bottom:20px;">
             <button class="filter-tab active" onclick="setFilter('all',this)">الكل</button>
@@ -306,6 +310,29 @@ function renderNotificationCenter() {
     const bubble = document.getElementById('unreadCountBubble');
     bubble.textContent = unreadCount;
     bubble.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+
+    // Debug info
+    const totalNotifs = db.notifications.filter(n => n.userId === currentUser.id).length;
+    const transferNotifs = db.notifications.filter(n => n.userId === currentUser.id && n.actionType === 'custody_transfer_request');
+    const debugEl = document.getElementById('debugPane');
+    if (debugEl) {
+        let html = `المستخدم: ${currentUser.name} (${currentUser.role})\n`;
+        html += `إجمالي الإشعارات: ${totalNotifs}\n`;
+        html += `إشعارات العهدة (custody_transfer_request): ${transferNotifs.length}\n`;
+        transferNotifs.forEach((n, i) => {
+            const c = db.custodies.find(x => x.id === n.relatedId);
+            html += `  [${i+1}] مقروء: ${n.read} | relatedId: ${n.relatedId}\n`;
+            html += `       العهدة: ${c ? 'موجود (الحالة: ' + c.status + ', user: ' + c.userId + ')' : 'غير موجود'}\n`;
+            html += `       requiresAction: ${n.requiresAction} | actionType: ${n.actionType}\n`;
+        });
+        if (transferNotifs.length === 0 && totalNotifs > 0) {
+            html += '\nأسباب محتملة لعدم ظهور الأزرار:\n';
+            db.notifications.filter(n => n.userId === currentUser.id).slice(0, 5).forEach((n, i) => {
+                html += `  [${i+1}] actionType: "${n.actionType}" | requiresAction: ${n.requiresAction} | النوع: ${n.type}\n`;
+            });
+        }
+        debugEl.textContent = html;
+    }
 
     const list = document.getElementById('notificationsList');
 
@@ -654,6 +681,12 @@ function showToast(msg, type = 'success') {
 window.refreshPage = renderNotificationCenter;
 
 setInterval(renderNotificationCenter, 30000);
+
+function toggleDebug() {
+    const el = document.getElementById('debugPane');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    renderNotificationCenter();
+}
 
 window.onload = () => {
     renderSidebar();
