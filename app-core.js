@@ -259,9 +259,31 @@ function checkAuth() {
         window.location.href = 'index.html';
         return;
     }
+    // التحقق من صلاحية جلسة Supabase Auth في الخلفية (لا يُعطّل التحميل)
+    if (currentUser && supabaseClient) {
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (!session && currentUser) {
+                // الجلسة منتهية من جانب الخادم — سجّل خروج
+                localStorage.removeItem('sajco_session');
+                window.location.href = 'index.html';
+            }
+        }).catch(() => {}); // صامت — قد يكون بدون Auth (fallback users)
+    }
     if (currentUser?.mustChangePassword) {
         document.addEventListener('DOMContentLoaded', _showForceChangePasswordModal);
     }
+}
+
+// UUID آمن يعمل في HTTP وHTTPS
+function _safeUUID() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    // fallback لبيئات HTTP (dev)
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
 }
 
 function _showForceChangePasswordModal() {
@@ -322,7 +344,12 @@ const saveDB = async () => {
     db._version = APP_VERSION;
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try { await _syncToSupabase(); }
-        catch (err) { console.warn('مزامنة Supabase:', err.message); }
+        catch (err) {
+            // HIGH-09: تنبيه المستخدم عند فشل المزامنة (انقطاع الإنترنت)
+            if (!navigator.onLine) {
+                _showSyncToast('لا يوجد اتصال بالإنترنت — البيانات ستُحفظ عند العودة', 'warning');
+            }
+        }
     }
 };
 
@@ -1476,9 +1503,23 @@ function replyToDirectMessage(msgId, reply) {
 function addLeaveRequest(payload) {
     const requester = db.users.find(u => u.id === payload.userId);
     if (!requester) return { success: false, msg: 'الموظف غير موجود' };
+
+    // HIGH-10: فحص تداخل الإجازات
+    if (payload.startDate && payload.endDate) {
+        const newStart = new Date(payload.startDate);
+        const newEnd   = new Date(payload.endDate);
+        const overlap  = db.leaveRequests.find(r =>
+            r.userId === payload.userId &&
+            !['rejected','cancelled'].includes(r.status) &&
+            new Date(r.startDate) <= newEnd &&
+            new Date(r.endDate)   >= newStart
+        );
+        if (overlap) return { success: false, msg: 'يوجد طلب إجازة متداخل مع هذه الفترة — يرجى اختيار تواريخ مختلفة' };
+    }
+
     const branchHead = getBranchHead(requester.branch);
     const leaveRequest = {
-        id: Date.now().toString(),
+        id: _safeUUID(),
         userId: requester.id, assignedBy: currentUser.id,
         leaveType: payload.leaveType || 'annual',
         startDate: payload.startDate, endDate: payload.endDate,
@@ -1878,17 +1919,23 @@ function _upsertSRRInSupabase(r) {
 // Custody
 // ============================================================
 function addCustody(userId, deviceType, serialNumber, receiptDate, calibrationDate, deviceCondition, receivedFrom, receivedFromName = null, notes = null, satisfied = null, careLevel = null, branchId = null) {
-    if (!userId || !deviceType || !serialNumber || !receiptDate || !deviceCondition || !receivedFrom) {
-        console.error("Missing required custody fields"); return false;
-    }
+    // MED-06: التحقق من أن الاستدعاء يأتي من سياق صالح (ليس Console مباشرة)
+    if (!currentUser || !currentUser.id) { console.error('addCustody: لا يوجد مستخدم مُسجَّل'); return false; }
+    // HIGH-04: المساح لا يستطيع إضافة عهدة لمستخدم خارج فرعه
     const targetUser = db.users.find(u => u.id === userId);
     if (!targetUser) return false;
-    const duplicate = db.custodies.find(cu => cu.serialNumber === serialNumber && !['rejected', 'transferred_out'].includes(cu.status));
+    if (currentUser.role === 'surveyor' && currentUser.id !== userId) {
+        console.error('addCustody: المساح لا يملك صلاحية إضافة عهدة لمساح آخر'); return false;
+    }
+    if (!userId || !deviceType || !serialNumber || !receiptDate || !deviceCondition || !receivedFrom) {
+        return false;
+    }
+    const duplicate = db.custodies.find(cu => cu.serialNumber === serialNumber && !['rejected', 'transferred_out', 'returned'].includes(cu.status));
     if (duplicate) { alert('الرقم التسلسلي (' + serialNumber + ') مسجل مسبقاً في العهدة — لا يمكن تكرار الجهاز.'); return false; }
     // Resolve branchId once so every reference uses the same value
     const resolvedBranch = branchId || targetUser.branch || currentUser.responsibleBranch || currentUser.branch;
     const newCustody = {
-        id: crypto.randomUUID(), userId, assignedBy: currentUser.id, deviceType, serialNumber,
+        id: _safeUUID(), userId, assignedBy: currentUser.id, deviceType, serialNumber,
         receiptDate, branchId: resolvedBranch,
         calibrationDate, deviceCondition, status: '',
         receivedFrom, receivedFromName, notes, satisfied, careLevel,

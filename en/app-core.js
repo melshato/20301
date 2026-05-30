@@ -256,9 +256,27 @@ function checkAuth() {
         window.location.href = 'index.html';
         return;
     }
+    if (currentUser && supabaseClient) {
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (!session && currentUser) {
+                localStorage.removeItem('sajco_session');
+                window.location.href = 'index.html';
+            }
+        }).catch(() => {});
+    }
     if (currentUser?.mustChangePassword) {
         document.addEventListener('DOMContentLoaded', _showForceChangePasswordModal);
     }
+}
+
+function _safeUUID() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
 }
 
 function _showForceChangePasswordModal() {
@@ -1365,10 +1383,23 @@ function replyToDirectMessage(msgId, reply) {
 // ============================================================
 function addLeaveRequest(payload) {
     const requester = db.users.find(u => u.id === payload.userId);
-    if (!requester) return { success: false, msg: 'Employee غير مandجandد' };
+    if (!requester) return { success: false, msg: 'Employee not found' };
+
+    if (payload.startDate && payload.endDate) {
+        const newStart = new Date(payload.startDate);
+        const newEnd   = new Date(payload.endDate);
+        const overlap  = db.leaveRequests.find(r =>
+            r.userId === payload.userId &&
+            !['rejected','cancelled'].includes(r.status) &&
+            new Date(r.startDate) <= newEnd &&
+            new Date(r.endDate)   >= newStart
+        );
+        if (overlap) return { success: false, msg: 'A leave request already exists overlapping this period — please choose different dates.' };
+    }
+
     const branchHead = getBranchHead(requester.branch);
     const leaveRequest = {
-        id: Date.now().toString(),
+        id: _safeUUID(),
         userId: requester.id, assignedBy: currentUser.id,
         leaveType: payload.leaveType || 'annual',
         startDate: payload.startDate, endDate: payload.endDate,
@@ -1758,17 +1789,18 @@ function assignDeviceFromWarehouse(deviceId, userId) {
 // Custody
 // ============================================================
 function addCustody(userId, deviceType, serialNumber, receiptDate, calibrationDate, deviceCondition, receivedFrom, receivedFromName = null, notes = null, satisfied = null, careLevel = null, branchId = null) {
-    if (!userId || !deviceType || !serialNumber || !receiptDate || !deviceCondition || !receivedFrom) {
-        console.error("Missing required custody fields"); return false;
-    }
+    if (!currentUser || !currentUser.id) { console.error('addCustody: no logged-in user'); return false; }
     const targetUser = db.users.find(u => u.id === userId);
     if (!targetUser) return false;
-    const duplicate = db.custodies.find(cu => cu.serialNumber === serialNumber && !['rejected', 'transferred_out'].includes(cu.status));
+    if (currentUser.role === 'surveyor' && currentUser.id !== userId) {
+        console.error('addCustody: surveyor cannot add custody for another user'); return false;
+    }
+    if (!userId || !deviceType || !serialNumber || !receiptDate || !deviceCondition || !receivedFrom) return false;
+    const duplicate = db.custodies.find(cu => cu.serialNumber === serialNumber && !['rejected', 'transferred_out', 'returned'].includes(cu.status));
     if (duplicate) { alert('Serial number (' + serialNumber + ') already registered in custody — cannot add the same device twice.'); return false; }
-    // Resolve branchId once so every reference uses the same value
     const resolvedBranch = branchId || targetUser.branch || currentUser.responsibleBranch || currentUser.branch;
     const newCustody = {
-        id: crypto.randomUUID(), userId, assignedBy: currentUser.id, deviceType, serialNumber,
+        id: _safeUUID(), userId, assignedBy: currentUser.id, deviceType, serialNumber,
         receiptDate, branchId: resolvedBranch,
         calibrationDate, deviceCondition, status: '',
         receivedFrom, receivedFromName, notes, satisfied, careLevel,

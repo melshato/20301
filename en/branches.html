@@ -152,7 +152,7 @@
             if (id) {
                 updateBranchName(id, nameAr || nameEn, nameEn);
             } else {
-                resolvedId = crypto.randomUUID();
+                resolvedId = _safeUUID();
                 addBranch(resolvedId, nameAr || nameEn, nameEn);
             }
 

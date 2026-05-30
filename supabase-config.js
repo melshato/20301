@@ -127,6 +127,15 @@ const SupabaseStorage = {
      * @param {string} userId - معرف المستخدم
      */
     async uploadCalibrationCert(file, serialNumber, userId) {
+        // MED-02: تحقق من نوع الملف الحقيقي (PDF أو صور معايرة فقط)
+        const ALLOWED_TYPES = ['application/pdf','image/jpeg','image/png','image/webp'];
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            return { success: false, error: 'نوع الملف غير مسموح — يُقبل PDF أو صور JPG/PNG فقط' };
+        }
+        const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+        if (file.size > MAX_SIZE) {
+            return { success: false, error: 'حجم الملف يتجاوز 10 ميغابايت' };
+        }
         const timestamp = Date.now();
         const safeName = serialNumber.replace(/[^a-zA-Z0-9_-]/g, '_');
         const path = `${safeName}/${timestamp}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;

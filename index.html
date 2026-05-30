@@ -579,15 +579,24 @@
 document.getElementById('creditYear').textContent = new Date().getFullYear();
 // ===== Particle canvas =====
 (function() {
+  // prefers-reduced-motion — إخفاء التأثير للمستخدمين الحساسين للحركة
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const c = document.getElementById('bgCanvas');
+    if (c) c.style.display = 'none';
+    return;
+  }
   const canvas = document.getElementById('bgCanvas');
   const ctx = canvas.getContext('2d');
-  let W, H, particles = [], mouse = { x: -999, y: -999 };
+  let W, H, rafId;
+  // تقليل الجسيمات من 70 إلى 35 لتوفير CPU — خاصة على الموبايل
+  const COUNT = window.innerWidth < 768 ? 20 : 35;
+  let particles = [], mouse = { x: -999, y: -999 };
 
   function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize);
   resize();
 
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < COUNT; i++) {
     particles.push({
       x: Math.random() * W, y: Math.random() * H,
       r: Math.random() * 2 + .5,
@@ -597,15 +606,14 @@ document.getElementById('creditYear').textContent = new Date().getFullYear();
   }
 
   window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-  window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
+  window.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
     particles.forEach(p => {
-      // Mouse repulsion
       const dx = p.x - mouse.x, dy = p.y - mouse.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 100) { p.x += dx / dist * 1.5; p.y += dy / dist * 1.5; }
+      if (dist < 100 && dist > 0) { p.x += dx / dist * 1.5; p.y += dy / dist * 1.5; }
       p.x += p.vx; p.y += p.vy;
       if (p.x < 0 || p.x > W) p.vx *= -1;
       if (p.y < 0 || p.y > H) p.vy *= -1;
@@ -614,22 +622,28 @@ document.getElementById('creditYear').textContent = new Date().getFullYear();
       ctx.fillStyle = `rgba(147,197,253,${p.opacity})`;
       ctx.fill();
     });
-    // Draw connecting lines
-    particles.forEach((a, i) => {
-      particles.slice(i+1).forEach(b => {
-        const d = Math.hypot(a.x - b.x, a.y - b.y);
+    // خطوط الربط — O(n²) لكن n=35 بدل 70 → ربع التكلفة
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const d = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
         if (d < 120) {
           ctx.beginPath();
-          ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
           ctx.strokeStyle = `rgba(147,197,253,${.15 * (1 - d/120)})`;
           ctx.lineWidth = .5;
           ctx.stroke();
         }
-      });
-    });
-    requestAnimationFrame(draw);
+      }
+    }
+    rafId = requestAnimationFrame(draw);
   }
-  draw();
+  rafId = requestAnimationFrame(draw);
+  // إيقاف عند مغادرة الصفحة لتوفير البطارية
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(rafId);
+    else rafId = requestAnimationFrame(draw);
+  });
 })();
 
 // ===== Helpers =====
