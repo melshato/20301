@@ -78,6 +78,11 @@ self.addEventListener('fetch', e => {
     }
 });
 
+// ── Message (suppress Chromium async-response warning) ──────
+self.addEventListener('message', e => {
+    // No async work — prevents "message channel closed before response" warning
+});
+
 // ── Push Notifications ─────────────────────────────────────
 self.addEventListener('push', e => {
     if (!e.data) return;
