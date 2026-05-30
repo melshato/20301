@@ -5,6 +5,11 @@
 const DB_KEY = "sajco_v2_db";
 const APP_VERSION = "4.0";
 
+// ── Suppress Chrome SW message-channel-closed warning ──
+window.addEventListener('unhandledrejection', e => {
+    if (e.reason?.message?.includes('message channel closed before a response was received')) e.preventDefault();
+});
+
 // Centralized request status constants — prevents typo bugs
 const STATUS = Object.freeze({
     PENDING:              'pending',

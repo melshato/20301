@@ -1251,6 +1251,11 @@ window.addEventListener('load', () => {
   };
 });
 
+// Suppress Chrome SW message-channel-closed warning
+window.addEventListener('unhandledrejection', e => {
+  if (e.reason?.message?.includes('message channel closed before a response was received')) e.preventDefault();
+});
+
 // Service Worker registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
