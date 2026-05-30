@@ -1674,33 +1674,30 @@ function assignDeviceFromWarehouse(deviceId, userId) {
     const user   = db.users.find(u => u.id === userId);
     if (!device || !user) return false;
     if (device.status !== 'warehouse') return false;
-    if ((db.custodies || []).find(c => c.serialNumber === device.serial && c.status === 'approved')) return false;
+    if ((db.custodies || []).find(c => c.serialNumber === device.serial && ['approved', 'pending_surveyor_acceptance'].includes(c.status))) return false;
     const now = new Date().toISOString();
     const today = now.split('T')[0];
     const custody = {
         id: crypto.randomUUID(), userId, assignedBy: currentUser.id,
         deviceType: device.type, serialNumber: device.serial,
         receiptDate: today, calibrationDate: device.calDate || null,
-        deviceCondition: 'good', status: 'approved',
+        deviceCondition: 'good', status: 'pending_surveyor_acceptance',
         branchId: user.branch || null, notes: '',
         receivedFrom: 'warehouse', receivedFromName: 'المستودع',
         satisfied: null, careLevel: null,
-        approvalHistory: [{ approverName: currentUser.name, approverRole: 'مدير الإدارة', decision: 'approved', timestamp: now }],
+        approvalHistory: [{ approverName: currentUser.name, approverRole: 'مدير الإدارة', decision: 'pending_surveyor_acceptance', timestamp: now }],
         transferData: null, timestamp: now,
     };
     if (!db.custodies) db.custodies = [];
     db.custodies.push(custody);
-    device.ownerId = userId;
     if (supabaseClient) {
         const row = _custodyToRow(custody);
         row.id = custody.id;
         supabaseClient.from('custodies').insert(row)
             .then(({ error }) => { if (error) console.warn('assignDeviceFromWarehouse custody:', error.message); });
-        supabaseClient.from('devices').update({ owner_id: userId, status: 'assigned' }).eq('id', deviceId)
-            .then(({ error }) => { if (error) console.warn('assignDeviceFromWarehouse device:', error.message); });
     }
-    addLog(`تم تسليم الجهاز ${device.serial} من المستودع للموظف ${user.name}`);
-    addNotification(userId, `تم تسليمك جهاز ${getDeviceTypeName(device.type)} (${device.serial}) من المستودع بتاريخ ${today}.`, 'info', custody.id);
+    addLog(`تم تسليم الجهاز ${device.serial} من المستودع للموظف ${user.name} — بانتظار قبول المساح`);
+    addNotification(userId, `تم تسليمك جهاز ${getDeviceTypeName(device.type)} (${device.serial}) من المستودع بتاريخ ${today}. يرجى مراجعتها وقبولها أو رفضها.`, 'warning', custody.id, false, 'custody.html', 'custody_transfer_request', true);
     return true;
 }
 
