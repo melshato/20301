@@ -1690,10 +1690,11 @@ function assignDeviceFromWarehouse(deviceId, userId) {
     };
     if (!db.custodies) db.custodies = [];
     db.custodies.push(custody);
+    saveDB();
     if (supabaseClient) {
         const row = _custodyToRow(custody);
         row.id = custody.id;
-        supabaseClient.from('custodies').insert(row)
+        supabaseClient.from('custodies').upsert(row, { onConflict: 'id' })
             .then(({ error }) => { if (error) console.warn('assignDeviceFromWarehouse custody:', error.message); });
     }
     addLog(`تم تسليم الجهاز ${device.serial} من المستودع للموظف ${user.name} — بانتظار قبول المساح`);

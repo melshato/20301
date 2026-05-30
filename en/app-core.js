@@ -1807,10 +1807,11 @@ function assignDeviceFromWarehouse(deviceId, userId) {
     };
     if (!db.custodies) db.custodies = [];
     db.custodies.push(custody);
+    saveDB();
     if (supabaseClient) {
         const row = _custodyToRow(custody);
         row.id = custody.id;
-        supabaseClient.from('custodies').insert(row)
+        supabaseClient.from('custodies').upsert(row, { onConflict: 'id' })
             .then(({ error }) => { if (error) console.warn('assignDeviceFromWarehouse custody:', error.message); });
     }
     addLog(`Device ${device.serial} assigned from warehouse to ${user.name} — pending surveyor acceptance`);
