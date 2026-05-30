@@ -722,7 +722,7 @@ const doLogin = async (email, pass) => {
     }
 
     // ── Fallback: تحقق من كلمة المرور المحلية ──
-    const user = db.users.find(u => u.email === email && u.password === pass);
+    const user = db.users.find(u => u.email?.toLowerCase() === email && u.password === pass);
     if (!user) { showAlert('بيانات الدخول خاطئة'); return; }
     if (user.status === 'pending') { showAlert('حسابك قيد المراجعة من قبل المدير'); return; }
 
