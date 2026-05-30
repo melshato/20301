@@ -58,7 +58,7 @@
                                 <button type="button" onclick="removeSubstituteAction()" class="btn btn-ghost btn-sm">إزالة البديل</button>
                             </div>
                         </div>
-                        <div class="form-group hidden" id="responsibleBranchGroup">
+                        <div class="form-group" id="responsibleBranchGroup">
                             <label class="form-label">الفرع المسؤول عنه</label>
                             <select id="uResponsibleBranch" class="form-select">
                                 <option value="">اختر الفرع...</option>
@@ -284,7 +284,7 @@
                 email: document.getElementById('uEmail').value,
                 password: document.getElementById('uPass').value,
                 role: document.getElementById('uRole').value,
-                responsibleBranch: document.getElementById('uRole').value === 'head' ? document.getElementById('uResponsibleBranch').value : null,
+                responsibleBranch: document.getElementById('uResponsibleBranch').value || null,
                 branch: document.getElementById('uBranch').value,
                 substituteId: document.getElementById('uRole').value === 'head' ? document.getElementById('uSubstitute').value || null : null, // Save substituteId
                 status: id ? db.users.find(u => u.id === id).status : (document.getElementById('uRole').value === 'head' ? 'pending' : 'approved') // Keep status or set pending for new head
@@ -353,9 +353,7 @@
 
         document.getElementById('uRole').onchange = (e) => {
             const isHead = e.target.value === 'head';
-            document.getElementById('responsibleBranchGroup').classList.toggle('hidden', !isHead);
-            document.getElementById('substituteGroup').classList.toggle('hidden', !isHead); // Show/hide substitute group
-            document.getElementById('uResponsibleBranch').required = isHead;
+            document.getElementById('substituteGroup').classList.toggle('hidden', !isHead);
         };
 
         function populateBranches() {
