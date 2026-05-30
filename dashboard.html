@@ -1494,15 +1494,40 @@
             }).join('');
         }
 
-        window.addEventListener('load', () => {
+        // جلب إحصاءات دقيقة من Supabase ثم تحديث الأرقام فوراً
+        async function refreshServerStats() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.rpc('get_dashboard_stats');
+                if (error || !data) return;
+                const s = data;
+                const _set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.innerText = val; };
+                _set('countBranches',        s.total_branches);
+                _set('countUsers',           s.total_users);
+                _set('countDevices',         s.total_devices);
+                _set('countWarehouseDevices',s.warehouse_devices);
+                _set('countPendingCustodies',s.pending_custodies);
+                _set('countActiveProjects',  s.active_projects);
+                _set('countMaintenance',     s.maintenance_active);
+                _set('countAlerts',          s.expiring_calibration);
+                _set('countNeedsCalibration',s.expired_calibration);
+            } catch(_) {}
+        }
+
+        window.addEventListener('load', async () => {
             renderSidebar();
             loadDashboard();
+            refreshServerStats(); // أرقام دقيقة من السيرفر تُحدّث في الخلفية
             if (currentUser.role === 'admin') {
                 renderAdminPcrPanel();
                 renderAdminPwrPanel();
             }
             renderNewsTicker();
             applyTranslations();
+            await _loadRemoteDB();
+            loadDashboard();
+            refreshServerStats();
+            initRealtime();
         });
     </script>
 </body>

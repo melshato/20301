@@ -340,17 +340,26 @@ window._submitForceChangePw = function() {
 // ============================================================
 // saveDB - يزامن Supabase فقط (لا تخزين محلي)
 // ============================================================
-const saveDB = async () => {
+// ── Dirty Flag + Debounce ──────────────────────────────────
+// بدلاً من رفع كل شيء فوراً — نجمع التغييرات ونرفعها معاً بعد 800ms
+const _dirtyTables = new Set();
+let   _saveTimer   = null;
+
+function _markDirty(table) { _dirtyTables.add(table); }
+
+const saveDB = (hint) => {
     db._version = APP_VERSION;
-    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    if (hint) _markDirty(hint);
+    // debounce: انتظر 800ms من آخر تغيير
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(async () => {
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
         try { await _syncToSupabase(); }
         catch (err) {
-            // HIGH-09: تنبيه المستخدم عند فشل المزامنة (انقطاع الإنترنت)
-            if (!navigator.onLine) {
+            if (!navigator.onLine)
                 _showSyncToast('لا يوجد اتصال بالإنترنت — البيانات ستُحفظ عند العودة', 'warning');
-            }
         }
-    }
+    }, 800);
 };
 
 const _isUUID = s => !!s && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
