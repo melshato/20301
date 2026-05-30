@@ -80,6 +80,37 @@
         </main>
     </div>
 
+    <!-- مودال تعيين رئيس مساحين للفرع -->
+    <div id="assignHeadModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;">
+        <div class="card" style="max-width:520px;width:93%;max-height:90vh;overflow-y:auto;">
+            <h3 style="margin-bottom:6px;color:#2563eb;"><i class="fa-solid fa-user-tie"></i> تعيين رئيس مساحين</h3>
+            <p id="assignHeadBranchName" style="color:var(--text-muted);margin-bottom:16px;font-size:.9rem;"></p>
+            <input type="hidden" id="assignHeadBranchId">
+
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">بحث بالاسم أو الرقم الوظيفي</label>
+                <input type="text" id="assignHeadSearch" class="form-input" placeholder="اكتب للبحث..."
+                    oninput="filterAssignHeadList(this.value)">
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">اختر الموظف <span style="color:var(--danger)">*</span></label>
+                <select id="assignHeadUserId" class="form-select" size="7" style="height:auto;"></select>
+            </div>
+
+            <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;margin-bottom:16px;font-size:.85rem;color:#1e40af;">
+                <i class="fa-solid fa-circle-info"></i>
+                إذا اخترت <strong>مساحاً</strong> سيُرقَّى تلقائياً إلى رئيس مساحين. يحتاج بعدها لتسجيل الخروج وإعادة الدخول لتفعيل الصلاحيات.
+            </div>
+
+            <div style="display:flex;gap:10px;">
+                <button onclick="submitAssignHead()" class="btn btn-primary" style="flex:1;">
+                    <i class="fa-solid fa-user-tie"></i> تعيين
+                </button>
+                <button onclick="closeAssignHeadModal()" class="btn btn-ghost" style="flex:1;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <div class="designer-credit">
         <div><i class="fa-solid fa-code" style="color: var(--primary); margin-left: 6px;"></i>تم تصميم الموقع بواسطة <strong>محمود الشطورى</strong></div>
         <div style="font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -184,17 +215,98 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.assignHeadToBranch = (id) => {
-            const b = db.branches.find(branch => branch.id === id);
+        // ===== مودال تعيين رئيس المساحين =====
+        let _branchAssignId = null;
+        let _allCandidates  = [];
+
+        window.assignHeadToBranch = (branchId) => {
+            const b = db.branches.find(x => x.id === branchId);
             if (!b) { alert('الفرع غير موجود'); return; }
-            const currentHead = db.users.find(u => u.responsibleBranch === id);
-            document.getElementById('editBranchId').value = b.id;
-            document.getElementById('bNameAr').value = b.nameAr || b.name || '';
-            document.getElementById('bNameEn').value = b.nameEn || '';
-            populateHeadSurveyors(currentHead ? currentHead.id : null);
-            document.getElementById('formTitle').innerText = 'تعيين رئيس مساحين للفرع';
-            document.getElementById('branchFormContainer').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            _branchAssignId = branchId;
+
+            // الكل المرشحين: مساحون معتمدون + رؤساء مساحين حاليون
+            _allCandidates = db.users.filter(u =>
+                u.status === 'approved' && (u.role === 'surveyor' || u.role === 'head')
+            );
+
+            const currentHead = db.users.find(u => u.responsibleBranch === branchId);
+            document.getElementById('assignHeadBranchName').textContent =
+                `الفرع: ${b.nameAr || b.name}${currentHead ? '  |  رئيس المساحين الحالي: ' + currentHead.name : '  |  لا يوجد رئيس مساحين'}`;
+            document.getElementById('assignHeadBranchId').value = branchId;
+            document.getElementById('assignHeadSearch').value = '';
+            renderAssignList(_allCandidates, currentHead?.id);
+            document.getElementById('assignHeadModal').classList.remove('hidden');
+        };
+
+        window.filterAssignHeadList = (val) => {
+            const q = val.toLowerCase();
+            const filtered = _allCandidates.filter(u =>
+                u.name.toLowerCase().includes(q) || String(u.empId).includes(q)
+            );
+            const currentHead = db.users.find(u => u.responsibleBranch === _branchAssignId);
+            renderAssignList(filtered, currentHead?.id);
+        };
+
+        function renderAssignList(list, selectedId) {
+            const sel = document.getElementById('assignHeadUserId');
+            sel.innerHTML = list.length
+                ? list.map(u => {
+                    const roleTag = u.role === 'head' ? ' 👑 رئيس مساحين' : ' مساح';
+                    const branchName = db.branches.find(b => b.id === u.branch)?.name || '—';
+                    return `<option value="${u.id}" ${u.id === selectedId ? 'selected' : ''}>
+                        ${u.name} — رقم: ${u.empId} — ${branchName}${roleTag}
+                    </option>`;
+                }).join('')
+                : '<option value="" disabled>لا توجد نتائج</option>';
+        }
+
+        window.closeAssignHeadModal = () => {
+            document.getElementById('assignHeadModal').classList.add('hidden');
+            _branchAssignId = null;
+        };
+
+        window.submitAssignHead = async () => {
+            const branchId = document.getElementById('assignHeadBranchId').value;
+            const userId   = document.getElementById('assignHeadUserId').value;
+            if (!userId)   { alert('يرجى اختيار موظف.'); return; }
+
+            const branch = db.branches.find(x => x.id === branchId);
+            const user   = db.users.find(u => u.id === userId);
+            if (!user || !branch) { alert('بيانات غير صحيحة.'); return; }
+
+            if (!confirm(`هل تريد تعيين "${user.name}" رئيساً للمساحين في فرع "${branch.nameAr || branch.name}"؟`)) return;
+
+            // إلغاء تعيين رئيس المساحين القديم لهذا الفرع
+            db.users.forEach(u => { if (u.responsibleBranch === branchId && u.id !== userId) u.responsibleBranch = null; });
+
+            // ترقية الموظف وتعيينه
+            const wasHead = user.role === 'head';
+            user.role = 'head';
+            user.responsibleBranch = branchId;
+            user.status = 'approved';
+
+            // مزامنة مباشرة مع Supabase
+            if (supabaseClient && _isUUID(user.id)) {
+                const { error } = await supabaseClient.from('users').update({
+                    role: 'head',
+                    responsible_branch_id: _isUUID(branchId) ? branchId : null,
+                    status: 'approved',
+                }).eq('id', user.id);
+                if (error) console.warn('assignHead sync:', error.message);
+            }
+
+            saveDB(true);
+            addLog(`تعيين ${user.name} رئيس مساحين لفرع ${branch.nameAr || branch.name}`);
+
+            if (!wasHead) {
+                addNotification(user.id,
+                    `تمت ترقيتك إلى رئيس مساحين في فرع "${branch.nameAr || branch.name}". يرجى تسجيل الخروج وإعادة الدخول لتفعيل الصلاحيات.`,
+                    'success', null, false, 'dashboard.html');
+            }
+
+            closeAssignHeadModal();
+            refreshBranchesTable();
+            alert(`✅ تم تعيين "${user.name}" رئيساً للمساحين في فرع "${branch.nameAr || branch.name}" بنجاح.${!wasHead ? '\n\nيحتاج الموظف لتسجيل الخروج وإعادة الدخول لتفعيل صلاحياته.' : ''}`);
         };
 
         // دالة deleteBranch الأساسية موجودة الآن في app-core.js
