@@ -3164,8 +3164,10 @@ async function _execLoadRemoteDB() {
         if (usersRes.data && usersRes.data.length > 0) {
             usersRes.data.forEach(row => {
                 const local = db.users.find(u => u.id === row.id || u.empId === row.emp_id);
+                // Preserve local user id when matched by empId (not by id) to avoid UUID mismatch
+                const localId = local && local.id && local.id !== row.id ? local.id : row.id;
                 const merged = {
-                    id: row.id,
+                    id: localId,
                     name: row.name,
                     email: row.email,
                     role: row.role,

@@ -385,7 +385,11 @@ async function loadSurveyorDashboard() {
     }
 
     // عهد معلقة
-    const pending = db.custodies.filter(c => c.userId === currentUser.id && (c.status === 'pending_head_approval' || c.status === 'pending_admin_approval' || c.status === 'pending_approval'));
+    const pending = db.custodies.filter(c => {
+        if (!['pending_head_approval', 'pending_admin_approval', 'pending_approval'].includes(c.status)) return false;
+        const u = db.users.find(x => x.id === c.userId);
+        return u && String(u.empId) === String(currentUser.empId);
+    });
     if (pending.length > 0) {
         document.getElementById('pendingAlert').innerHTML = `
             <div class="pending-banner">

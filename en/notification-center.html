@@ -366,7 +366,9 @@ function _buildActionButtons(n) {
 
     if (n.actionType === 'custody_transfer_request' && n.relatedId && currentUser.role === 'surveyor') {
         const c = db.custodies.find(x => x.id === n.relatedId);
-        if (!c || c.status !== 'pending_surveyor_acceptance' || c.userId !== currentUser.id) return '';
+        if (!c || c.status !== 'pending_surveyor_acceptance') return '';
+        const u = db.users.find(x => x.id === c.userId);
+        if (!u || String(u.empId) !== String(currentUser.empId)) return '';
         return `
             <button class="btn-approve" onclick="openAcceptCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-check"></i> Accept Custody</button>
             <button class="btn-reject" onclick="openRejectCustodyModal('${n.relatedId}','${n.id}')"><i class="fa-solid fa-xmark"></i> Reject</button>`;

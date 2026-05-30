@@ -825,7 +825,12 @@ async function renderCustodies() {
         custodies = db.custodies.filter(c => c.status === 'approved' && c.branchId === currentUser.responsibleBranch);
     } else {
         titleEl.textContent = 'عهدتي';
-        custodies = db.custodies.filter(c => c.userId === currentUser.id && !['pending_receiver_acceptance','pending_surveyor_acceptance','transferred_out'].includes(c.status));
+        const currentEmpId = String(currentUser.empId);
+        custodies = db.custodies.filter(c => {
+            if (['pending_receiver_acceptance','pending_surveyor_acceptance','transferred_out'].includes(c.status)) return false;
+            const u = db.users.find(x => x.id === c.userId);
+            return u && String(u.empId) === currentEmpId;
+        });
     }
 
     const custodyThead = document.querySelector('#custodyTable thead tr');
@@ -880,14 +885,17 @@ async function renderIncomingTransfers() {
     const section = document.getElementById('incomingTransferSection');
     const tbody = document.getElementById('incomingTransferBody');
 
-    const transfers = db.custodies.filter(c =>
-        c.status === 'pending_receiver_acceptance' &&
-        c.transferData?.toUserId === currentUser.id
-    );
-    const newCustodies = db.custodies.filter(c =>
-        c.status === 'pending_surveyor_acceptance' &&
-        c.userId === currentUser.id
-    );
+    const currentEmpId = String(currentUser.empId);
+    const transfers = db.custodies.filter(c => {
+        if (c.status !== 'pending_receiver_acceptance') return false;
+        const u = db.users.find(x => x.id === c.userId);
+        return u && String(u.empId) === currentEmpId;
+    });
+    const newCustodies = db.custodies.filter(c => {
+        if (c.status !== 'pending_surveyor_acceptance') return false;
+        const u = db.users.find(x => x.id === c.userId);
+        return u && String(u.empId) === currentEmpId;
+    });
     const all = [...transfers, ...newCustodies].sort((a,b) => new Date(b.timestamp)-new Date(a.timestamp));
 
     if (all.length > 0) {
