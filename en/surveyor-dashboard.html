@@ -391,8 +391,13 @@ async function loadSurveyorDashboard() {
             </div>`;
     } else document.getElementById('pendingAlert').innerHTML = '';
 
-    // Pending warehouse custody — surveyor accept/reject
-    const pendingAccept = db.custodies.filter(c => c.userId === currentUser.id && ['pending_surveyor_acceptance', 'pending_receiver_acceptance'].includes(c.status));
+    // Pending custody — match by empId (stable) not UUID
+    const currentEmpId = String(currentUser.empId);
+    const pendingAccept = db.custodies.filter(c => {
+        if (!['pending_surveyor_acceptance', 'pending_receiver_acceptance'].includes(c.status)) return false;
+        const u = db.users.find(x => x.id === c.userId);
+        return u && String(u.empId) === currentEmpId;
+    });
     const acceptContainer = document.getElementById('pendingSurveyorAccept');
     if (pendingAccept.length > 0) {
         const parts = pendingAccept.map(c => {

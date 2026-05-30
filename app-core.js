@@ -2142,10 +2142,16 @@ function rejectCustody(custodyId) {
 }
 
 // Receiving surveyor accepts the transfer with notes and device condition assessment
+function _getUserByEmpId(empId) {
+    return db.users.find(u => String(u.empId) === String(empId));
+}
+
 function acceptTransferByReceiver(custodyId, notes, deviceCondition, comment, satisfied, careLevel) {
     const c = db.custodies.find(x => x.id === custodyId);
     if (!c || c.status !== 'pending_receiver_acceptance') return false;
-    if (c.transferData?.toUserId !== currentUser.id) return false;
+    // Match by empId (stable) rather than UUID (may change after Supabase sync)
+    const targetUser = c.transferData?.toUserId ? _getUserByEmpId(currentUser.empId) : null;
+    if (!targetUser || c.transferData?.toUserId !== targetUser.id) return false;
     c.receiverNotes = notes || '';
     c.receiverDeviceCondition = deviceCondition || '';
     c.receiverComment = comment || '';
@@ -2178,7 +2184,8 @@ function acceptTransferByReceiver(custodyId, notes, deviceCondition, comment, sa
 function rejectTransferByReceiver(custodyId, reason) {
     const c = db.custodies.find(x => x.id === custodyId);
     if (!c || c.status !== 'pending_receiver_acceptance') return false;
-    if (c.transferData?.toUserId !== currentUser.id) return false;
+    const targetUser = c.transferData?.toUserId ? _getUserByEmpId(currentUser.empId) : null;
+    if (!targetUser || c.transferData?.toUserId !== targetUser.id) return false;
     addLog(`رفض ${currentUser.name} نقل عهدة الجهاز (${c.serialNumber}) — السبب: ${reason}`);
     addNotification(c.transferData.fromUserId,
         `رفض ${currentUser.name} نقل عهدة الجهاز (${c.serialNumber}). السبب: ${reason || 'لم يُذكر سبب'}`,
@@ -2196,7 +2203,9 @@ function rejectTransferByReceiver(custodyId, reason) {
 function acceptCustodyBySurveyor(custodyId, notes, condition, comment, satisfied, careLevel) {
     const c = db.custodies.find(x => x.id === custodyId);
     if (!c || c.status !== 'pending_surveyor_acceptance') return false;
-    if (c.userId !== currentUser.id) return false;
+    // Match by empId (stable) rather than UUID
+    const targetUser = _getUserByEmpId(currentUser.empId);
+    if (!targetUser || c.userId !== targetUser.id) return false;
     c.receiverNotes = notes || '';
     c.receiverDeviceCondition = condition || '';
     c.receiverComment = comment || '';
@@ -2220,7 +2229,8 @@ function acceptCustodyBySurveyor(custodyId, notes, condition, comment, satisfied
 function rejectCustodyBySurveyor(custodyId, reason) {
     const c = db.custodies.find(x => x.id === custodyId);
     if (!c || c.status !== 'pending_surveyor_acceptance') return false;
-    if (c.userId !== currentUser.id) return false;
+    const targetUser = _getUserByEmpId(currentUser.empId);
+    if (!targetUser || c.userId !== targetUser.id) return false;
     addLog(`رفض ${currentUser.name} عهدة الجهاز (${c.serialNumber}) — السبب: ${reason}`);
     addNotification(c.assignedBy,
         `رفض المساح ${currentUser.name} عهدة الجهاز (${c.serialNumber}). السبب: ${reason || 'لم يُذكر سبب'}`, 'error', c.id, false, 'custody.html');
