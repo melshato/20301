@@ -597,7 +597,7 @@ let _realtimeChannel = null;
 function initRealtime() {
     if (!supabaseClient || _realtimeChannel) return;
     _realtimeChannel = supabaseClient.channel('app-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUser?.id}` },
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: _isUUID(currentUser?.id) ? `user_id=eq.${currentUser.id}` : undefined },
             (payload) => {
                 if (payload.eventType === 'INSERT') {
                     const n = _fromSnakeNotif(payload.new);
@@ -1112,7 +1112,7 @@ function markAllNotificationsAsRead() {
     let count = 0;
     db.notifications.forEach(n => { if (n.userId === currentUser.id && !n.read) { n.read = true; count++; } });
     if (count > 0) {
-        if (supabaseClient) supabaseClient.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false).then(() => {});
+        if (supabaseClient && _isUUID(currentUser.id)) supabaseClient.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false).then(() => {});
         saveDB(true);
         _updateNotificationBadge();
         return true;
@@ -3174,7 +3174,7 @@ async function _execLoadRemoteDB() {
             supabaseClient.from('maintenance_requests').select('*').order('timestamp', { ascending: false }).limit(500),
             supabaseClient.from('calibration_certificates').select('*').order('created_at', { ascending: false }).limit(500),
         ];
-        if (currentUser) {
+        if (currentUser && _isUUID(currentUser.id)) {
             queries.push(
                 supabaseClient.from('notifications').select('*')
                     .eq('user_id', currentUser.id)
