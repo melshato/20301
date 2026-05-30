@@ -3918,24 +3918,12 @@ function approveWorkerTransferRequest(reqId) {
     if (currentUser.role === 'head' && req.status === 'pending_head') {
         const branchId = req.branchId || db.workers.find(w => w.id === req.workerId)?.branchId;
         if (currentUser.responsibleBranch !== branchId) return false;
-        req.status = 'pending_admin';
+        // Head approval is final — execute the transfer
+        req.status = 'approved';
         req.headApprovedAt = now;
         req.headApprovedBy = currentUser.name;
-        db.users.filter(u => u.role === 'admin').forEach(a =>
-            addNotification(a.id,
-                `وافق رئيس المساحين ${currentUser.name} على نقل العامل "${req.workerName}" — بانتظار اعتمادك النهائي`,
-                'warning', req.id, false, 'workers.html', 'worker_transfer', true));
-        _upsertWorkerTransferInSupabase(req);
-        saveDB(true);
-        addLog(`${currentUser.name} وافق (كرئيس مساحين) على نقل العامل ${req.workerName}`);
-        return true;
-    }
-
-    if (currentUser.role === 'admin' && (req.status === 'pending_admin' || req.status === 'pending_head' || req.status === 'pending_receiver')) {
-        req.status = 'approved';
         req.adminApprovedAt = now;
         req.adminApprovedBy = currentUser.name;
-        // Execute the actual transfer
         const w  = db.workers.find(x => x.id === req.workerId);
         const to = db.users.find(u => u.id === req.toSurveyorId);
         if (w && to) {
@@ -3946,7 +3934,35 @@ function approveWorkerTransferRequest(reqId) {
             _upsertWorkerInSupabase(w);
             addNotification(req.toSurveyorId, `تمت الموافقة على نقل العامل "${req.workerName}" إليك ✓`, 'success', req.id);
             if (oldSurveyorId && oldSurveyorId !== req.toSurveyorId)
-                addNotification(oldSurveyorId, `تمت الموافقة على نقل العامل "${req.workerName}" منك إلى ${to.name}`, 'info', req.id);
+                addNotification(oldSurveyorId, `تم نقل العامل "${req.workerName}" منك إلى ${to.name}`, 'info', req.id);
+        }
+        // Notify admins for info only
+        db.users.filter(u => u.role === 'admin').forEach(a =>
+            addNotification(a.id,
+                `رئيس المساحين ${currentUser.name} اعتمد نقل العامل "${req.workerName}" إلى ${req.toSurveyorName}.`,
+                'info', req.id));
+        _upsertWorkerTransferInSupabase(req);
+        saveDB(true);
+        addLog(`${currentUser.name} اعتمد (كرئيس مساحين) نقل العامل ${req.workerName} إلى ${req.toSurveyorName}`);
+        return true;
+    }
+
+    // Admin can still approve as fallback (e.g. if no head surveyor, or for direct override)
+    if (currentUser.role === 'admin' && (req.status === 'pending_admin' || req.status === 'pending_head' || req.status === 'pending_receiver')) {
+        req.status = 'approved';
+        req.adminApprovedAt = now;
+        req.adminApprovedBy = currentUser.name;
+        const w  = db.workers.find(x => x.id === req.workerId);
+        const to = db.users.find(u => u.id === req.toSurveyorId);
+        if (w && to) {
+            const oldSurveyorId = w.surveyorId;
+            w.surveyorId   = to.id;
+            w.surveyorName = to.name;
+            w.branchId     = to.branch || to.responsibleBranch || w.branchId;
+            _upsertWorkerInSupabase(w);
+            addNotification(req.toSurveyorId, `تمت الموافقة على نقل العامل "${req.workerName}" إليك ✓`, 'success', req.id);
+            if (oldSurveyorId && oldSurveyorId !== req.toSurveyorId)
+                addNotification(oldSurveyorId, `تم نقل العامل "${req.workerName}" منك إلى ${to.name}`, 'info', req.id);
         }
         _upsertWorkerTransferInSupabase(req);
         saveDB(true);
