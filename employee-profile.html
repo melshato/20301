@@ -239,7 +239,9 @@ async function loadProfile(userId) {
 
     _currentProfileUser = u;
     const branch = db.branches.find(b => b.id === u.branch || b.id === u.responsibleBranch);
-    const headUser = db.users.find(x => x.id === u.headSurveyor);
+    const headUser = db.users.find(x => x.id === u.headSurveyor)
+        || getBranchHead(u.branch)
+        || getBranchHead(u.responsibleBranch);
     const custodies = db.custodies.filter(c => c.userId === u.id && c.status === 'approved');
     const devices = custodies.map(c => db.devices.find(d => d.serial === c.serialNumber) || { serial: c.serialNumber, type: c.deviceType });
     const workers = (db.workers || []).filter(w => w.surveyorId === u.id);
@@ -406,7 +408,9 @@ window.exportProfileXLSX = () => {
     }
     const u = _currentProfileUser;
     const branch = db.branches.find(b => b.id === u.branch || b.id === u.responsibleBranch);
-    const headUser = db.users.find(x => x.id === u.headSurveyor);
+    const headUser = db.users.find(x => x.id === u.headSurveyor)
+        || getBranchHead(u.branch)
+        || getBranchHead(u.responsibleBranch);
     const custodies = db.custodies.filter(c => c.userId === u.id && c.status === 'approved');
     const workers = (db.workers || []).filter(w => w.surveyorId === u.id);
     const leaves = (db.leaveRequests || []).filter(r => r.userId === u.id && r.status === 'approved');
