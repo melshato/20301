@@ -2,8 +2,8 @@
   "version": 2,
   "buildCommand": null,
   "outputDirectory": ".",
-  "redirects": [
-    { "source": "/favicon.ico", "destination": "/assets/sajco-logo.svg", "permanent": true }
+  "rewrites": [
+    { "source": "/favicon.ico", "destination": "/assets/sajco-logo.svg" }
   ],
   "headers": [
     {
