@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
@@ -636,7 +636,7 @@
             }
 
             document.getElementById('countBranches').innerText = db.branches.length;
-            document.getElementById('countUsers').innerText = db.users.filter(u => u.role !== 'admin').length;
+            document.getElementById('countUsers').innerText = db.users.filter(u => u.role === 'surveyor' && u.status === 'approved').length;
             document.getElementById('countDevices').innerText = db.devices.length;
 
             // حساب Requests الCustody Pending Approval for Admin (شاملة النقل andالعهد newة)

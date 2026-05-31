@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -701,7 +701,7 @@
             }
 
             document.getElementById('countBranches').innerText = db.branches.length;
-            document.getElementById('countUsers').innerText = db.users.filter(u => u.role !== 'admin').length;
+            document.getElementById('countUsers').innerText = db.users.filter(u => u.role === 'surveyor' && u.status === 'approved').length;
             document.getElementById('countDevices').innerText = db.devices.length;
 
             // حساب طلبات العهدة بانتظار الموافقة للمدير (شاملة النقل والعهد الجديدة)
