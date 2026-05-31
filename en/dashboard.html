@@ -236,6 +236,28 @@
                         <div id="countPlanningLeave" style="font-size:1.5rem;font-weight:800;color:#1e40af;">0</div>
                     </div>
                 </div>
+                <!-- Head Surveyor stat cards -->
+                <div class="stat-card" style="border:1px solid #e9d5ff;">
+                    <div class="stat-icon" style="background:#f3e8ff;color:#7e22ce;"><i class="fa-solid fa-user-tie"></i></div>
+                    <div>
+                        <div style="font-size:0.85rem;color:var(--text-muted)">Total Head Surveyors</div>
+                        <div id="countHeadsTotal" style="font-size:1.5rem;font-weight:800;color:#7e22ce;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #bbf7d0;">
+                    <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-user-check"></i></div>
+                    <div>
+                        <div style="font-size:0.85rem;color:var(--text-muted)">Head Surveyors at Work</div>
+                        <div id="countHeadsAtWork" style="font-size:1.5rem;font-weight:800;color:#15803d;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border:1px solid #fde68a;">
+                    <div class="stat-icon" style="background:#fef3c7;color:#b45309;"><i class="fa-solid fa-umbrella-beach"></i></div>
+                    <div>
+                        <div style="font-size:0.85rem;color:var(--text-muted)">Head Surveyors on Leave</div>
+                        <div id="countHeadsOnLeave" style="font-size:1.5rem;font-weight:800;color:#b45309;">0</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Statistics the Surveyor (تظهر للSurveyor only) -->
@@ -425,6 +447,29 @@
             </div>
 
             </div><!-- end inner wrapper -->
+
+            <!-- ====== Head Surveyor Panel (for Admin only) ====== -->
+            <div id="headSurveyorPanel" style="display:none;margin-top:32px;">
+                <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                    <i class="fa-solid fa-user-tie" style="color:#7e22ce;"></i> Head Surveyors Panel
+                    <span style="font-size:.8rem;font-weight:400;color:var(--text-muted);margin-right:8px;">Direct Manager: <strong>Eng. Mohamed Aqtatit</strong> (Emp ID: 1)</span>
+                </h3>
+
+                <div class="card" style="border-left: 4px solid #f59e0b;margin-bottom:20px;">
+                    <h4 style="font-size:.95rem;color:#92400e;margin-bottom:12px;"><i class="fa-solid fa-umbrella-beach"></i> Head Surveyors Currently on Leave</h4>
+                    <div id="headsOnLeaveList"><p style="color:var(--text-muted);font-size:.9rem;">No head surveyors on leave.</p></div>
+                </div>
+
+                <div class="card" style="border-left: 4px solid #16a34a;margin-bottom:20px;">
+                    <h4 style="font-size:.95rem;color:#166534;margin-bottom:12px;"><i class="fa-solid fa-user-check"></i> Head Surveyors at Work</h4>
+                    <div id="headsAtWorkList"><p style="color:var(--text-muted);font-size:.9rem;">All head surveyors are at work.</p></div>
+                </div>
+
+                <div class="card" style="border-left: 4px solid #7c3aed;background:#f8f4ff;">
+                    <h4 style="font-size:.95rem;color:#5b21b6;margin-bottom:8px;"><i class="fa-solid fa-people-arrows"></i> Substitute System for Head Surveyors</h4>
+                    <div id="headSubstituteInfo" style="font-size:.88rem;color:var(--text-main);"></div>
+                </div>
+            </div>
 
             <!-- ====== Statistics Workers (for Admin only) ====== -->
             <div id="workersAdminPanel" style="display:none;margin-top:32px;padding:0 0 8px 0;">
@@ -661,6 +706,8 @@
             if (currentUser.role === 'admin') {
                 document.getElementById('leaveManagementPanel').style.display = 'block';
                 renderLeaveManagementPanel(onLeave, planningLeave);
+                document.getElementById('headSurveyorPanel').style.display = 'block';
+                renderHeadSurveyorPanel();
                 renderWorkersAdminPanel();
                 renderBranchCharts();
             }
@@ -932,6 +979,72 @@
             const surveyors = db.users.filter(u => u.role === 'surveyor' && u.status === 'approved');
             empSelect.innerHTML = '<option value="">-- Select Employee --</option>' + surveyors.map(u => `<option value="${u.id}">${u.name} (${u.empId})</option>`).join('');
             document.getElementById('leaveManualDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function renderHeadSurveyorPanel() {
+            const heads = db.users.filter(u => u.role === 'head' && u.status === 'approved');
+            const onLeaveIds = new Set();
+            (db.leaveRequests || []).forEach(r => {
+                if (r.isDeparted && !r.isReturned) onLeaveIds.add(r.userId);
+            });
+            const headsOnLeave = heads.filter(u => onLeaveIds.has(u.id));
+            const headsAtWork = heads.filter(u => !onLeaveIds.has(u.id));
+
+            document.getElementById('countHeadsTotal').innerText = heads.length;
+            document.getElementById('countHeadsOnLeave').innerText = headsOnLeave.length;
+            document.getElementById('countHeadsAtWork').innerText = headsAtWork.length;
+
+            // Heads on leave
+            const onLeaveEl = document.getElementById('headsOnLeaveList');
+            if (headsOnLeave.length === 0) {
+                onLeaveEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">No head surveyors on leave.</p>';
+            } else {
+                onLeaveEl.innerHTML = headsOnLeave.map(h => {
+                    const sub = h.substituteId ? db.users.find(u => u.id === h.substituteId) : null;
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;border:1px solid #fde68a;background:#fffbeb;margin-bottom:8px;gap:12px;flex-wrap:wrap;">
+                        <div>
+                            <strong>${h.name}</strong>
+                            <span style="color:var(--text-muted);font-size:.8rem;margin-right:8px;">${getBranchName(h.responsibleBranch) || '—'}</span>
+                        </div>
+                        <div style="font-size:.85rem;">
+                            ${sub
+                                ? `<span style="background:#e0e7ff;color:#4338ca;padding:4px 10px;border-radius:20px;font-size:.8rem;"><i class="fa-solid fa-people-arrows"></i> Substitute: <strong>${sub.name}</strong></span>`
+                                : `<span style="background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:20px;font-size:.8rem;"><i class="fa-solid fa-triangle-exclamation"></i> No substitute</span>`}
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // Heads at work
+            const atWorkEl = document.getElementById('headsAtWorkList');
+            if (headsAtWork.length === 0) {
+                atWorkEl.innerHTML = '<p style="color:var(--text-muted);font-size:.9rem;">No head surveyors at work.</p>';
+            } else {
+                atWorkEl.innerHTML = headsAtWork.map(h => {
+                    const branchName = getBranchName(h.responsibleBranch) || '—';
+                    return `<div style="display:flex;align-items:center;padding:8px 12px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;gap:10px;flex-wrap:wrap;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;"></span>
+                        <strong>${h.name}</strong>
+                        <span style="color:var(--text-muted);font-size:.8rem;">Branch: ${branchName}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            // Substitute info
+            const subEl = document.getElementById('headSubstituteInfo');
+            const withSub = heads.filter(h => h.substituteId);
+            const withoutSub = heads.filter(h => !h.substituteId);
+            const subLines = [];
+            withSub.forEach(h => {
+                const sub = db.users.find(u => u.id === h.substituteId);
+                if (sub) subLines.push(`<div style="margin-bottom:6px;"><strong>${h.name}</strong> ← Substitute: <strong>${sub.name}</strong></div>`);
+            });
+            if (withoutSub.length > 0) {
+                subLines.push(`<div style="margin-top:10px;color:#92400e;background:#fffbeb;padding:10px 14px;border-radius:8px;font-size:.85rem;"><i class="fa-solid fa-triangle-exclamation"></i> Head surveyors <strong>without substitute</strong>: ${withoutSub.map(h => h.name).join(', ')}</div>`);
+            }
+            subEl.innerHTML = subLines.length
+                ? subLines.join('')
+                : '<p style="color:var(--text-muted);">No head surveyors assigned yet.</p>';
         }
 
         window.adminReturnFromLeave = (leaveId) => {
