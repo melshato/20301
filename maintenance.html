@@ -72,7 +72,7 @@
             <h3 style="color:#92400e;"><i class="fa-solid fa-clock"></i> طلبات بانتظار الموافقة</h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>الجهاز</th><th>النوع</th><th>الطلب</th><th>مقدم الطلب</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
+                    <thead><tr><th>الجهاز</th><th>النوع</th><th>الطلب</th><th>مقدم الطلب</th><th>الفرع</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
                     <tbody id="pendingReqsBody"></tbody>
                 </table>
             </div>
@@ -292,21 +292,30 @@ function refreshMaintenancePage() {
     document.getElementById('totalAtAgent').innerText = agentDevices.length;
     document.getElementById('totalCerts').innerText = (db.calibrationCerts || []).length;
 
-    // طلبات بانتظار الموافقة (للمدير فقط)
-    const pendingReqs = (db.maintenanceRequests || []).filter(r => r.status === 'pending');
+    // طلبات بانتظار الموافقة (مدير + رئيس مساحين)
+    const isHead = currentUser.role === 'head';
+    const pendingReqs = (db.maintenanceRequests || []).filter(r => {
+        if (r.status !== 'pending') return false;
+        if (isAdmin) return true;
+        // رئيس المساحين يرى طلبات فرعه فقط
+        if (isHead) return r.branchId === currentUser.responsibleBranch;
+        return false;
+    });
     document.getElementById('totalPendingReqs').innerText = pendingReqs.length;
-    if (isAdmin && pendingReqs.length > 0) {
+    if ((isAdmin || isHead) && pendingReqs.length > 0) {
         document.getElementById('pendingRequestsCard').style.display = '';
         document.getElementById('pendingReqsBody').innerHTML = pendingReqs.map(r => {
             const reqType = r.requestType === 'maintenance' ? '<span class="badge badge-danger">صيانة</span>' : '<span class="badge badge-warning">معايرة</span>';
+            const branch = db.branches.find(b => b.id === r.branchId);
             return `<tr>
                 <td><strong>${r.serialNumber}</strong></td>
                 <td>${r.deviceType || '—'}</td>
                 <td>${reqType}</td>
                 <td>${r.requestedByName || '—'}</td>
+                <td>${branch?.name || '—'}</td>
                 <td>${formatDate(r.timestamp)}</td>
                 <td style="display:flex;gap:6px;">
-                    <button class="btn-approve" onclick="doApproveRequest('${r.id}')"><i class="fa-solid fa-check"></i> قبول وإرسال</button>
+                    ${isAdmin ? `<button class="btn-approve" onclick="doApproveRequest('${r.id}')"><i class="fa-solid fa-check"></i> قبول وإرسال</button>` : ''}
                     <button class="btn-reject" onclick="doRejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i> رفض</button>
                 </td>
             </tr>`;

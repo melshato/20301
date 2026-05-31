@@ -1356,18 +1356,33 @@ function sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes
 function approveMaintenanceRequest(reqId) {
     const req = db.maintenanceRequests?.find(r => r.id === reqId);
     if (!req || currentUser.role !== 'admin') return false;
+    const now = new Date().toISOString();
     req.status = 'sent_to_agent';
-    req.approvalHistory.push({ approver: currentUser.name, action: 'approved', timestamp: new Date().toISOString() });
+    req.approvalHistory.push({ approver: currentUser.name, action: 'approved', timestamp: now });
     const device = db.devices.find(d => d.id === req.deviceId || d.serial === req.serialNumber);
     if (device) {
         device.status = req.requestType === 'maintenance' ? 'at_maintenance' : 'at_calibration';
-        device.sentToAgentDate = new Date().toISOString().split('T')[0];
+        device.sentToAgentDate = now.split('T')[0];
+        if (supabaseClient && _isUUID(device.id)) {
+            supabaseClient.from('devices').update({ status: device.status, sent_to_agent_date: device.sentToAgentDate }).eq('id', device.id).then(() => {});
+        }
     }
     if (supabaseClient) {
-        supabaseClient.from('maintenance_requests').update({ status: 'sent_to_agent', approved_by: currentUser.id, approved_at: new Date().toISOString() }).eq('id', reqId).then(() => {});
+        supabaseClient.from('maintenance_requests').update({ status: 'sent_to_agent', approved_by: currentUser.id, approved_at: now }).eq('id', reqId).then(() => {});
     }
     saveDB();
-    addNotification(req.requestedBy, `تمت الموافقة على طلب ${req.requestType === 'maintenance' ? 'الصيانة' : 'المعايرة'} للجهاز (${req.serialNumber}) وتم إرساله للوكيل.`, 'success', reqId, false, 'maintenance.html');
+    const typeLabel = req.requestType === 'maintenance' ? 'الصيانة' : 'المعايرة';
+    const msg = `تمت الموافقة على طلب ${typeLabel} للجهاز (${req.serialNumber}) وتم إرساله للوكيل.`;
+    // إشعار مقدّم الطلب
+    addNotification(req.requestedBy, msg, 'success', reqId, false, 'maintenance.html');
+    // إشعار مالك الجهاز إذا كان مختلفاً عن مقدّم الطلب
+    const ownerId = device?.ownerId;
+    if (ownerId && ownerId !== req.requestedBy)
+        addNotification(ownerId, msg, 'success', reqId, false, 'maintenance.html');
+    // إشعار رئيس المساحين
+    const head = getBranchHead(req.branchId || device?.branch);
+    if (head && head.id !== req.requestedBy && head.id !== ownerId)
+        addNotification(head.id, `اعتماد طلب ${typeLabel}: الجهاز (${req.serialNumber}) أُرسل للوكيل.`, 'info', reqId, false, 'maintenance.html');
     addLog(`تم اعتماد طلب ${req.requestType} للجهاز ${req.serialNumber}`);
     return true;
 }
@@ -1377,12 +1392,29 @@ function rejectMaintenanceRequest(reqId, reason = '') {
     if (!req || (currentUser.role !== 'admin' && currentUser.role !== 'head')) return false;
     req.status = 'rejected';
     req.approvalHistory.push({ approver: currentUser.name, action: 'rejected', reason, timestamp: new Date().toISOString() });
+    // إعادة حالة الجهاز إلى assigned بعد الرفض
+    const device = db.devices.find(d => d.id === req.deviceId || d.serial === req.serialNumber);
+    if (device && (device.status === 'maintenance' || device.status === 'needs_calibration')) {
+        device.status = device.ownerId ? 'assigned' : 'warehouse';
+        if (supabaseClient && _isUUID(device.id))
+            supabaseClient.from('devices').update({ status: device.status }).eq('id', device.id).then(() => {});
+    }
     if (supabaseClient) {
-        supabaseClient.from('maintenance_requests').update({ status: 'rejected' }).eq('id', reqId).then(() => {});
+        supabaseClient.from('maintenance_requests').update({ status: 'rejected', rejection_note: reason || null }).eq('id', reqId).then(() => {});
     }
     saveDB();
-    addNotification(req.requestedBy, `تم رفض طلب ${req.requestType === 'maintenance' ? 'الصيانة' : 'المعايرة'} للجهاز (${req.serialNumber}).`, 'error', reqId, false, 'maintenance.html');
-    addLog(`تم رفض طلب ${req.requestType} للجهاز ${req.serialNumber}`);
+    const typeLabel = req.requestType === 'maintenance' ? 'الصيانة' : 'المعايرة';
+    const reasonText = reason ? ` السبب: ${reason}` : '';
+    const msg = `تم رفض طلب ${typeLabel} للجهاز (${req.serialNumber}).${reasonText}`;
+    // إشعار مقدّم الطلب
+    addNotification(req.requestedBy, msg, 'error', reqId, false, 'maintenance.html');
+    // إشعار رئيس المساحين إذا رفض المدير (ليعلم)
+    if (currentUser.role === 'admin') {
+        const head = getBranchHead(req.branchId || device?.branch);
+        if (head && head.id !== req.requestedBy)
+            addNotification(head.id, `رُفض طلب ${typeLabel} للجهاز (${req.serialNumber}).${reasonText}`, 'warning', reqId, false, 'maintenance.html');
+    }
+    addLog(`تم رفض طلب ${req.requestType} للجهاز ${req.serialNumber}${reason ? ' — السبب: ' + reason : ''}`);
     return true;
 }
 
@@ -1546,21 +1578,7 @@ function returnFromAgent(id, newCalDate = null, destination = 'warehouse') {
     return true;
 }
 
-function returnFromAgent(id, newCalDate = null) {
-    const device = db.devices.find(d => d.id === id);
-    if (!device) return false;
-    const wasCalib = device.status === 'at_calibration';
-    device.status = 'warehouse';
-    device.ownerId = null;
-    device.sentToAgentDate = null;
-    if (newCalDate) device.calDate = newCalDate;
-    if (supabaseClient) {
-        supabaseClient.from('devices').update({ status: 'warehouse', owner_id: null, sent_to_agent_date: null, cal_date: device.calDate }).eq('id', id).then(({ error }) => { if (error) console.warn('returnFromAgent:', error.message); });
-    }
-    saveDB(true);
-    addLog(`تم استلام الجهاز ${device.serial} من الوكيل${newCalDate ? ` - تاريخ معايرة جديد: ${newCalDate}` : ''}`);
-    return true;
-}
+// النسخة الثانية المكررة حُذفت — استخدم returnFromAgent(id, newCalDate, destination) أعلاه
 
 // ============================================================
 // Direct Messages - رسائل خاصة (مساح → مدير عام)

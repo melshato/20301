@@ -574,16 +574,16 @@
             const branchId = surveyor?.branch;
             const head     = branchId ? db.users.find(u => u.role === 'head' && u.responsibleBranch === branchId) : null;
 
-            // إخطار المساح
+            // إخطار المساح بتحذير عاجل (error = أكثر أهمية)
             addNotification(surveyorId,
-                `⚠ تنبيه معايرة: الجهاز (${deviceType} — S/N: ${deviceSerial}) الذي بحوزتك مطلوب للمعايرة. يرجى التنسيق مع رئيس المساحين لإجراء المعايرة في أقرب وقت ممكن.`,
-                'warning', null, false, 'calibration-alerts.html');
+                `🔴 تنبيه عاجل للمعايرة: الجهاز (${deviceType} — S/N: ${deviceSerial}) الذي بحوزتك يحتاج معايرة فورية. يرجى التنسيق مع رئيس المساحين في أقرب وقت.`,
+                'error', null, false, 'calibration-alerts.html');
 
-            // تحذير رئيس المساحين
+            // إبلاغ رئيس المساحين (warning = للمتابعة الإدارية)
             if (head) {
                 addNotification(head.id,
-                    `🔔 تحذير معايرة: الجهاز (${deviceType} — S/N: ${deviceSerial}) بعهدة المساح ${surveyor?.name || ''} يحتاج معايرة عاجلة. يُرجى المتابعة.`,
-                    'error', null, false, 'calibration-alerts.html');
+                    `⚠ تنبيه معايرة: الجهاز (${deviceType} — S/N: ${deviceSerial}) بعهدة المساح ${surveyor?.name || ''} يحتاج معايرة. يُرجى المتابعة والتنسيق.`,
+                    'warning', null, false, 'calibration-alerts.html');
             }
 
             addLog(`أرسل ${currentUser.name} إخطاراً للمساح ${surveyor?.name || surveyorId}${head ? ' وتحذيراً لرئيس المساحين ' + head.name : ''} بشأن معايرة (${deviceSerial})`);
