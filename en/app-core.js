@@ -1207,6 +1207,11 @@ function sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes
             'warning', req.id, false, 'maintenance.html', 'maintenance_request', true
         );
     }
+    // Notification for the requester themself
+    addNotification(currentUser.id,
+        `Submitted ${requestType === 'maintenance' ? 'maintenance' : 'calibration'} request for device (${serial}) - pending approval`,
+        'info', req.id, false, 'maintenance.html', 'maintenance_request', false
+    );
     return { success: true, data: req };
 }
 

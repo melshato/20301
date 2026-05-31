@@ -1345,6 +1345,11 @@ function sendMaintenanceRequest(deviceId, serial, deviceType, requestType, notes
             'warning', req.id, false, 'maintenance.html', 'maintenance_request', true
         );
     }
+    // إشعار لمقدم الطلب نفسه
+    addNotification(currentUser.id,
+        `تم تقديم طلب ${requestType === 'maintenance' ? 'صيانة' : 'معايرة'} للجهاز (${serial}) - بانتظار الموافقة`,
+        'info', req.id, false, 'maintenance.html', 'maintenance_request', false
+    );
     return { success: true, data: req };
 }
 
