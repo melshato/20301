@@ -134,3 +134,22 @@ Additionally, `sendMaintenanceRequest()` had no duplicate check — clicking the
 | `sajco_db_backup` | Full DB backup (set on every `saveDB()`) |
 | `currentUser` | Global user object (restored from session) |
 | `db` | In-memory database (merged from backup + Supabase) |
+
+---
+
+## Debug Entry Points
+
+> لكل مشكلة شائعة: أول 3 خطوات للتشخيص السريع بالترتيب.
+
+| المشكلة | الخطوة 1 | الخطوة 2 | الخطوة 3 |
+|---------|---------|---------|---------|
+| **زر القبول/الرفض لا يظهر للمساح** | تحقق أن السجل موجود: `db.custodies.filter(c => c.status.startsWith('pending_'))` | تحقق من empId: `currentUser.empId` يساوي empId في السجل؟ | تحقق من dedup في `_loadRemoteDB` — هل `pending_receiver_acceptance` يُحذف بسبب وجود `approved` لنفس الجهاز؟ |
+| **بيانات تختفي بعد reload** | تحقق من localStorage: `JSON.parse(localStorage.getItem('sajco_db_backup'))` | تحقق من Network tab — هل Supabase يُعيد 401/403/409؟ | راجع `_syncToSupabase()` في console — هل هناك RLS error في phase1؟ |
+| **عمود الفرع فارغ** | تحقق من `d.branch` للجهاز: `db.devices.find(d => d.serial === '...')` | تحقق من `owner?.branch`: `db.users.find(u => u.id === device.ownerId)?.branch` | تحقق من Supabase — هل `branch_id` محفوظ في جدول devices؟ |
+| **فلترة لا تُعطي نتائج** | طبّع القيم: `console.log(currentUser.empId, typeof currentUser.empId)` | قارن مع السجلات: `db.custodies.map(c => c.userId)` | تحقق من مطابقة النوع: هل يقارن UUID مع empId بدلاً من empId مع empId؟ |
+| **إشعار لم يصل** | تحقق: `db.notifications.filter(n => n.userId === targetUserId)` | تحقق أن `addNotification()` تُستدعى فعلاً — أضف `console.log` قبلها | تحقق أن `_isUUID(userId)` = true — قد يكون ID غير UUID فيُتخطَّى |
+| **صيانة لا تُعتمَد** | تحقق حالة الطلب: `db.maintenanceRequests.find(r => r.serialNumber === '...')?.status` | تحقق دور المستخدم: `currentUser.role === 'admin'` مطلوب للاعتماد | تحقق أن الجهاز ليس `at_maintenance` بالفعل — `approveMaintenanceRequest` يرفض المكرر |
+| **عهدة لا تُوافَق عليها** | تحقق حالتها: `db.custodies.find(c => c.id === '...')?.status` | تحقق أن المستخدم هو المدير أو رئيس المساحين المسؤول عن الفرع | تحقق `approveCustody('admin')` — هل `c.userId !== c.assignedBy`؟ إذا نعم تذهب لـ `pending_surveyor_acceptance` |
+| **دالة تتصرف بشكل غريب** | ابحث عن تعريفات مكررة: grep لاسم الدالة في جميع الملفات | تحقق من آخر تعريف — JavaScript يستخدم الأخير | تحقق من `window.funcName` vs `function funcName` — أيهما يُستدعى؟ |
+| **صفحة EN مختلفة عن AR** | شغّل `sync-check.ps1` للحصول على الفروق | قارن الدوال المفقودة: `onlyInAr` vs `onlyInEn` | طبّق الإصلاح على كلا الملفين في نفس الـ commit |
+| **401 من Supabase** | تحقق الجلسة: `supabaseClient.auth.getSession()` في console | تحقق أن `auth_uid` للمستخدم موجود في `db.users` | تحقق RLS policies في Supabase Dashboard — هل `is_admin()` تعمل؟ |
