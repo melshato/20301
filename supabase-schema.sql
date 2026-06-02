@@ -258,8 +258,9 @@ CREATE POLICY "users_select_own_or_admin" ON users
         auth.uid() = id OR current_user_role() = 'admin'
     );
 
--- لا يمكن إدراج مستخدم جديد إلا عن طريق الإداري أو عبر التسجيل (يمكن تعديلها لاحقاً)
+-- الإدراج مسموح فقط للإداري — المستخدم لا يسجّل نفسه
 DROP POLICY IF EXISTS "users_insert_admin_only" ON users;
+DROP POLICY IF EXISTS "users_insert_self_or_admin" ON users;
 CREATE POLICY "users_insert_admin_only" ON users
     FOR INSERT WITH CHECK (current_user_role() = 'admin');
 
@@ -464,7 +465,52 @@ CREATE POLICY "settings_update_admin" ON settings
 
 
 -- ============================================================
--- 8. إضافة مستخدمين افتراضيين (اختياري)
+-- 8. Trigger للتحقق من الرقم الوظيفي على مستوى قاعدة البيانات
+-- هذا الحاجز الأخير — يمنع أي إدخال بدون رقم وظيفي مسموح به
+-- حتى لو تخطى أحد الـ frontend أو الـ API
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION validate_emp_id_before_insert()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- الأرقام الافتراضية للمطورين
+    IF NEW."empId" IN ('1', '999') THEN
+        RETURN NEW;
+    END IF;
+
+    -- التحقق من وجود الرقم في قائمة المسموحين
+    IF NOT EXISTS (
+        SELECT 1 FROM allowed_employee_ids WHERE emp_id = NEW."empId"
+    ) THEN
+        RAISE EXCEPTION 'الرقم الوظيفي % غير مسموح به', NEW."empId";
+    END IF;
+
+    -- منع تكرار الرقم الوظيفي
+    IF EXISTS (
+        SELECT 1 FROM users WHERE "empId" = NEW."empId" AND id != NEW.id
+    ) THEN
+        RAISE EXCEPTION 'الرقم الوظيفي % مسجل مسبقاً', NEW."empId";
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS check_emp_id_on_insert ON users;
+CREATE TRIGGER check_emp_id_on_insert
+    BEFORE INSERT ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION validate_emp_id_before_insert();
+
+-- إضافة الأرقام الافتراضية إلى الجدول للتوافق
+INSERT INTO allowed_employee_ids (emp_id) VALUES ('1'), ('999')
+ON CONFLICT (emp_id) DO NOTHING;
+
+-- ============================================================
+-- 9. إضافة مستخدمين افتراضيين (اختياري)
 -- ملاحظة: يجب إنشاء المستخدمين أولاً عبر واجهة Supabase Auth أو API،
 -- ثم إدراجهم في جدول users باستخدام المعرفات الناتجة.
 -- نقوم بإنشاء دالة لتسهيل إنشاء مستخدم تجريبي (للتطوير فقط)

@@ -898,6 +898,7 @@ function renderSidebar() {
             ${!isSurveyor ? `<a href="employee-profile.html" class="nav-item ${_isActive('employee-profile')}"><i class="fa-solid fa-id-card"></i> ${currentLang==='ar'?'ملف الموظف':'Employee Profile'}</a>` : ''}
             <a href="custody.html" class="nav-item ${_isActive('custody')}"><i class="fa-solid fa-box-archive"></i> ${t('nav_custody')}</a>
             <a href="leave-request.html" class="nav-item ${_isActive('leave-request')}"><i class="fa-solid fa-calendar-minus"></i> ${t('nav_leave')}</a>
+            <a href="overtime.html" class="nav-item ${_isActive('overtime')}"><i class="fa-solid fa-clock-rotate-left"></i> ${currentLang==='ar'?'إضافي وجمعة':'Overtime & Fridays'}</a>
             <a href="workers.html" class="nav-item ${_isActive('workers')}"><i class="fa-solid fa-helmet-safety"></i> ${t('nav_workers')}</a>
             <a href="device-history.html" class="nav-item ${_isActive('device-history')}"><i class="fa-solid fa-timeline"></i> ${t('nav_device_history')}</a>
             <a href="user-custody-history.html" class="nav-item ${_isActive('user-custody-history')}"><i class="fa-solid fa-user-clock"></i> ${t('nav_custody_history')}</a>
@@ -2562,10 +2563,9 @@ function _normalizeAllowedEmpId(entry) {
 
 function isEmployeeIdAllowed(empId) {
     const defaultIds = ['1', '999'];
-    if (defaultIds.includes(empId)) return true;
-    // إذا كانت القائمة فارغة، نسمح بالتسجيل لأي رقم (للتسهيل في البداية) كما ورد في الدليل
-    if (!db.allowedEmployeeIds || db.allowedEmployeeIds.length === 0) return true;
-    return db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === empId);
+    if (defaultIds.includes(String(empId))) return true;
+    if (!db.allowedEmployeeIds || db.allowedEmployeeIds.length === 0) return false;
+    return db.allowedEmployeeIds.some(e => _normalizeAllowedEmpId(e).empId === String(empId));
 }
 
 function getAllowedEmployeeName(empId) {

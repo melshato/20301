@@ -72,6 +72,9 @@
         <!-- طلبات نقل العمال بانتظار موافقتك -->
         <div id="headWorkerTransfers"></div>
 
+        <!-- طلبات الإضافي والجمعة -->
+        <div id="headOvertimeFridaySection"></div>
+
         <!-- تنبيهات المعايرة -->
         <div id="calibrationAlerts"></div>
 
@@ -1127,7 +1130,55 @@ window.onload = async () => {
     loadHeadSurveyorDashboard();
     refreshBranchStats();
     initRealtime();
+    loadHeadOvertimeFridaySection();
 };
+
+async function loadHeadOvertimeFridaySection() {
+    const section = document.getElementById('headOvertimeFridaySection');
+    if (!section) return;
+    try {
+        const { data: otPending } = await supabaseClient
+            .from('overtime_records').select('id, month, year, users(name)', { count: 'exact' })
+            .eq('status', 'submitted');
+        const { data: friPending } = await supabaseClient
+            .from('friday_requests').select('id, friday_date, users(name)', { count: 'exact' })
+            .eq('status', 'pending');
+        const otCount  = otPending?.length  || 0;
+        const friCount = friPending?.length || 0;
+        if (!otCount && !friCount) { section.innerHTML = ''; return; }
+        const MONTHS = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        section.innerHTML = `
+            <div class="pending-card" style="margin-bottom:20px;">
+                <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                    <i class="fa-solid fa-clock-rotate-left" style="color:#7c3aed;"></i>
+                    طلبات الإضافي والجمعة بانتظار موافقتك
+                    <span style="background:#7c3aed;color:#fff;font-size:.75rem;padding:2px 8px;border-radius:10px;font-weight:700;">${otCount+friCount}</span>
+                </h3>
+                ${otCount ? `
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:.85rem;font-weight:700;color:#7c3aed;margin-bottom:8px;"><i class="fa-solid fa-hourglass-half"></i> ساعات إضافية (${otCount})</div>
+                    ${(otPending||[]).map(r=>`
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:6px;">
+                            <span>${r.users?.name||'—'} — ${MONTHS[r.month]} ${r.year}</span>
+                            <a href="overtime.html" class="btn btn-sm" style="background:#7c3aed;color:#fff;border-radius:20px;padding:5px 14px;font-size:.8rem;text-decoration:none;">
+                                <i class="fa-solid fa-eye"></i> مراجعة
+                            </a>
+                        </div>`).join('')}
+                </div>` : ''}
+                ${friCount ? `
+                <div>
+                    <div style="font-size:.85rem;font-weight:700;color:#0891b2;margin-bottom:8px;"><i class="fa-solid fa-calendar-day"></i> أيام الجمعة (${friCount})</div>
+                    ${(friPending||[]).map(r=>`
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:6px;">
+                            <span>${r.users?.name||'—'} — ${r.friday_date}</span>
+                            <a href="overtime.html" class="btn btn-sm" style="background:#0891b2;color:#fff;border-radius:20px;padding:5px 14px;font-size:.8rem;text-decoration:none;">
+                                <i class="fa-solid fa-eye"></i> مراجعة
+                            </a>
+                        </div>`).join('')}
+                </div>` : ''}
+            </div>`;
+    } catch(e) { console.warn('overtime section error:', e.message); }
+}
 </script>
 </body>
 </html>

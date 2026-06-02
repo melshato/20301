@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ساعات إضافية وأيام الجمعة | ساجكو</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-data-layer.js"></script>
+    <script src="app-core.js"></script>
+    <script src="excel-export.js"></script>
+    <style>
+        /* ─── Tabs ─── */
+        .ot-tabs { display:flex; gap:8px; margin-bottom:24px; border-bottom:2px solid var(--border); padding-bottom:0; }
+        .ot-tab { padding:10px 24px; border-radius:10px 10px 0 0; border:1px solid transparent; font-weight:700; font-size:.95rem; cursor:pointer; background:none; font-family:inherit; color:var(--text-muted); transition:.15s; }
+        .ot-tab.active { background:#fff; border-color:var(--border); border-bottom-color:#fff; color:var(--primary); margin-bottom:-2px; }
+        .ot-pane { display:none; } .ot-pane.active { display:block; }
+
+        /* ─── Summary cards ─── */
+        .summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
+        @media(max-width:900px){ .summary-grid{grid-template-columns:repeat(2,1fr);} }
+        .summary-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow-sm); }
+        .summary-card .num { font-size:1.5rem; font-weight:800; line-height:1.1; margin-top:8px; }
+
+        /* ─── Cards ─── */
+        .ot-card { background:#fff; border:1px solid var(--border); border-right:4px solid var(--primary); border-radius:14px; padding:18px; margin-bottom:14px; }
+        .ot-card.amber  { border-right-color:#f59e0b; }
+        .ot-card.green  { border-right-color:#16a34a; }
+        .ot-card.red    { border-right-color:#dc2626; }
+        .ot-card.purple { border-right-color:#7c3aed; }
+        .card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+        .card-title { font-weight:700; font-size:1rem; }
+        .card-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:12px; }
+        @media(max-width:700px){ .card-meta{grid-template-columns:1fr 1fr;} }
+        .meta-box { background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+        .meta-label { font-size:.78rem; color:var(--text-muted); margin-bottom:3px; }
+        .meta-value { font-size:.92rem; font-weight:600; color:var(--text-main); }
+
+        /* ─── Workers table ─── */
+        .workers-table { width:100%; border-collapse:collapse; margin-top:14px; }
+        .workers-table th { background:#f1f5f9; font-size:.82rem; padding:8px 12px; text-align:right; color:var(--text-muted); font-weight:600; }
+        .workers-table td { padding:8px 12px; border-top:1px solid var(--border); font-size:.9rem; }
+        .workers-table tr:hover td { background:#fafafa; }
+        .hours-input { border:1px solid var(--border); border-radius:8px; padding:6px 10px; width:90px; font-family:inherit; font-size:.9rem; text-align:center; }
+        .hours-input:focus { outline:none; border-color:var(--primary); }
+
+        /* ─── Form ─── */
+        .form-section { background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:20px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        @media(max-width:600px){ .form-row{grid-template-columns:1fr;} }
+        .form-group { display:flex; flex-direction:column; gap:6px; }
+        .form-group label { font-size:.83rem; font-weight:600; color:var(--text-muted); }
+        .form-group select, .form-group input { border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-family:inherit; font-size:.9rem; }
+        .form-group select:focus, .form-group input:focus { outline:none; border-color:var(--primary); }
+
+        /* ─── Status badges ─── */
+        .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:.78rem; font-weight:700; }
+        .badge-draft    { background:#f1f5f9; color:#64748b; }
+        .badge-pending  { background:#fffbeb; color:#92400e; }
+        .badge-head     { background:#eff6ff; color:#1d4ed8; }
+        .badge-approved { background:#f0fdf4; color:#15803d; }
+        .badge-rejected { background:#fef2f2; color:#dc2626; }
+        .badge-paid     { background:#f0fdf4; color:#15803d; }
+        .badge-unpaid   { background:#fef9c3; color:#92400e; }
+
+        /* ─── Action buttons ─── */
+        .btn-sm { padding:6px 14px; border-radius:20px; border:none; font-family:inherit; font-weight:700; font-size:.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:.15s; }
+        .btn-primary-sm { background:var(--primary); color:#fff; }
+        .btn-primary-sm:hover { opacity:.88; }
+        .btn-success-sm { background:#16a34a; color:#fff; }
+        .btn-success-sm:hover { background:#15803d; }
+        .btn-danger-sm  { background:#dc2626; color:#fff; }
+        .btn-danger-sm:hover  { background:#b91c1c; }
+        .btn-warning-sm { background:#f59e0b; color:#fff; }
+        .btn-warning-sm:hover { background:#d97706; }
+        .btn-ghost-sm { background:#f1f5f9; color:#334155; }
+        .btn-ghost-sm:hover { background:#e2e8f0; }
+        .btn-purple-sm { background:#7c3aed; color:#fff; }
+        .btn-purple-sm:hover { background:#6d28d9; }
+
+        /* ─── Modal ─── */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; display:flex; align-items:center; justify-content:center; }
+        .modal-overlay.hidden { display:none; }
+        .modal-box { background:#fff; border-radius:16px; padding:24px; max-width:580px; width:94%; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.15); }
+        .modal-title { font-size:1.1rem; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+        /* ─── Stamp ─── */
+        .stamp-box { background:#f0fdf4; border:2px dashed #16a34a; border-radius:12px; padding:14px; text-align:center; margin-top:12px; }
+        .stamp-seal { font-size:2.5rem; display:block; margin-bottom:4px; }
+        .stamp-text { font-size:.82rem; color:#15803d; font-weight:700; line-height:1.7; }
+
+        /* ─── Friday workers list ─── */
+        .fri-worker-row { display:flex; align-items:center; gap:10px; padding:8px 12px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; }
+        .fri-worker-name { flex:1; font-weight:600; font-size:.9rem; }
+        .borrowed-tag { font-size:.75rem; background:#ede9fe; color:#6d28d9; padding:2px 8px; border-radius:10px; font-weight:700; }
+
+        /* ─── Empty state ─── */
+        .empty-state { text-align:center; padding:40px 20px; color:var(--text-muted); }
+        .empty-state i { font-size:2.5rem; margin-bottom:12px; display:block; }
+
+        /* ─── Filter bar ─── */
+        .filter-bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px; }
+        .filter-bar select { border:1px solid var(--border); border-radius:8px; padding:7px 12px; font-family:inherit; font-size:.88rem; }
+
+        /* ─── Stamp confirm button ─── */
+        .stamp-confirm-btn { background:linear-gradient(135deg,#15803d,#16a34a); color:#fff; border:none; border-radius:12px; padding:12px 24px; font-family:inherit; font-weight:800; font-size:.95rem; cursor:pointer; display:flex; align-items:center; gap:8px; margin:0 auto; }
+        .stamp-confirm-btn:hover { opacity:.9; }
+        .stamp-confirm-btn:disabled { opacity:.5; cursor:not-allowed; }
+    </style>
+</head>
+<body>
+<div id="appShell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+        <header style="margin-bottom:20px;">
+            <h2 style="font-size:1.55rem;font-weight:800;">
+                <i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);margin-left:8px;"></i>
+                ساعات إضافية وأيام الجمعة
+            </h2>
+            <p style="color:var(--text-muted);">تسجيل ساعات العمل الإضافية وطلبات أيام الجمعة ومتابعة الموافقات والمدفوعات.</p>
+        </header>
+
+        <!-- ملخص أرقام -->
+        <div class="summary-grid" id="summaryGrid">
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">سجلات إضافي</div>
+                <div id="cntOvertime" class="num" style="color:var(--primary);">0</div>
+            </div>
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">أيام جمعة هذا العام</div>
+                <div id="cntFridays" class="num" style="color:#7c3aed;">0</div>
+            </div>
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">جمع مدفوعة</div>
+                <div id="cntPaid" class="num" style="color:#16a34a;">0</div>
+            </div>
+            <div class="summary-card">
+                <div style="color:var(--text-muted);font-size:.82rem;">بانتظار الموافقة</div>
+                <div id="cntPending" class="num" style="color:#f59e0b;">0</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="ot-tabs">
+            <button class="ot-tab active" onclick="switchTab('overtime')">
+                <i class="fa-solid fa-hourglass-half"></i> ساعات إضافية
+            </button>
+            <button class="ot-tab" onclick="switchTab('friday')">
+                <i class="fa-solid fa-calendar-day"></i> أيام الجمعة
+            </button>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             TAB 1: ساعات إضافية
+        ═══════════════════════════════════════════ -->
+        <div class="ot-pane active" id="pane-overtime">
+
+            <!-- لوحة المساح: إنشاء/تعديل سجل -->
+            <div id="surveyor-ot-panel">
+                <div class="form-section" id="otFormSection">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <h3 style="font-size:1rem;font-weight:800;">
+                            <i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> سجل ساعات إضافية
+                        </h3>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn-sm btn-ghost-sm" onclick="loadOvertimeRecords()">
+                                <i class="fa-solid fa-rotate-right"></i> تحديث
+                            </button>
+                            <button class="btn-sm btn-primary-sm" onclick="openOtModal()">
+                                <i class="fa-solid fa-plus"></i> سجل جديد
+                            </button>
+                        </div>
+                    </div>
+                    <!-- فلتر -->
+                    <div class="filter-bar">
+                        <select id="otFilterMonth" onchange="loadOvertimeRecords()">
+                            <option value="">كل الأشهر</option>
+                        </select>
+                        <select id="otFilterYear" onchange="loadOvertimeRecords()">
+                            <option value="">كل السنوات</option>
+                        </select>
+                        <select id="otFilterStatus" onchange="loadOvertimeRecords()">
+                            <option value="">كل الحالات</option>
+                            <option value="draft">مسودة</option>
+                            <option value="submitted">مرفوع للرئيس</option>
+                            <option value="head_approved">موافقة الرئيس</option>
+                            <option value="admin_approved">موافقة المدير</option>
+                            <option value="rejected">مرفوض</option>
+                        </select>
+                    </div>
+                    <div id="otRecordsList"></div>
+                </div>
+            </div>
+
+            <!-- لوحة رئيس المساحين: الطلبات الواردة -->
+            <div id="head-ot-panel" style="display:none;">
+                <div class="form-section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <h3 style="font-size:1rem;font-weight:800;">
+                            <i class="fa-solid fa-inbox" style="color:#7c3aed;"></i> طلبات الساعات الإضافية الواردة
+                        </h3>
+                        <button class="btn-sm btn-ghost-sm" onclick="loadHeadOtRequests()">
+                            <i class="fa-solid fa-rotate-right"></i> تحديث
+                        </button>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="headOtMonth" onchange="loadHeadOtRequests()">
+                            <option value="">كل الأشهر</option>
+                        </select>
+                        <select id="headOtYear" onchange="loadHeadOtRequests()">
+                            <option value="">كل السنوات</option>
+                        </select>
+                        <select id="headOtStatus" onchange="loadHeadOtRequests()">
+                            <option value="submitted">بانتظار الموافقة</option>
+                            <option value="">الكل</option>
+                            <option value="head_approved">معتمد</option>
+                            <option value="rejected">مرفوض</option>
+                        </select>
+                    </div>
+                    <div id="headOtList"></div>
+                </div>
+            </div>
+
+            <!-- لوحة المدير -->
+            <div id="admin-ot-panel" style="display:none;">
+                <div class="form-section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <h3 style="font-size:1rem;font-weight:800;">
+                            <i class="fa-solid fa-shield-halved" style="color:#0ea5e9;"></i> اعتماد الساعات الإضافية — المدير
+                        </h3>
+                        <button class="btn-sm btn-ghost-sm" onclick="loadAdminOtRequests()">
+                            <i class="fa-solid fa-rotate-right"></i> تحديث
+                        </button>
+                    </div>
+                    <div id="adminOtList"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             TAB 2: أيام الجمعة
+        ═══════════════════════════════════════════ -->
+        <div class="ot-pane" id="pane-friday">
+
+            <!-- لوحة المساح -->
+            <div id="surveyor-fri-panel">
+                <div class="form-section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <h3 style="font-size:1rem;font-weight:800;">
+                            <i class="fa-solid fa-calendar-day" style="color:#7c3aed;"></i> طلبات أيام الجمعة
+                        </h3>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn-sm btn-ghost-sm" onclick="loadFridayRequests()">
+                                <i class="fa-solid fa-rotate-right"></i> تحديث
+                            </button>
+                            <button class="btn-sm btn-purple-sm" onclick="openFridayModal()">
+                                <i class="fa-solid fa-plus"></i> طلب جمعة جديد
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="friFilterYear" onchange="loadFridayRequests()">
+                            <option value="">كل السنوات</option>
+                        </select>
+                        <select id="friFilterMonth" onchange="loadFridayRequests()">
+                            <option value="">كل الأشهر</option>
+                        </select>
+                        <select id="friFilterStatus" onchange="loadFridayRequests()">
+                            <option value="">كل الحالات</option>
+                            <option value="pending">بانتظار الموافقة</option>
+                            <option value="approved">موافق</option>
+                            <option value="rejected">مرفوض</option>
+                        </select>
+                    </div>
+                    <div id="fridayList"></div>
+                </div>
+            </div>
+
+            <!-- لوحة رئيس المساحين: أيام الجمعة + المدفوعات -->
+            <div id="head-fri-panel" style="display:none;">
+                <div class="form-section" style="margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+                        <h3 style="font-size:1rem;font-weight:800;">
+                            <i class="fa-solid fa-calendar-check" style="color:#7c3aed;"></i> طلبات الجمعة الواردة
+                        </h3>
+                        <button class="btn-sm btn-ghost-sm" onclick="loadHeadFridayRequests()">
+                            <i class="fa-solid fa-rotate-right"></i> تحديث
+                        </button>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="headFriMonth" onchange="loadHeadFridayRequests()">
+                            <option value="">كل الأشهر</option>
+                        </select>
+                        <select id="headFriYear" onchange="loadHeadFridayRequests()">
+                            <option value="">كل السنوات</option>
+                        </select>
+                        <select id="headFriStatus" onchange="loadHeadFridayRequests()">
+                            <option value="pending">بانتظار الموافقة</option>
+                            <option value="">الكل</option>
+                        </select>
+                    </div>
+                    <div id="headFriList"></div>
+                </div>
+
+                <!-- متابعة المدفوعات -->
+                <div class="form-section" style="border-right-color:#16a34a;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+                        <h3 style="font-size:1rem;font-weight:800;">
+                            <i class="fa-solid fa-money-bill-wave" style="color:#16a34a;"></i> متابعة المدفوعات
+                        </h3>
+                        <button class="btn-sm btn-success-sm" onclick="exportPaymentSheet()">
+                            <i class="fa-solid fa-file-excel"></i> تصدير كشف المدفوعات
+                        </button>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="payMonth" onchange="loadPaymentTracking()">
+                            <option value="">كل الأشهر</option>
+                        </select>
+                        <select id="payYear" onchange="loadPaymentTracking()">
+                            <option value="">كل السنوات</option>
+                        </select>
+                    </div>
+                    <div id="paymentTrackingList"></div>
+                </div>
+            </div>
+
+        </div><!-- /pane-friday -->
+
+    </main>
+</div>
+
+<!-- ═══ Modal: سجل إضافي جديد ═══ -->
+<div class="modal-overlay hidden" id="otModal">
+    <div class="modal-box">
+        <div class="modal-title">
+            <i class="fa-solid fa-hourglass-half" style="color:var(--primary);"></i>
+            سجل ساعات إضافية جديد
+        </div>
+        <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group">
+                <label>الشهر</label>
+                <select id="otMonth">
+                    <option value="1">يناير</option><option value="2">فبراير</option>
+                    <option value="3">مارس</option><option value="4">أبريل</option>
+                    <option value="5">مايو</option><option value="6">يونيو</option>
+                    <option value="7">يوليو</option><option value="8">أغسطس</option>
+                    <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
+                    <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>السنة</label>
+                <select id="otYear"></select>
+            </div>
+        </div>
+        <div style="margin-bottom:14px;">
+            <div style="font-weight:700;font-size:.9rem;margin-bottom:10px;">
+                <i class="fa-solid fa-users" style="color:var(--primary);"></i> العمال وساعاتهم
+            </div>
+            <div id="otWorkersTable"></div>
+            <div id="otNoWorkers" class="empty-state" style="display:none;padding:20px;">
+                <i class="fa-solid fa-user-slash"></i>
+                لا يوجد عمال مسجلون تحتك.
+                <br><small>أضف عمالاً أولاً من صفحة العمال.</small>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn-sm btn-ghost-sm" onclick="closeOtModal()">إلغاء</button>
+            <button class="btn-sm btn-primary-sm" onclick="saveOvertimeRecord()">
+                <i class="fa-solid fa-floppy-disk"></i> حفظ كمسودة
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Modal: طلب جمعة جديد ═══ -->
+<div class="modal-overlay hidden" id="fridayModal">
+    <div class="modal-box">
+        <div class="modal-title">
+            <i class="fa-solid fa-calendar-day" style="color:#7c3aed;"></i>
+            طلب عمل يوم جمعة
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+            <label>تاريخ الجمعة</label>
+            <input type="date" id="fridayDate">
+            <small id="fridayDateErr" style="color:#dc2626;display:none;">يجب اختيار يوم جمعة فعلاً.</small>
+        </div>
+        <div style="margin-bottom:14px;">
+            <div style="font-weight:700;font-size:.9rem;margin-bottom:8px;">
+                <i class="fa-solid fa-users" style="color:#7c3aed;"></i> العمال المشاركون
+            </div>
+            <div id="friWorkersSelection"></div>
+            <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">
+                <div style="font-size:.85rem;font-weight:700;color:#7c3aed;margin-bottom:8px;">
+                    <i class="fa-solid fa-arrows-turn-to-dots"></i> إضافة عامل مستعار
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="borrowedWorkerName" placeholder="اسم العامل المستعار" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:.88rem;">
+                    <select id="borrowedWorkerSource" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:.88rem;">
+                        <option value="">من عهدة مساح...</option>
+                    </select>
+                    <button class="btn-sm btn-purple-sm" onclick="addBorrowedWorker()">إضافة</button>
+                </div>
+                <div id="borrowedWorkersList" style="margin-top:8px;"></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn-sm btn-ghost-sm" onclick="closeFridayModal()">إلغاء</button>
+            <button class="btn-sm btn-purple-sm" onclick="submitFridayRequest()">
+                <i class="fa-solid fa-paper-plane"></i> إرسال الطلب
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Modal: تأكيد استلام الحساب ═══ -->
+<div class="modal-overlay hidden" id="stampModal">
+    <div class="modal-box" style="max-width:420px;text-align:center;">
+        <div class="modal-title" style="justify-content:center;">
+            <i class="fa-solid fa-circle-check" style="color:#16a34a;font-size:1.3rem;"></i>
+            تأكيد استلام حساب الجمعة
+        </div>
+        <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:20px;">
+            بالضغط على الزر أدناه، تؤكد أنك استلمت المبلغ المستحق ليوم الجمعة المحدد.
+            سيتم وضع ختم رسمي تلقائياً من قِبَل البرنامج.
+        </p>
+        <div class="stamp-box" id="stampPreview" style="display:none;">
+            <span class="stamp-seal">🔏</span>
+            <div class="stamp-text" id="stampText"></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;">
+            <button class="btn-sm btn-ghost-sm" onclick="closeStampModal()">إلغاء</button>
+            <button class="stamp-confirm-btn" id="stampConfirmBtn" onclick="confirmPaymentReceipt()">
+                <i class="fa-solid fa-stamp"></i> استلمت الحساب — ضع الختم
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Modal: تفاصيل سجل الساعات ═══ -->
+<div class="modal-overlay hidden" id="otDetailModal">
+    <div class="modal-box">
+        <div class="modal-title">
+            <i class="fa-solid fa-list" style="color:var(--primary);"></i>
+            تفاصيل سجل الساعات الإضافية
+        </div>
+        <div id="otDetailContent"></div>
+        <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;" id="otDetailActions"></div>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ─── الحالة المحلية ───
+let _currentUser = null;
+let _myWorkers = [];
+let _borrowedList = [];
+let _currentStampRequestId = null;
+
+// ─── Tabs ───
+function switchTab(name) {
+    document.querySelectorAll('.ot-tab').forEach((t,i) => t.classList.toggle('active', ['overtime','friday'][i] === name));
+    document.querySelectorAll('.ot-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('pane-' + name).classList.add('active');
+    if (name === 'overtime') loadOvertimeRecords();
+    else loadFridayRequests();
+}
+
+// ─── Toast ───
+function toast(msg, type='success') {
+    const wrap = document.getElementById('toastWrap');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.style.cssText = `background:${type==='error'?'#991b1b':type==='warning'?'#92400e':'#166534'};color:#fff;padding:11px 18px;border-radius:12px;font-size:.85rem;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);`;
+    el.innerHTML = `<i class="fa-solid fa-${type==='error'?'circle-xmark':type==='warning'?'triangle-exclamation':'circle-check'}"></i>${msg}`;
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+
+// ─── شهور ───
+const MONTHS = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+function fillMonthYearFilters() {
+    const now = new Date();
+    const yr = now.getFullYear();
+    const selects = ['otFilterMonth','otFilterYear','headOtMonth','headOtYear','friFilterMonth','friFilterYear','headFriMonth','headFriYear','payMonth','payYear','otMonth','otYear'];
+    selects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (id.toLowerCase().includes('month')) {
+            for (let m=1;m<=12;m++) { const o=document.createElement('option'); o.value=m; o.textContent=MONTHS[m]; if(m===now.getMonth()+1) o.selected=true; el.appendChild(o); }
+        } else {
+            for (let y=yr-2;y<=yr+1;y++) { const o=document.createElement('option'); o.value=y; o.textContent=y; if(y===yr) o.selected=true; el.appendChild(o); }
+        }
+    });
+}
+
+// ─── Badge ───
+function statusBadge(s) {
+    const map = {
+        draft:'<span class="badge badge-draft"><i class="fa-solid fa-pencil"></i> مسودة</span>',
+        submitted:'<span class="badge badge-pending"><i class="fa-solid fa-clock"></i> بانتظار الرئيس</span>',
+        head_approved:'<span class="badge badge-head"><i class="fa-solid fa-user-check"></i> موافقة الرئيس</span>',
+        admin_approved:'<span class="badge badge-approved"><i class="fa-solid fa-circle-check"></i> معتمد</span>',
+        rejected:'<span class="badge badge-rejected"><i class="fa-solid fa-ban"></i> مرفوض</span>',
+        pending:'<span class="badge badge-pending"><i class="fa-solid fa-clock"></i> بانتظار الرئيس</span>',
+        approved:'<span class="badge badge-approved"><i class="fa-solid fa-circle-check"></i> موافق</span>',
+    };
+    return map[s] || `<span class="badge badge-draft">${s}</span>`;
+}
+function payBadge(s) {
+    return s==='paid'
+        ? '<span class="badge badge-paid"><i class="fa-solid fa-money-bill-wave"></i> مدفوعة</span>'
+        : '<span class="badge badge-unpaid"><i class="fa-solid fa-hourglass"></i> غير مدفوعة</span>';
+}
+
+// ═══════════════════════════════════════════
+//  ساعات إضافية — المساح
+// ═══════════════════════════════════════════
+
+async function loadOvertimeRecords() {
+    if (!_currentUser || _currentUser.role !== 'surveyor') return;
+    const month = document.getElementById('otFilterMonth').value;
+    const year  = document.getElementById('otFilterYear').value;
+    const status= document.getElementById('otFilterStatus').value;
+    const list  = document.getElementById('otRecordsList');
+    list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
+    try {
+        let q = supabaseClient.from('overtime_records').select('*').eq('surveyor_id', _currentUser.id).order('year',{ascending:false}).order('month',{ascending:false});
+        if (month) q = q.eq('month', month);
+        if (year)  q = q.eq('year', year);
+        if (status) q = q.eq('status', status);
+        const { data, error } = await q;
+        if (error) throw error;
+        document.getElementById('cntOvertime').textContent = data.length;
+        document.getElementById('cntPending').textContent = data.filter(r=>r.status==='submitted').length;
+        if (!data.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-inbox"></i>لا توجد سجلات حتى الآن.</div>'; return; }
+        list.innerHTML = data.map(r => `
+            <div class="ot-card ${r.status==='rejected'?'red':r.status==='admin_approved'?'green':r.status==='head_approved'?'':''}" style="cursor:pointer;" onclick="viewOtRecord('${r.id}')">
+                <div class="card-head">
+                    <div class="card-title"><i class="fa-solid fa-file-lines" style="color:var(--primary);margin-left:6px;"></i>${MONTHS[r.month]} ${r.year}</div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        ${statusBadge(r.status)}
+                        ${r.status==='draft'||r.status==='rejected'?`<button class="btn-sm btn-primary-sm" onclick="event.stopPropagation();submitOtRecord('${r.id}')"><i class="fa-solid fa-paper-plane"></i> رفع للرئيس</button>`:''}
+                        ${r.status==='head_approved'?`<button class="btn-sm btn-success-sm" onclick="event.stopPropagation();exportOtExcel('${r.id}')"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>`:''}
+                        ${r.status==='admin_approved'?`<button class="btn-sm btn-success-sm" onclick="event.stopPropagation();exportOtExcel('${r.id}')"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>`:''}
+                    </div>
+                </div>
+                ${r.head_notes?`<div style="font-size:.82rem;color:#92400e;background:#fffbeb;padding:6px 10px;border-radius:8px;margin-top:4px;"><i class="fa-solid fa-comment"></i> ملاحظة الرئيس: ${r.head_notes}</div>`:''}
+            </div>`).join('');
+    } catch(e) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${e.message}</div>`; }
+}
+
+async function openOtModal() {
+    document.getElementById('otModal').classList.remove('hidden');
+    // تحميل العمال
+    const { data: workers } = await supabaseClient.from('workers').select('*').eq('surveyor_id', _currentUser.id).eq('status','active');
+    _myWorkers = workers || [];
+    const container = document.getElementById('otWorkersTable');
+    const noW = document.getElementById('otNoWorkers');
+    if (!_myWorkers.length) { container.innerHTML=''; noW.style.display='block'; return; }
+    noW.style.display='none';
+    container.innerHTML = `
+        <table class="workers-table">
+            <thead><tr><th>اسم العامل</th><th>رقم الهوية</th><th>ساعات الإضافي</th></tr></thead>
+            <tbody>${_myWorkers.map(w=>`
+                <tr>
+                    <td>${w.name}</td>
+                    <td style="color:var(--text-muted);">${w.emp_id||'—'}</td>
+                    <td><input type="number" class="hours-input" id="hrs_${w.id}" min="0" max="99" step="0.5" value="0" placeholder="0"></td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+}
+
+function closeOtModal() { document.getElementById('otModal').classList.add('hidden'); }
+
+async function saveOvertimeRecord() {
+    const month = +document.getElementById('otMonth').value;
+    const year  = +document.getElementById('otYear').value;
+    if (!month || !year) { toast('اختر الشهر والسنة','error'); return; }
+    // جمع الساعات
+    const entries = _myWorkers.map(w => ({ worker_id: w.id, hours: parseFloat(document.getElementById('hrs_'+w.id)?.value||0) })).filter(e=>e.hours>0);
+    if (!entries.length) { toast('أدخل ساعات على الأقل لعامل واحد','error'); return; }
+    try {
+        // إنشاء السجل
+        const { data: rec, error: e1 } = await supabaseClient.from('overtime_records').upsert({
+            surveyor_id: _currentUser.id, month, year, status:'draft'
+        }, { onConflict:'surveyor_id,month,year', ignoreDuplicates:false }).select().single();
+        if (e1) throw e1;
+        // حذف القيود القديمة وإعادة الإدراج
+        await supabaseClient.from('overtime_entries').delete().eq('record_id', rec.id);
+        const { error: e2 } = await supabaseClient.from('overtime_entries').insert(entries.map(e=>({ record_id:rec.id, worker_id:e.worker_id, hours:e.hours })));
+        if (e2) throw e2;
+        closeOtModal();
+        toast('تم حفظ السجل كمسودة بنجاح');
+        loadOvertimeRecords();
+    } catch(e) { toast('خطأ: '+e.message,'error'); }
+}
+
+async function submitOtRecord(id) {
+    if (!confirm('هل تريد رفع هذا السجل لرئيس المساحين للاعتماد؟')) return;
+    const { error } = await supabaseClient.from('overtime_records').update({ status:'submitted', submitted_at: new Date().toISOString() }).eq('id',id);
+    if (error) { toast('خطأ: '+error.message,'error'); return; }
+    // إشعار رئيس المساحين
+    const heads = db?.users?.filter(u=>u.role==='head')||[];
+    heads.forEach(h => addNotification && addNotification(h.id, `طلب اعتماد ساعات إضافية من ${_currentUser.name}`, 'warning', id, false, 'overtime.html', 'overtime_approve', true));
+    toast('تم رفع الطلب لرئيس المساحين');
+    loadOvertimeRecords();
+}
+
+async function viewOtRecord(id) {
+    const modal = document.getElementById('otDetailModal');
+    const content = document.getElementById('otDetailContent');
+    const actions = document.getElementById('otDetailActions');
+    modal.classList.remove('hidden');
+    content.innerHTML = '<div style="color:var(--text-muted)">جارٍ التحميل...</div>';
+    actions.innerHTML = '';
+    try {
+        const { data:rec } = await supabaseClient.from('overtime_records').select('*').eq('id',id).single();
+        const { data:entries } = await supabaseClient.from('overtime_entries').select('*, workers(name, emp_id)').eq('record_id',id);
+        const total = entries?.reduce((s,e)=>s+parseFloat(e.hours),0)||0;
+        content.innerHTML = `
+            <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <strong>${MONTHS[rec.month]} ${rec.year}</strong>
+                ${statusBadge(rec.status)}
+            </div>
+            <table class="workers-table">
+                <thead><tr><th>م</th><th>اسم العامل</th><th>رقم الهوية</th><th>الساعات</th></tr></thead>
+                <tbody>
+                    ${entries?.map((e,i)=>`<tr><td>${i+1}</td><td>${e.workers?.name||'—'}</td><td style="color:var(--text-muted)">${e.workers?.emp_id||'—'}</td><td><strong>${e.hours}</strong> ساعة</td></tr>`).join('')||''}
+                    <tr style="background:#f0fdf4;"><td colspan="3"><strong>الإجمالي</strong></td><td><strong style="color:#15803d;">${total} ساعة</strong></td></tr>
+                </tbody>
+            </table>
+            ${rec.head_notes?`<div style="margin-top:12px;background:#fffbeb;border-right:3px solid #f59e0b;padding:10px;border-radius:8px;font-size:.85rem;">ملاحظة الرئيس: ${rec.head_notes}</div>`:''}
+        `;
+        actions.innerHTML = `<button class="btn-sm btn-ghost-sm" onclick="document.getElementById('otDetailModal').classList.add('hidden')">إغلاق</button>`;
+        if (rec.status==='head_approved'||rec.status==='admin_approved') {
+            actions.innerHTML += `<button class="btn-sm btn-success-sm" onclick="exportOtExcel('${id}')"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>`;
+        }
+    } catch(e) { content.innerHTML = `<div style="color:#dc2626;">خطأ: ${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════
+//  ساعات إضافية — رئيس المساحين
+// ═══════════════════════════════════════════
+
+async function loadHeadOtRequests() {
+    if (!_currentUser || !['head','admin'].includes(_currentUser.role)) return;
+    const month = document.getElementById('headOtMonth').value;
+    const year  = document.getElementById('headOtYear').value;
+    const status= document.getElementById('headOtStatus').value || 'submitted';
+    const list  = document.getElementById('headOtList');
+    list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
+    try {
+        let q = supabaseClient.from('overtime_records').select('*, users(name, empId)').order('created_at',{ascending:false});
+        if (month) q = q.eq('month', month);
+        if (year)  q = q.eq('year', year);
+        if (status) q = q.eq('status', status);
+        const { data, error } = await q;
+        if (error) throw error;
+        if (!data.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-inbox"></i>لا توجد طلبات.</div>'; return; }
+        list.innerHTML = data.map(r=>`
+            <div class="ot-card ${r.status==='rejected'?'red':''}">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">${r.users?.name||'—'} — ${MONTHS[r.month]} ${r.year}</div>
+                        <div style="color:var(--text-muted);font-size:.82rem;">رقم وظيفي: ${r.users?.empId||'—'}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        ${statusBadge(r.status)}
+                        ${r.status==='submitted'?`
+                            <button class="btn-sm btn-success-sm" onclick="approveOtRecord('${r.id}','head_approved')">
+                                <i class="fa-solid fa-check"></i> اعتماد
+                            </button>
+                            <button class="btn-sm btn-danger-sm" onclick="rejectOtRecord('${r.id}')">
+                                <i class="fa-solid fa-ban"></i> رفض
+                            </button>`:''
+                        }
+                        ${r.status==='head_approved'&&_currentUser.role==='admin'?`
+                            <button class="btn-sm btn-success-sm" onclick="approveOtRecord('${r.id}','admin_approved')">
+                                <i class="fa-solid fa-shield-halved"></i> اعتماد نهائي
+                            </button>`:''
+                        }
+                        <button class="btn-sm btn-ghost-sm" onclick="viewOtRecord('${r.id}')">
+                            <i class="fa-solid fa-eye"></i> تفاصيل
+                        </button>
+                        ${(r.status==='head_approved'||r.status==='admin_approved')?`
+                            <button class="btn-sm btn-success-sm" onclick="exportOtExcel('${r.id}')">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </button>`:''
+                        }
+                    </div>
+                </div>
+            </div>`).join('');
+    } catch(e) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${e.message}</div>`; }
+}
+
+async function approveOtRecord(id, newStatus) {
+    const label = newStatus==='admin_approved'?'الاعتماد النهائي':'اعتماد رئيس المساحين';
+    if (!confirm(`تأكيد ${label}؟`)) return;
+    const upd = { status: newStatus };
+    if (newStatus==='head_approved') upd.head_approved_at = new Date().toISOString();
+    if (newStatus==='admin_approved') upd.admin_approved_at = new Date().toISOString();
+    const { error } = await supabaseClient.from('overtime_records').update(upd).eq('id',id);
+    if (error) { toast('خطأ: '+error.message,'error'); return; }
+    toast('تم الاعتماد بنجاح');
+    loadHeadOtRequests();
+    if (_currentUser.role==='admin') loadAdminOtRequests();
+}
+
+async function rejectOtRecord(id) {
+    const notes = prompt('سبب الرفض (اختياري):');
+    if (notes === null) return;
+    const { error } = await supabaseClient.from('overtime_records').update({ status:'rejected', head_notes: notes||null }).eq('id',id);
+    if (error) { toast('خطأ: '+error.message,'error'); return; }
+    toast('تم الرفض','warning');
+    loadHeadOtRequests();
+}
+
+async function loadAdminOtRequests() {
+    if (!_currentUser || _currentUser.role!=='admin') return;
+    const list = document.getElementById('adminOtList');
+    list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
+    const { data, error } = await supabaseClient.from('overtime_records').select('*, users(name, empId)').eq('status','head_approved').order('created_at',{ascending:false});
+    if (error) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${error.message}</div>`; return; }
+    if (!data.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-inbox"></i>لا توجد طلبات بانتظار الاعتماد.</div>'; return; }
+    list.innerHTML = data.map(r=>`
+        <div class="ot-card">
+            <div class="card-head">
+                <div>
+                    <div class="card-title">${r.users?.name||'—'} — ${MONTHS[r.month]} ${r.year}</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-sm btn-success-sm" onclick="approveOtRecord('${r.id}','admin_approved')">
+                        <i class="fa-solid fa-shield-halved"></i> اعتماد نهائي
+                    </button>
+                    <button class="btn-sm btn-ghost-sm" onclick="viewOtRecord('${r.id}')">
+                        <i class="fa-solid fa-eye"></i> تفاصيل
+                    </button>
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  أيام الجمعة — المساح
+// ═══════════════════════════════════════════
+
+async function loadFridayRequests() {
+    if (!_currentUser || _currentUser.role!=='surveyor') return;
+    const month  = document.getElementById('friFilterMonth').value;
+    const year   = document.getElementById('friFilterYear').value;
+    const status = document.getElementById('friFilterStatus').value;
+    const list   = document.getElementById('fridayList');
+    list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
+    try {
+        let q = supabaseClient.from('friday_requests').select('*, friday_workers(*)').eq('surveyor_id',_currentUser.id).order('friday_date',{ascending:false});
+        if (status) q = q.eq('status',status);
+        const { data, error } = await q;
+        if (error) throw error;
+        // فلتر بالشهر والسنة يدويًا بعد الجلب
+        let filtered = data;
+        if (month) filtered = filtered.filter(r=>new Date(r.friday_date).getMonth()+1 === +month);
+        if (year)  filtered = filtered.filter(r=>new Date(r.friday_date).getFullYear() === +year);
+        const thisYear = new Date().getFullYear();
+        const fridaysThisYear = data.filter(r=>new Date(r.friday_date).getFullYear()===thisYear);
+        document.getElementById('cntFridays').textContent = fridaysThisYear.length;
+        document.getElementById('cntPaid').textContent = fridaysThisYear.filter(r=>r.payment_status==='paid').length;
+        if (!filtered.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-calendar-xmark"></i>لا توجد طلبات جمعة.</div>'; return; }
+        list.innerHTML = filtered.map(r => {
+            const d = new Date(r.friday_date);
+            const dateStr = d.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+            const workers = r.friday_workers||[];
+            return `
+            <div class="ot-card ${r.status==='rejected'?'red':r.status==='approved'?'green':'amber'}">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title"><i class="fa-solid fa-calendar-day" style="margin-left:6px;color:#7c3aed;"></i>${dateStr}</div>
+                        <div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;">
+                            ${statusBadge(r.status)} ${payBadge(r.payment_status)}
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                        ${r.status==='approved'&&r.payment_status==='unpaid'?`
+                            <button class="btn-sm btn-success-sm" onclick="openStampModal('${r.id}')">
+                                <i class="fa-solid fa-stamp"></i> استلمت الحساب
+                            </button>`:''
+                        }
+                    </div>
+                </div>
+                <div style="margin-top:8px;">
+                    <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">العمال المشاركون (${workers.length}):</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        ${workers.map(w=>`
+                            <span style="background:${w.worker_type==='borrowed'?'#ede9fe':'#f0fdf4'};color:${w.worker_type==='borrowed'?'#6d28d9':'#15803d'};padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:700;">
+                                ${w.worker_type==='borrowed'?'<i class="fa-solid fa-arrows-turn-to-dots"></i> ':''}${w.worker_name}
+                            </span>`).join('')}
+                    </div>
+                </div>
+                ${r.stamp_data?`
+                    <div class="stamp-box" style="margin-top:10px;">
+                        <span class="stamp-seal">🔏</span>
+                        <div class="stamp-text">${r.stamp_data.text||''}</div>
+                    </div>`:''}
+            </div>`;
+        }).join('');
+    } catch(e) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${e.message}</div>`; }
+}
+
+async function openFridayModal() {
+    _borrowedList = [];
+    document.getElementById('borrowedWorkersList').innerHTML = '';
+    document.getElementById('borrowedWorkerName').value = '';
+    document.getElementById('fridayDateErr').style.display = 'none';
+    // تعيين أقرب جمعة
+    const today = new Date();
+    const day = today.getDay();
+    const diff = day<=5 ? 5-day : 6;
+    const nextFri = new Date(today); nextFri.setDate(today.getDate()+diff);
+    document.getElementById('fridayDate').value = nextFri.toISOString().split('T')[0];
+    // تحميل العمال
+    const { data:workers } = await supabaseClient.from('workers').select('*').eq('surveyor_id',_currentUser.id).eq('status','active');
+    _myWorkers = workers||[];
+    document.getElementById('friWorkersSelection').innerHTML = _myWorkers.length
+        ? _myWorkers.map(w=>`
+            <label class="fri-worker-row" style="cursor:pointer;">
+                <input type="checkbox" value="${w.id}" data-name="${w.name}" checked style="transform:scale(1.1);">
+                <span class="fri-worker-name">${w.name}</span>
+                <span style="font-size:.78rem;color:var(--text-muted);">${w.emp_id||''}</span>
+            </label>`).join('')
+        : '<div style="color:var(--text-muted);font-size:.85rem;padding:8px;">لا يوجد عمال مسجلون.</div>';
+    // تحميل المساحين للإعارة
+    const { data:surveyors } = await supabaseClient.from('users').select('id,name').eq('role','surveyor').neq('id',_currentUser.id);
+    const src = document.getElementById('borrowedWorkerSource');
+    src.innerHTML = '<option value="">من عهدة مساح...</option>' + (surveyors||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+    document.getElementById('fridayModal').classList.remove('hidden');
+}
+
+function closeFridayModal() { document.getElementById('fridayModal').classList.add('hidden'); }
+
+function addBorrowedWorker() {
+    const name = document.getElementById('borrowedWorkerName').value.trim();
+    const src  = document.getElementById('borrowedWorkerSource');
+    const srcId = src.value;
+    const srcName = src.options[src.selectedIndex]?.text || '';
+    if (!name) { toast('أدخل اسم العامل المستعار','error'); return; }
+    if (!srcId) { toast('اختر المساح المصدر','error'); return; }
+    _borrowedList.push({ worker_name:name, worker_type:'borrowed', source_surveyor_id:srcId, borrow_status:'pending', _srcName:srcName });
+    renderBorrowedList();
+    document.getElementById('borrowedWorkerName').value='';
+    src.value='';
+}
+
+function renderBorrowedList() {
+    document.getElementById('borrowedWorkersList').innerHTML = _borrowedList.map((b,i)=>`
+        <div class="fri-worker-row">
+            <span class="borrowed-tag"><i class="fa-solid fa-arrows-turn-to-dots"></i> مستعار</span>
+            <span class="fri-worker-name">${b.worker_name}</span>
+            <span style="font-size:.78rem;color:var(--text-muted);">من: ${b._srcName}</span>
+            <button class="btn-sm btn-danger-sm" style="padding:3px 8px;" onclick="removeBorrowed(${i})">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>`).join('');
+}
+
+function removeBorrowed(i) { _borrowedList.splice(i,1); renderBorrowedList(); }
+
+async function submitFridayRequest() {
+    const dateVal = document.getElementById('fridayDate').value;
+    if (!dateVal) { toast('اختر تاريخ الجمعة','error'); return; }
+    const d = new Date(dateVal);
+    if (d.getDay()!==5) { document.getElementById('fridayDateErr').style.display='block'; return; }
+    document.getElementById('fridayDateErr').style.display='none';
+    // العمال المحددين
+    const checked = [...document.querySelectorAll('#friWorkersSelection input[type=checkbox]:checked')];
+    const ownWorkers = checked.map(c=>({ worker_id:c.value, worker_name:c.dataset.name, worker_type:'own', borrow_status:'approved' }));
+    const allWorkers = [...ownWorkers, ..._borrowedList.map(b=>({ worker_name:b.worker_name, worker_type:'borrowed', source_surveyor_id:b.source_surveyor_id, borrow_status:'pending' }))];
+    if (!allWorkers.length) { toast('أضف عمالاً على الأقل','error'); return; }
+    try {
+        const { data:req, error:e1 } = await supabaseClient.from('friday_requests').insert({ surveyor_id:_currentUser.id, friday_date:dateVal, status:'pending' }).select().single();
+        if (e1) throw e1;
+        const { error:e2 } = await supabaseClient.from('friday_workers').insert(allWorkers.map(w=>({ ...w, request_id:req.id })));
+        if (e2) throw e2;
+        // إشعار رئيس المساحين
+        const heads = db?.users?.filter(u=>u.role==='head')||[];
+        heads.forEach(h => addNotification && addNotification(h.id, `طلب عمل جمعة من ${_currentUser.name} — ${dateVal}`, 'warning', req.id, false, 'overtime.html', 'friday_approve', true));
+        closeFridayModal();
+        toast('تم إرسال الطلب لرئيس المساحين بنجاح');
+        loadFridayRequests();
+    } catch(e) { toast('خطأ: '+e.message,'error'); }
+}
+
+// ═══════════════════════════════════════════
+//  أيام الجمعة — رئيس المساحين
+// ═══════════════════════════════════════════
+
+async function loadHeadFridayRequests() {
+    if (!_currentUser||!['head','admin'].includes(_currentUser.role)) return;
+    const month  = document.getElementById('headFriMonth').value;
+    const year   = document.getElementById('headFriYear').value;
+    const status = document.getElementById('headFriStatus').value||'pending';
+    const list   = document.getElementById('headFriList');
+    list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
+    try {
+        let q = supabaseClient.from('friday_requests').select('*, users(name, empId), friday_workers(*)').order('friday_date',{ascending:false});
+        if (status) q = q.eq('status',status);
+        const { data, error } = await q;
+        if (error) throw error;
+        let filtered = data;
+        if (month) filtered = filtered.filter(r=>new Date(r.friday_date).getMonth()+1===+month);
+        if (year)  filtered = filtered.filter(r=>new Date(r.friday_date).getFullYear()===+year);
+        if (!filtered.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-inbox"></i>لا توجد طلبات.</div>'; return; }
+        list.innerHTML = filtered.map(r=>{
+            const dateStr = new Date(r.friday_date).toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+            const workers = r.friday_workers||[];
+            return `
+            <div class="ot-card ${r.status==='rejected'?'red':r.status==='approved'?'green':'amber'}">
+                <div class="card-head">
+                    <div>
+                        <div class="card-title">${r.users?.name||'—'} — ${dateStr}</div>
+                        <div style="color:var(--text-muted);font-size:.82rem;">رقم وظيفي: ${r.users?.empId||'—'}</div>
+                        <div style="margin-top:4px;">${statusBadge(r.status)} ${payBadge(r.payment_status)}</div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">
+                        ${r.status==='pending'?`
+                            <button class="btn-sm btn-success-sm" onclick="approveFriday('${r.id}')"><i class="fa-solid fa-check"></i> موافقة</button>
+                            <button class="btn-sm btn-danger-sm" onclick="rejectFriday('${r.id}')"><i class="fa-solid fa-ban"></i> رفض</button>
+                        `:''}
+                        ${r.status==='approved'&&r.payment_status==='unpaid'?`
+                            <button class="btn-sm btn-warning-sm" onclick="markFridayPaid('${r.id}')"><i class="fa-solid fa-money-bill-wave"></i> تسجيل دفع</button>
+                        `:''}
+                    </div>
+                </div>
+                <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+                    ${workers.map(w=>`<span style="background:${w.worker_type==='borrowed'?'#ede9fe':'#f0fdf4'};color:${w.worker_type==='borrowed'?'#6d28d9':'#15803d'};padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:700;">
+                        ${w.worker_type==='borrowed'?'↔ ':''} ${w.worker_name}
+                        ${w.borrow_status==='pending'?'<span style="color:#f59e0b;"> (بانتظار الإعارة)</span>':''}
+                    </span>`).join('')}
+                </div>
+            </div>`;
+        }).join('');
+    } catch(e) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${e.message}</div>`; }
+}
+
+async function approveFriday(id) {
+    if (!confirm('تأكيد الموافقة على هذا الطلب؟')) return;
+    const { error } = await supabaseClient.from('friday_requests').update({ status:'approved' }).eq('id',id);
+    if (error) { toast('خطأ: '+error.message,'error'); return; }
+    // قبول العمال المستعارين
+    await supabaseClient.from('friday_workers').update({ borrow_status:'approved' }).eq('request_id',id).eq('worker_type','borrowed');
+    toast('تم الموافقة على الطلب');
+    loadHeadFridayRequests();
+    loadPaymentTracking();
+}
+
+async function rejectFriday(id) {
+    const notes = prompt('سبب الرفض (اختياري):');
+    if (notes===null) return;
+    const { error } = await supabaseClient.from('friday_requests').update({ status:'rejected', head_notes:notes||null }).eq('id',id);
+    if (error) { toast('خطأ: '+error.message,'error'); return; }
+    toast('تم الرفض','warning');
+    loadHeadFridayRequests();
+}
+
+async function markFridayPaid(id) {
+    if (!confirm('تأكيد تسجيل صرف المبلغ لهذا اليوم؟')) return;
+    const { error } = await supabaseClient.from('friday_requests').update({ payment_status:'paid' }).eq('id',id);
+    if (error) { toast('خطأ: '+error.message,'error'); return; }
+    toast('تم تسجيل الدفع بنجاح');
+    loadHeadFridayRequests();
+    loadPaymentTracking();
+}
+
+// ═══════════════════════════════════════════
+//  متابعة المدفوعات
+// ═══════════════════════════════════════════
+
+async function loadPaymentTracking() {
+    if (!_currentUser||!['head','admin'].includes(_currentUser.role)) return;
+    const month = document.getElementById('payMonth').value;
+    const year  = document.getElementById('payYear').value;
+    const list  = document.getElementById('paymentTrackingList');
+    list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
+    try {
+        let q = supabaseClient.from('friday_requests').select('*, users(name, empId)').eq('status','approved').order('friday_date',{ascending:false});
+        const { data, error } = await q;
+        if (error) throw error;
+        let filtered = data;
+        if (month) filtered = filtered.filter(r=>new Date(r.friday_date).getMonth()+1===+month);
+        if (year)  filtered = filtered.filter(r=>new Date(r.friday_date).getFullYear()===+year);
+        // تجميع بالمساح
+        const bySurveyor = {};
+        filtered.forEach(r=>{
+            const key = r.surveyor_id;
+            if (!bySurveyor[key]) bySurveyor[key] = { name:r.users?.name||'—', empId:r.users?.empId||'—', total:0, paid:0, unpaid:0 };
+            bySurveyor[key].total++;
+            if (r.payment_status==='paid') bySurveyor[key].paid++;
+            else bySurveyor[key].unpaid++;
+        });
+        const rows = Object.values(bySurveyor);
+        if (!rows.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-chart-pie"></i>لا توجد بيانات.</div>'; return; }
+        list.innerHTML = `
+            <table class="workers-table">
+                <thead><tr><th>المساح</th><th>الرقم الوظيفي</th><th>إجمالي الجمع</th><th>مدفوعة</th><th>غير مدفوعة</th></tr></thead>
+                <tbody>${rows.map(r=>`
+                    <tr>
+                        <td><strong>${r.name}</strong></td>
+                        <td style="color:var(--text-muted);">${r.empId}</td>
+                        <td><strong>${r.total}</strong></td>
+                        <td style="color:#15803d;font-weight:700;">${r.paid}</td>
+                        <td style="color:${r.unpaid?'#dc2626':'var(--text-muted)'};font-weight:700;">${r.unpaid||'—'}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>`;
+    } catch(e) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════
+//  ختم الاستلام
+// ═══════════════════════════════════════════
+
+function openStampModal(requestId) {
+    _currentStampRequestId = requestId;
+    document.getElementById('stampPreview').style.display = 'none';
+    document.getElementById('stampConfirmBtn').disabled = false;
+    document.getElementById('stampModal').classList.remove('hidden');
+}
+
+function closeStampModal() { document.getElementById('stampModal').classList.add('hidden'); _currentStampRequestId=null; }
+
+async function confirmPaymentReceipt() {
+    if (!_currentStampRequestId) return;
+    const btn = document.getElementById('stampConfirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ وضع الختم...';
+    const now = new Date();
+    const stampData = {
+        name: _currentUser.name,
+        empId: _currentUser.empId,
+        timestamp: now.toISOString(),
+        text: `✅ استلمت الحساب\n${_currentUser.name} — رقم وظيفي: ${_currentUser.empId}\n${now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}\nالتوقيت: ${now.toLocaleTimeString('ar-SA')}\nختم رسمي — نظام ساجكو`
+    };
+    const { error } = await supabaseClient.from('friday_requests').update({
+        payment_status: 'paid',
+        payment_confirmed_at: now.toISOString(),
+        stamp_data: stampData
+    }).eq('id', _currentStampRequestId);
+    if (error) { toast('خطأ: '+error.message,'error'); btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-stamp"></i> استلمت الحساب — ضع الختم'; return; }
+    // عرض الختم
+    document.getElementById('stampText').textContent = stampData.text;
+    document.getElementById('stampPreview').style.display = 'block';
+    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> تم وضع الختم';
+    toast('تم تسجيل الاستلام بنجاح مع الختم الرسمي');
+    setTimeout(()=>{ closeStampModal(); loadFridayRequests(); }, 2000);
+}
+
+// ═══════════════════════════════════════════
+//  تصدير Excel
+// ═══════════════════════════════════════════
+
+async function exportOtExcel(recordId) {
+    const { data:rec } = await supabaseClient.from('overtime_records').select('*, users(name, empId)').eq('id',recordId).single();
+    const { data:entries } = await supabaseClient.from('overtime_entries').select('*, workers(name, emp_id)').eq('record_id',recordId);
+    if (!entries?.length) { toast('لا توجد بيانات للتصدير','warning'); return; }
+    _waitXLSX(()=>{
+        const wb = XLSX.utils.book_new();
+        // ورقة البيانات
+        const header = [
+            ['شركة شبه الجزيرة للمساحة — ساجكو'],
+            ['كشف ساعات العمل الإضافية'],
+            [`المساح: ${rec.users?.name||'—'}`, '', `الرقم الوظيفي: ${rec.users?.empId||'—'}`],
+            [`الشهر: ${MONTHS[rec.month]} ${rec.year}`],
+            [],
+            ['م', 'اسم العامل', 'رقم الهوية', 'ساعات العمل الإضافية'],
+        ];
+        const dataRows = entries.map((e,i)=>[i+1, e.workers?.name||'—', e.workers?.emp_id||'—', e.hours]);
+        const total = entries.reduce((s,e)=>s+parseFloat(e.hours),0);
+        const footerRows = [
+            [],
+            ['', '', 'الإجمالي', total],
+            [],
+            ['تاريخ الإصدار:', new Date().toLocaleDateString('ar-SA')],
+            ['الحالة:', rec.status==='admin_approved'?'معتمد نهائياً':'موافقة رئيس المساحين'],
+        ];
+        const ws = XLSX.utils.aoa_to_sheet([...header,...dataRows,...footerRows]);
+        // تنسيق الأعمدة
+        ws['!cols'] = [{wch:5},{wch:25},{wch:18},{wch:20}];
+        ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}},{s:{r:3,c:0},e:{r:3,c:3}}];
+        XLSX.utils.book_append_sheet(wb, ws, 'الساعات الإضافية');
+        XLSX.writeFile(wb, `إضافي_${rec.users?.name||'مساح'}_${MONTHS[rec.month]}_${rec.year}.xlsx`);
+    });
+}
+
+async function exportPaymentSheet() {
+    const month = document.getElementById('payMonth').value;
+    const year  = document.getElementById('payYear').value;
+    let q = supabaseClient.from('friday_requests').select('*, users(name, empId), friday_workers(worker_name, worker_type)').eq('status','approved').order('friday_date');
+    const { data } = await q;
+    if (!data?.length) { toast('لا توجد بيانات','warning'); return; }
+    let filtered = data;
+    if (month) filtered = filtered.filter(r=>new Date(r.friday_date).getMonth()+1===+month);
+    if (year)  filtered = filtered.filter(r=>new Date(r.friday_date).getFullYear()===+year);
+    _waitXLSX(()=>{
+        const wb = XLSX.utils.book_new();
+        // ورقة ملخص المساحين
+        const bySurveyor = {};
+        filtered.forEach(r=>{
+            const key = r.surveyor_id;
+            if (!bySurveyor[key]) bySurveyor[key]={ name:r.users?.name||'—', empId:r.users?.empId||'—', total:0, paid:0, unpaid:0, rows:[] };
+            bySurveyor[key].total++;
+            if (r.payment_status==='paid') bySurveyor[key].paid++;
+            else bySurveyor[key].unpaid++;
+            bySurveyor[key].rows.push(r);
+        });
+        const summaryHeader = [
+            ['شركة شبه الجزيرة للمساحة — ساجكو'],
+            ['كشف أيام الجمعة والمدفوعات'],
+            [`${month?MONTHS[+month]:''} ${year||new Date().getFullYear()}`],
+            [],
+            ['م','المساح','الرقم الوظيفي','إجمالي الجمع','مدفوعة','غير مدفوعة'],
+        ];
+        const summaryRows = Object.values(bySurveyor).map((s,i)=>[i+1,s.name,s.empId,s.total,s.paid,s.unpaid]);
+        const summaryWs = XLSX.utils.aoa_to_sheet([...summaryHeader,...summaryRows]);
+        summaryWs['!cols']=[{wch:5},{wch:25},{wch:15},{wch:15},{wch:12},{wch:15}];
+        summaryWs['!merges']=[{s:{r:0,c:0},e:{r:0,c:5}},{s:{r:1,c:0},e:{r:1,c:5}},{s:{r:2,c:0},e:{r:2,c:5}}];
+        XLSX.utils.book_append_sheet(wb, summaryWs, 'ملخص المساحين');
+        // ورقة تفصيلية لكل مساح
+        Object.values(bySurveyor).forEach(s=>{
+            const detailHeader=[
+                ['شركة شبه الجزيرة للمساحة — ساجكو'],
+                [`المساح: ${s.name} — رقم وظيفي: ${s.empId}`],
+                [],
+                ['م','التاريخ','العمال المشاركون','حالة الدفع','ملاحظات الختم'],
+            ];
+            const detailRows = s.rows.map((r,i)=>{
+                const workers = (r.friday_workers||[]).map(w=>w.worker_name).join('، ');
+                const stamp = r.stamp_data?.text ? '✅ '+r.stamp_data.timestamp?.slice(0,10) : '—';
+                return [i+1, r.friday_date, workers, r.payment_status==='paid'?'مدفوعة':'غير مدفوعة', stamp];
+            });
+            const stampsSection = s.rows.filter(r=>r.stamp_data).map(r=>[
+                '', `تأكيد الاستلام: ${r.stamp_data?.name}`, '', `التاريخ: ${r.stamp_data?.timestamp?.slice(0,10)}`, `الرقم الوظيفي: ${r.stamp_data?.empId}`
+            ]);
+            const ws = XLSX.utils.aoa_to_sheet([...detailHeader,...detailRows,[],...stampsSection]);
+            ws['!cols']=[{wch:5},{wch:15},{wch:35},{wch:15},{wch:30}];
+            ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}}];
+            XLSX.utils.book_append_sheet(wb, ws, s.name.slice(0,30));
+        });
+        const periodLabel = `${month?MONTHS[+month]+'_':''}${year||new Date().getFullYear()}`;
+        XLSX.writeFile(wb, `كشف_الجمعة_${periodLabel}.xlsx`);
+    });
+}
+
+// ═══════════════════════════════════════════
+//  التهيئة
+// ═══════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', async()=>{
+    await initApp();
+    _currentUser = getCurrentUser ? getCurrentUser() : currentUser;
+    if (!_currentUser) { window.location.href='index.html'; return; }
+    fillMonthYearFilters();
+    // إظهار اللوحات حسب الدور
+    const role = _currentUser.role;
+    document.getElementById('surveyor-ot-panel').style.display = role==='surveyor'?'block':'none';
+    document.getElementById('head-ot-panel').style.display     = ['head','admin'].includes(role)?'block':'none';
+    document.getElementById('admin-ot-panel').style.display    = role==='admin'?'block':'none';
+    document.getElementById('surveyor-fri-panel').style.display= role==='surveyor'?'block':'none';
+    document.getElementById('head-fri-panel').style.display    = ['head','admin'].includes(role)?'block':'none';
+    // تحميل البيانات
+    if (role==='surveyor') { loadOvertimeRecords(); loadFridayRequests(); }
+    if (['head','admin'].includes(role)) { loadHeadOtRequests(); loadHeadFridayRequests(); loadPaymentTracking(); }
+    if (role==='admin') loadAdminOtRequests();
+});
+</script>
+</body>
+</html>

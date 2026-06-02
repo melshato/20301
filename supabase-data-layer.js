@@ -438,6 +438,20 @@ const SupabaseAuth = {
      */
     async signUp(email, password, userData) {
         try {
+            // 0. التحقق من الرقم الوظيفي على مستوى الخادم قبل أي عملية
+            const allowedDefaults = ['1', '999'];
+            if (!allowedDefaults.includes(String(userData.empId))) {
+                const { data: empCheck, error: empError } = await supabaseClient
+                    .from('allowed_employee_ids')
+                    .select('emp_id')
+                    .eq('emp_id', String(userData.empId))
+                    .maybeSingle();
+                if (empError) throw empError;
+                if (!empCheck) {
+                    return { success: false, error: 'الرقم الوظيفي غير مسموح به' };
+                }
+            }
+
             // 1. إنشاء الحساب في Supabase Auth
             const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                 email: email,
