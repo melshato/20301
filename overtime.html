@@ -157,23 +157,65 @@
         ═══════════════════════════════════════════ -->
         <div class="ot-pane active" id="pane-overtime">
 
-            <!-- لوحة المساح: إنشاء/تعديل سجل -->
+            <!-- لوحة المساح: إدخال الإجمالي الشهري -->
             <div id="surveyor-ot-panel">
-                <div class="form-section" id="otFormSection">
+                <!-- نموذج الإدخال الشهري - ظاهر دائماً -->
+                <div class="form-section" style="border-right: 4px solid var(--primary);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
                         <h3 style="font-size:1rem;font-weight:800;">
-                            <i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> سجل ساعات إضافية
+                            <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> 
+                            الإجمالي الشهري للساعات الإضافية
                         </h3>
-                        <div style="display:flex;gap:8px;">
-                            <button class="btn-sm btn-ghost-sm" onclick="loadOvertimeRecords()">
-                                <i class="fa-solid fa-rotate-right"></i> تحديث
-                            </button>
-                            <button class="btn-sm btn-primary-sm" onclick="openOtModal()">
-                                <i class="fa-solid fa-plus"></i> سجل جديد
-                            </button>
+                        <button class="btn-sm btn-ghost-sm" onclick="loadOvertimeRecords()">
+                            <i class="fa-solid fa-rotate-right"></i> تحديث
+                        </button>
+                    </div>
+                    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">
+                        <i class="fa-solid fa-circle-info"></i> 
+                        أدخل إجمالي الساعات الإضافية لكل عامل عن الشهر الحالي. يُرفع للسجل مرة واحدة شهرياً.
+                    </p>
+                    <div class="form-row" style="margin-bottom:14px;">
+                        <div class="form-group">
+                            <label>الشهر</label>
+                            <select id="otMonth" onchange="loadMonthlyWorkers()">
+                                <option value="1">يناير</option><option value="2">فبراير</option>
+                                <option value="3">مارس</option><option value="4">أبريل</option>
+                                <option value="5">مايو</option><option value="6">يونيو</option>
+                                <option value="7">يوليو</option><option value="8">أغسطس</option>
+                                <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
+                                <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>السنة</label>
+                            <select id="otYear" onchange="loadMonthlyWorkers()"></select>
                         </div>
                     </div>
-                    <!-- فلتر -->
+                    <div style="margin-bottom:14px;">
+                        <div style="font-weight:700;font-size:.9rem;margin-bottom:10px;">
+                            <i class="fa-solid fa-users" style="color:var(--primary);"></i> 
+                            العمال - إجمالي الساعات الإضافية للشهر
+                        </div>
+                        <div id="otWorkersTable"></div>
+                        <div id="otNoWorkers" class="empty-state" style="display:none;padding:20px;">
+                            <i class="fa-solid fa-user-slash"></i>
+                            لا يوجد عمال مسجلون تحتك.
+                            <br><small>أضف عمالاً أولاً من صفحة العمال.</small>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;" id="otFormActions">
+                        <button class="btn-sm btn-primary-sm" onclick="saveOvertimeRecord()">
+                            <i class="fa-solid fa-floppy-disk"></i> حفظ كمسودة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- السجلات السابقة -->
+                <div class="form-section">
+                    <h3 style="font-size:1rem;font-weight:800;margin-bottom:12px;">
+                        <i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i> 
+                        السجلات السابقة
+                    </h3>
                     <div class="filter-bar">
                         <select id="otFilterMonth" onchange="loadOvertimeRecords()">
                             <option value="">كل الأشهر</option>
@@ -333,48 +375,6 @@
 </div>
 
 <!-- ═══ Modal: سجل إضافي جديد ═══ -->
-<div class="modal-overlay hidden" id="otModal">
-    <div class="modal-box">
-        <div class="modal-title">
-            <i class="fa-solid fa-hourglass-half" style="color:var(--primary);"></i>
-            سجل ساعات إضافية جديد
-        </div>
-        <div class="form-row" style="margin-bottom:14px;">
-            <div class="form-group">
-                <label>الشهر</label>
-                <select id="otMonth">
-                    <option value="1">يناير</option><option value="2">فبراير</option>
-                    <option value="3">مارس</option><option value="4">أبريل</option>
-                    <option value="5">مايو</option><option value="6">يونيو</option>
-                    <option value="7">يوليو</option><option value="8">أغسطس</option>
-                    <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
-                    <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>السنة</label>
-                <select id="otYear"></select>
-            </div>
-        </div>
-        <div style="margin-bottom:14px;">
-            <div style="font-weight:700;font-size:.9rem;margin-bottom:10px;">
-                <i class="fa-solid fa-users" style="color:var(--primary);"></i> العمال وساعاتهم
-            </div>
-            <div id="otWorkersTable"></div>
-            <div id="otNoWorkers" class="empty-state" style="display:none;padding:20px;">
-                <i class="fa-solid fa-user-slash"></i>
-                لا يوجد عمال مسجلون تحتك.
-                <br><small>أضف عمالاً أولاً من صفحة العمال.</small>
-            </div>
-        </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button class="btn-sm btn-ghost-sm" onclick="closeOtModal()">إلغاء</button>
-            <button class="btn-sm btn-primary-sm" onclick="saveOvertimeRecord()">
-                <i class="fa-solid fa-floppy-disk"></i> حفظ كمسودة
-            </button>
-        </div>
-    </div>
-</div>
 
 <!-- ═══ Modal: طلب جمعة جديد ═══ -->
 <div class="modal-overlay hidden" id="fridayModal">
@@ -487,16 +487,24 @@ const MONTHS = ['','يناير','فبراير','مارس','أبريل','مايو
 function fillMonthYearFilters() {
     const now = new Date();
     const yr = now.getFullYear();
-    const selects = ['otFilterMonth','otFilterYear','headOtMonth','headOtYear','friFilterMonth','friFilterYear','headFriMonth','headFriYear','payMonth','payYear','otMonth','otYear'];
+    const thisMonth = now.getMonth() + 1;
+    const selects = ['otFilterMonth','otFilterYear','headOtMonth','headOtYear','friFilterMonth','friFilterYear','headFriMonth','headFriYear','payMonth','payYear'];
     selects.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
         if (id.toLowerCase().includes('month')) {
-            for (let m=1;m<=12;m++) { const o=document.createElement('option'); o.value=m; o.textContent=MONTHS[m]; if(m===now.getMonth()+1) o.selected=true; el.appendChild(o); }
+            for (let m=1;m<=12;m++) { const o=document.createElement('option'); o.value=m; o.textContent=MONTHS[m]; if(m===thisMonth) o.selected=true; el.appendChild(o); }
         } else {
             for (let y=yr-2;y<=yr+1;y++) { const o=document.createElement('option'); o.value=y; o.textContent=y; if(y===yr) o.selected=true; el.appendChild(o); }
         }
     });
+    // تعيين القيم الافتراضية للنموذج المضمن
+    const otMonth = document.getElementById('otMonth');
+    const otYear = document.getElementById('otYear');
+    if (otMonth) otMonth.value = thisMonth;
+    if (otYear) {
+        for (let y=yr-2;y<=yr+1;y++) { const o=document.createElement('option'); o.value=y; o.textContent=y; if(y===yr) o.selected=true; otYear.appendChild(o); }
+    }
 }
 
 // ─── Badge ───
@@ -521,6 +529,75 @@ function payBadge(s) {
 // ═══════════════════════════════════════════
 //  ساعات إضافية — المساح
 // ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+//  ساعات إضافية — المساح (نموذج الإجمالي الشهري)
+// ═══════════════════════════════════════════
+
+async function loadMonthlyWorkers() {
+    if (!_currentUser || _currentUser.role !== 'surveyor') return;
+    const { data: workers } = await supabaseClient.from('workers').select('*').eq('surveyor_id', _currentUser.id).eq('status', 'active');
+    _myWorkers = workers || [];
+    const container = document.getElementById('otWorkersTable');
+    const noW = document.getElementById('otNoWorkers');
+    if (!_myWorkers.length) { container.innerHTML = ''; noW.style.display = 'block'; return; }
+    noW.style.display = 'none';
+    
+    // تحميل القيم السابقة إذا وُجد سجل لنفس الشهر/السنة
+    const month = +document.getElementById('otMonth').value;
+    const year = +document.getElementById('otYear').value;
+    let existingEntries = {};
+    if (month && year) {
+        const { data: existingRec } = await supabaseClient
+            .from('overtime_records')
+            .select('id, status')
+            .eq('surveyor_id', _currentUser.id)
+            .eq('month', month)
+            .eq('year', year)
+            .maybeSingle();
+        if (existingRec) {
+            const { data: entries } = await supabaseClient
+                .from('overtime_entries')
+                .select('worker_id, hours')
+                .eq('record_id', existingRec.id);
+            (entries || []).forEach(e => { existingEntries[e.worker_id] = e.hours; });
+            // عرض الحالة الحالية
+            const statusLabel = existingRec.status === 'draft' ? ' (مسودة)' :
+                existingRec.status === 'submitted' ? ' (مرفوع)' :
+                existingRec.status === 'head_approved' ? ' (معتمد رئيس)' :
+                existingRec.status === 'admin_approved' ? ' (معتمد نهائي)' : '';
+            const actionsDiv = document.getElementById('otFormActions');
+            if (existingRec.status === 'draft') {
+                actionsDiv.innerHTML = `
+                    <span style="color:#92400e;font-size:.82rem;flex:1;"><i class="fa-solid fa-pencil"></i> مسودة قابلة للتعديل${statusLabel}</span>
+                    <button class="btn-sm btn-primary-sm" onclick="saveOvertimeRecord()"><i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات</button>
+                    <button class="btn-sm btn-primary-sm" style="background:#d97706;" onclick="submitOtRecord('${existingRec.id}')"><i class="fa-solid fa-paper-plane"></i> رفع للرئيس</button>`;
+            } else if (existingRec.status === 'rejected') {
+                actionsDiv.innerHTML = `
+                    <span style="color:#dc2626;font-size:.82rem;flex:1;"><i class="fa-solid fa-ban"></i> مرفوض - يمكنك التعديل وإعادة الرفع</span>
+                    <button class="btn-sm btn-primary-sm" onclick="saveOvertimeRecord()"><i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات</button>
+                    <button class="btn-sm btn-primary-sm" style="background:#d97706;" onclick="submitOtRecord('${existingRec.id}')"><i class="fa-solid fa-paper-plane"></i> رفع للرئيس</button>`;
+            } else {
+                actionsDiv.innerHTML = `<span style="color:var(--text-muted);font-size:.82rem;flex:1;"><i class="fa-solid fa-circle-check"></i> الحالة: ${statusLabel} - لا يمكن التعديل</span>`;
+            }
+        } else {
+            document.getElementById('otFormActions').innerHTML = `
+                <button class="btn-sm btn-primary-sm" onclick="saveOvertimeRecord()"><i class="fa-solid fa-floppy-disk"></i> حفظ كمسودة</button>`;
+        }
+    }
+    
+    container.innerHTML = `
+        <table class="workers-table">
+            <thead><tr><th>اسم العامل</th><th>رقم الهوية</th><th>إجمالي ساعات الإضافي للشهر</th></tr></thead>
+            <tbody>${_myWorkers.map(w => `
+                <tr>
+                    <td><strong>${w.name}</strong></td>
+                    <td style="color:var(--text-muted);">${w.emp_id || '—'}</td>
+                    <td><input type="number" class="hours-input" id="hrs_${w.id}" min="0" max="200" step="0.5" value="${existingEntries[w.id] || 0}" placeholder="0"></td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+}
 
 async function loadOvertimeRecords() {
     if (!_currentUser || _currentUser.role !== 'surveyor') return;
@@ -555,51 +632,27 @@ async function loadOvertimeRecords() {
     } catch(e) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${e.message}</div>`; }
 }
 
-async function openOtModal() {
-    document.getElementById('otModal').classList.remove('hidden');
-    // تحميل العمال
-    const { data: workers } = await supabaseClient.from('workers').select('*').eq('surveyor_id', _currentUser.id).eq('status','active');
-    _myWorkers = workers || [];
-    const container = document.getElementById('otWorkersTable');
-    const noW = document.getElementById('otNoWorkers');
-    if (!_myWorkers.length) { container.innerHTML=''; noW.style.display='block'; return; }
-    noW.style.display='none';
-    container.innerHTML = `
-        <table class="workers-table">
-            <thead><tr><th>اسم العامل</th><th>رقم الهوية</th><th>ساعات الإضافي</th></tr></thead>
-            <tbody>${_myWorkers.map(w=>`
-                <tr>
-                    <td>${w.name}</td>
-                    <td style="color:var(--text-muted);">${w.emp_id||'—'}</td>
-                    <td><input type="number" class="hours-input" id="hrs_${w.id}" min="0" max="99" step="0.5" value="0" placeholder="0"></td>
-                </tr>`).join('')}
-            </tbody>
-        </table>`;
-}
-
-function closeOtModal() { document.getElementById('otModal').classList.add('hidden'); }
-
 async function saveOvertimeRecord() {
     const month = +document.getElementById('otMonth').value;
     const year  = +document.getElementById('otYear').value;
-    if (!month || !year) { toast('اختر الشهر والسنة','error'); return; }
-    // جمع الساعات
-    const entries = _myWorkers.map(w => ({ worker_id: w.id, hours: parseFloat(document.getElementById('hrs_'+w.id)?.value||0) })).filter(e=>e.hours>0);
-    if (!entries.length) { toast('أدخل ساعات على الأقل لعامل واحد','error'); return; }
+    if (!month || !year) { toast('اختر الشهر والسنة', 'error'); return; }
+    // جمع الساعات من النموذج المضمن
+    const entries = _myWorkers.map(w => ({ worker_id: w.id, hours: parseFloat(document.getElementById('hrs_' + w.id)?.value || 0) })).filter(e => e.hours > 0);
+    if (!entries.length) { toast('أدخل ساعات على الأقل لعامل واحد', 'error'); return; }
     try {
-        // إنشاء السجل
+        // إنشاء أو تحديث السجل (upsert - سجل واحد لكل مساح/شهر/سنة)
         const { data: rec, error: e1 } = await supabaseClient.from('overtime_records').upsert({
-            surveyor_id: _currentUser.id, month, year, status:'draft'
-        }, { onConflict:'surveyor_id,month,year', ignoreDuplicates:false }).select().single();
+            surveyor_id: _currentUser.id, month, year, status: 'draft'
+        }, { onConflict: 'surveyor_id,month,year', ignoreDuplicates: false }).select().single();
         if (e1) throw e1;
         // حذف القيود القديمة وإعادة الإدراج
         await supabaseClient.from('overtime_entries').delete().eq('record_id', rec.id);
-        const { error: e2 } = await supabaseClient.from('overtime_entries').insert(entries.map(e=>({ record_id:rec.id, worker_id:e.worker_id, hours:e.hours })));
+        const { error: e2 } = await supabaseClient.from('overtime_entries').insert(entries.map(e => ({ record_id: rec.id, worker_id: e.worker_id, hours: e.hours })));
         if (e2) throw e2;
-        closeOtModal();
-        toast('تم حفظ السجل كمسودة بنجاح');
+        toast('تم حفظ السجل كمسودة بنجاح — يمكنك الآن رفعه للرئيس');
+        loadMonthlyWorkers();  // إعادة تحميل لعرض الأزرار الجديدة
         loadOvertimeRecords();
-    } catch(e) { toast('خطأ: '+e.message,'error'); }
+    } catch (e) { toast('خطأ: ' + e.message, 'error'); }
 }
 
 async function submitOtRecord(id) {
@@ -611,6 +664,7 @@ async function submitOtRecord(id) {
     heads.forEach(h => addNotification && addNotification(h.id, `طلب اعتماد ساعات إضافية من ${_currentUser.name}`, 'warning', id, false, 'overtime.html', 'overtime_approve', true));
     toast('تم رفع الطلب لرئيس المساحين');
     loadOvertimeRecords();
+    loadMonthlyWorkers();
 }
 
 async function viewOtRecord(id) {
@@ -657,7 +711,7 @@ async function loadHeadOtRequests() {
     const list  = document.getElementById('headOtList');
     list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
     try {
-        let q = supabaseClient.from('overtime_records').select('*, users(name, empId)').order('created_at',{ascending:false});
+        let q = supabaseClient.from('overtime_records').select('*, users(name, emp_id)').order('created_at',{ascending:false});
         if (month) q = q.eq('month', month);
         if (year)  q = q.eq('year', year);
         if (status) q = q.eq('status', status);
@@ -669,7 +723,7 @@ async function loadHeadOtRequests() {
                 <div class="card-head">
                     <div>
                         <div class="card-title">${r.users?.name||'—'} — ${MONTHS[r.month]} ${r.year}</div>
-                        <div style="color:var(--text-muted);font-size:.82rem;">رقم وظيفي: ${r.users?.empId||'—'}</div>
+                        <div style="color:var(--text-muted);font-size:.82rem;">رقم وظيفي: ${r.users?.emp_id||'—'}</div>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                         ${statusBadge(r.status)}
@@ -726,7 +780,7 @@ async function loadAdminOtRequests() {
     if (!_currentUser || _currentUser.role!=='admin') return;
     const list = document.getElementById('adminOtList');
     list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
-    const { data, error } = await supabaseClient.from('overtime_records').select('*, users(name, empId)').eq('status','head_approved').order('created_at',{ascending:false});
+    const { data, error } = await supabaseClient.from('overtime_records').select('*, users(name, emp_id)').eq('status','head_approved').order('created_at',{ascending:false});
     if (error) { list.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${error.message}</div>`; return; }
     if (!data.length) { list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-inbox"></i>لا توجد طلبات بانتظار الاعتماد.</div>'; return; }
     list.innerHTML = data.map(r=>`
@@ -907,7 +961,7 @@ async function loadHeadFridayRequests() {
     const list   = document.getElementById('headFriList');
     list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
     try {
-        let q = supabaseClient.from('friday_requests').select('*, users(name, empId), friday_workers(*)').order('friday_date',{ascending:false});
+        let q = supabaseClient.from('friday_requests').select('*, users(name, emp_id), friday_workers(*)').order('friday_date',{ascending:false});
         if (status) q = q.eq('status',status);
         const { data, error } = await q;
         if (error) throw error;
@@ -923,7 +977,7 @@ async function loadHeadFridayRequests() {
                 <div class="card-head">
                     <div>
                         <div class="card-title">${r.users?.name||'—'} — ${dateStr}</div>
-                        <div style="color:var(--text-muted);font-size:.82rem;">رقم وظيفي: ${r.users?.empId||'—'}</div>
+                        <div style="color:var(--text-muted);font-size:.82rem;">رقم وظيفي: ${r.users?.emp_id||'—'}</div>
                         <div style="margin-top:4px;">${statusBadge(r.status)} ${payBadge(r.payment_status)}</div>
                     </div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">
@@ -987,7 +1041,7 @@ async function loadPaymentTracking() {
     const list  = document.getElementById('paymentTrackingList');
     list.innerHTML = '<div style="color:var(--text-muted);padding:12px;">جارٍ التحميل...</div>';
     try {
-        let q = supabaseClient.from('friday_requests').select('*, users(name, empId)').eq('status','approved').order('friday_date',{ascending:false});
+        let q = supabaseClient.from('friday_requests').select('*, users(name, emp_id)').eq('status','approved').order('friday_date',{ascending:false});
         const { data, error } = await q;
         if (error) throw error;
         let filtered = data;
@@ -997,7 +1051,7 @@ async function loadPaymentTracking() {
         const bySurveyor = {};
         filtered.forEach(r=>{
             const key = r.surveyor_id;
-            if (!bySurveyor[key]) bySurveyor[key] = { name:r.users?.name||'—', empId:r.users?.empId||'—', total:0, paid:0, unpaid:0 };
+            if (!bySurveyor[key]) bySurveyor[key] = { name:r.users?.name||'—', empId:r.users?.emp_id||'—', total:0, paid:0, unpaid:0 };
             bySurveyor[key].total++;
             if (r.payment_status==='paid') bySurveyor[key].paid++;
             else bySurveyor[key].unpaid++;
@@ -1064,7 +1118,7 @@ async function confirmPaymentReceipt() {
 // ═══════════════════════════════════════════
 
 async function exportOtExcel(recordId) {
-    const { data:rec } = await supabaseClient.from('overtime_records').select('*, users(name, empId)').eq('id',recordId).single();
+    const { data:rec } = await supabaseClient.from('overtime_records').select('*, users(name, emp_id)').eq('id',recordId).single();
     const { data:entries } = await supabaseClient.from('overtime_entries').select('*, workers(name, emp_id)').eq('record_id',recordId);
     if (!entries?.length) { toast('لا توجد بيانات للتصدير','warning'); return; }
     _waitXLSX(()=>{
@@ -1073,7 +1127,7 @@ async function exportOtExcel(recordId) {
         const header = [
             ['شركة شبه الجزيرة للمساحة — ساجكو'],
             ['كشف ساعات العمل الإضافية'],
-            [`المساح: ${rec.users?.name||'—'}`, '', `الرقم الوظيفي: ${rec.users?.empId||'—'}`],
+            [`المساح: ${rec.users?.name||'—'}`, '', `الرقم الوظيفي: ${rec.users?.emp_id||'—'}`],
             [`الشهر: ${MONTHS[rec.month]} ${rec.year}`],
             [],
             ['م', 'اسم العامل', 'رقم الهوية', 'ساعات العمل الإضافية'],
@@ -1099,7 +1153,7 @@ async function exportOtExcel(recordId) {
 async function exportPaymentSheet() {
     const month = document.getElementById('payMonth').value;
     const year  = document.getElementById('payYear').value;
-    let q = supabaseClient.from('friday_requests').select('*, users(name, empId), friday_workers(worker_name, worker_type)').eq('status','approved').order('friday_date');
+    let q = supabaseClient.from('friday_requests').select('*, users(name, emp_id), friday_workers(worker_name, worker_type)').eq('status','approved').order('friday_date');
     const { data } = await q;
     if (!data?.length) { toast('لا توجد بيانات','warning'); return; }
     let filtered = data;
@@ -1111,7 +1165,7 @@ async function exportPaymentSheet() {
         const bySurveyor = {};
         filtered.forEach(r=>{
             const key = r.surveyor_id;
-            if (!bySurveyor[key]) bySurveyor[key]={ name:r.users?.name||'—', empId:r.users?.empId||'—', total:0, paid:0, unpaid:0, rows:[] };
+            if (!bySurveyor[key]) bySurveyor[key]={ name:r.users?.name||'—', empId:r.users?.emp_id||'—', total:0, paid:0, unpaid:0, rows:[] };
             bySurveyor[key].total++;
             if (r.payment_status==='paid') bySurveyor[key].paid++;
             else bySurveyor[key].unpaid++;
@@ -1159,23 +1213,42 @@ async function exportPaymentSheet() {
 //  التهيئة
 // ═══════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', async()=>{
-    await initApp();
-    _currentUser = getCurrentUser ? getCurrentUser() : currentUser;
-    if (!_currentUser) { window.location.href='index.html'; return; }
-    fillMonthYearFilters();
-    // إظهار اللوحات حسب الدور
-    const role = _currentUser.role;
-    document.getElementById('surveyor-ot-panel').style.display = role==='surveyor'?'block':'none';
-    document.getElementById('head-ot-panel').style.display     = ['head','admin'].includes(role)?'block':'none';
-    document.getElementById('admin-ot-panel').style.display    = role==='admin'?'block':'none';
-    document.getElementById('surveyor-fri-panel').style.display= role==='surveyor'?'block':'none';
-    document.getElementById('head-fri-panel').style.display    = ['head','admin'].includes(role)?'block':'none';
-    // تحميل البيانات
-    if (role==='surveyor') { loadOvertimeRecords(); loadFridayRequests(); }
-    if (['head','admin'].includes(role)) { loadHeadOtRequests(); loadHeadFridayRequests(); loadPaymentTracking(); }
-    if (role==='admin') loadAdminOtRequests();
-});
+(function initOvertime() {
+    // التحقق من المصادقة أولاً (متزامن)
+    checkAuth();
+    if (!currentUser) return; // checkAuth already redirected to login
+    _currentUser = currentUser;
+
+    // رسم الـ sidebar
+    renderSidebar();
+
+    // انتظار تحميل البيانات من Supabase ثم التهيئة
+    (async function initOvertimePage() {
+        await _loadRemoteDB();
+        _currentUser = (typeof getCurrentUser === 'function') ? getCurrentUser() : currentUser;
+        if (!_currentUser) { window.location.href = 'index.html'; return; }
+        
+        fillMonthYearFilters();
+        // إظهار اللوحات حسب الدور
+        const role = _currentUser.role;
+        const surveyorOt = document.getElementById('surveyor-ot-panel');
+        const headOt = document.getElementById('head-ot-panel');
+        const adminOt = document.getElementById('admin-ot-panel');
+        const surveyorFri = document.getElementById('surveyor-fri-panel');
+        const headFri = document.getElementById('head-fri-panel');
+        
+        if (surveyorOt) surveyorOt.style.display = role === 'surveyor' ? 'block' : 'none';
+        if (headOt) headOt.style.display = ['head', 'admin'].includes(role) ? 'block' : 'none';
+        if (adminOt) adminOt.style.display = role === 'admin' ? 'block' : 'none';
+        if (surveyorFri) surveyorFri.style.display = role === 'surveyor' ? 'block' : 'none';
+        if (headFri) headFri.style.display = ['head', 'admin'].includes(role) ? 'block' : 'none';
+        
+        // تحميل البيانات
+        if (role === 'surveyor') { loadMonthlyWorkers(); loadOvertimeRecords(); loadFridayRequests(); }
+        if (['head', 'admin'].includes(role)) { loadHeadOtRequests(); loadHeadFridayRequests(); loadPaymentTracking(); }
+        if (role === 'admin') loadAdminOtRequests();
+    })();
+})();
 </script>
 </body>
 </html>
