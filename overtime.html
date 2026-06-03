@@ -1253,8 +1253,12 @@ async function openFridayModal() {
     const diff = day<=5 ? 5-day : 6;
     const nextFri = new Date(today); nextFri.setDate(today.getDate()+diff);
     document.getElementById('fridayDate').value = nextFri.toISOString().split('T')[0];
-    // تحميل العمال
-    const { data:workers } = await supabaseClient.from('workers').select('*').eq('surveyor_id',_currentUser.id).eq('status','active');
+    // تحميل العمال (قد تكون الحالة available, active, approved, أو hired)
+    const { data:workers } = await supabaseClient
+        .from('workers')
+        .select('*')
+        .eq('surveyor_id',_currentUser.id)
+        .in('status', ['active', 'approved', 'available', 'hired']);
     _myWorkers = workers||[];
     document.getElementById('friWorkersSelection').innerHTML = _myWorkers.length
         ? _myWorkers.map(w=>`
@@ -1310,17 +1314,17 @@ async function searchSurveyorByEmpId() {
         _borrowedSurveyorData = surveyor;
         
         // تحميل عمال هذا المساح - أولاً من الذاكرة المحلية (أسرع)
-        let workers = (db?.workers || []).filter(w => 
-            w.surveyorId === surveyor.id && w.status === 'active'
+        let workers = (db?.workers || []).filter(w =>
+            w.surveyorId === surveyor.id && (!w.status || ['active', 'approved', 'available', 'hired'].includes(w.status))
         );
-        
+
         // Fallback: لو مفيش عمال في الذاكرة المحلية، نجرب Supabase مباشرة
         if (!workers.length) {
             const { data: supabaseWorkers, error: wErr } = await supabaseClient
                 .from('workers')
                 .select('*')
                 .eq('surveyor_id', surveyor.id)
-                .eq('status', 'active');
+                .in('status', ['active', 'approved', 'available', 'hired']);
             if (!wErr && supabaseWorkers) {
                 workers = supabaseWorkers.map(w => ({
                     id: w.id, name: w.name,
