@@ -193,24 +193,13 @@
                         </button>
                     </div>
                     <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">
-                        <i class="fa-solid fa-circle-info"></i> 
-                        أدخل إجمالي الساعات الإضافية لكل عامل عن الشهر الحالي. يُرفع للسجل مرة واحدة شهرياً.
+                        <i class="fa-solid fa-circle-info"></i>
+                        اختر التاريخ الذي تم فيه إدخال الساعات الإضافية. سيتم تسجيل الساعات حسب الشهر والسنة.
                     </p>
                     <div class="form-row" style="margin-bottom:14px;">
                         <div class="form-group">
-                            <label>الشهر</label>
-                            <select id="otMonth" onchange="loadMonthlyWorkers()">
-                                <option value="1">يناير</option><option value="2">فبراير</option>
-                                <option value="3">مارس</option><option value="4">أبريل</option>
-                                <option value="5">مايو</option><option value="6">يونيو</option>
-                                <option value="7">يوليو</option><option value="8">أغسطس</option>
-                                <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
-                                <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>السنة</label>
-                            <select id="otYear" onchange="loadMonthlyWorkers()"></select>
+                            <label>التاريخ</label>
+                            <input type="date" id="otDate" onchange="loadMonthlyWorkers()" style="border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:.9rem;width:100%;">
                         </div>
                     </div>
                     <div style="margin-bottom:14px;">
@@ -567,12 +556,13 @@ function fillMonthYearFilters() {
             for (let y=yr-2;y<=yr+1;y++) { const o=document.createElement('option'); o.value=y; o.textContent=y; if(y===yr) o.selected=true; el.appendChild(o); }
         }
     });
-    // تعيين القيم الافتراضية للنموذج المضمن
-    const otMonth = document.getElementById('otMonth');
-    const otYear = document.getElementById('otYear');
-    if (otMonth) otMonth.value = thisMonth;
-    if (otYear) {
-        for (let y=yr-2;y<=yr+1;y++) { const o=document.createElement('option'); o.value=y; o.textContent=y; if(y===yr) o.selected=true; otYear.appendChild(o); }
+    // تعيين التاريخ الافتراضي للنموذج المضمن
+    const otDate = document.getElementById('otDate');
+    if (otDate) {
+        // تعيين التاريخ الحالي كقيمة افتراضية
+        const today = new Date();
+        const isoDate = today.toISOString().split('T')[0];
+        otDate.value = isoDate;
     }
 }
 
@@ -640,9 +630,17 @@ async function loadMonthlyWorkers() {
         noW.style.display = 'none';
         console.log(`✅ تم تحميل ${_myWorkers.length} عمال`);
     
-    // تحميل القيم السابقة إذا وُجد سجل لنفس الشهر/السنة
-    const month = +document.getElementById('otMonth').value;
-    const year = +document.getElementById('otYear').value;
+    // استخراج الشهر والسنة من التاريخ المختار
+    const otDateInput = document.getElementById('otDate').value;
+    if (!otDateInput) {
+        container.innerHTML = '<div style="color:#f59e0b;padding:12px;">⚠️ اختر التاريخ أولاً</div>';
+        return;
+    }
+
+    const dateObj = new Date(otDateInput);
+    const month = dateObj.getMonth() + 1;
+    const year = dateObj.getFullYear();
+
     let existingEntries = {};
     if (month && year) {
         const { data: existingRec } = await supabaseClient
@@ -730,9 +728,12 @@ async function loadOvertimeRecords() {
 }
 
 async function saveOvertimeRecord() {
-    const month = +document.getElementById('otMonth').value;
-    const year  = +document.getElementById('otYear').value;
-    if (!month || !year) { toast('اختر الشهر والسنة', 'error'); return; }
+    const otDateInput = document.getElementById('otDate').value;
+    if (!otDateInput) { toast('اختر التاريخ أولاً', 'error'); return; }
+
+    const dateObj = new Date(otDateInput);
+    const month = dateObj.getMonth() + 1;
+    const year = dateObj.getFullYear();
     // جمع الساعات من النموذج المضمن
     const entries = _myWorkers.map(w => ({ worker_id: w.id, hours: parseFloat(document.getElementById('hrs_' + w.id)?.value || 0) })).filter(e => e.hours > 0);
     if (!entries.length) { toast('أدخل ساعات على الأقل لعامل واحد', 'error'); return; }
