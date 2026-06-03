@@ -605,12 +605,40 @@ function payBadge(s) {
 
 async function loadMonthlyWorkers() {
     if (!_currentUser || _currentUser.role !== 'surveyor') return;
-    const { data: workers } = await supabaseClient.from('workers').select('*').eq('surveyor_id', _currentUser.id).eq('status', 'active');
-    _myWorkers = workers || [];
-    const container = document.getElementById('otWorkersTable');
-    const noW = document.getElementById('otNoWorkers');
-    if (!_myWorkers.length) { container.innerHTML = ''; noW.style.display = 'block'; return; }
-    noW.style.display = 'none';
+
+    try {
+        // البحث عن العمال مع التعامل مع حالات مختلفة
+        let q = supabaseClient.from('workers').select('*').eq('surveyor_id', _currentUser.id);
+
+        // البحث بدون تصفية الحالة أولاً للتشخيص
+        const { data: workersRaw, error: rawError } = await q;
+
+        if (rawError) {
+            console.error('❌ خطأ في جلب العمال:', rawError);
+            const container = document.getElementById('otWorkersTable');
+            container.innerHTML = `<div style="color:#dc2626;padding:12px;">خطأ: ${rawError.message}</div>`;
+            return;
+        }
+
+        // تصفية العمال النشطين فقط (قد تكون الحالة active, approved, أو بدون حالة)
+        _myWorkers = (workersRaw || []).filter(w =>
+            !w.status || w.status === 'active' || w.status === 'approved' || w.status === 'hired'
+        );
+
+        const container = document.getElementById('otWorkersTable');
+        const noW = document.getElementById('otNoWorkers');
+
+        if (!_myWorkers.length) {
+            container.innerHTML = '';
+            noW.style.display = 'block';
+            console.warn('⚠️ لا يوجد عمال مسجلون للمساح الحالي');
+            console.log('معرف المساح:', _currentUser.id);
+            console.log('عدد العمال الكلي المسترجع:', workersRaw ? workersRaw.length : 0);
+            return;
+        }
+
+        noW.style.display = 'none';
+        console.log(`✅ تم تحميل ${_myWorkers.length} عمال`);
     
     // تحميل القيم السابقة إذا وُجد سجل لنفس الشهر/السنة
     const month = +document.getElementById('otMonth').value;
@@ -1596,8 +1624,17 @@ async function exportPaymentSheet() {
         if (headFri) headFri.style.display = ['head', 'admin'].includes(role) ? 'block' : 'none';
         
         // تحميل البيانات
-        if (role === 'surveyor') { loadMonthlyWorkers(); loadOvertimeRecords(); loadFridayPayments(); loadFridayRequests(); }
-        if (['head', 'admin'].includes(role)) { loadHeadOtRequests(); loadHeadFridayRequests(); loadPaymentTracking(); }
+        if (role === 'surveyor') {
+            await loadMonthlyWorkers();
+            loadOvertimeRecords();
+            loadFridayPayments();
+            loadFridayRequests();
+        }
+        if (['head', 'admin'].includes(role)) {
+            loadHeadOtRequests();
+            loadHeadFridayRequests();
+            loadPaymentTracking();
+        }
         if (role === 'admin') loadAdminOtRequests();
     })();
 })();
